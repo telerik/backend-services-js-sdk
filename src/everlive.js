@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 The MIT License (MIT)
 
 Copyright (c) 2013 Telerik AD
@@ -21,9 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 */
-/*!
+﻿/*!
  Everlive SDK
- Version 1.2.5
+ Version 1.2.6
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -1741,16 +1741,21 @@ THE SOFTWARE.y distributed under the MIT license.
                 function () {
                     return buildPromise(
                         function (success, error) {
-                            if (self.emulatorMode) {
+                            if (self.emulatorMode) { 
                                 success();
                             } else {
                                 var pushNotification = window.plugins.pushNotification;
+                                var unregisterOptions;
+                                if(platformType === Platform.WindowsPhone){
+                                    unregisterOptions = {'channelName': this.pushSettings.wp8.channelName};  
+                                }
                                 pushNotification.unregister(
                                     function () {
                                         self.isInitialized = false;
                                         success();
                                     },
-                                    error
+                                    error,
+                                unregisterOptions
                                 );
                             }
                         },
@@ -2170,4 +2175,3 @@ THE SOFTWARE.y distributed under the MIT license.
 
     return Everlive;
 }));
-
