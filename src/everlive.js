@@ -23,7 +23,7 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 ﻿/*!
  Everlive SDK
- Version 1.2.6
+ Version 1.2.7
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -48,7 +48,7 @@ THE SOFTWARE.y distributed under the MIT license.
             message = 'The ' + name + ' is required';
         }
         if (typeof value === 'undefined' || value === null) {
-            throw new Error(message);
+            throw new EverliveError(message);
         }
     }
 
@@ -60,6 +60,7 @@ THE SOFTWARE.y distributed under the MIT license.
         this.token = null;
         this.tokenType = null;
         this.scheme = 'http'; // http or https
+        this._emulatorMode = options.emulatorMode;
         this.parseOnlyCompleteDateTimeObjects = false;
         if (typeof options === 'string') {
             this.apiKey = options;
@@ -486,7 +487,7 @@ THE SOFTWARE.y distributed under the MIT license.
                     case OperatorType.endsWith:
                         return new RegExp(pattern + "$", flags);
                     default:
-                        throw new Error('Unknown operator type.');
+                        throw new EverliveError('Unknown operator type.');
                 }
             },
             _getRegexValue: function (regex) {
@@ -522,7 +523,7 @@ THE SOFTWARE.y distributed under the MIT license.
                     case OperatorType.withinShpere:
                         return this._getWithinCenterSphere(expr);
                     default:
-                        throw new Error('Unknown operator type.');
+                        throw new EverliveError('Unknown operator type.');
                 }
             },
             _getNearSphereTerm: function (expr) {
@@ -661,7 +662,7 @@ THE SOFTWARE.y distributed under the MIT license.
                     case OperatorType.size:
                         return '$size';
                 }
-                throw new Error('Unknown operator type.');
+                throw new EverliveError('Unknown operator type.');
             }
         };
 
@@ -1616,14 +1617,14 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         };
-        ns.getDownloadUrlById = function (fileId, success, error){
+        ns.getDownloadUrlById = function (fileId, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
                 var request = self._createRequest({
                     method: 'GET',
                     endpoint: self.collectionName + '/' + fileId,
                     parse: Request.parsers.single,
-                    success: function(data){
+                    success: function (data) {
                         success(data.result.Uri);
                     },
                     error: error
@@ -1652,24 +1653,149 @@ THE SOFTWARE.y distributed under the MIT license.
 
     var Push = function (el) {
         this._el = el;
-        this._currentDevice;
-
         this.notifications = el.data('Push/Notifications');
         this.devices = el.data('Push/Devices');
-
     };
     Push.prototype = {
+        /**
+         * @deprecated since version 1.2.7
+         * Returns the current device for sending push
+         * @param [emulatorMode] {Boolean}
+         *   A flag whether the application is in emulator mode
+         * @returns {CurrentDevice}
+         *   Return an instance of the CurrentDevice
+         */
         currentDevice: function (emulatorMode) {
+            if(arguments.length === 0) {
+                emulatorMode  = this._el.setup._emulatorMode;
+            }
+
             if (!window.cordova) {
-                throw new Error('Error: currentDevice() can only be called from within a hybrid mobile app, after \'deviceready\' event has been fired.');
+                throw new EverliveError('Error: currentDevice() can only be called from within a hybrid mobile app, after \'deviceready\' event has been fired.');
             }
 
             if (!this._currentDevice) {
                 this._currentDevice = new CurrentDevice(this);
-                this._currentDevice.emulatorMode = emulatorMode;
             }
 
+            this._currentDevice.emulatorMode = emulatorMode;
+
             return this._currentDevice;
+        },
+
+        /**
+         * Enables the notifications on the device and registers it for push with Telerik Backend Services if it hasn't
+         * already been registered. If it was registered the registration details are updated.
+         * @param settings {Object}
+         *   Settings for the registration. Can include custom parameters to be saved in backend services.
+         * @param success
+         *   Callback to invoke on success.
+         * @param error
+         *   Callback to invoke on error.
+         * @returns {Object}
+         *   A promise for the operation, or void if succes/error are supplied.
+         */
+        register: function (settings, success, error) {
+            var currentDevice = this.currentDevice();
+            if (settings && settings.android) {
+                settings.android.senderID = settings.android.projectNumber || settings.android.senderID;
+            }
+
+            var successCallback = function (token, callback) {
+                return function () {
+                    var result = new DeviceRegistrationResult(token);
+                    callback(result);
+                };
+            };
+
+            var everliveErrorCallback = function (err, callback) {
+                var registrationError = DeviceRegistrationError.fromEverliveError(err);
+                callback(registrationError);
+            };
+
+            return buildPromise(function (successCb, errorCb) {
+                currentDevice.enableNotifications(settings, function (response) {
+                    var token = response.token;
+                    var customParameters = settings ? settings.customParameters : undefined;
+                    currentDevice.getRegistration()
+                        .then(function () {
+                            currentDevice.updateRegistration(customParameters, successCallback(token, successCb), function (err) {
+                                everliveErrorCallback(err, errorCb);
+                            });
+                        }, function (err) {
+                            if (err.code === 801) {
+                                currentDevice.register(customParameters, successCallback(token, successCb), errorCb);
+                            } else {
+                                everliveErrorCallback(err, errorCb);
+                            }
+                        });
+                }, function (err) {
+                    var deviceRegistrationError = DeviceRegistrationError.fromPluginError(err);
+                    errorCb(deviceRegistrationError);
+                });
+            }, success, error);
+        },
+
+        /**
+         * Disables push notifications for the current device. This method invalidates any push tokens
+         * that were obtained for the device from the current application. The device will also be unregistered from
+         * Telerik Backend Services.
+         *
+         * @param onSuccess
+         *   Callback to invoke on success.
+         * @param onError
+         *   Callback to invoke on error.
+         * @returns {Object}
+         *   A promise for the operation, or void if succes/error are supplied.
+         */
+        unregister: function (onSuccess, onError) {
+            var currentDevice = this.currentDevice();
+            return currentDevice.disableNotifications.apply(currentDevice, arguments);
+        },
+
+        /**
+         * Updates the registration for the current device.
+         *
+         * @param {Object} customParameters
+         *   Custom parameters for the registration. If undefined, customParameters are not updated.
+         * @param {Function} onSuccess
+         *   Callback to invoke on success.
+         * @param {Function} onError
+         *   Callback to invoke on error.
+         * @returns {Object}
+         *   A promise for the operation, or void if success/error are supplied.
+         */
+        updateRegistration: function (customParameters, onSuccess, onError) {
+            var currentDevice = this.currentDevice();
+            return currentDevice.updateRegistration.apply(currentDevice, arguments);
+        },
+
+        /**
+         * Returns the push registration for the current device.
+         *
+         * @param {Function} onSuccess
+         *   Callback to invoke on success.
+         * @param {Function} onError
+         *   Callback to invoke on error.
+         * @returns {Object}
+         *   A promise for the operation, or void if success/error are supplied.
+         */
+        getRegistration: function (onSuccess, onError) {
+            var currentDevice = this.currentDevice();
+            return currentDevice.getRegistration.apply(currentDevice, arguments);
+        },
+
+        /**
+         * Sends a push message
+         * @param notification {Object}
+         *   The push notification object
+         * @param onSuccess
+         *   Callback to invoke on success.
+         * @param onError
+         *   Callback to invoke on error.
+         */
+        send: function (notification, onSuccess, onError) {
+            return this.notifications.create.apply(this.notifications, arguments);
         }
     };
 
@@ -1741,13 +1867,14 @@ THE SOFTWARE.y distributed under the MIT license.
                 function () {
                     return buildPromise(
                         function (success, error) {
-                            if (self.emulatorMode) { 
+                            if (self.emulatorMode) {
                                 success();
                             } else {
                                 var pushNotification = window.plugins.pushNotification;
                                 var unregisterOptions;
-                                if(platformType === Platform.WindowsPhone){
-                                    unregisterOptions = {'channelName': this.pushSettings.wp8.channelName};  
+                                var platformType = self._getPlatformType(device.platform);
+                                if (platformType === Platform.WindowsPhone) {
+                                    unregisterOptions = {'channelName': self.pushSettings.wp8.channelName};
                                 }
                                 pushNotification.unregister(
                                     function () {
@@ -1755,7 +1882,7 @@ THE SOFTWARE.y distributed under the MIT license.
                                         success();
                                     },
                                     error,
-                                unregisterOptions
+                                    unregisterOptions
                                 );
                             }
                         },
@@ -1843,7 +1970,7 @@ THE SOFTWARE.y distributed under the MIT license.
             var self = this;
 
             var deviceRegistration = {};
-            if (customParameters !== undefined) {
+            if (customParameters) {
                 deviceRegistration.Parameters = customParameters;
             }
             return this._populateRegistrationObject(deviceRegistration).then(
@@ -1855,26 +1982,25 @@ THE SOFTWARE.y distributed under the MIT license.
             );
         },
 
-
         //Initializes the push functionality on the device.
         _initialize: function (success, error) {
             var self = this;
 
             if (this.isInitializing) {
-                error(new Error('Push notifications are currently initializing.'));
+                error(new EverliveError('Push notifications are currently initializing.'));
+                return;
+            }
+
+            if (!this.emulatorMode && (!window.navigator || !window.navigator.globalization)) {
+                error(new EverliveError('The globalization plugin is not initialized.'));
                 return;
             }
 
             if (!this.emulatorMode && (!window.plugins || !window.plugins.pushNotification)) {
-                error(new Error('The push notifications plugin is not initialized.'));
+                error(new EverliveError('The push notifications plugin is not initialized.'));
                 return;
             }
-            
-            if (!this.emulatorMode && (!window.navigator || !window.navigator.globalization)) {
-                error(new Error('The globalization plugin is not initialized.'));
-                return;
-            }
-            
+
             this._initSuccessCallback = success;
             this._initErrorCallback = error;
 
@@ -1961,7 +2087,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 );
 
             } else {
-                throw new Error('The current platform is not supported: ' + device.platform);
+                throw new EverliveError('The current platform is not supported: ' + device.platform);
             }
         },
 
@@ -1971,12 +2097,12 @@ THE SOFTWARE.y distributed under the MIT license.
 
         _validateAndroidSettings: function (androidSettings) {
             if (!androidSettings.senderID) {
-                throw new Error('Sender ID (project number) is not set in the android settings.');
+                throw new EverliveError('Sender ID (project number) is not set in the android settings.');
             }
         },
         _validateWP8Settings: function (settings) {
             if (!settings.channelName) {
-                throw new Error('channelName is not set in the WP8 settings.');
+                throw new EverliveError('channelName is not set in the WP8 settings.');
             }
         },
 
@@ -1990,7 +2116,7 @@ THE SOFTWARE.y distributed under the MIT license.
             return buildPromise(
                 function (success, error) {
                     if (!self.pushToken) {
-                        throw new Error('Push token is not available.');
+                        throw new EverliveError('Push token is not available.');
                     }
 
                     self._getLocaleName(
@@ -2158,6 +2284,70 @@ THE SOFTWARE.y distributed under the MIT license.
                 this.pushSettings.notificationCallbackWP8(e);
             }
         }
+    };
+
+    function EverliveError() {
+        var tmp = Error.apply(this, arguments);
+
+        tmp.name = this.name = 'EverliveError';
+
+        this.message = tmp.message;
+
+        Object.defineProperty(this, 'stack', {
+            get: function () {
+                return tmp.stack
+            }
+        });
+
+        return this;
+    }
+
+    EverliveError.prototype = Object.create(Error.prototype);
+    EverliveError.prototype.toJSON = function () {
+        return {
+            name: this.name,
+            message: this.message,
+            stack: this.stack
+        };
+    };
+
+    var DeviceRegistrationError = function (errorType, message, additionalInformation) {
+        EverliveError.call(this, message);
+        this.errorType = errorType;
+        this.message = message;
+        if (additionalInformation !== undefined) {
+            this.additionalInformation = additionalInformation;
+        }
+    };
+
+    DeviceRegistrationError.prototype = Object.create(EverliveError.prototype);
+
+    DeviceRegistrationError.fromEverliveError = function (everliveError) {
+        var deviceRegistrationError = new DeviceRegistrationError(DeviceRegistrationErrorTypes.EverliveError, everliveError.message, everliveError);
+        return deviceRegistrationError;
+    };
+
+    DeviceRegistrationError.fromPluginError = function (errorObj) {
+        var message = 'A plugin error occurred';
+        if (errorObj) {
+            if (typeof errorObj.error === 'string') {
+                message = errorObj.error;
+            } else if (typeof errorObj.message === 'string') {
+                message = errorObj.message;
+            }
+        }
+
+        var deviceRegistrationError = new DeviceRegistrationError(DeviceRegistrationErrorTypes.PluginError, message, errorObj);
+        return deviceRegistrationError;
+    };
+
+    var DeviceRegistrationErrorTypes = {
+        EverliveError: 1,
+        PluginError: 2
+    };
+
+    var DeviceRegistrationResult = function (token) {
+        this.token = token;
     };
 
     //#endregion
