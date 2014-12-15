@@ -23,7 +23,7 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 ﻿/*!
  Everlive SDK
- Version 1.2.7
+ Version 1.2.8
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -800,12 +800,12 @@ THE SOFTWARE.y distributed under the MIT license.
                 var date = new Date(
                     Date.UTC(
                         Number(match[1]), // year
-                        (Number(match[3]) - 1) || 0, // month
-                        Number(match[5]) || 0, // day
-                        Number(match[7]) || 0, // hour
-                        Number(match[8]) || 0, // minute
-                        Number(match[10]) || 0, // second
-                        Number(secondParts) || 0
+                            (Number(match[3]) - 1) || 0, // month
+                            Number(match[5]) || 0, // day
+                            Number(match[7]) || 0, // hour
+                            Number(match[8]) || 0, // minute
+                            Number(match[10]) || 0, // second
+                            Number(secondParts) || 0
                     )
                 );
 
@@ -1345,6 +1345,7 @@ THE SOFTWARE.y distributed under the MIT license.
         ns.register = function (username, password, attrs, success, error) {
             guardUnset(username, 'username');
             guardUnset(password, 'password');
+
             var user = {
                 Username: username,
                 Password: password
@@ -1666,8 +1667,8 @@ THE SOFTWARE.y distributed under the MIT license.
          *   Return an instance of the CurrentDevice
          */
         currentDevice: function (emulatorMode) {
-            if(arguments.length === 0) {
-                emulatorMode  = this._el.setup._emulatorMode;
+            if (arguments.length === 0) {
+                emulatorMode = this._el.setup._emulatorMode;
             }
 
             if (!window.cordova) {
@@ -1905,7 +1906,7 @@ THE SOFTWARE.y distributed under the MIT license.
          *   A promise for the operation, or void if success/error are supplied.
          */
         getRegistration: function (success, error) {
-            var deviceId = this._getDeviceId();
+            var deviceId = encodeURIComponent(this._getDeviceId());
             return this._pushHandler.devices.getById('HardwareId/' + deviceId, success, error);
         },
 
@@ -1950,7 +1951,7 @@ THE SOFTWARE.y distributed under the MIT license.
          *   A promise for the operation, or void if success/error are supplied.
          */
         unregister: function (success, error) {
-            var deviceId = device.uuid;
+            var deviceId = encodeURIComponent(device.uuid);
             return this._pushHandler.devices.destroySingle({ Id: 'HardwareId/' + deviceId }, success, error);
         },
 
@@ -1975,7 +1976,7 @@ THE SOFTWARE.y distributed under the MIT license.
             }
             return this._populateRegistrationObject(deviceRegistration).then(
                 function () {
-                    deviceRegistration.Id = 'HardwareId/' + deviceRegistration.HardwareId;
+                    deviceRegistration.Id = 'HardwareId/' + encodeURIComponent(deviceRegistration.HardwareId);
                     return self._pushHandler.devices.updateSingle(deviceRegistration, success, error);
                 },
                 error
@@ -2122,7 +2123,7 @@ THE SOFTWARE.y distributed under the MIT license.
                     self._getLocaleName(
                         function (locale) {
                             var deviceId = self._getDeviceId();
-                            var hardwareModel = device.name;
+                            var hardwareModel = device.model;
                             var platformType = self._getPlatformType(device.platform);
                             var timeZone = jstz.determine().name();
                             var pushToken = self.pushToken;
