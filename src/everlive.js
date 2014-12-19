@@ -23,7 +23,7 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 ﻿/*!
  Everlive SDK
- Version 1.2.8
+ Version 1.2.9
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -1797,6 +1797,26 @@ THE SOFTWARE.y distributed under the MIT license.
          */
         send: function (notification, onSuccess, onError) {
             return this.notifications.create.apply(this.notifications, arguments);
+        },
+
+        /**
+         * iOS: Checks if the Notifications are enabled for this Application in the Device's Notification Center
+         * Windows Phone: Checks if the Application has an active opened Channel for communication with the Notification Service. Not relying on the device notification settings.
+         * Android: Checks if the Application has established connection with the Notification Service. Not relying on the device notification settings.
+         * @param onSuccess
+         *   Callback to invoke on successful check - passes one boolean value - true or false
+         * @param onError
+         *   Callback to invoke when an error in the push plugin has occured.
+         * @returns {*}
+         *   A promise for the operation, or void if success/error are supplied.
+         */
+        areNotificationsEnabled: function (options, onSuccess, onError) {
+            options = options || {};
+            var pushNotification = window.plugins.pushNotification;
+
+            return buildPromise(function (successCb, errorCb) {
+                pushNotification.areNotificationsEnabled(successCb, errorCb, options);
+            }, onSuccess, onError);
         }
     };
 
