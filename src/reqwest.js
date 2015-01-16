@@ -10,6 +10,11 @@
   else context[name] = definition()
 }('reqwest', this, function () {
 
+  // if we're in a nativescript application don't initialize this library
+  if(typeof(isNativeScriptApplication) !== 'undefined' && isNativeScriptApplication) {
+      return;
+  }
+
   var win = window
     , doc = document
     , twoHundo = /^20\d$/

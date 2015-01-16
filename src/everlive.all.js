@@ -10,6 +10,11 @@
   else context[name] = definition()
 }('reqwest', this, function () {
 
+  // if we're in a nativescript application don't initialize this library
+  if(typeof(isNativeScriptApplication) !== 'undefined' && isNativeScriptApplication) {
+      return;
+  }
+
   var win = window
     , doc = document
     , twoHundo = /^20\d$/
@@ -532,6 +537,12 @@
 // https://github.com/tildeio/rsvp.js
 // Copyright (c) 2013 Yehuda Katz, Tom Dale, and contributors
 (function() {
+
+// if we're in a nativescript application don't initialize this library
+if(typeof(isNativeScriptApplication) !== 'undefined' && isNativeScriptApplication) {
+    return;
+}
+
 var define, requireModule;
 
 (function() {
@@ -2754,18 +2765,73 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 ﻿/*!
  Everlive SDK
- Version 1.2.9
+ Version 1.2.10
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
+        // with require.js
         define(['underscore', 'rsvp', 'reqwest', 'jstz'], function (_, rsvp, reqwest, jstz) {
             return (root.Everlive = factory(_, rsvp, reqwest, jstz));
         });
+    } else if (typeof(isNativeScriptApplication) !== 'undefined' && isNativeScriptApplication) {
+        // native script
+
+        // wrap the native script Promise in a RSVP object
+        var rsvp = {
+            Promise: Promise
+        };
+        root.RSVP = rsvp;
+
+        var http = require('http');
+        var reqwest = function (options) {
+            var httpRequestOptions = {
+                url: options.url,
+                method: options.method,
+                headers: options.headers || {}
+            };
+
+            if (options.data) {
+                httpRequestOptions.content = options.data; // NOTE: If we pass null/undefined, it will raise an exception in the http module.
+            }
+
+            httpRequestOptions.headers['Accept'] = 'application/json';
+            httpRequestOptions.headers['Content-Type'] = 'application/json';
+
+            var noop = function () {
+            };
+            var success = options.success || noop;
+            var error = options.error || noop;
+            http.request(httpRequestOptions).then(
+                function (response) {
+                    var contentString = response.content.toString();
+                    if (response.statusCode < 400) {
+                        // Success callback calls a custom parse function
+                        success(contentString);
+                    } else {
+                        // Error callback relies on a JSON Object with ResponseText inside
+                        error({
+                            responseText: contentString
+                        });
+                    }
+                },
+                function (err) {
+                    // error: function(jqXHR, textStatus, errorThrown)
+                    // when timeouting for example (i.e. no internet connectivity), we get an err with content { message: "timeout...", stack: null }
+                    error({
+                        responseText: err
+                    });
+                });
+        };
+        root.reqwest = reqwest;
+
+        module.exports = factory(exports._, root.RSVP, root.reqwest, exports.jstz);
     } else if (typeof exports === 'object') {
+        // node js
         module.exports = factory(require('underscore'), require('rsvp'));
     } else {
+        // web browser
         root.Everlive = factory(root._, root.RSVP, root.reqwest, root.jstz);
     }
 }(this, function (_, rsvp, reqwest, jstz) {
@@ -2854,7 +2920,7 @@ THE SOFTWARE.y distributed under the MIT license.
             authHeaderValue = 'masterkey ' + setup.masterKey;
         }
         if (authHeaderValue) {
-            return { Authorization: authHeaderValue };
+            return {Authorization: authHeaderValue};
         } else {
             return null;
         }
@@ -3068,8 +3134,17 @@ THE SOFTWARE.y distributed under the MIT license.
             this.expr = query.expr;
         }
 
-        var maxDistanceConsts = { 'radians': '$maxDistance', 'km': '$maxDistanceInKilometers', 'miles': '$maxDistanceInMiles' };
-        var radiusConsts = { 'radians': 'radius', 'km': 'radiusInKilometers', 'miles': 'radiusInMiles' };
+        var maxDistanceConsts = {
+            'radians': '$maxDistance',
+            'km': '$maxDistanceInKilometers',
+            'miles': '$maxDistanceInMiles'
+        };
+        var radiusConsts = {
+            'radians': 'radius',
+            'km': 'radiusInKilometers',
+            'miles': 'radiusInMiles'
+        };
+        
         QueryBuilder.prototype = {
             // TODO merge the two objects before returning them
             build: function () {
@@ -3232,7 +3307,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 if (regex.ignoreCase) {
                     options += 'i';
                 }
-                return { $regex: regex.source, $options: options };
+                return {$regex: regex.source, $options: options};
             },
             _isGeo: function (expr) {
                 return expr.operator >= OperatorType.nearShpere && expr.operator <= OperatorType.withinShpere;
@@ -3362,13 +3437,13 @@ THE SOFTWARE.y distributed under the MIT license.
                     term = this._build(operands[i]);
                     result.push(term);
                 }
-                return { $or: result };
+                return {$or: result};
             },
             _isNot: function (expr) {
                 return expr.operator === OperatorType.not;
             },
             _not: function (expr) {
-                return { $not: this._build(expr.operands[0]) };
+                return {$not: this._build(expr.operands[0])};
             },
             _translateoperator: function (operator) {
                 switch (operator) {
@@ -3531,12 +3606,12 @@ THE SOFTWARE.y distributed under the MIT license.
                 var date = new Date(
                     Date.UTC(
                         Number(match[1]), // year
-                            (Number(match[3]) - 1) || 0, // month
-                            Number(match[5]) || 0, // day
-                            Number(match[7]) || 0, // hour
-                            Number(match[8]) || 0, // minute
-                            Number(match[10]) || 0, // second
-                            Number(secondParts) || 0
+                        (Number(match[3]) - 1) || 0, // month
+                        Number(match[5]) || 0, // day
+                        Number(match[7]) || 0, // hour
+                        Number(match[8]) || 0, // minute
+                        Number(match[10]) || 0, // second
+                        Number(secondParts) || 0
                     )
                 );
 
@@ -3597,7 +3672,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 traverseAndRevive(data);
             }
             if (data) {
-                return { result: data.Result, count: data.Count };
+                return {result: data.Result, count: data.Count};
             }
             else {
                 return data;
@@ -3608,7 +3683,7 @@ THE SOFTWARE.y distributed under the MIT license.
             if (typeof error === 'string' && error.length > 0) {
                 try {
                     error = JSON.parse(error);
-                    return { message: error.message, code: error.errorCode };
+                    return {message: error.message, code: error.errorCode};
                 }
                 catch (e) {
                     return error;
@@ -3627,7 +3702,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 traverseAndRevive(data);
             }
             if (data) {
-                return { result: data.Result };
+                return {result: data.Result};
             }
             else {
                 return data;
@@ -3642,7 +3717,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 traverseAndRevive(data);
             }
             if (data) {
-                return { result: data.Result, ModifiedAt: data.ModifiedAt };
+                return {result: data.Result, ModifiedAt: data.ModifiedAt};
             }
             else {
                 return data;
@@ -3677,6 +3752,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 var url = request.buildUrl(request.setup) + request.endpoint;
                 url = Everlive.disableRequestCache(url, request.method);
                 var data = request.method === 'GET' ? request.data : JSON.stringify(request.data);
+
                 //$.ajax(url, {
                 reqwest({
                     url: url,
@@ -3712,7 +3788,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 };
             });
         }
-        return { promise: promise, success: success, error: error };
+        return {promise: promise, success: success, error: error};
     };
     // whenjs promises
     //Everlive.getCallbacks = function (success, error) {
@@ -4021,12 +4097,12 @@ THE SOFTWARE.y distributed under the MIT license.
     function getAuthInfo(setup, getUser, success, error) {
         if (setup.masterKey) {
             return buildPromise(function (success, error) {
-                success({ status: AuthStatus.masterKey });
+                success({status: AuthStatus.masterKey});
             }, success, error);
         }
         if (!setup.token) {
             return buildPromise(function (success, error) {
-                success({ status: AuthStatus.unauthenticated });
+                success({status: AuthStatus.unauthenticated});
             }, success, error);
         }
 
@@ -4034,7 +4110,7 @@ THE SOFTWARE.y distributed under the MIT license.
         if (success) {
             errorcb = function (err) {
                 if (err && err.code === 601) { // invalid request, i.e. the access token is invalid or missing
-                    success({ status: AuthStatus.invalidAuthentication });
+                    success({status: AuthStatus.invalidAuthentication});
                 }
                 else {
                     error(err);
@@ -4044,10 +4120,10 @@ THE SOFTWARE.y distributed under the MIT license.
         var promise = getUser(success, errorcb);
         if (promise) {
             promise = promise.then(function (res) {
-                return { status: AuthStatus.authenticated, user: res.result };
+                return {status: AuthStatus.authenticated, user: res.result};
             }, function (err) {
                 if (err && err.code === 601) { // invalid request, i.e. the access token is invalid or missing
-                    return { status: AuthStatus.invalidAuthentication };
+                    return {status: AuthStatus.invalidAuthentication};
                 }
                 else {
                     throw err;
@@ -4064,14 +4140,10 @@ THE SOFTWARE.y distributed under the MIT license.
     var addUsersFunctions = function (ns) {
         ns._loginSuccess = function (data) {
             var result = data.result;
-            var setup = this.setup;
-            setup.token = result.access_token;
-            setup.tokenType = result.token_type;
+            this.setAuthorization(result.access_token, result.token_type);
         };
         ns._logoutSuccess = function () {
-            var setup = this.setup;
-            setup.token = null;
-            setup.tokenType = null;
+            this.clearAuthorization();
         };
         ns.register = function (username, password, attrs, success, error) {
             guardUnset(username, 'username');
@@ -4112,10 +4184,10 @@ THE SOFTWARE.y distributed under the MIT license.
                 getAuthInfo(self.setup, _.bind(self.getById, self, 'me'))
                     .then(function (res) {
                         if (typeof res.user !== 'undefined') {
-                            success({ result: res.user });
+                            success({result: res.user});
                         }
                         else {
-                            success({ result: null });
+                            success({result: null});
                         }
                     }, function (err) {
                         error(err);
@@ -4155,8 +4227,15 @@ THE SOFTWARE.y distributed under the MIT license.
                         self._logoutSuccess.apply(self, arguments);
                         success.apply(null, arguments);
                     },
-                    error: error
+                    error: function (err) {
+                        if (err.code === 301) { //invalid token
+                            self.clearAuthorization();
+                        }
+
+                        error.apply(null, arguments);
+                    }
                 });
+
                 request.send();
             }, success, error);
         };
@@ -4319,6 +4398,15 @@ THE SOFTWARE.y distributed under the MIT license.
         ns.unlinkFromTwitter = function (userId, success, error) {
             return ns._unlinkFromProvider('Twitter', userId, success, error);
         };
+
+        ns.setAuthorization = function setAuthorization(token, tokenType) {
+            this.setup.token = token;
+            this.setup.tokenType = tokenType;
+        };
+
+        ns.clearAuthorization = function clearAuthorization() {
+            this.setAuthorization(null, null);
+        };
     };
 
     var addFilesFunctions = function (ns) {
@@ -4390,6 +4478,18 @@ THE SOFTWARE.y distributed under the MIT license.
     };
     Push.prototype = {
         /**
+         * Ensures that the Push Plugin has been loaded and is ready to use.
+         */
+        ensurePushIsAvailable: function () {
+            var isPushNotificationPluginAvailable = (typeof window !== 'undefined' && window.plugins && window.plugins.pushNotification);
+
+            if (!isPushNotificationPluginAvailable) {
+                throw new EverliveError("The push notification plugin is not available. Ensure that the pushNotification plugin is included " +
+                "and use after `\deviceready\` event has been fired.");
+            }
+        },
+
+        /**
          * @deprecated since version 1.2.7
          * Returns the current device for sending push
          * @param [emulatorMode] {Boolean}
@@ -4398,6 +4498,8 @@ THE SOFTWARE.y distributed under the MIT license.
          *   Return an instance of the CurrentDevice
          */
         currentDevice: function (emulatorMode) {
+            this.ensurePushIsAvailable();
+
             if (arguments.length === 0) {
                 emulatorMode = this._el.setup._emulatorMode;
             }
@@ -4425,40 +4527,64 @@ THE SOFTWARE.y distributed under the MIT license.
          * @param error
          *   Callback to invoke on error.
          * @returns {Object}
-         *   A promise for the operation, or void if succes/error are supplied.
+         *   A promise for the operation, or void if success/error are supplied.
          */
         register: function (settings, success, error) {
+            this.ensurePushIsAvailable();
+
             var currentDevice = this.currentDevice();
-            if (settings && settings.android) {
+            var self = this;
+            settings = settings || {};
+
+            if (settings.android) {
                 settings.android.senderID = settings.android.projectNumber || settings.android.senderID;
             }
 
             var successCallback = function (token, callback) {
-                return function () {
-                    var result = new DeviceRegistrationResult(token);
-                    callback(result);
-                };
+                var result = new DeviceRegistrationResult(token);
+                callback(result);
             };
 
-            var everliveErrorCallback = function (err, callback) {
+            var errorCallback = function (err, callback) {
                 var registrationError = DeviceRegistrationError.fromEverliveError(err);
                 callback(registrationError);
+            };
+
+            var clearBadgeIfNeeded = function (token, successCb, errorCb) {
+                var clearBadge = true;
+                if (settings.iOS) {
+                    clearBadge = settings.iOS.clearBadge !== false;
+                }
+
+                if (clearBadge) {
+                    self.clearBadgeNumber().then(function () {
+                        successCallback(token, successCb);
+                    }, function (err) {
+                        errorCallback(err, errorCb);
+                    });
+                } else {
+                    successCallback(token, successCb);
+                }
             };
 
             return buildPromise(function (successCb, errorCb) {
                 currentDevice.enableNotifications(settings, function (response) {
                     var token = response.token;
-                    var customParameters = settings ? settings.customParameters : undefined;
+                    var customParameters = settings.customParameters;
                     currentDevice.getRegistration()
                         .then(function () {
-                            currentDevice.updateRegistration(customParameters, successCallback(token, successCb), function (err) {
-                                everliveErrorCallback(err, errorCb);
+                            currentDevice.updateRegistration(customParameters, function () {
+                                clearBadgeIfNeeded(token, successCb, errorCb);
+                            }, function (err) {
+                                errorCallback(err, errorCb);
                             });
                         }, function (err) {
-                            if (err.code === 801) {
-                                currentDevice.register(customParameters, successCallback(token, successCb), errorCb);
+                            if (err.code === 801) { //Not registered
+                                currentDevice.register(customParameters, function () {
+                                    clearBadgeIfNeeded(token, successCb, errorCb);
+                                }, errorCb);
                             } else {
-                                everliveErrorCallback(err, errorCb);
+                                errorCallback(err, errorCb);
                             }
                         });
                 }, function (err) {
@@ -4478,9 +4604,11 @@ THE SOFTWARE.y distributed under the MIT license.
          * @param onError
          *   Callback to invoke on error.
          * @returns {Object}
-         *   A promise for the operation, or void if succes/error are supplied.
+         *   A promise for the operation, or void if success/error are supplied.
          */
         unregister: function (onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
             var currentDevice = this.currentDevice();
             return currentDevice.disableNotifications.apply(currentDevice, arguments);
         },
@@ -4498,8 +4626,65 @@ THE SOFTWARE.y distributed under the MIT license.
          *   A promise for the operation, or void if success/error are supplied.
          */
         updateRegistration: function (customParameters, onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
             var currentDevice = this.currentDevice();
             return currentDevice.updateRegistration.apply(currentDevice, arguments);
+        },
+
+        /**
+         * Sets the badge number on the server
+         *
+         * @param {(number|string)} badge
+         *   The number to be set as a badge.
+         * @param {Function} onSuccess
+         *   Callback to invoke on success.
+         * @param {Function} onError
+         *   Callback to invoke on error.
+         * @returns {Object}
+         *   A promise for the operation, or void if success/error are supplied.
+         */
+        setBadgeNumber: function (badge, onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
+            badge = parseInt(badge);
+            if (isNaN(badge)) {
+                return buildPromise(function (success, error) {
+                    error(new EverliveError('The badge must have a numeric value'));
+                }, onSuccess, onError);
+            }
+
+            var deviceRegistration = {};
+            var currentDevice = this.currentDevice();
+            var deviceId = currentDevice._getDeviceId();
+            deviceRegistration.Id = 'HardwareId/' + encodeURIComponent(deviceId);
+            deviceRegistration.BadgeCounter = badge;
+            return buildPromise(function (successCb, errorCb) {
+                currentDevice._pushHandler.devices.updateSingle(deviceRegistration).then(
+                    function () {
+                        if (window.plugins && window.plugins.pushNotification) {
+                            return window.plugins.pushNotification.setApplicationIconBadgeNumber(successCb, errorCb, badge);
+                        } else {
+                            return successCb();
+                        }
+                    }, errorCb)
+            }, onSuccess, onError);
+        },
+
+        /**
+         * Clears the badge number on the server by setting it to 0
+         *
+         * @param {Function} onSuccess
+         *   Callback to invoke on success.
+         * @param {Function} onError
+         *   Callback to invoke on error.
+         * @returns {Object}
+         *   A promise for the operation, or void if success/error are supplied.
+         */
+        clearBadgeNumber: function (onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
+            return this.setBadgeNumber(0, onSuccess, onError);
         },
 
         /**
@@ -4513,6 +4698,8 @@ THE SOFTWARE.y distributed under the MIT license.
          *   A promise for the operation, or void if success/error are supplied.
          */
         getRegistration: function (onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
             var currentDevice = this.currentDevice();
             return currentDevice.getRegistration.apply(currentDevice, arguments);
         },
@@ -4527,6 +4714,8 @@ THE SOFTWARE.y distributed under the MIT license.
          *   Callback to invoke on error.
          */
         send: function (notification, onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
             return this.notifications.create.apply(this.notifications, arguments);
         },
 
@@ -4537,11 +4726,13 @@ THE SOFTWARE.y distributed under the MIT license.
          * @param onSuccess
          *   Callback to invoke on successful check - passes one boolean value - true or false
          * @param onError
-         *   Callback to invoke when an error in the push plugin has occured.
+         *   Callback to invoke when an error in the push plugin has occurred.
          * @returns {*}
          *   A promise for the operation, or void if success/error are supplied.
          */
         areNotificationsEnabled: function (options, onSuccess, onError) {
+            this.ensurePushIsAvailable();
+
             options = options || {};
             var pushNotification = window.plugins.pushNotification;
 
@@ -4549,19 +4740,6 @@ THE SOFTWARE.y distributed under the MIT license.
                 pushNotification.areNotificationsEnabled(successCb, errorCb, options);
             }, onSuccess, onError);
         }
-    };
-
-    var PushSettings = {
-        iOS: {
-            badge: true,
-            sound: true,
-            alert: true
-        },
-        android: {
-            senderID: null
-        },
-        notificationCallbackAndroid: null,
-        notificationCallbackIOS: null
     };
 
     var CurrentDevice = function (pushHandler) {
@@ -4597,7 +4775,8 @@ THE SOFTWARE.y distributed under the MIT license.
          *   A promise for the operation, or void if success/error are supplied.
          */
         enableNotifications: function (pushSettings, success, error) {
-            this.pushSettings = pushSettings;
+            this.pushSettings = this._cleanPlatformsPushSettings(pushSettings);
+
             return buildPromise(_.bind(this._initialize, this), success, error);
         },
 
@@ -4681,6 +4860,7 @@ THE SOFTWARE.y distributed under the MIT license.
             if (customParameters !== undefined) {
                 deviceRegistration.Parameters = customParameters;
             }
+
             return this._populateRegistrationObject(deviceRegistration).then(
                 function () {
                     return self._pushHandler.devices.create(deviceRegistration, success, error);
@@ -4703,7 +4883,7 @@ THE SOFTWARE.y distributed under the MIT license.
          */
         unregister: function (success, error) {
             var deviceId = encodeURIComponent(device.uuid);
-            return this._pushHandler.devices.destroySingle({ Id: 'HardwareId/' + deviceId }, success, error);
+            return this._pushHandler.devices.destroySingle({Id: 'HardwareId/' + deviceId}, success, error);
         },
 
         /**
@@ -4722,9 +4902,10 @@ THE SOFTWARE.y distributed under the MIT license.
             var self = this;
 
             var deviceRegistration = {};
-            if (customParameters) {
+            if (customParameters !== undefined) {
                 deviceRegistration.Parameters = customParameters;
             }
+
             return this._populateRegistrationObject(deviceRegistration).then(
                 function () {
                     deviceRegistration.Id = 'HardwareId/' + encodeURIComponent(deviceRegistration.HardwareId);
@@ -4862,6 +5043,48 @@ THE SOFTWARE.y distributed under the MIT license.
 
         },
 
+        _cleanPlatformsPushSettings: function (pushSettings) {
+            var cleanSettings = {};
+            pushSettings = pushSettings || {};
+
+            var addSettingsForPlatform = function addSettingsForPlatform(newSettingsObject, platform, allowedFields) {
+                if (!pushSettings[platform]) {
+                    return;
+                }
+
+                newSettingsObject[platform] = newSettingsObject[platform] || {};
+                var newPlatformSettings = pushSettings[platform];
+                var settings = newSettingsObject[platform];
+                _.each(allowedFields, function (allowedField) {
+                    if (newPlatformSettings.hasOwnProperty(allowedField)) {
+                        settings[allowedField] = newPlatformSettings[allowedField];
+                    }
+                });
+            };
+
+            addSettingsForPlatform(cleanSettings, 'iOS', ['badge', 'sound', 'alert']);
+            addSettingsForPlatform(cleanSettings, 'android', ['senderID', 'projectNumber']);
+            addSettingsForPlatform(cleanSettings, 'wp8', ['channelName']);
+
+            var callbackFields = ['notificationCallbackAndroid', 'notificationCallbackIOS', 'notificationCallbackWP8'];
+            _.each(callbackFields, function (callbackField) {
+                var callback = pushSettings[callbackField];
+                if (callback) {
+                    if (typeof callback !== 'function') {
+                        throw new EverliveError('The "' + callbackField + '" of the push settings should be a function');
+                    }
+
+                    cleanSettings[callbackField] = pushSettings[callbackField];
+                }
+            });
+
+            if (pushSettings.customParameters) {
+                cleanSettings.customParameters = pushSettings.customParameters;
+            }
+
+            return cleanSettings;
+        },
+
         _populateRegistrationObject: function (deviceRegistration, success, error) {
             var self = this;
 
@@ -4901,7 +5124,7 @@ THE SOFTWARE.y distributed under the MIT license.
 
         _getLocaleName: function (success, error) {
             if (this.emulatorMode) {
-                success({ value: 'en_US' });
+                success({value: 'en_US'});
             } else {
                 navigator.globalization.getLocaleName(
                     function (locale) {
@@ -4946,7 +5169,7 @@ THE SOFTWARE.y distributed under the MIT license.
             this.isInitialized = false;
 
             if (this._initErrorCallback) {
-                this._initErrorCallback({ error: error });
+                this._initErrorCallback({error: error});
             }
         },
 
@@ -4956,7 +5179,7 @@ THE SOFTWARE.y distributed under the MIT license.
             this.isInitialized = true;
 
             if (this._initSuccessCallback) {
-                this._initSuccessCallback({ token: token });
+                this._initSuccessCallback({token: token});
             }
         },
 
@@ -5113,7 +5336,7 @@ THE SOFTWARE.y distributed under the MIT license.
         this.push = new Push(this);
     };
 
-    initializations.push({ name: 'default', func: initDefault });
+    initializations.push({name: 'default', func: initDefault});
 
     return Everlive;
 }));
