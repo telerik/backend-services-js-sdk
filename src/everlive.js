@@ -23,7 +23,7 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 ﻿/*!
  Everlive SDK
- Version 1.2.10
+ Version 1.2.11
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -402,7 +402,7 @@ THE SOFTWARE.y distributed under the MIT license.
             'km': 'radiusInKilometers',
             'miles': 'radiusInMiles'
         };
-        
+
         QueryBuilder.prototype = {
             // TODO merge the two objects before returning them
             build: function () {
@@ -1809,8 +1809,10 @@ THE SOFTWARE.y distributed under the MIT license.
             };
 
             var clearBadgeIfNeeded = function (token, successCb, errorCb) {
-                var clearBadge = true;
-                if (settings.iOS) {
+                var platformType = currentDevice._getPlatformType(device.platform);
+                var clearBadge = platformType === Platform.iOS;
+
+                if (clearBadge && settings.iOS) {
                     clearBadge = settings.iOS.clearBadge !== false;
                 }
 
