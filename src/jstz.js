@@ -1,4 +1,4 @@
-/**
+/*!
  * This script gives you the zone info key representing your device's time zone setting.
  *
  * @name jsTimezoneDetect

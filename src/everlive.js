@@ -21,9 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 */
-﻿/*!
+/*!
  Everlive SDK
- Version 1.2.11
+ Version 1.2.12
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {

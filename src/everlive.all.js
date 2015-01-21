@@ -1,3 +1,7 @@
+// This script will be executed in the context of a native script module
+var window = window || {};
+var isNativeScriptApplication = ((typeof android !== 'undefined' && android && android.widget && android.widget.Button)
+    || (typeof UIButton !== 'undefined' && UIButton));
 /*!
   * Reqwest! A general purpose XHR connection manager
   * (c) Dustin Diaz 2013
@@ -533,9 +537,10 @@
 
   return reqwest
 });
-// RSVP.js provides simple tools for organizing asynchronous code.
-// https://github.com/tildeio/rsvp.js
-// Copyright (c) 2013 Yehuda Katz, Tom Dale, and contributors
+/*! RSVP.js provides simple tools for organizing asynchronous code.
+* https://github.com/tildeio/rsvp.js
+* Copyright (c) 2013 Yehuda Katz, Tom Dale, and contributors
+*/
 (function() {
 
 // if we're in a nativescript application don't initialize this library
@@ -1132,10 +1137,12 @@ define("rsvp",
 
 window.RSVP = requireModule('rsvp');
 })();
-//     Underscore.js 1.4.4
-//     http://underscorejs.org
-//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
-//     Underscore may be freely distributed under the MIT license.
+/*!
+* Underscore.js 1.4.4
+* http://underscorejs.org
+* (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
+* Underscore may be freely distributed under the MIT license.
+*/
 
 (function() {
 
@@ -2382,7 +2389,7 @@ window.RSVP = requireModule('rsvp');
   });
 
 }).call(this);
-/**
+/*!
  * This script gives you the zone info key representing your device's time zone setting.
  *
  * @name jsTimezoneDetect
@@ -2763,9 +2770,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 */
-﻿/*!
+/*!
  Everlive SDK
- Version 1.2.11
+ Version 1.2.12
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -5342,7 +5349,7 @@ THE SOFTWARE.y distributed under the MIT license.
 
     return Everlive;
 }));
-﻿(function (root, factory) {
+(function (root, factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
         define(['Everlive'], function (Everlive) {

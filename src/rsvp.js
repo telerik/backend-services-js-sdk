@@ -1,6 +1,7 @@
-// RSVP.js provides simple tools for organizing asynchronous code.
-// https://github.com/tildeio/rsvp.js
-// Copyright (c) 2013 Yehuda Katz, Tom Dale, and contributors
+/*! RSVP.js provides simple tools for organizing asynchronous code.
+* https://github.com/tildeio/rsvp.js
+* Copyright (c) 2013 Yehuda Katz, Tom Dale, and contributors
+*/
 (function() {
 
 // if we're in a nativescript application don't initialize this library
