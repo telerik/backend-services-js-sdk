@@ -23,7 +23,7 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 /*!
  Everlive SDK
- Version 1.2.12
+ Version 1.2.13
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -2174,6 +2174,49 @@ THE SOFTWARE.y distributed under the MIT license.
                 error
             );
         },
+   
+        _initializeInteractivePush: function(iOSSettings, success, error) {
+            var pushPlugin = window.plugins.pushNotification;
+   
+            var interactiveSettings = iOSSettings.interactiveSettings;
+            var notificationTypes = [];
+            if (iOSSettings.alert) {
+                notificationTypes.push(pushPlugin.UserNotificationTypes.Alert);
+            }
+            if (iOSSettings.badge) {
+                notificationTypes.push(pushPlugin.UserNotificationTypes.Badge);
+            }
+            if (iOSSettings.sound) {
+                notificationTypes.push(pushPlugin.UserNotificationTypes.Sound);
+            }
+   
+            var getAction = function(actionIdentifier) {
+                var action = _.find(interactiveSettings.actions, function(action) {
+                    return action.identifier === actionIdentifier;
+                });
+   
+                return action;
+            };
+            var categories = _.map(interactiveSettings.categories, function(category) {
+                return {
+                    identifier: category.identifier,
+                    actionsForDefaultContext: _.map(category.actionsForDefaultContext, getAction),
+                    actionsForMinimalContext: _.map(category.actionsForMinimalContext, getAction)
+                }
+            });
+
+            pushPlugin.registerUserNotificationSettings(
+                // the success callback which will immediately return (APNs is not contacted for this)
+                success,
+                // called in case the configuration is incorrect
+                error, {
+                    // asking permission for these features
+                    types: notificationTypes,
+                    // register these categories
+                    categories: categories
+                }
+                );
+        },
 
         //Initializes the push functionality on the device.
         _initialize: function (success, error) {
@@ -2322,7 +2365,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 });
             };
 
-            addSettingsForPlatform(cleanSettings, 'iOS', ['badge', 'sound', 'alert']);
+            addSettingsForPlatform(cleanSettings, 'iOS', ['badge', 'sound', 'alert', 'interactiveSettings']);
             addSettingsForPlatform(cleanSettings, 'android', ['senderID', 'projectNumber']);
             addSettingsForPlatform(cleanSettings, 'wp8', ['channelName']);
 
@@ -2445,7 +2488,20 @@ THE SOFTWARE.y distributed under the MIT license.
 
         //Occurs when the device registration in APN succeeds
         _successfulRegistrationAPN: function (token) {
-            this._deviceRegistrationSuccess(token);
+            var self = this;
+            if (this.pushSettings.iOS && this.pushSettings.iOS.interactiveSettings) {
+                this._initializeInteractivePush(
+                    this.pushSettings.iOS,
+                    function() {
+                        self._deviceRegistrationSuccess(token);
+                    },
+                    function(err) {
+                        throw new EverliveError('The interactive push configuration is incorrect: ' + err);
+                    }
+                    );
+            } else {
+                this._deviceRegistrationSuccess(token);
+            }
         },
 
         //Occurs if the device registration in APN fails
