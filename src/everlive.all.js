@@ -2413,7 +2413,7 @@ window.RSVP = requireModule('rsvp');
   var jstz = (function () {
       'use strict';
       var HEMISPHERE_SOUTH = 's',
-          
+
           /**
            * Gets the offset in minutes from UTC for a certain date.
            * @param {Date} date
@@ -2452,12 +2452,12 @@ window.RSVP = requireModule('rsvp');
            */
           date_is_dst = function (date) {
               var is_southern = date.getMonth() > 7,
-                  base_offset = is_southern ? get_june_offset(date.getFullYear()) : 
+                  base_offset = is_southern ? get_june_offset(date.getFullYear()) :
                                               get_january_offset(date.getFullYear()),
                   date_offset = get_date_offset(date),
                   is_west = base_offset < 0,
                   dst_offset = base_offset - date_offset;
-                  
+
               if (!is_west && !is_southern) {
                   return dst_offset < 0;
               }
@@ -2472,7 +2472,7 @@ window.RSVP = requireModule('rsvp');
            * client device.
            *
            * Returns a key that can be used to do lookups in jstz.olson.timezones.
-           * eg: "720,1,2". 
+           * eg: "720,1,2".
            *
            * @returns {String}
            */
@@ -2565,7 +2565,7 @@ window.RSVP = requireModule('rsvp');
       return {
           determine: determine,
           date_is_dst: date_is_dst,
-          dst_start_for: dst_start_for 
+          dst_start_for: dst_start_for
       };
   }());
 
@@ -2607,7 +2607,7 @@ window.RSVP = requireModule('rsvp');
           },
 
           timezone_name = tz_name,
-          
+
           /**
            * Checks if a timezone has possible ambiguities. I.e timezones that are similar.
            *
@@ -4923,10 +4923,10 @@ THE SOFTWARE.y distributed under the MIT license.
                 error
             );
         },
-   
+
         _initializeInteractivePush: function(iOSSettings, success, error) {
             var pushPlugin = window.plugins.pushNotification;
-   
+
             var interactiveSettings = iOSSettings.interactiveSettings;
             var notificationTypes = [];
             if (iOSSettings.alert) {
@@ -4938,12 +4938,12 @@ THE SOFTWARE.y distributed under the MIT license.
             if (iOSSettings.sound) {
                 notificationTypes.push(pushPlugin.UserNotificationTypes.Sound);
             }
-   
+
             var getAction = function(actionIdentifier) {
                 var action = _.find(interactiveSettings.actions, function(action) {
                     return action.identifier === actionIdentifier;
                 });
-   
+
                 return action;
             };
             var categories = _.map(interactiveSettings.categories, function(category) {
@@ -5644,30 +5644,35 @@ THE SOFTWARE.y distributed under the MIT license.
     var RemoteTransport_setup = kendo.data.RemoteTransport.prototype.setup;
     kendo.data.RemoteTransport.prototype.setup = function (options, type) {
         if (!options.url && !this.options[type].url && this.options.typeName) {
-            if (!Everlive.$) {
+            var everlive$ = this.options.dataProvider || Everlive.$;
+            if (!everlive$) {
                 throw new Error("You should either specify a url for this transport method, or instantiate an Everlive instance.");
             }
-            options.url = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + this.options.typeName;
-            if (type === 'update' || type === 'destroy')
+
+            options.url = Everlive.Request.prototype.buildUrl(everlive$.setup) + this.options.typeName;
+            if (type === 'update' || type === 'destroy') {
                 options.url += '/' + options.data[Everlive.idField];
+            }
+
+            options.headers = Everlive.Request.prototype.buildAuthHeader(everlive$.setup);
+
+            if (type === 'read' && options.data) {
+                var query = translateKendoQuery(options.data);
+                var everliveQuery = createEverliveQuery(query);
+                options.headers = $.extend(options.headers, Everlive.Request.prototype.buildQueryHeaders(everliveQuery));
+            }
+
+            if (type === 'create' || type === 'read' || type === 'update') {
+                var success = options.success;
+                options.success = function (result) {
+                    // convert date strings into dates
+                    Everlive._traverseAndRevive(result);
+                    if (success)
+                        success(result);
+                };
+            }
         }
-        if (Everlive.$) {
-            options.headers = Everlive.Request.prototype.buildAuthHeader(Everlive.$.setup);
-        }
-        if (type === 'read' && options.data) {
-            var query = translateKendoQuery(options.data);
-            var everliveQuery = createEverliveQuery(query);
-            options.headers = $.extend(options.headers, Everlive.Request.prototype.buildQueryHeaders(everliveQuery));
-        }
-        if (type === 'create' || type === 'read' || type === 'update') {
-            var success = options.success;
-            options.success = function (result) {
-                // convert date strings into dates
-                Everlive._traverseAndRevive(result);
-                if (success)
-                    success(result);
-            };
-        }
+
         return RemoteTransport_setup.call(this, options, type);
     };
 
@@ -5750,15 +5755,18 @@ THE SOFTWARE.y distributed under the MIT license.
         options = options || {};
         var expand = options.expand;
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
         delete options.expand;
         delete options.typeName;
+        delete options.dataProvider;
         var baseUrl;
+
         if (options.url) {
             baseUrl = options.url;
-        } else if (Everlive.$ && typeName) {
-            baseUrl = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + typeName;
+        } else if (everlive$ && typeName) {
+            baseUrl = Everlive.Request.prototype.buildUrl(everlive$.setup) + typeName;
         } else {
-            if (!Everlive.$) {
+            if (!everlive$) {
                 throw new Error("You need to instantiate an Everlive instance in order to create a kendo HierarchicalDataSource.");
             }
             if (!typeName) {
@@ -5789,7 +5797,8 @@ THE SOFTWARE.y distributed under the MIT license.
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
+            typeName: typeName,
+            dataProvider: everlive$
         },
         dataSourceOptions.schema = expandSchema;
         extend(true, dataSourceOptions, options);
@@ -5799,15 +5808,21 @@ THE SOFTWARE.y distributed under the MIT license.
     Everlive.createDataSource = function (options) {
         options = options || {};
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
+        if (!everlive$) {
+            throw new Error("You need to instantiate an Everlive instance in order to create a kendo DataSource.");
+        }
         if (!typeName) {
             throw new Error("You need to specify a 'typeName' in order to create a kendo DataSource.");
         }
         delete options.typeName;
+        delete options.dataProvider;
 
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
+            typeName: typeName,
+            dataProvider: everlive$
         },
         extend(true, dataSourceOptions, options);
         return new kendo.data.DataSource(dataSourceOptions);
