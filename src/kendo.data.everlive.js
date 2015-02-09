@@ -237,30 +237,35 @@
     var RemoteTransport_setup = kendo.data.RemoteTransport.prototype.setup;
     kendo.data.RemoteTransport.prototype.setup = function (options, type) {
         if (!options.url && !this.options[type].url && this.options.typeName) {
-            if (!Everlive.$) {
+            var everlive$ = this.options.dataProvider || Everlive.$;
+            if (!everlive$) {
                 throw new Error("You should either specify a url for this transport method, or instantiate an Everlive instance.");
             }
-            options.url = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + this.options.typeName;
-            if (type === 'update' || type === 'destroy')
+
+            options.url = Everlive.Request.prototype.buildUrl(everlive$.setup) + this.options.typeName;
+            if (type === 'update' || type === 'destroy') {
                 options.url += '/' + options.data[Everlive.idField];
+            }
+
+            options.headers = Everlive.Request.prototype.buildAuthHeader(everlive$.setup);
+
+            if (type === 'read' && options.data) {
+                var query = translateKendoQuery(options.data);
+                var everliveQuery = createEverliveQuery(query);
+                options.headers = $.extend(options.headers, Everlive.Request.prototype.buildQueryHeaders(everliveQuery));
+            }
+
+            if (type === 'create' || type === 'read' || type === 'update') {
+                var success = options.success;
+                options.success = function (result) {
+                    // convert date strings into dates
+                    Everlive._traverseAndRevive(result);
+                    if (success)
+                        success(result);
+                };
+            }
         }
-        if (Everlive.$) {
-            options.headers = Everlive.Request.prototype.buildAuthHeader(Everlive.$.setup);
-        }
-        if (type === 'read' && options.data) {
-            var query = translateKendoQuery(options.data);
-            var everliveQuery = createEverliveQuery(query);
-            options.headers = $.extend(options.headers, Everlive.Request.prototype.buildQueryHeaders(everliveQuery));
-        }
-        if (type === 'create' || type === 'read' || type === 'update') {
-            var success = options.success;
-            options.success = function (result) {
-                // convert date strings into dates
-                Everlive._traverseAndRevive(result);
-                if (success)
-                    success(result);
-            };
-        }
+
         return RemoteTransport_setup.call(this, options, type);
     };
 
@@ -343,15 +348,18 @@
         options = options || {};
         var expand = options.expand;
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
         delete options.expand;
         delete options.typeName;
+        delete options.dataProvider;
         var baseUrl;
+
         if (options.url) {
             baseUrl = options.url;
-        } else if (Everlive.$ && typeName) {
-            baseUrl = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + typeName;
+        } else if (everlive$ && typeName) {
+            baseUrl = Everlive.Request.prototype.buildUrl(everlive$.setup) + typeName;
         } else {
-            if (!Everlive.$) {
+            if (!everlive$) {
                 throw new Error("You need to instantiate an Everlive instance in order to create a kendo HierarchicalDataSource.");
             }
             if (!typeName) {
@@ -382,7 +390,8 @@
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
+            typeName: typeName,
+            dataProvider: everlive$
         },
         dataSourceOptions.schema = expandSchema;
         extend(true, dataSourceOptions, options);
@@ -392,15 +401,21 @@
     Everlive.createDataSource = function (options) {
         options = options || {};
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
+        if (!everlive$) {
+            throw new Error("You need to instantiate an Everlive instance in order to create a kendo DataSource.");
+        }
         if (!typeName) {
             throw new Error("You need to specify a 'typeName' in order to create a kendo DataSource.");
         }
         delete options.typeName;
+        delete options.dataProvider;
 
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
+            typeName: typeName,
+            dataProvider: everlive$
         },
         extend(true, dataSourceOptions, options);
         return new kendo.data.DataSource(dataSourceOptions);
