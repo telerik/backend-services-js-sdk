@@ -237,21 +237,24 @@
     var RemoteTransport_setup = kendo.data.RemoteTransport.prototype.setup;
     kendo.data.RemoteTransport.prototype.setup = function (options, type) {
         if (!options.url && !this.options[type].url && this.options.typeName) {
-            if (!Everlive.$) {
+            var everlive$ = this.options.dataProvider || Everlive.$;
+            if (!everlive$) {
                 throw new Error("You should either specify a url for this transport method, or instantiate an Everlive instance.");
             }
-            options.url = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + this.options.typeName;
-            if (type === 'update' || type === 'destroy')
+
+            options.url = Everlive.Request.prototype.buildUrl(everlive$.setup) + this.options.typeName;
+            if (type === 'update' || type === 'destroy') {
                 options.url += '/' + options.data[Everlive.idField];
         }
-        if (Everlive.$) {
-            options.headers = Everlive.Request.prototype.buildAuthHeader(Everlive.$.setup);
-        }
+
+            options.headers = Everlive.Request.prototype.buildAuthHeader(everlive$.setup);
+
         if (type === 'read' && options.data) {
             var query = translateKendoQuery(options.data);
             var everliveQuery = createEverliveQuery(query);
             options.headers = $.extend(options.headers, Everlive.Request.prototype.buildQueryHeaders(everliveQuery));
         }
+
         if (type === 'create' || type === 'read' || type === 'update') {
             var success = options.success;
             options.success = function (result) {
@@ -261,6 +264,8 @@
                     success(result);
             };
         }
+        }
+
         return RemoteTransport_setup.call(this, options, type);
     };
 
@@ -337,21 +342,54 @@
                 throw new Error("You need to specify a 'relation' for an expand node when using the object notation");
             }
         }
-    }
+    };
 
+    /**
+     * Creates a new [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) that manages a certain Backend Services content type and can expand a chain of relations.
+     * Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) is used in conjunction with other Kendo widgets (such as [TreeView](http://docs.telerik.com/kendo-ui/web/treeview/overview)) to render data from Backend Services in a structured way.
+     * The chain of relations is defined by specifying the field names that contain the relation on each level. For example a generic hierarchy chain is a content type 'Continents' with relation to 'Countries', which in turn contains a relation to 'Towns'.
+     * *including Kendo scripts is required*.
+     * @param options data source options for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource).
+     * @param options.typeName name of the main content type for the data source.
+     * @param {ExpandDefinition[]} options.expand an array of expand definitions. It defines the levels of hierarchy by specifying the relation fields. An expand definition can either be the field name as a **string**, or an **object** that allows additional options.
+     * @param {string} ExpandDefinition - The field name of the relation that will be expanded.
+     * @param {string} ExpandDefinition.relation - *Required*. The field name of the relation that will be expanded.
+     * @param {object} ExpandDefinition.filter - an object specifying the filter expression.
+     * @param {object} ExpandDefinition.sort - an object specifying the sort expression.
+     * @param {object} ExpandDefinition.skip - a number specifying the skip value.
+     * @param {object} ExpandDefinition.take - a number specifying the take value.
+     * @param {object} ExpandDefinition.fields - an object specifying the fields expression.
+     * @returns {HierarchicalDataSource} A new instance of Kendo UI HierarchicalDataSource. See Kendo UI documentation for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource)
+     * @example ```js
+     * var el = new Everlive('your-api-key-here');
+     * var continents = Everlive.createHierarchicalDataSource({
+     *   "typeName": "Continents",
+     *   "expand": ["Countries", "Towns"]
+     * });
+     *
+     * ...
+     * ("#treeview").kendoTreeView({
+     *   dataSource: continents,
+     *   dataTextField: ["ContinentName", "CountryName", "TownName"]
+     * });
+     * ```
+     */
     Everlive.createHierarchicalDataSource = function (options) {
         options = options || {};
         var expand = options.expand;
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
         delete options.expand;
         delete options.typeName;
+        delete options.dataProvider;
         var baseUrl;
+
         if (options.url) {
             baseUrl = options.url;
-        } else if (Everlive.$ && typeName) {
-            baseUrl = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + typeName;
+        } else if (everlive$ && typeName) {
+            baseUrl = Everlive.Request.prototype.buildUrl(everlive$.setup) + typeName;
         } else {
-            if (!Everlive.$) {
+            if (!everlive$) {
                 throw new Error("You need to instantiate an Everlive instance in order to create a kendo HierarchicalDataSource.");
             }
             if (!typeName) {
@@ -382,26 +420,48 @@
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
-        },
+            typeName: typeName,
+            dataProvider: everlive$
+        };
         dataSourceOptions.schema = expandSchema;
         extend(true, dataSourceOptions, options);
         return new kendo.data.HierarchicalDataSource(dataSourceOptions);
-    }
+    };
 
+    /**
+     * Creates a new Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) that manages a certain Backend Services content type.
+     * Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) is used in conjunction with other Kendo UI widgets (such as [ListView](http://docs.telerik.com/kendo-ui/web/listview/overview) and [Grid](http://docs.telerik.com/kendo-ui/web/grid/overview)) to provide an easy way to render data from Backend Services.
+     * *including Kendo scripts is required*.
+     * @param options data source options. See Kendo UI documentation of [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more info.
+     * @param options.transport.typeName the content type name in Backend Services that will be managed.
+     * @returns {DataSource} A new instance of Kendo UI DataSource. See Kendo UI documentation of [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more info.
+     * @example ```js
+     * var booksDataSource = Everlive.createDataSource({
+     *   transport: {
+     *     typeName: 'Books'
+     *   }
+     * });
+     * ```
+     */
     Everlive.createDataSource = function (options) {
         options = options || {};
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
+        if (!everlive$) {
+            throw new Error("You need to instantiate an Everlive instance in order to create a kendo DataSource.");
+        }
         if (!typeName) {
             throw new Error("You need to specify a 'typeName' in order to create a kendo DataSource.");
         }
         delete options.typeName;
+        delete options.dataProvider;
 
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
-        },
+            typeName: typeName,
+            dataProvider: everlive$
+        };
         extend(true, dataSourceOptions, options);
         return new kendo.data.DataSource(dataSourceOptions);
     }

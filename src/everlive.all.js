@@ -2772,7 +2772,7 @@ THE SOFTWARE.y distributed under the MIT license.
 */
 /*!
  Everlive SDK
- Version 1.2.13
+ Version 1.2.14
  */
 /*global device, define, window, navigator*/
 (function (root, factory) {
@@ -2864,20 +2864,31 @@ THE SOFTWARE.y distributed under the MIT license.
         this.token = null;
         this.tokenType = null;
         this.scheme = 'http'; // http or https
-        this._emulatorMode = options.emulatorMode;
         this.parseOnlyCompleteDateTimeObjects = false;
         if (typeof options === 'string') {
             this.apiKey = options;
         } else {
+            this._emulatorMode = options.emulatorMode;
             _.extend(this, options);
         }
     }
 
-    // An array keeping initialization functions called by the Everlive constructor.
-    // These functions will be used to extend the functionality of an Everlive instance.
-    var initializations = [];
+
     // The constructor of Everlive instances.
     // The entry point for the SDK.
+
+    /**
+     * @class Everlive
+     * @classdesc The constructor of the {{site.bs}} (Everlive) JavaScript SDK. This is the entry point for the SDK.
+     * @param {object|string} options - An object containing configuration options for the Setup object. Alternatively, you can pass a string representing your API key.
+     * @param {string} options.apiKey - Your API key.
+     * @param {string} [options.url=//api.everlive.com/v1/] - The {{site.TelerikBackendServices}} URL.
+     * @param {string} [options.token] - An authentication token. The instance will be associated with the provided previously obtained token.
+     * @param {string} [options.tokenType=bearer] - The type of the token that is used for authentication.
+     * @param {string} [options.scheme=http] - The URI scheme used to make requests. Supported values: http, https
+     * @param {boolean} [options.parseOnlyCompleteDateTimeObjects=false] - If set to true, the SDK will parse only complete date strings (according to the ISO 8601 standard).
+     * @param {boolean} [options.emulatorMode=false] - Set this option to true to set the SDK in emulator mode.
+     */
     function Everlive(options) {
         var self = this;
         this.setup = new Setup(options);
@@ -2889,15 +2900,39 @@ THE SOFTWARE.y distributed under the MIT license.
         }
     }
 
-    // A reference to the current Everlive instance
+    /** Reference to the current {{site.TelerikBackendServices}} (Everlive) JavaScript SDK
+     * @memberOf Everlive
+     * @type {Everlive}
+     * @static
+     */
     Everlive.$ = null;
     Everlive.idField = idField;
+
+
+    // An array keeping initialization functions called by the Everlive constructor.
+    // These functions will be used to extend the functionality of an Everlive instance.
+    var initializations = [];
+
+    /** An array of functions that are invoked during instantiation of the {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
+     * @memberOf Everlive
+     * @type {Function[]}
+     * @static
+     * @private
+     */
     Everlive.initializations = initializations;
-    // Creates a new Everlive instance and set it as the current one
+
+    /** Creates a new {{site.TelerikBackendServices}} (Everlive) Java Script SDK instance.
+     * @memberOf Everlive
+     * @param {object} options - An object containing options used to initialize the {{site.bs}} JavaScript SDK instance.
+     * @returns {Everlive} The instance of the {{site.bs}} (Everlive) JavaScript SDK that was created using the provided options.
+     * @static
+     * @method
+     */
     Everlive.init = function (options) {
         Everlive.$ = null;
         return new Everlive(options);
     };
+
     Everlive.buildUrl = function (setup) {
         var url = '';
         if (typeof setup.scheme === 'string') {
@@ -2909,12 +2944,21 @@ THE SOFTWARE.y distributed under the MIT license.
         }
         return url;
     };
+
     Everlive.prototype.data = function (collectionName) {
         return new Data(this.setup, collectionName);
     };
+
+    /**
+     * Returns the URL to the {{site.bs}} application endpoint that the SDK uses.
+     * @memberOf Everlive.prototype
+     * @method buildUrl
+     * @returns {string} The generated URL.
+     */
     Everlive.prototype.buildUrl = function () {
         return Everlive.buildUrl(this.setup);
     };
+
     var buildAuthHeader = function (setup, options) {
         var authHeaderValue = null;
         if (options && options.authHeaders === false) {
@@ -2932,6 +2976,12 @@ THE SOFTWARE.y distributed under the MIT license.
             return null;
         }
     };
+
+    /**
+     * Generates the Authorization headers that are used by the {{site.TelerikBackendServices}} (Everlive) JavaScript SDK to make requests to the {{site.bs}} servers.
+     * @memberOf Everlive
+     * @returns {Object} AuthorizationHeaders The generated Authorization headers object.
+     */
     Everlive.prototype.buildAuthHeader = function () {
         return buildAuthHeader(this.setup);
     };
@@ -2990,6 +3040,16 @@ THE SOFTWARE.y distributed under the MIT license.
             }
         };
 
+        /**
+         * @class Query
+         * @classdesc A query class used to describe a request that will be made to the {{site.TelerikBackendServices}} JavaScript API.
+         * @param {object} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @param {object} fields A [fields expression]({% slug rest-api-querying-Subset-of-fields %}) definition.
+         * @param {object} sort A [sort expression]({% slug rest-api-querying-sorting %}) definition.
+         * @param {number} skip Number of items to skip. Used for paging.
+         * @param {number} take Number of items to take. Used for paging.
+         * @param {object} expand An [expand expression]({% slug features-data-relations-defining-expand %}) definition.
+         */
         function Query(filter, fields, sort, skip, take, expand) {
             this.filter = filter;
             this.fields = fields;
@@ -3001,6 +3061,19 @@ THE SOFTWARE.y distributed under the MIT license.
         }
 
         Query.prototype = {
+            /** Applies a filter to the current query. This allows you to retrieve only a subset of the items based on various filtering criteria.
+             * @memberOf Query.prototype
+             * @method where
+             * @name where
+             * @param {object} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+             * @returns {Query}
+             */
+            /** Defines a filter definition for the current query.
+             * @memberOf Query.prototype
+             * @method where
+             * @name where
+             * @returns {WhereQuery}
+             */
             where: function (filter) {
                 if (filter) {
                     return this._simple(OperatorType.filter, [filter]);
@@ -3009,6 +3082,12 @@ THE SOFTWARE.y distributed under the MIT license.
                     return new WhereQuery(this);
                 }
             },
+            /** Applies a fields selection to the current query. This allows you to retrieve only a subset of all available item fields.
+             * @memberOf Query.prototype
+             * @method select
+             * @param {object} fieldsExpression A [fields expression]({% slug rest-api-querying-Subset-of-fields %}) definition.
+             * @returns {Query}
+             */
             select: function () {
                 return this._simple(OperatorType.select, arguments);
             },
@@ -3016,21 +3095,58 @@ THE SOFTWARE.y distributed under the MIT license.
             //exclude: function () {
             //    return this._simple(OperatorType.exclude, arguments);
             //},
+            /** Sorts the items in the current query in ascending order by the specified field.
+             * @memberOf Query.prototype
+             * @method order
+             * @param {string} field The field name to order by in ascending order.
+             * @returns {Query}
+             */
             order: function (field) {
                 return this._simple(OperatorType.order, [field]);
             },
+            /** Sorts the items in the current query in descending order by the specified field.
+             * @memberOf Query.prototype
+             * @method orderDesc
+             * @param {string} field The field name to order by in descending order.
+             * @returns {Query}
+             */
             orderDesc: function (field) {
                 return this._simple(OperatorType.order_desc, [field]);
             },
+            /** Skips a certain number of items from the beginning before returning the rest of the items. Used for paging.
+             * @memberOf Query.prototype
+             * @method skip
+             * @see [query.take]{@link query.take}
+             * @param {number} value The number of items to skip.
+             * @returns {Query}
+             */
             skip: function (value) {
                 return this._simple(OperatorType.skip, [value]);
             },
+            /** Takes a specified number of items from the query result. Used for paging.
+             * @memberOf Query.prototype
+             * @method take
+             * @see [query.skip]{@link query.skip}
+             * @param {number} value The number of items to take.
+             * @returns {Query}
+             */
             take: function (value) {
                 return this._simple(OperatorType.take, [value]);
             },
+            /** Sets an expand expression for the current query. This allows you to retrieve complex data sets using a single query based on relations between data types.
+             * @memberOf Query.prototype
+             * @method expand
+             * @param {object} expandExpression An [expand expression]({% slug features-data-relations-defining-expand %}) definition.
+             * @returns {Query}
+             */
             expand: function (expandExpression) {
                 return this._simple(OperatorType.expand, [expandExpression]);
             },
+            /** Builds an object containing the different expressions that will be sent to {{site.TelerikBackendServices}}. It basically translates any previously specified expressions into standard queries that {{site.bs}} can understand.
+             * @memberOf Query.prototype
+             * @method build
+             * @returns {{$where,$select,$sort,$skip,$take,$expand}}
+             */
             build: function () {
                 return new QueryBuilder(this).build();
             },
@@ -3041,6 +3157,17 @@ THE SOFTWARE.y distributed under the MIT license.
             }
         };
 
+        /**
+         * @classdesc A fluent API operation for creating a filter for a query by chaining different rules.
+         * @class WhereQuery
+         * @protected
+         * @borrows WhereQuery#eq as WhereQuery#equal
+         * @borrows WhereQuery#ne as WhereQuery#notEqual
+         * @borrows WhereQuery#gt as WhereQuery#greaterThan
+         * @borrows WhereQuery#gte as WhereQuery#greaterThanEqual
+         * @borrows WhereQuery#lt as WhereQuery#lessThan
+         * @borrows WhereQuery#lte as WhereQuery#lessThanEqual
+         */
         function WhereQuery(parentQuery, exprOp, singleOperand) {
             this.parent = parentQuery;
             this.single = singleOperand;
@@ -3049,12 +3176,30 @@ THE SOFTWARE.y distributed under the MIT license.
         }
 
         WhereQuery.prototype = {
+            /**
+             * Adds an `and` clause to the current condition and returns it for further chaining.
+             * @method and
+             * @memberOf WhereQuery.prototype
+             * @returns {WhereQuery}
+             */
             and: function () {
                 return new WhereQuery(this, OperatorType.and);
             },
+            /**
+             * Adds an `or` clause to the current condition and returns it for further chaining.
+             * @method or
+             * @memberOf WhereQuery.prototype
+             * @returns {WhereQuery}
+             */
             or: function () {
                 return new WhereQuery(this, OperatorType.or);
             },
+            /**
+             * Adds a `not` clause to the current condition and returns it for further chaining.
+             * @method not
+             * @memberOf WhereQuery.prototype
+             * @returns {WhereQuery}
+             */
             not: function () {
                 return new WhereQuery(this, OperatorType.not, true);
             },
@@ -3063,57 +3208,221 @@ THE SOFTWARE.y distributed under the MIT license.
                 this.expr.addOperand(new Expression(operator, args));
                 return this._done();
             },
+            /**
+             * Adds a condition that a field must be equal to a specific value.
+             * @method eq
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {*} value Comparison value (to which the fields must be equal).
+             * @returns {WhereQuery}
+             */
             eq: function (field, value) {
                 return this._simple(OperatorType.equal, field, value);
             },
+            /**
+             * Adds a condition that a field must *not* be equal to a specific value.
+             * @method ne
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {*} value Comparison value (to which the field must not be equal).
+             * @returns {WhereQuery}
+             */
             ne: function (field, value) {
                 return this._simple(OperatorType.not_equal, field, value);
             },
+            /**
+             * Adds a condition that a field must be `greater than` a certain value. Applicable to Number, String, and Date fields.
+             * @method gt
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {*} value Comparison value (that the field should be greater than).
+             * @returns {WhereQuery}
+             */
             gt: function (field, value) {
                 return this._simple(OperatorType.gt, field, value);
             },
+            /**
+             * Adds a condition that a field must be `greater than or equal` to a certain value. Applicable to Number, String, and Date fields.
+             * @method gte
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {*} value Comparison value (that the field should be greater than or equal to).
+             * @returns {WhereQuery}
+             */
             gte: function (field, value) {
                 return this._simple(OperatorType.gte, field, value);
             },
+            /**
+             * Adds a condition that a field must be `less than` a certain value. Applicable to Number, String, and Date fields.
+             * @method lt
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {*} value Comparison value (that the field should be less than).
+             * @returns {WhereQuery}
+             */
             lt: function (field, value) {
                 return this._simple(OperatorType.lt, field, value);
             },
+            /**
+             * Adds a condition that a field must be `less than or equal` to a certain value. Applicable to Number, String, and Date fields.
+             * @method lte
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {*} value Comparison value (that the field should be less than or equal to).
+             * @returns {WhereQuery}
+             */
             lte: function (field, value) {
                 return this._simple(OperatorType.lte, field, value);
             },
+            /**
+             * Adds a condition that a field must be in a set of values.
+             * @method isin
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {Array} value An array of the values that the field should be in.
+             * @returns {WhereQuery}
+             */
             isin: function (field, value) {
                 return this._simple(OperatorType.isin, field, value);
             },
+            /**
+             * Adds a condition that a field must *not* be in a set of values.
+             * @method notin
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {Array} value An array of values that the field should not be in.
+             * @returns {WhereQuery}
+             */
             notin: function (field, value) {
                 return this._simple(OperatorType.notin, field, value);
             },
+            /**
+             * Adds a condition that a field must include *all* of the specified values. Applicable to Array fields.
+             * @method all
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {Array} value An array of values that the field must include.
+             * @returns {WhereQuery}
+             */
             all: function (field, value) {
                 return this._simple(OperatorType.all, field, value);
             },
+            /**
+             * Adds a condition that a field must contain an array whose length is larger than a specified value. Applicable to Array fields.
+             * @method size
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {number} value The size that the array must be bigger than.
+             * @returns {WhereQuery}
+             */
             size: function (field, value) {
                 return this._simple(OperatorType.size, field, value);
             },
+            /**
+             * Adds a condition that a field must satisfy a specified regex.
+             * @method regex
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {string} regularExpression Regular expression in PCRE format.
+             * @param {string} [options] A string of regex options to use. See [specs]({http://docs.mongodb.org/manual/reference/operator/query/regex/#op._S_options}) for a description of available options.
+             * @returns {WhereQuery}
+             */
             regex: function (field, value, flags) {
                 return this._simple(OperatorType.regex, field, value, flags);
             },
+            /**
+             * Adds a condition that a field value must *start* with a specified string.
+             * @method startsWith
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {string} value The string that the field should start with.
+             * @param {string} [options] A string of regex options to use. See [specs]({http://docs.mongodb.org/manual/reference/operator/query/regex/#op._S_options}) for a description of available options.
+             * @returns {WhereQuery}
+             */
             startsWith: function (field, value, flags) {
                 return this._simple(OperatorType.startsWith, field, value, flags);
             },
+            /**
+             * Adds a condition that a field value must *end* with a specified string.
+             * @method endsWith
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name.
+             * @param {string} value The string that the field should end with.
+             * @param {string} [options] A string of  regex options to use. See [specs]({http://docs.mongodb.org/manual/reference/operator/query/regex/#op._S_options}) for a description of available options.
+             * @returns {WhereQuery}
+             */
             endsWith: function (field, value, flags) {
                 return this._simple(OperatorType.endsWith, field, value, flags);
             },
+            /**
+             * Adds a Geospatial condition that a specified geopoint must be within a certain distance from another geopoint. Applicable to GeoPoint fields only.
+             * @method nearSphere
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name containing a {GeoPoint} in the following format: `(decimal_degrees_latitude,decimal_degrees_longitude)`, where *decimal_degrees_latitude* ranges from -90 to 90 and *decimal_degrees_longitude* ranges from -180 to 180. Example: `(42.6954322,123.3239467)`
+             * @param {Everlive.GeoPoint} point Comparison geopoint value.
+             * @param {number} distance Distance value.
+             * @param {radians|km|miles} [metrics=radians] A string representing what unit of measurement is used for distance.
+             * @returns {WhereQuery}
+             */
             nearSphere: function (field, point, distance, metrics) {
                 return this._simple(OperatorType.nearShpere, field, point, distance, metrics);
             },
+            /**
+             * Adds a Geospatial condition that a specified geopoint must be within a specified coordinate rectangle. Applicable to GeoPoint fields only.
+             * @method withinBox
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name containing a {GeoPoint} in the following format: `(decimal_degrees_latitude,decimal_degrees_longitude)`, where *decimal_degrees_latitude* ranges from -90 to 90 and *decimal_degrees_longitude* ranges from -180 to 180. Example: `(42.6954322,123.3239467)`
+             * @param {Everlive.GeoPoint} pointBottomLeft Value representing the bottom left corner of the box.
+             * @param {Everlive.GeoPoint} pointUpperRight Value representing the upper right corner of the box.
+             * @example ```js
+             var query = new Everlive.Query();
+             query.where().withinBox('Location',
+             new Everlive.GeoPoint(23.317871, 42.687709),
+             new Everlive.GeoPoint(23.331346, 42.707075));
+             ```
+             * @returns {WhereQuery}
+             */
             withinBox: function (field, pointBottomLeft, pointUpperRight) {
                 return this._simple(OperatorType.withinBox, field, pointBottomLeft, pointUpperRight);
             },
+            /**
+             * Adds a Geospatial condition that a specified geopoint must be within a specified coordinate polygon. The polygon is specified as an array of geopoints. The last point in the array is implicitly connected to the first point thus closing the shape. Applicable to GeoPoint fields only.
+             * @method withinPolygon
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name containing a {GeoPoint} in the following format: `(decimal_degrees_latitude,decimal_degrees_longitude)`, where *decimal_degrees_latitude* ranges from -90 to 90 and *decimal_degrees_longitude* ranges from -180 to 180. Example: `(42.6954322,123.3239467)`
+             * @param {Everlive.GeoPoint[]} points Comparison value in the form of an array of geopoints defining the polygon.
+             * @example ```js
+             var point1 = new Everlive.GeoPoint(23.317871, 42.687709);
+             var point2 = new Everlive.GeoPoint(42.698749, 42.698749);
+             var point3 = new Everlive.GeoPoint(23.331346, 42.702282);
+
+             var query = new Everlive.Query();
+             query.where().withinPolygon("location", [point1, point2, point3]);
+             * ```
+             * @returns {WhereQuery}
+             */
             withinPolygon: function (field, points) {
                 return this._simple(OperatorType.withinPolygon, field, points);
             },
+            /**
+             * Adds a Geospatial condition that a specified geopoint must be within a coordinate circle. Applicable to GeoPoint fields only.
+             * @method withinCenterSphere
+             * @memberOf WhereQuery.prototype
+             * @param {string} field Field name containing a {GeoPoint} in the following format: `(decimal_degrees_latitude,decimal_degrees_longitude)`, where *decimal_degrees_latitude* ranges from -90 to 90 and *decimal_degrees_longitude* ranges from -180 to 180. Example: `(42.6954322,123.3239467)`
+             * @param {Everlive.GeoPoint} center Comparison value specifying the center of the coordinate circle.
+             * @param {number} radius Value specifying the radius length.
+             * @param {radians|km|miles} [metrics=radians] A string representing what unit of measurement is used for radius length.
+             * @returns {WhereQuery}
+             */
             withinCenterSphere: function (field, center, radius, metrics) {
                 return this._simple(OperatorType.withinShpere, field, center, radius, metrics);
             },
+            /**
+             * Ends the definition of the current WhereQuery. You need to call this method in order to continue with the definition of the parent `Query`. All other `WhereQuery` methods return the current instance of `WhereQuery` to allow chaining.
+             * @method done
+             * @memberOf WhereQuery.prototype
+             * @returns {Query}
+             */
             done: function () {
                 if (this.parent instanceof WhereQuery) {
                     return this.parent._done();
@@ -3129,6 +3438,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 }
             }
         };
+
         WhereQuery.prototype.equal = WhereQuery.prototype.eq;
         WhereQuery.prototype.notEqual = WhereQuery.prototype.ne;
         WhereQuery.prototype.greaterThan = WhereQuery.prototype.gt;
@@ -3496,9 +3806,9 @@ THE SOFTWARE.y distributed under the MIT license.
         };
 
         var _self = null;
-
         // The Request type is an abstraction over Ajax libraries
         // A Request object needs information about the Everlive connection and initialization options
+
         function Request(setup, options) {
             guardUnset(setup, 'setup');
             guardUnset(options, 'options');
@@ -3580,8 +3890,35 @@ THE SOFTWARE.y distributed under the MIT license.
         // Exposes the Request constructor
         Everlive.Request = Request;
         // A utility method for creating requests for the current Everlive instance
-        Everlive.prototype.request = function (attrs) {
-            return new Request(this.setup, attrs);
+
+        /**
+         * HTTP Methods
+         * @enum {string}
+         */
+        var HttpMethod = {
+            GET: 'GET',
+            POST: 'POST',
+            PUT: 'PUT',
+            DELETE: 'DELETE'
+        };
+
+        /**
+         * Make a request to the current {{site.bs}} JavaScript SDK instance.
+         * @method request
+         * @memberOf Everlive.prototype
+         * @param {object} options Object used to configure the request.
+         * @param {object} [options.endpoint] The endpoint of the {{site.bs}} JavaScript API relative to the API key section. (For example, options.endpoint = MyType will make a request to the MyType type.)
+         * @param {HttpMethod} [options.method] HTTP request method.
+         * @param {object} [options.data] Data to be sent with the request.
+         * @param {Function} [options.success] Success callback that will be called when the request finishes successfully.
+         * @param {Function} [options.error] Error callback to be called in case of an error.
+         * @param {object} [options.headers] Additional headers to be included in the request.
+         * @param {Query|object} [options.filter] This is either a {@link Query} or a [filter]({% slug rest-api-querying-filtering %}) expression.
+         * @param {boolean} [options.authHeaders=true] When set to false, no Authorization headers will be sent with the request.
+         * @returns {function} The request configuration object containing the `send` function that sends the request.
+         */
+        Everlive.prototype.request = function (options) {
+            return new Request(this.setup, options);
         };
         function parseIsoDateString(string) {
             if (_self && _self.setup && _self.setup.parseOnlyCompleteDateTimeObjects) {
@@ -3640,7 +3977,7 @@ THE SOFTWARE.y distributed under the MIT license.
             } else {
                 return null;
             }
-        };
+        }
 
         function jsonDateReviver(key, value) {
             if (typeof value === 'string') {
@@ -3745,6 +4082,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 error: parseError
             }
         };
+
         Everlive.disableRequestCache = function (url, method) {
             if (method === 'GET') {
                 var timestamp = (new Date()).getTime();
@@ -3753,6 +4091,7 @@ THE SOFTWARE.y distributed under the MIT license.
             }
             return url;
         };
+
         // TODO built for reqwest
         if (typeof Everlive.sendRequest === 'undefined') {
             Everlive.sendRequest = function (request) {
@@ -3779,6 +4118,7 @@ THE SOFTWARE.y distributed under the MIT license.
                 });
             };
         }
+
         return Request;
     }());
 
@@ -3841,20 +4181,42 @@ THE SOFTWARE.y distributed under the MIT license.
         };
     }
 
+
+    // Everlive base CRUD functions
+    /**
+     * @class Data
+     * @classdesc A class that provides methods for all CRUD operations to a given {{site.bs}} data type. Covers advanced scenarios with custom headers and special server-side functionality.
+     * @param {object} setup
+     * @param {string} collectionName
+     * @protected
+     */
     function Data(setup, collectionName) {
         this.setup = setup;
         this.collectionName = collectionName;
         this.options = null;
     }
 
-    // Everlive base CRUD functions
     Data.prototype = {
+        /**
+         * Sets additional non-standard HTTP headers in the current data request. See [List of Non-Standard HTTP Headers]{{% slug rest-api-headers}} for more information.
+         * @memberOf Data.prototype
+         * @method
+         * @param {object} headers Additional headers to be sent with the data request.
+         * @returns {Data}
+         */
         withHeaders: function (headers) {
             var options = this.options || {};
             options.headers = _.extend(options.headers || {}, headers);
             this.options = options;
             return this;
         },
+        /**
+         * Sets an expand expression to be used in the data request. This allows you to retrieve complex data sets using a single query based on relations between data types.
+         * @memberOf Data.prototype
+         * @method
+         * @param {object} expandExpression An [expand expression]({% slug features-data-relations-defining-expand %}) definition.
+         * @returns {Data}
+         */
         expand: function (expandExpression) {
             var expandHeader = {
                 'X-Everlive-Expand': JSON.stringify(expandExpression)
@@ -3867,6 +4229,23 @@ THE SOFTWARE.y distributed under the MIT license.
             return new Request(this.setup, options);
         },
         // TODO implement options: { requestSettings: { executeServerCode: false } }. power fields queries could be added to that options argument
+        /**
+         * Gets all data items that match the filter. This allows you to retrieve a subset of the items based on various filtering criteria.
+         * @memberOf Data.prototype
+         * @method get
+         * @name get
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
+        /**
+         * Gets all data items that match the filter. This allows you to retrieve a subset of the items based on various filtering criteria.
+         * @memberOf Data.prototype
+         * @method get
+         * @name get
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @returns {Promise} the promise for the request
+         */
         get: function (filter, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -3882,6 +4261,24 @@ THE SOFTWARE.y distributed under the MIT license.
         },
         // TODO handle options
         // TODO think to pass the id as a filter
+
+        /**
+         * Gets a data item by ID.
+         * @memberOf Data.prototype
+         * @method getById
+         * @name getById
+         * @param {string} id ID of the item.
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Gets an item by Id.
+         * @memberOf Data.prototype
+         * @method getById
+         * @name getById
+         * @param {string} id ID of the item.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         getById: function (id, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -3895,6 +4292,24 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+
+        /**
+         * Gets the count of the data items that match the filter.
+         * @memberOf Data.prototype
+         * @method count
+         * @name count
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Gets the count of the items that match the filter.
+         * @memberOf Data.prototype
+         * @method count
+         * @name count
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         count: function (filter, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -3909,6 +4324,24 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+
+        /**
+         * Creates a data item.
+         * @memberOf Data.prototype
+         * @method create
+         * @name create
+         * @param {object|object[]} data the item or items that will be created.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Creates an item.
+         * @memberOf Data.prototype
+         * @method create
+         * @name create
+         * @param {object|object[]} data The item or items that will be created.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         create: function (data, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -3923,6 +4356,44 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+        /**
+         * Updates all data items that match a filter with the specified update object.
+         * @memberOf Data.prototype
+         * @method rawUpdate
+         * @name rawUpdate
+         * @param updateObject Update object that contains the new values.
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Updates all items that match the filter with the specified update object.
+         * @memberOf Data.prototype
+         * @method rawUpdate
+         * @name rawUpdate
+         * @param updateObject Update object that contains the new values.
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
+        /**
+         * Updates the item with the specified Id with the specified update object.
+         * @memberOf Data.prototype
+         * @method rawUpdate
+         * @name rawUpdate
+         * @param {object} Update object that contains the new values.
+         * @param {string} id The ID of the item.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Updates a data item by ID with the specified update object.
+         * @memberOf Data.prototype
+         * @method rawUpdate
+         * @name rawUpdate
+         * @param {object} Update object that contains the new values.
+         * @param {string} id the ID of the item.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         rawUpdate: function (attrs, filter, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -3970,9 +4441,47 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+
+        /**
+         * Updates a single data item. This operation takes an object that specifies both the data item to be updated and the updated values.
+         * @memberOf Data.prototype
+         * @method updateSingle
+         * @name updateSingle
+         * @param {object} item the item that will be updated. Note: the Id property of the item will be used to determine which item will be updated
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Updates the provided item.
+         * @memberOf Data.prototype
+         * @method updateSingle
+         * @name updateSingle
+         * @param {object} item the item that will be updated. Note: the Id property of the item will be used to determine which item will be updated
+         * @param {Function} [success] a success callback.
+         * @param {Function} [error] an error callback.
+         */
         updateSingle: function (model, success, error) {
             return this._update(model, null, true, false, success, error);
         },
+
+        /**
+         * Updates all items that match a filter with the specified update object.
+         * @memberOf Data.prototype
+         * @method update
+         * @name update
+         * @param updateObject the update object.
+         * @param {object|null} filter a [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Updates all items that match the filter with the specified update object.
+         * @memberOf Data.prototype
+         * @method update
+         * @name update
+         * @param updateObject the update object.
+         * @param {object|null} filter a [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @param {Function} [success] a success callback.
+         * @param {Function} [error] an error callback.
+         */
         update: function (model, filter, success, error) {
             return this._update(model, filter, false, false, success, error);
         },
@@ -3996,12 +4505,87 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+
+        /**
+         * Deletes a single data item by ID.
+         * @memberOf Data.prototype
+         * @method destroySingle
+         * @name destroySingle
+         * @param {object} item Object containing the item Id to be deleted.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Deletes a single data item by ID.
+         * @memberOf Data.prototype
+         * @method destroySingle
+         * @name destroySingle
+         * @param {object} Object containing the item Id to be deleted.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         destroySingle: function (model, success, error) {
             return this._destroy(model, null, true, success, error);
         },
+
+        /**
+         * Deletes all data items that match a filter.
+         * @memberOf Data.prototype
+         * @method destroy
+         * @name destroy
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Deletes all items that match the filter.
+         * @memberOf Data.prototype
+         * @method destroy
+         * @name destroy
+         * @param {object|null} filter A [filter expression]({% slug rest-api-querying-filtering %}) definition.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         destroy: function (filter, success, error) {
             return this._destroy(null, filter, false, success, error);
         },
+
+        /**
+         * Sets the Access Control List (ACL) of a specified data item.
+         * @memberOf Data.prototype
+         * @method setAcl
+         * @name setAcl
+         * @param {object} acl The acl object.
+         * @param {object} item The item whose ACL will be updated. Note: the Id property of the item will be used to determine which item will be deleted.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Sets the Access Control List (ACL) of a specified data item.
+         * @memberOf Data.prototype
+         * @method setAcl
+         * @name setAcl
+         * @param {object} acl The acl object.
+         * @param {object} item The item whose ACL will be updated. Note: the Id property of the item will be used to determine which item will be deleted.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         */
+        /**
+         * Sets the Access Control List (ACL) of a specified data item.
+         * @memberOf Data.prototype
+         * @method setAcl
+         * @name setAcl
+         * @param {object} acl The acl object.
+         * @param {string} id The Id of the item.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Sets the Access Control List (ACL) of an item with a specified ID.
+         * @memberOf Data.prototype
+         * @method setAcl
+         * @name setAcl
+         * @param {object} acl The acl object.
+         * @param {string} id The Id of the item.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         setAcl: function (acl, filter, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4032,6 +4616,44 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+        /**
+         * Sets the owner of the specified data item.
+         * @memberOf Data.prototype
+         * @method setOwner
+         * @name setOwner
+         * @param {string} acl The new owner Id.
+         * @param {object} item The item whose owner will be updated. Note: the Id property of the item will be used to determine which item will be deleted.
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Sets the owner of the specified data item.
+         * @memberOf Data.prototype
+         * @method setOwner
+         * @name setOwner
+         * @param {string} acl The new owner Id.
+         * @param {object} item the item whose owner will be updated. Note: the Id property of the item will be used to determine which item will be deleted.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
+        /**
+         * Sets the owner of the specified data item.
+         * @memberOf Data.prototype
+         * @method setOwner
+         * @name setOwner
+         * @param {string} ownerId The new owner Id.
+         * @param {string} id The Id of the item.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Sets the owner of the specified data item.
+         * @memberOf Data.prototype
+         * @method setOwner
+         * @name setOwner
+         * @param {string} ownerId The new owner Id.
+         * @param {string} id The Id of the item.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         setOwner: function (ownerId, filter, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4057,6 +4679,23 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         },
+        /**
+         * Saves the provided data item. This operation will create or update the item depending on whether it is new or existing.
+         * @memberOf Data.prototype
+         * @method save
+         * @name save
+         * @param {object} item An object containing the item that is being saved.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Saves the provided data item. This operation will create or update the item depending on whether it is new or existing.
+         * @memberOf Data.prototype
+         * @method save
+         * @name save
+         * @param {object} item An object containing the item that is being saved.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         save: function (model, success, error) {
             var self = this;
             var isNew = this.isNew(model);
@@ -4079,6 +4718,13 @@ THE SOFTWARE.y distributed under the MIT license.
                 }
             }, success, error);
         },
+        /**
+         * Checks if the specified data item is new or not.
+         * @memberOf Data.prototype
+         * @method
+         * @param item Item to check.
+         * @returns {boolean}
+         */
         isNew: function (model) {
             return typeof model[idField] === 'undefined';
         }
@@ -4087,6 +4733,12 @@ THE SOFTWARE.y distributed under the MIT license.
 
     //TODO add a function for calculating the distances in geospatial queries
 
+    /**
+     * @classdesc A class representing a value for the {{site.TelerikBackendServices}} GeoPoint field.
+     * @class GeoPoint
+     * @param longitude Longitude of the GeoPoint in decimal degrees (range: -180 to 180). Example: `123.3239467`
+     * @param latitude Latitude of the GeoPoint in decimal degrees (range: -90 to 90). Example: `42.6954322`
+     */
     function GeoPoint(longitude, latitude) {
         this.longitude = longitude || 0;
         this.latitude = latitude || 0;
@@ -4094,6 +4746,14 @@ THE SOFTWARE.y distributed under the MIT license.
 
     Everlive.GeoPoint = GeoPoint;
 
+    /**
+     * A class used to represent the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+     * @property {string} unauthenticated Indicates that no user is authenticated.
+     * @property {string} masterKey Indicates that a master key authentication is used.
+     * @property {string} invalidAuthentication Indicates an authentication has been attempted, but it was invalid.
+     * @property {string} authenticated Indicates that a user is authenticated.
+     * @typedef {string} Everlive.AuthStatus
+     */
     var AuthStatus = {
         unauthenticated: 'unauthenticated',
         masterKey: 'masterKey',
@@ -4140,9 +4800,30 @@ THE SOFTWARE.y distributed under the MIT license.
         return promise;
     }
 
+    /**
+     * Gets the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+     * @memberOf Everlive.prototype
+     * @method authInfo
+     * @name authInfo
+     * @returns {Promise} A promise to the authentication status.
+     */
+    /**
+     * Gets the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+     * @memberOf Everlive.prototype
+     * @method authInfo
+     * @name authInfo
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
     Everlive.prototype.authInfo = function (success, error) {
         return getAuthInfo(this.setup, _.bind(this.Users.getById, this.Users, 'me'), success, error);
     };
+
+    /**
+     * @class Users
+     * @extends Data
+     * @protected
+     */
 
     var addUsersFunctions = function (ns) {
         ns._loginSuccess = function (data) {
@@ -4152,6 +4833,28 @@ THE SOFTWARE.y distributed under the MIT license.
         ns._logoutSuccess = function () {
             this.clearAuthorization();
         };
+
+        /**
+         * Registers a new user with username and password.
+         * @memberOf Users.prototype
+         * @method register
+         * @name register
+         * @param {string} username the new user's username.
+         * @param {string} password the new user's password.
+         * @param {object} userInfo additional information for the user (ex. DisplayName, Email, etc.)
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Registers a new user using a username and a password.
+         * @memberOf Users.prototype
+         * @method register
+         * @name register
+         * @param {string} username The new user's username.
+         * @param {string} password The new user's password.
+         * @param {object} userInfo Additional information for the user (ex. DisplayName, Email, etc.)
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.register = function (username, password, attrs, success, error) {
             guardUnset(username, 'username');
             guardUnset(password, 'password');
@@ -4163,6 +4866,27 @@ THE SOFTWARE.y distributed under the MIT license.
             _.extend(user, attrs);
             return this.create(user, success, error);
         };
+
+        /**
+         *
+         * Logs in a user using a username and a password to the current {{site.bs}} JavaScript SDK instance. All requests initiated by the current {{site.bs}} JavaScript SDK instance will be authenticated with that user's credentials.
+         * @memberOf Users.prototype
+         * @method login
+         * @name login
+         * @param {string} username The user's username.
+         * @param {string} password The user's password.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Logs in a user using a username and a password to the current {{site.bs}} JavaScript SDK instance. All requests initiated by the current {{site.bs}} JavaScript SDK instance will be authenticated with that user's credentials.
+         * @memberOf Users.prototype
+         * @method login
+         * @name login
+         * @param {string} username The user's username.
+         * @param {string} password The user's password.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.login = function (username, password, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4185,6 +4909,22 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         };
+
+        /**
+         * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK.
+         * @memberOf Users.prototype
+         * @method currentUser
+         * @name currentUser
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK.
+         * @memberOf Users.prototype
+         * @method currentUser
+         * @name currentUser
+         * @param {Function} [success] a success callback.
+         * @param {Function} [error] an error callback.
+         */
         ns.currentUser = function (success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4201,6 +4941,30 @@ THE SOFTWARE.y distributed under the MIT license.
                     });
             }, success, error);
         };
+
+        /**
+         * Changes the password of a user.
+         * @memberOf Users.prototype
+         * @method changePassword
+         * @name changePassword
+         * @param {string} username The user's username.
+         * @param {string} password The user's password.
+         * @param {string} newPassword The user's new password.
+         * @param {boolean} keepTokens If set to true, the user tokens will be preserved even after the password change.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Changes the password of a user.
+         * @memberOf Users.prototype
+         * @method changePassword
+         * @name changePassword
+         * @param {string} username The user's username.
+         * @param {string} password The user's password.
+         * @param {string} newPassword The user's new password.
+         * @param {boolean} keepTokens If set to true, the user tokens will be preserved even after the password change.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.changePassword = function (username, password, newPassword, keepTokens, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4224,6 +4988,22 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         };
+
+        /**
+         * Log out the user who is currently logged in.
+         * @memberOf Users.prototype
+         * @method logout
+         * @name logout
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Log out the user who is currently logged in.
+         * @memberOf Users.prototype
+         * @method logout
+         * @name logout
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.logout = function (success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4300,6 +5080,23 @@ THE SOFTWARE.y distributed under the MIT license.
             }, success, error);
         };
 
+        /**
+         * Log in a user using an Facebook access token.
+         * @memberOf Users.prototype
+         * @method loginWithFacebook
+         * @name loginWithFacebook
+         * @param {string} accessToken Facebook access token.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Log in a user using an Facebook access token.
+         * @memberOf Users.prototype
+         * @method loginWithFacebook
+         * @name loginWithFacebook
+         * @param {string} accessToken Facebook access token.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.loginWithFacebook = function (accessToken, success, error) {
             var identity = {
                 Provider: 'Facebook',
@@ -4308,6 +5105,25 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._loginWithProvider(identity, success, error);
         };
 
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to a Facebook access token.
+         * @memberOf Users.prototype
+         * @method linkWithFacebook
+         * @name linkWithFacebook
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The Facebook access token that will be linked to the {{site.bs}} user account.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Links a Backend Services user with a Facebook access token.
+         * @memberOf Users.prototype
+         * @method linkWithFacebook
+         * @name linkWithFacebook
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The Facebook access token that will be linked to the {{site.bs}} user account.         * @param {Function} [success] a success callback.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.linkWithFacebook = function (userId, accessToken, success, error) {
             var identity = {
                 Provider: 'Facebook',
@@ -4316,10 +5132,44 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._linkWithProvider(identity, userId, success, error);
         };
 
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the Facebook token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromFacebook
+         * @name unlinkFromFacebook
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the Facebook token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromFacebook
+         * @name unlinkFromFacebook
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.unlinkFromFacebook = function (userId, success, error) {
             return ns._unlinkFromProvider('Facebook', userId, success, error);
         };
 
+        /**
+         * Log in a user using an ADFS access token.
+         * @memberOf Users.prototype
+         * @method loginWithADFS
+         * @name loginWithADFS
+         * @param {string} accessToken ADFS access token.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Log in a user using an ADFS access token.
+         * @memberOf Users.prototype
+         * @method loginWithADFS
+         * @name loginWithADFS
+         * @param {string} accessToken ADFS access token.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.loginWithADFS = function (accessToken, success, error) {
             var identity = {
                 Provider: 'ADFS',
@@ -4328,6 +5178,25 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._loginWithProvider(identity, success, error);
         };
 
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to an ADFS access token.
+         * @memberOf Users.prototype
+         * @method linkWithADFS
+         * @name linkWithADFS
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The ADFS access token that will be linked to the {{site.bs}} user account.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to an ADFS access token.
+         * @memberOf Users.prototype
+         * @method linkWithADFS
+         * @name linkWithADFS
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The ADFS access token that will be linked to the {{site.bs}} user account.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.linkWithADFS = function (userId, accessToken, success, error) {
             var identity = {
                 Provider: 'ADFS',
@@ -4336,10 +5205,44 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._linkWithProvider(identity, userId, success, error);
         };
 
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the ADFS token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromADFS
+         * @name unlinkFromADFS
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the ADFS token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromADFS
+         * @name unlinkFromADFS
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.unlinkFromADFS = function (userId, success, error) {
             return ns._unlinkFromProvider('ADFS', userId, success, error);
         };
 
+        /**
+         * Log in a user using a LiveID access token.
+         * @memberOf Users.prototype
+         * @method loginWithLiveID
+         * @name loginWithLiveID
+         * @param {string} accessToken LiveID access token.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Log in a user using a LiveID access token.
+         * @memberOf Users.prototype
+         * @method loginWithLiveID
+         * @name loginWithLiveID
+         * @param {string} accessToken LiveID access token.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.loginWithLiveID = function (accessToken, success, error) {
             var identity = {
                 Provider: 'LiveID',
@@ -4348,6 +5251,25 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._loginWithProvider(identity, success, error);
         };
 
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to a LiveId access token.
+         * @memberOf Users.prototype
+         * @method linkWithLiveID
+         * @name linkWithLiveID
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The LiveID access token that will be linked to the {{site.bs}} user account.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to a LiveId access token.
+         * @memberOf Users.prototype
+         * @method linkWithLiveID
+         * @name linkWithLiveID
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The LiveID access token that will be linked to the {{site.bs}} user account.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.linkWithLiveID = function (userId, accessToken, success, error) {
             var identity = {
                 Provider: 'LiveID',
@@ -4356,10 +5278,44 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._linkWithProvider(identity, userId, success, error);
         };
 
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the LiveID access token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromLiveID
+         * @name unlinkFromLiveID
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the LiveID access token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromLiveID
+         * @name unlinkFromLiveID
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.unlinkFromLiveID = function (userId, success, error) {
             return ns._unlinkFromProvider('LiveID', userId, success, error);
         };
 
+        /**
+         * Log in a user using a Google access token.
+         * @memberOf Users.prototype
+         * @method loginWithGoogle
+         * @name loginWithGoogle
+         * @param {string} accessToken Google access token.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Log in a user using a Google access token.
+         * @memberOf Users.prototype
+         * @method loginWithGoogle
+         * @name loginWithGoogle
+         * @param {string} accessToken Google access token.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.loginWithGoogle = function (accessToken, success, error) {
             var identity = {
                 Provider: 'Google',
@@ -4369,6 +5325,25 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._loginWithProvider(identity, success, error);
         };
 
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to a Google access token.
+         * @memberOf Users.prototype
+         * @method linkWithGoogle
+         * @name linkWithGoogle
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The Google access token that will be linked to the {{site.bs}} user account.
+         * @returns {Promise} the promise for the request
+         */
+        /**
+         * Links a {{site.TelerikBackendServices}} user account to a Google access token.
+         * @memberOf Users.prototype
+         * @method linkWithGoogle
+         * @name linkWithGoogle
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} accessToken The Google access token that will be linked to the {{site.bs}} user account.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.linkWithGoogle = function (userId, accessToken, success, error) {
             var identity = {
                 Provider: 'Google',
@@ -4378,10 +5353,46 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._linkWithProvider(identity, userId, success, error);
         };
 
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the Google access token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromGoogle
+         * @name unlinkFromGoogle
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the Google access token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromGoogle
+         * @name unlinkFromGoogle
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.unlinkFromGoogle = function (userId, success, error) {
             return ns._unlinkFromProvider('Google', userId, success, error);
         };
 
+        /**
+         * Log in a user with a Twitter token. A secret token needs to be provided.
+         * @memberOf Users.prototype
+         * @method loginWithTwitter
+         * @name loginWithTwitter
+         * @param {string} token Twitter token.
+         * @param {string} tokenSecret Twitter secret token.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Log in a user with a Twitter token. A secret token needs to be provided.
+         * @memberOf Users.prototype
+         * @method loginWithTwitter
+         * @name loginWithTwitter
+         * @param {string} token Twitter token.
+         * @param {string} tokenSecret Twitter secret token.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.loginWithTwitter = function (token, tokenSecret, success, error) {
             var identity = {
                 Provider: 'Twitter',
@@ -4392,6 +5403,27 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._loginWithProvider(identity, success, error);
         };
 
+        /**
+         * Links a {{site.TelerikBackendServices}} user to a Twitter token. A secret token needs to be provided.
+         * @memberOf Users.prototype
+         * @method linkWithTwitter
+         * @name linkWithTwitter
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} token The Twitter access token that will be linked to the {{site.bs}} user account.
+         * @param {string} tokenSecret The Twitter secret token.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Links a {{site.TelerikBackendServices}} user to a Twitter token. A secret token needs to be provided.         * Links a Backend Services user with a Twitter token. A secret token needs to be provided.
+         * @memberOf Users.prototype
+         * @method linkWithTwitter
+         * @name linkWithTwitter
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {string} token The Twitter access token that will be linked to the {{site.bs}} user account.
+         * @param {string} tokenSecret The Twitter secret token.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.linkWithTwitter = function (userId, token, tokenSecret, success, error) {
             var identity = {
                 Provider: 'Twitter',
@@ -4402,33 +5434,103 @@ THE SOFTWARE.y distributed under the MIT license.
             return ns._linkWithProvider(identity, userId, success, error);
         };
 
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the Twitter access token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromTwitter
+         * @name unlinkFromTwitter
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @returns {Promise} The promise for the request
+         */
+        /**
+         * Unlinks a {{site.TelerikBackendServices}} user account from the Twitter access token that it is linked to.
+         * @memberOf Users.prototype
+         * @method unlinkFromTwitter
+         * @name unlinkFromTwitter
+         * @param {string} userId The user's Id in {{site.bs}}.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         ns.unlinkFromTwitter = function (userId, success, error) {
             return ns._unlinkFromProvider('Twitter', userId, success, error);
         };
 
+        /**
+         * Sets the token and token type that the {{site.TelerikBackendServices}} JavaScript SDK will use for authorization.
+         * @memberOf Users.prototype
+         * @method setAuthorization
+         * @param {string} token Token that will be used for authorization.
+         * @param {Everlive.TokenType} tokenType Token type. Currently only 'bearer' token is supported.
+         */
         ns.setAuthorization = function setAuthorization(token, tokenType) {
             this.setup.token = token;
             this.setup.tokenType = tokenType;
         };
 
+        /**
+         * Clears the authentication token that the {{site.bs}} JavaScript SDK currently uses. Note that this is different than logging out, because the current authorization token is not invalidated.
+         * @method clearAuthorization
+         * @memberOf Users.prototype
+         */
         ns.clearAuthorization = function clearAuthorization() {
             this.setAuthorization(null, null);
         };
     };
 
+    /**
+     * @class Files
+     * @protected
+     * @extends Data
+     */
+
     var addFilesFunctions = function (ns) {
+        /**
+         * Get a URL that can be used as an endpoint for uploading a file. It is specific to each {{site.TelerikBackendServices}} app.
+         * @memberof Files.prototype
+         * @method getUploadUrl
+         * @returns {string}
+         */
         ns.getUploadUrl = function () {
             return Everlive.buildUrl(this.setup) + this.collectionName;
         };
+
+        /**
+         * Get the download URL for a file.
+         * @memberof Files.prototype
+         * @method getDownloadUrl
+         * @deprecated
+         * @param {string} fileId The ID of the file.
+         * @returns {string} url The download URL.
+         */
         ns.getDownloadUrl = function (fileId) {
             return Everlive.buildUrl(this.setup) + this.collectionName + '/' + fileId + '/Download';
         };
+
         ns._getUpdateUrl = function (fileId) {
             return this.collectionName + '/' + fileId + '/Content';
         };
+
+        /**
+         * Get a URL that can be used as an endpoint for updating a file. It is specific to each {{site.TelerikBackendServices}} app.
+         * @memberof Files.prototype
+         * @method getUpdateUrl
+         * @param {string} fileId The ID of the file.
+         * @returns {string} url The update URL.
+         */
         ns.getUpdateUrl = function (fileId) {
             return Everlive.buildUrl(this.setup) + this._getUpdateUrl(fileId);
         };
+
+        /**
+         * Updates a file's content
+         * @memberof Files.prototype
+         * @method updateContent
+         * @param {string} fileId File ID.
+         * @param {string} file File contents in base64 encoding.
+         * @param {function} [success] Success callback.
+         * @param {function} [error] Error callback.
+         * @returns {Promise}
+         */
         ns.updateContent = function (fileId, file, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4444,6 +5546,16 @@ THE SOFTWARE.y distributed under the MIT license.
                 request.send();
             }, success, error);
         };
+
+        /**
+         * Gets the download URL for a file by ID.
+         * @memberof Files.prototype
+         * @method getDownloadUrlById
+         * @param {string} fileId File ID.
+         * @param {function} [success] Success callback.
+         * @param {function} [error] Error callback.
+         * @returns {Promise}
+         */
         ns.getDownloadUrlById = function (fileId, success, error) {
             var self = this;
             return buildPromise(function (success, error) {
@@ -4478,31 +5590,42 @@ THE SOFTWARE.y distributed under the MIT license.
     //Global event handlers for push notification events. Required by the cordova PushNotifications plugin that we use.
     Everlive.PushCallbacks = {};
 
-    var Push = function (el) {
+    /**
+     * @class Push
+     * @classdesc A class for managing push notifications in your application. Supported are push notifications for hybrid apps on Android and iOS.
+     * @protected
+     * @param el {Everlive} Everlive Object
+     */
+    function Push(el) {
         this._el = el;
         this.notifications = el.data('Push/Notifications');
         this.devices = el.data('Push/Devices');
-    };
+    }
+
     Push.prototype = {
+
         /**
-         * Ensures that the Push Plugin has been loaded and is ready to use.
+         * Ensures that the Telerik Push Notifications plug-in has been loaded and is ready to use. An {EverliveError} is returned if the plug-in is not available.
+         * @method ensurePushIsAvailable
+         * @memberOf Push.prototype
          */
         ensurePushIsAvailable: function () {
             var isPushNotificationPluginAvailable = (typeof window !== 'undefined' && window.plugins && window.plugins.pushNotification);
 
             if (!isPushNotificationPluginAvailable) {
                 throw new EverliveError("The push notification plugin is not available. Ensure that the pushNotification plugin is included " +
-                "and use after `\deviceready\` event has been fired.");
+                "and use after `deviceready` event has been fired.");
             }
         },
-
         /**
+         * Returns the current device for sending push notifications
          * @deprecated since version 1.2.7
-         * Returns the current device for sending push
-         * @param [emulatorMode] {Boolean}
-         *   A flag whether the application is in emulator mode
-         * @returns {CurrentDevice}
-         *   Return an instance of the CurrentDevice
+         * @see [Push.register]{@link push.register}
+         * @memberOf Push.prototype
+         * @method currentDevice
+         * @name currentDevice
+         * @param [emulatorMode] {Boolean} If set to true, emulator mode is enabled meaning you cannot send push notifications.
+         * @returns {CurrentDevice} Returns an instance of CurrentDevice.
          */
         currentDevice: function (emulatorMode) {
             this.ensurePushIsAvailable();
@@ -4525,16 +5648,39 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
-         * Enables the notifications on the device and registers it for push with Telerik Backend Services if it hasn't
-         * already been registered. If it was registered the registration details are updated.
-         * @param settings {Object}
-         *   Settings for the registration. Can include custom parameters to be saved in backend services.
-         * @param success
-         *   Callback to invoke on success.
-         * @param error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * Enables push notifications on the device and registers it for the feature with {{site.TelerikBackendServices}} if it hasn't already been registered. If it has been registered, the registration details are updated.
+         * @method register
+         * @name register
+         * @memberOf Push.prototype
+         * @param {Object} settings An object containing settings for the registration. It can include custom parameters to be stored by {{site.bs}}.
+         * @param {Object} settings.iOS=null iOS-specific settings.
+         * @param {Boolean} settings.iOS.alert=true If set to true, the push notification will display as a standard iOS alert.
+         * @param {String|Number} settings.iOS.badge='+1' Specifies the badge counter to be displayed on the device.
+         * @param {Boolean} settings.iOS.sound=true If set to true, the device will play a notification sound.
+         * @param {Object} settings.android=null Android-specific settings.
+         * @param {String} settings.android.senderID=null Your Google API project number. It is required when obtaining a push token for an Android device.
+         * @param {String} settings.android.projectNumber=null Synonym for android.senderID. Available in JavaScript SDK versions 1.2.7 and later.
+         * @param {Object} settings.wp8=null Windows Phone specific settings
+         * @returns {Promise} A promise for the operation
+         */
+        /**
+         * Enables push notifications on the device and registers it for the feature with {{site.TelerikBackendServices}} if it hasn't already been registered. If it has been registered, the registration details are updated.
+         * Telerik Backend Services if it hasn't already been registered.
+         * If it was registered the registration details are updated.
+         * @method register
+         * @name register
+         * @memberOf Push.prototype
+         * @param {Object} settings Settings for the registration. Can include custom parameters to be saved in backend services.
+         * @param {Object} settings.iOS=null iOS specific settings
+         * @param {Boolean} settings.iOS.alert=true Specifies whether the device will display an alert message.
+         * @param {String|Number} settings.iOS.badge='+1' Specifies the badge counter to be displayed on the device.
+         * @param {Boolean} settings.iOS.sound=true Specifies whether the device will play a sound.
+         * @param {Object} settings.android=null Android specific settings
+         * @param {String} settings.android.senderID=null This is your Google API project number. It is required when obtaining a push token for an Android device.
+         * @param {String} settings.android.projectNumber=null Synonym for android.senderID. Available in JavaScript SDK versions 1.2.7 and later.
+         * @param {Object} settings.wp8=null Windows Phone specific settings
+         * @param {Function} [success] Callback to invoke on success.
+         * @param {Function} [error] Callback to invoke on error.
          */
         register: function (settings, success, error) {
             this.ensurePushIsAvailable();
@@ -4604,16 +5750,21 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
-         * Disables push notifications for the current device. This method invalidates any push tokens
-         * that were obtained for the device from the current application. The device will also be unregistered from
-         * Telerik Backend Services.
-         *
-         * @param onSuccess
-         *   Callback to invoke on success.
-         * @param onError
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application. The device will also be unregistered from {{site.TelerikBackendServices}}.
+         * @method unregister
+         * @name unregister
+         * @memberOf Push.prototype
+         * @returns {Promise} A promise for the operation
+         */
+        /**
+         * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application. The device will also be unregistered from {{site.TelerikBackendServices}}.
+         * This method invalidates any push tokens that were obtained for the device from the current application.
+         * The device will also be unregistered from Telerik Backend Services.
+         * @method unregister
+         * @name unregister
+         * @memberOf Push.prototype
+         * @param {Function} [onSuccess] Callback to invoke on success.
+         * @param {Function} [onError] Callback to invoke on error.
          */
         unregister: function (onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4623,16 +5774,21 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Updates the registration of the current device.
+         * @method updateRegistration
+         * @name updateRegistration
+         * @memberOf Push.prototype
+         * @param {Object} customParameters Custom parameters for the registration. If {undefined}, customParameters are not updated.
+         * @returns {Promise} A promise for the operation
+         */
+        /**
          * Updates the registration for the current device.
-         *
-         * @param {Object} customParameters
-         *   Custom parameters for the registration. If undefined, customParameters are not updated.
-         * @param {Function} onSuccess
-         *   Callback to invoke on success.
-         * @param {Function} onError
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method updateRegistration
+         * @name updateRegistration
+         * @memberOf Push.prototype
+         * @param {Object} customParameters Custom parameters for the registration. If {undefined}, customParameters are not updated.
+         * @param {Function} [onSuccess] Callback to invoke on success.
+         * @param {Function} [onError] Callback to invoke on error.
          */
         updateRegistration: function (customParameters, onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4642,16 +5798,21 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Sets the badge number on the {{site.TelerikBackendServices}} server.
+         * @method setBadgeNumber
+         * @name setBadgeNumber
+         * @memberOf Push.prototype
+         * @param {Number|String} badge The number to be set as a badge.
+         * @returns {Promise} A promise for the operation
+         */
+        /**
          * Sets the badge number on the server
-         *
-         * @param {(number|string)} badge
-         *   The number to be set as a badge.
-         * @param {Function} onSuccess
-         *   Callback to invoke on success.
-         * @param {Function} onError
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method setBadgeNumber
+         * @name setBadgeNumber
+         * @memberOf Push.prototype
+         * @param {Number|String} badge The number to be set as a badge.
+         * @param {Function} [onSuccess] Callback to invoke on success.
+         * @param {Function} [onError] Callback to invoke on error.
          */
         setBadgeNumber: function (badge, onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4681,14 +5842,19 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Resets the badge number on the {{site.TelerikBackendServices}} server to 0.
+         * @method clearBadgeNumber
+         * @name clearBadgeNumber
+         * @memberOf Push.prototype
+         * @returns {Promise} A promise for the operation
+         */
+        /**
          * Clears the badge number on the server by setting it to 0
-         *
-         * @param {Function} onSuccess
-         *   Callback to invoke on success.
-         * @param {Function} onError
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method clearBadgeNumber
+         * @name clearBadgeNumber
+         * @memberOf Push.prototype
+         * @param {Function} [onSuccess] Callback to invoke on success.
+         * @param {Function} [onError] Callback to invoke on error.
          */
         clearBadgeNumber: function (onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4697,14 +5863,19 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Returns the push notifications registration for the current device.
+         * @method getRegistration
+         * @name getRegistration
+         * @memberOf Push.prototype
+         * @returns {Promise} A promise for the operation
+         */
+        /**
          * Returns the push registration for the current device.
-         *
-         * @param {Function} onSuccess
-         *   Callback to invoke on success.
-         * @param {Function} onError
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method getRegistration
+         * @name getRegistration
+         * @memberOf Push.prototype
+         * @param {Function} [onSuccess] Callback to invoke on success.
+         * @param {Function} [onError] Callback to invoke on error.
          */
         getRegistration: function (onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4714,13 +5885,21 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Sends a push notification.
+         * @method send
+         * @name send
+         * @memberOf Push.prototype
+         * @param {Object} notification The push notification object
+         * @returns {Promise} A promise to the request
+         */
+        /**
          * Sends a push message
-         * @param notification {Object}
-         *   The push notification object
-         * @param onSuccess
-         *   Callback to invoke on success.
-         * @param onError
-         *   Callback to invoke on error.
+         * @method send
+         * @name send
+         * @memberOf Push.prototype
+         * @param {Object} notification The push notification object
+         * @param {Function} [onSuccess] Callback to invoke on success.
+         * @param {Function} [onError] Callback to invoke on error.
          */
         send: function (notification, onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4729,15 +5908,27 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
-         * iOS: Checks if the Notifications are enabled for this Application in the Device's Notification Center
+         * This method provides a different operation on each supported platform:
+         *
+         * - On iOS: Checks if Notifications is enabled for this application in the device's Notification Center.
+         * - On Windows Phone: Checks if the application has an active open channel for communication with the Microsoft Push Notification Service. The outcome does not depend on the device's notification settings.
+         * - On Android: Checks if the application has established a connection with Google Cloud Messaging. The outcome does not depend on the device's notification settings.
+         * @method areNotificationsEnabled
+         * @name areNotificationsEnabled
+         * @memberOf Push.prototype
+         * @param {Object} options an object passed to the Push Notification plugin's areNotificationsEnabled method
+         * @returns {Promise} A promise for the operation
+         */
+        /**
+         * iOS: Checks if the Notifications are enabled for this Application in the Device's Notification Center.
          * Windows Phone: Checks if the Application has an active opened Channel for communication with the Notification Service. Not relying on the device notification settings.
          * Android: Checks if the Application has established connection with the Notification Service. Not relying on the device notification settings.
-         * @param onSuccess
-         *   Callback to invoke on successful check - passes one boolean value - true or false
-         * @param onError
-         *   Callback to invoke when an error in the push plugin has occurred.
-         * @returns {*}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method areNotificationsEnabled
+         * @name areNotificationsEnabled
+         * @memberOf Push.prototype
+         * @param {Object} options an object passed to the Push Notification plugin's areNotificationsEnabled method
+         * @param {Function} [onSuccess] Callback to invoke on successful check - passes one boolean value - true or false
+         * @param {Function} [onError] Callback to invoke when an error in the push plugin has occurred.
          */
         areNotificationsEnabled: function (options, onSuccess, onError) {
             this.ensurePushIsAvailable();
@@ -4751,6 +5942,13 @@ THE SOFTWARE.y distributed under the MIT license.
         }
     };
 
+    /**
+     * @class CurrentDevice
+     * @deprecated
+     * @protected
+     * @param pushHandler
+     * @constructor
+     */
     var CurrentDevice = function (pushHandler) {
         this._pushHandler = pushHandler;
         this._initSuccessCallback = null;
@@ -4770,18 +5968,23 @@ THE SOFTWARE.y distributed under the MIT license.
     CurrentDevice.prototype = {
 
         /**
+         * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device in {{site.TelerikBackendServices}} using the register() method.
+         * @method enableNotifications
+         * @name enableNotifications
+         * @memberOf CurrentDevice.prototype
+         * @param {PushSettings} pushSettings An object specifying various settings for the initialization.
+         * @returns {Object} A promise for the operation
+         */
+        /**
          * Initializes the current device for push notifications. This method requests a push token
          * from the device vendor and enables the push notification functionality on the device.
          * Once this is done, you can register the device in Everlive using the register() method.
-         *
-         * @param {PushSettings} pushSettings
-         *   An object specifying various settings for the initialization.
-         * @param {Function} success
-         *   Callback to invoke on success.
-         * @param {Function} error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method enableNotifications
+         * @name enableNotifications
+         * @memberOf CurrentDevice.prototype
+         * @param {PushSettings} pushSettings An object specifying various settings for the initialization.
+         * @param {Function} [success] Callback to invoke on success.
+         * @param {Function} [error] Callback to invoke on error.
          */
         enableNotifications: function (pushSettings, success, error) {
             this.pushSettings = this._cleanPlatformsPushSettings(pushSettings);
@@ -4790,15 +5993,20 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application.
+         * @method disableNotifications
+         * @name disableNotifications
+         * @memberOf CurrentDevice.prototype
+         * @returns {Object} A promise for the operation
+         */
+        /**
          * Disables push notifications for the current device. This method invalidates any push tokens
          * that were obtained for the device from the current application.
-         *
-         * @param {Function} success
-         *   Callback to invoke on success.
-         * @param {Function} error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @method disableNotifications
+         * @name disableNotifications
+         * @memberOf CurrentDevice.prototype
+         * @param {Function} [success] Callback to invoke on success.
+         * @param {Function} [error] Callback to invoke on error.
          */
         disableNotifications: function (success, error) {
             var self = this;
@@ -4836,13 +6044,18 @@ THE SOFTWARE.y distributed under the MIT license.
 
         /**
          * Returns the push registration for the current device.
-         *
-         * @param {Function} success
-         *   Callback to invoke on success.
-         * @param {Function} error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @memberOf CurrentDevice.prototype
+         * @method getRegistration
+         * @name getRegistration
+         * @returns {Object} A promise for the operation
+         */
+        /**
+         * Returns the push registration for the current device.
+         * @memberOf CurrentDevice.prototype
+         * @method getRegistration
+         * @name getRegistration
+         * @param {Function} success Callback to invoke on success.
+         * @param {Function} error Callback to invoke on error.
          */
         getRegistration: function (success, error) {
             var deviceId = encodeURIComponent(this._getDeviceId());
@@ -4850,17 +6063,22 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]({% slug apireference-js-sdk-currentdevice.enablenotifications %}) has completed successfully.
+         * @memberOf CurrentDevice.prototype
+         * @method register
+         * @name register
+         * @param {Object} customParameters Custom parameters for the registration.
+         * @returns {Object} A promise for the operation
+         */
+        /**
          * Registers the current device for push notifications in Everlive. This method can be called
          * only after enableNotifications() has completed successfully.
-         *
-         * @param {Object} customParameters
-         *   Custom parameters for the registration.
-         * @param {Function} success
-         *   Callback to invoke on success.
-         * @param {Function} error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @memberOf CurrentDevice.prototype
+         * @method register
+         * @name register
+         * @param {Object} customParameters Custom parameters for the registration.
+         * @param {Function} [success] Callback to invoke on success.
+         * @param {Function} [error] Callback to invoke on error.
          */
         register: function (customParameters, success, error) {
             var self = this;
@@ -4879,16 +6097,21 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Unregisters the current device from push notifications in {{site.TelerikBackendServices}}. After this call completes successfully, {{site.bs}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
+         * @memberOf CurrentDevice.prototype
+         * @method unregister
+         * @name unregister
+         * @returns {Object} A promise for the operation
+         */
+        /**
          * Unregisters the current device from push notifications in Everlive. After this call completes
          * successfully, Everlive will no longer send notifications to this device. Note that this does
          * not prevent the device from receiving notifications and does not invalidate push tokens.
-         *
-         * @param {Function} success
-         *   Callback to invoke on success.
-         * @param {Function} error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @memberOf CurrentDevice.prototype
+         * @method unregister
+         * @name unregister
+         * @param {Function} [success] Callback to invoke on success.
+         * @param {Function} [error] Callback to invoke on error.
          */
         unregister: function (success, error) {
             var deviceId = encodeURIComponent(device.uuid);
@@ -4896,16 +6119,21 @@ THE SOFTWARE.y distributed under the MIT license.
         },
 
         /**
+         * Updates the registration of the current device.
+         * @memberOf CurrentDevice.prototype
+         * @method updateRegistration
+         * @name updateRegistration
+         * @param {Object} customParameters Custom parameters for the registration. If undefined, customParameters are not updated.
+         * @returns {Object} A promise for the operation
+         */
+        /**
          * Updates the registration for the current device.
-         *
-         * @param {Object} customParameters
-         *   Custom parameters for the registration. If undefined, customParameters are not updated.
-         * @param {Function} success
-         *   Callback to invoke on success.
-         * @param {Function} error
-         *   Callback to invoke on error.
-         * @returns {Object}
-         *   A promise for the operation, or void if success/error are supplied.
+         * @memberOf CurrentDevice.prototype
+         * @method updateRegistration
+         * @name updateRegistration
+         * @param {Object} customParameters Custom parameters for the registration. If undefined, customParameters are not updated.
+         * @param {Function} [success] Callback to invoke on success.
+         * @param {Function} [error] Callback to invoke on error.
          */
         updateRegistration: function (customParameters, success, error) {
             var self = this;
@@ -4923,10 +6151,10 @@ THE SOFTWARE.y distributed under the MIT license.
                 error
             );
         },
-   
-        _initializeInteractivePush: function(iOSSettings, success, error) {
+
+        _initializeInteractivePush: function (iOSSettings, success, error) {
             var pushPlugin = window.plugins.pushNotification;
-   
+
             var interactiveSettings = iOSSettings.interactiveSettings;
             var notificationTypes = [];
             if (iOSSettings.alert) {
@@ -4938,15 +6166,15 @@ THE SOFTWARE.y distributed under the MIT license.
             if (iOSSettings.sound) {
                 notificationTypes.push(pushPlugin.UserNotificationTypes.Sound);
             }
-   
-            var getAction = function(actionIdentifier) {
-                var action = _.find(interactiveSettings.actions, function(action) {
+
+            var getAction = function (actionIdentifier) {
+                var action = _.find(interactiveSettings.actions, function (action) {
                     return action.identifier === actionIdentifier;
                 });
-   
+
                 return action;
             };
-            var categories = _.map(interactiveSettings.categories, function(category) {
+            var categories = _.map(interactiveSettings.categories, function (category) {
                 return {
                     identifier: category.identifier,
                     actionsForDefaultContext: _.map(category.actionsForDefaultContext, getAction),
@@ -4964,7 +6192,7 @@ THE SOFTWARE.y distributed under the MIT license.
                     // register these categories
                     categories: categories
                 }
-                );
+            );
         },
 
         //Initializes the push functionality on the device.
@@ -5241,13 +6469,13 @@ THE SOFTWARE.y distributed under the MIT license.
             if (this.pushSettings.iOS && this.pushSettings.iOS.interactiveSettings) {
                 this._initializeInteractivePush(
                     this.pushSettings.iOS,
-                    function() {
+                    function () {
                         self._deviceRegistrationSuccess(token);
                     },
-                    function(err) {
+                    function (err) {
                         throw new EverliveError('The interactive push configuration is incorrect: ' + err);
                     }
-                    );
+                );
             } else {
                 this._deviceRegistrationSuccess(token);
             }
@@ -5393,8 +6621,21 @@ THE SOFTWARE.y distributed under the MIT license.
     //#endregion
 
     var initDefault = function () {
+        /**
+         * @memberOf Everlive
+         * @instance
+         * @extends Data
+         * @member {Data} Users
+         */
         this.Users = this.data('Users');
         addUsersFunctions(this.Users);
+
+        /**
+         * @memberOf Everlive
+         * @instance
+         * @extends Files
+         * @member {Files} Files
+         */
         this.Files = this.data('Files');
         addFilesFunctions(this.Files);
 
@@ -5644,21 +6885,24 @@ THE SOFTWARE.y distributed under the MIT license.
     var RemoteTransport_setup = kendo.data.RemoteTransport.prototype.setup;
     kendo.data.RemoteTransport.prototype.setup = function (options, type) {
         if (!options.url && !this.options[type].url && this.options.typeName) {
-            if (!Everlive.$) {
+            var everlive$ = this.options.dataProvider || Everlive.$;
+            if (!everlive$) {
                 throw new Error("You should either specify a url for this transport method, or instantiate an Everlive instance.");
             }
-            options.url = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + this.options.typeName;
-            if (type === 'update' || type === 'destroy')
+
+            options.url = Everlive.Request.prototype.buildUrl(everlive$.setup) + this.options.typeName;
+            if (type === 'update' || type === 'destroy') {
                 options.url += '/' + options.data[Everlive.idField];
         }
-        if (Everlive.$) {
-            options.headers = Everlive.Request.prototype.buildAuthHeader(Everlive.$.setup);
-        }
+
+            options.headers = Everlive.Request.prototype.buildAuthHeader(everlive$.setup);
+
         if (type === 'read' && options.data) {
             var query = translateKendoQuery(options.data);
             var everliveQuery = createEverliveQuery(query);
             options.headers = $.extend(options.headers, Everlive.Request.prototype.buildQueryHeaders(everliveQuery));
         }
+
         if (type === 'create' || type === 'read' || type === 'update') {
             var success = options.success;
             options.success = function (result) {
@@ -5668,6 +6912,8 @@ THE SOFTWARE.y distributed under the MIT license.
                     success(result);
             };
         }
+        }
+
         return RemoteTransport_setup.call(this, options, type);
     };
 
@@ -5744,21 +6990,54 @@ THE SOFTWARE.y distributed under the MIT license.
                 throw new Error("You need to specify a 'relation' for an expand node when using the object notation");
             }
         }
-    }
+    };
 
+    /**
+     * Creates a new [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) that manages a certain Backend Services content type and can expand a chain of relations.
+     * Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) is used in conjunction with other Kendo widgets (such as [TreeView](http://docs.telerik.com/kendo-ui/web/treeview/overview)) to render data from Backend Services in a structured way.
+     * The chain of relations is defined by specifying the field names that contain the relation on each level. For example a generic hierarchy chain is a content type 'Continents' with relation to 'Countries', which in turn contains a relation to 'Towns'.
+     * *including Kendo scripts is required*.
+     * @param options data source options for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource).
+     * @param options.typeName name of the main content type for the data source.
+     * @param {ExpandDefinition[]} options.expand an array of expand definitions. It defines the levels of hierarchy by specifying the relation fields. An expand definition can either be the field name as a **string**, or an **object** that allows additional options.
+     * @param {string} ExpandDefinition - The field name of the relation that will be expanded.
+     * @param {string} ExpandDefinition.relation - *Required*. The field name of the relation that will be expanded.
+     * @param {object} ExpandDefinition.filter - an object specifying the filter expression.
+     * @param {object} ExpandDefinition.sort - an object specifying the sort expression.
+     * @param {object} ExpandDefinition.skip - a number specifying the skip value.
+     * @param {object} ExpandDefinition.take - a number specifying the take value.
+     * @param {object} ExpandDefinition.fields - an object specifying the fields expression.
+     * @returns {HierarchicalDataSource} A new instance of Kendo UI HierarchicalDataSource. See Kendo UI documentation for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource)
+     * @example ```js
+     * var el = new Everlive('your-api-key-here');
+     * var continents = Everlive.createHierarchicalDataSource({
+     *   "typeName": "Continents",
+     *   "expand": ["Countries", "Towns"]
+     * });
+     *
+     * ...
+     * ("#treeview").kendoTreeView({
+     *   dataSource: continents,
+     *   dataTextField: ["ContinentName", "CountryName", "TownName"]
+     * });
+     * ```
+     */
     Everlive.createHierarchicalDataSource = function (options) {
         options = options || {};
         var expand = options.expand;
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
         delete options.expand;
         delete options.typeName;
+        delete options.dataProvider;
         var baseUrl;
+
         if (options.url) {
             baseUrl = options.url;
-        } else if (Everlive.$ && typeName) {
-            baseUrl = Everlive.Request.prototype.buildUrl(Everlive.$.setup) + typeName;
+        } else if (everlive$ && typeName) {
+            baseUrl = Everlive.Request.prototype.buildUrl(everlive$.setup) + typeName;
         } else {
-            if (!Everlive.$) {
+            if (!everlive$) {
                 throw new Error("You need to instantiate an Everlive instance in order to create a kendo HierarchicalDataSource.");
             }
             if (!typeName) {
@@ -5789,26 +7068,48 @@ THE SOFTWARE.y distributed under the MIT license.
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
-        },
+            typeName: typeName,
+            dataProvider: everlive$
+        };
         dataSourceOptions.schema = expandSchema;
         extend(true, dataSourceOptions, options);
         return new kendo.data.HierarchicalDataSource(dataSourceOptions);
-    }
+    };
 
+    /**
+     * Creates a new Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) that manages a certain Backend Services content type.
+     * Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) is used in conjunction with other Kendo UI widgets (such as [ListView](http://docs.telerik.com/kendo-ui/web/listview/overview) and [Grid](http://docs.telerik.com/kendo-ui/web/grid/overview)) to provide an easy way to render data from Backend Services.
+     * *including Kendo scripts is required*.
+     * @param options data source options. See Kendo UI documentation of [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more info.
+     * @param options.transport.typeName the content type name in Backend Services that will be managed.
+     * @returns {DataSource} A new instance of Kendo UI DataSource. See Kendo UI documentation of [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more info.
+     * @example ```js
+     * var booksDataSource = Everlive.createDataSource({
+     *   transport: {
+     *     typeName: 'Books'
+     *   }
+     * });
+     * ```
+     */
     Everlive.createDataSource = function (options) {
         options = options || {};
         var typeName = options.typeName;
+        var everlive$ = options.dataProvider || Everlive.$;
+        if (!everlive$) {
+            throw new Error("You need to instantiate an Everlive instance in order to create a kendo DataSource.");
+        }
         if (!typeName) {
             throw new Error("You need to specify a 'typeName' in order to create a kendo DataSource.");
         }
         delete options.typeName;
+        delete options.dataProvider;
 
         var dataSourceOptions = {};
         dataSourceOptions.type = 'everlive';
         dataSourceOptions.transport = {
-            typeName: typeName
-        },
+            typeName: typeName,
+            dataProvider: everlive$
+        };
         extend(true, dataSourceOptions, options);
         return new kendo.data.DataSource(dataSourceOptions);
     }
