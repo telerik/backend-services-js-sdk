@@ -1980,15 +1980,6 @@ function hasOwnProperty(obj, prop) {
       if (_.isEmpty(expr)) {
         return collection;
       }
-      var usesExclusion = false;
-      _.each(expr, function(val, key) {
-        if(val === 0 && key !== settings.key) {
-           usesExclusion = true;
-        }
-        if(val !== 0 && usesExclusion) {
-            throw new Error("You cannot mix including and excluding fields."); 
-        }
-      });
 
       // result collection
       var projected = [];
@@ -15188,6 +15179,9 @@ module.exports = RelationTreeBuilder;
 var buildPromise = require('./utils').buildPromise;
 var EverliveError = require('./EverliveError').EverliveError;
 var Platform = require('./constants').Platform;
+var common = require('./common');
+var jstz = common.jstz;
+var _ = common._;
 
 module.exports = (function () {
     /**
@@ -15798,7 +15792,7 @@ module.exports = (function () {
 
     return CurrentDevice;
 }());
-},{"./EverliveError":43,"./constants":54,"./utils":73}],42:[function(require,module,exports){
+},{"./EverliveError":43,"./common":53,"./constants":54,"./utils":73}],42:[function(require,module,exports){
 var Setup = require('./Setup');
 var Data = require('./types/Data');
 var usersModule = require('./types/Users');
@@ -16375,11 +16369,11 @@ module.exports = (function () {
 var utils = require('./utils');
 var buildPromise = utils.buildPromise;
 var DeviceRegistrationResult = utils.DeviceRegistrationResult;
-var everliveErrorModule = require('./EverliveError').EverliveError;
+var everliveErrorModule = require('./EverliveError');
 var DeviceRegistrationError = everliveErrorModule.DeviceRegistrationError;
 var EverliveError = everliveErrorModule.EverliveError;
 var CurrentDevice = require('./CurrentDevice');
-
+var Platform = require('./constants').Platform;
 
 module.exports = (function () {
     /**
@@ -16736,7 +16730,7 @@ module.exports = (function () {
 
     return Push;
 }());
-},{"./CurrentDevice":41,"./EverliveError":43,"./utils":73}],49:[function(require,module,exports){
+},{"./CurrentDevice":41,"./EverliveError":43,"./constants":54,"./utils":73}],49:[function(require,module,exports){
 var utils = require('./utils');
 var rsvp = require('./common').rsvp;
 var buildAuthHeader = utils.buildAuthHeader;
@@ -17429,7 +17423,7 @@ module.exports = (function () {
     common._ = require('underscore');
     ensureDependency('_');
 
-    common.jstz = require('jstimezonedetect');
+    common.jstz = require('jstimezonedetect').jstz;
     ensureDependency('jstz');
 
     common.mongoQuery = require('mongo-query');

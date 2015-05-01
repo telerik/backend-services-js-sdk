@@ -633,15 +633,6 @@
       if (_.isEmpty(expr)) {
         return collection;
       }
-      var usesExclusion = false;
-      _.each(expr, function(val, key) {
-        if(val === 0 && key !== settings.key) {
-           usesExclusion = true;
-        }
-        if(val !== 0 && usesExclusion) {
-            throw new Error("You cannot mix including and excluding fields."); 
-        }
-      });
 
       // result collection
       var projected = [];
