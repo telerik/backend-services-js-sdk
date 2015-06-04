@@ -1627,9 +1627,9 @@ function hasOwnProperty(obj, prop) {
         _.extend(this._operators, {"$project": this._projection});
       }
 
-      if (!_.isArray(this._collection) && !_.isObject(this._collection)) {
-        throw new Error("Input collection is not of valid type. Must be an Array.");
-      }
+      // if (!_.isArray(this._collection) && !_.isObject(this._collection)) {
+      //   throw new Error("Input collection is not of valid type. Must be an Array.");
+      // }
 
       // filter collection
       this._result = _.filter(this._collection, this._query.test, this._query);
@@ -1980,6 +1980,15 @@ function hasOwnProperty(obj, prop) {
       if (_.isEmpty(expr)) {
         return collection;
       }
+      var usesExclusion = false;
+      _.each(expr, function(val, key) {
+        if(val === 0 && key !== settings.key) {
+           usesExclusion = true;
+        }
+        if(val !== 0 && usesExclusion) {
+            throw new Error("You cannot mix including and excluding fields."); 
+        }
+      });
 
       // result collection
       var projected = [];
@@ -3233,6 +3242,7 @@ function hasOwnProperty(obj, prop) {
   }
 
 }(this));
+
 },{"stream":"stream","underscore":30,"util":5}],8:[function(require,module,exports){
 
 /**
@@ -15302,7 +15312,7 @@ module.exports = (function () {
         },
 
         /**
-         * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()](#CurrentDevice.enableNotifications) has completed successfully.
+         * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
          * @memberOf CurrentDevice.prototype
          * @method register
          * @name register
@@ -15310,7 +15320,7 @@ module.exports = (function () {
          * @returns {Object} The promise for the request.
          */
         /**
-         * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()](#CurrentDevice.enableNotifications) has completed successfully.
+         * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
          * @memberOf CurrentDevice.prototype
          * @method register
          * @name register
@@ -15792,7 +15802,7 @@ module.exports = (function () {
 
     return CurrentDevice;
 }());
-},{"./EverliveError":43,"./common":53,"./constants":54,"./utils":73}],42:[function(require,module,exports){
+},{"./EverliveError":43,"./common":53,"./constants":54,"./utils":74}],42:[function(require,module,exports){
 var Setup = require('./Setup');
 var Data = require('./types/Data');
 var usersModule = require('./types/Users');
@@ -15828,12 +15838,12 @@ module.exports = (function () {
      * @param {boolean} [options.parseOnlyCompleteDateTimeObjects=false] - If set to true, the SDK will parse only complete date strings (according to the ISO 8601 standard).
      * @param {boolean} [options.emulatorMode=false] - Set this option to true to set the SDK in emulator mode.
      * @param {object|boolean} [options.offlineStorage] - Set this option to true to use the default offline settings.
-     * @param {boolean} [options.offlineStorage.autoSync=true] - Whether to sync data automatically when offing online.
      * @param {boolean} [options.offlineStorage.isOnline=true] - Whether the storage is in online mode initially.
-     * @param {ConflictResolutionStrategy|function} [options.offlineStorage.conflictResolutionStrategy=ConflictResolutionStrategy.ClientWins] - A constant specifying the conflict resolution strategy or a function used to resolve the conflicts.
-     * @param {StorageProvider|object} [options.offlineStorage.storageProviderSettings=StorageProvider.LocalStorage] - An object specifying settings for the offline storage provider.
-     * @param {function} [options.offlineStorage.syncStart=null] - A function that is called whenever a synchronisation starts.
-     * @param {function} [options.offlineStorage.syncEnd=null] - A function that is called when the synchronization completes. The function receives a list of sync errors.
+     * @param {ConflictResolutionStrategy|function} [options.offlineStorage.conflicts.strategy=ConflictResolutionStrategy.ClientWins] - A constant specifying the conflict resolution strategy or a function used to resolve the conflicts.
+     * @param {StorageProvider|object} [options.offlineStorage.storage.provider=StorageProvider.LocalStorage] - An object specifying settings for the offline storage provider.
+     * @param {string} [options.offlineStorage.encryption.key] - A key that will be used to encrypt the data stored offline.
+     * @param {boolean} [options.authentication.persist=false] - Indicates whether the current user's authentication will be persisted.
+     * @param {Function} [options.authentication.onAuthenticationRequired] - Invoked when the user's credentials have expired. Allowing you to perform custom logic.
      */
     function Everlive(options) {
         var self = this;
@@ -15853,25 +15863,66 @@ module.exports = (function () {
         this._emitter[event].apply(this._emitter, args);
     };
 
+    /**
+     * Adds an event listener to the SDK.
+     * @method addListener
+     * @param {String} eventName The name of the event to which to subscribe.
+     * @param {Function} eventListener An event listener which will be called once the event is raised.
+     * @memberOf Everlive.prototype
+     */
     Everlive.prototype.addListener = function () {
         this._emitterProxy('addListener', arguments);
     };
+
+    /**
+     * Adds an event listener to the SDK.
+     * @method on
+     * @param {String} eventName The name of the event to which to subscribe.
+     * @param {Function} eventListener An event listener which will be called once the event is raised.
+     * @memberOf Everlive.prototype
+     */
     Everlive.prototype.on = Everlive.prototype.addListener;
 
+    /**
+     * Removes an SDK event listener.
+     * @method removeListener
+     * @param {String} eventName The name of the event for which to stop listening.
+     * @param {Function} eventListener The event listener to remove.
+     * @memberOf Everlive.prototype
+     */
     Everlive.prototype.removeListener = function () {
         this._emitterProxy('removeListener', arguments);
     };
+
+    /**
+     * Removes an SDK event listener.
+     * @method off
+     * @param {Function} eventListener
+     * @memberOf Everlive.prototype
+     */
     Everlive.prototype.off = Everlive.prototype.removeListener;
 
+    /**
+     * Adds an event listener to the SDK which will be called only the first time the event is emitted.
+     * @method once
+     * @param {String} eventName The name of the event to which to subscribe.
+     * @param {Function} eventListener An event listener which will be called once the event is raised.
+     * @memberOf Everlive.prototype
+     */
     Everlive.prototype.once = function () {
         this._emitterProxy('once', arguments);
     };
 
+    /**
+     * Removes all SDK event listeners.
+     * @memberOf Everlive.prototype
+     * @method removeAllListeners
+     */
     Everlive.prototype.removeAllListeners = function () {
         this._emitterProxy('removeAllListeners', arguments);
     };
 
-    /** Reference to the current {{site.TelerikBackendServices}} (Everlive) JavaScript SDK
+    /** Reference to the current {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
      * @memberOf Everlive
      * @type {Everlive}
      * @static
@@ -15892,18 +15943,18 @@ module.exports = (function () {
      */
     Everlive.initializations = initializations;
 
-    /** Creates a new {{site.TelerikBackendServices}} (Everlive) Java Script SDK instance.
-     * @memberOf Everlive
-     * @param {object} options - An object containing options used to initialize the {{site.bs}} JavaScript SDK instance.
-     * @returns {Everlive} The instance of the {{site.bs}} (Everlive) JavaScript SDK that was created using the provided options.
-     * @static
-     * @method
-     */
     Everlive.init = function (options) {
         Everlive.$ = null;
         return new Everlive(options);
     };
 
+    /**
+     * Creates a new {@link Data} class.
+     * @memberOf Everlive.prototype
+     * @instance
+     * @param {String} collectionName The name of the collection to be used.
+     * @returns {Data}
+     */
     Everlive.prototype.data = function (collectionName) {
         return new Data(this.setup, collectionName, this.offlineStorage, this);
     };
@@ -15944,6 +15995,8 @@ module.exports = (function () {
      * @memberOf Everlive.prototype
      * @method authInfo
      * @name authInfo
+     * @deprecated
+     * @see {@link Authentication.getAuthenticationStatus}
      * @returns {Promise} A promise to the authentication status.
      */
     /**
@@ -15951,6 +16004,8 @@ module.exports = (function () {
      * @memberOf Everlive.prototype
      * @method authInfo
      * @name authInfo
+     * @deprecated
+     * @see {@link Authentication.getAuthenticationStatus}
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
      */
@@ -16017,9 +16072,10 @@ module.exports = (function () {
     };
 
     /**
-     * Sets the SDK to work in offline mode
+     * Sets the SDK to work in offline mode.
+     * @method offline
      * @memberOf Everlive.prototype
-     * @param {boolean} [offline] Boolean parameter for setting the SDK to online or offline mode
+     * @param {boolean} [isOffline = true] Boolean parameter for setting the SDK to online or offline mode.
      */
     Everlive.prototype.offline = function () {
         protectOfflineEnabled.call(this);
@@ -16032,11 +16088,12 @@ module.exports = (function () {
         }
         this.offlineStorage._setOffline(isOffline);
     };
-
+    
     /**
-     * Sets the SDK to work in online mode
+     * Sets the SDK to work in online mode.
+     * @method online
      * @memberOf Everlive.prototype
-     * @param {boolean} [online] Boolean parameter for setting the SDK to online or offline mode
+     * @param {boolean} [isOnline = true] Boolean parameter for setting the SDK to online or offline mode.
      */
     Everlive.prototype.online = function () {
         protectOfflineEnabled.call(this);
@@ -16051,9 +16108,10 @@ module.exports = (function () {
     };
 
     /**
-     * Check if the SDK is in offline mode
+     * Check if the SDK is in offline mode.
+     * @method isOffline
      * @memberOf Everlive.prototype
-     * @returns {boolean} isOffline Returns true if the SDK is in offline mode
+     * @returns {boolean} Returns true if the SDK is in offline mode.
      */
     Everlive.prototype.isOffline = function () {
         protectOfflineEnabled.call(this);
@@ -16061,9 +16119,10 @@ module.exports = (function () {
     };
 
     /**
-     * Check if the SDK is in online mode
+     * Check if the SDK is in online mode.
+     * @method isOnline
      * @memberOf Everlive.prototype
-     * @returns {boolean} isOnline Returns true if the SDK is in online mode
+     * @returns {boolean} Returns true if the SDK is in online mode.
      */
     Everlive.prototype.isOnline = function () {
         protectOfflineEnabled.call(this);
@@ -16071,7 +16130,8 @@ module.exports = (function () {
     };
 
     /**
-     * Starts the synchronization procedure. Emits the 'syncStart' event once started and the 'syncEnd' event once the procedure finishes
+     * Starts the synchronization procedure. Emits the 'syncStart' event when started and the 'syncEnd' event when the procedure finishes. 'syncEnd' contains information about the completed sync operation that you can use to find out how many items were synchronized.
+     * @method sync
      * @memberOf Everlive.prototype
      */
     Everlive.prototype.sync = function () {
@@ -16080,23 +16140,47 @@ module.exports = (function () {
     };
 
     var initDefault = function initDefault() {
+        var users = this.data('Users');
+        usersModule.addUsersFunctions(users, this);
+
+        /**
+         * @memberOf Everlive
+         * @instance
+         * @deprecated
+         * @see {@link Everlive.users}
+         * @description An instance of the [Users]{@link Users} class for working with users.
+         * @member {Users} Users
+         */
+        this.Users = users;
+
         /**
          * @memberOf Everlive
          * @instance
          * @description An instance of the [Users]{@link Users} class for working with users.
-         * @member {Users} Users
+         * @member {Users} users
          */
-        this.Users = this.data('Users');
-        usersModule.addUsersFunctions(this.Users, this);
+        this.users = users;
+
+        var files = this.data('Files');
+        filesModule.addFilesFunctions(files);
+
+        /**
+         * @memberOf Everlive
+         * @instance
+         * @deprecated Use everlive.files instead
+         * @see {@link Everlive.files}
+         * @description An instance of the [Files]{@link Files} class for working with files.
+         * @member {Files} Files
+         */
+        this.Files = files;
 
         /**
          * @memberOf Everlive
          * @instance
          * @description An instance of the [Files]{@link Files} class for working with files.
-         * @member {Files} Files
+         * @member {Files} files
          */
-        this.Files = this.data('Files');
-        filesModule.addFilesFunctions(this.Files);
+        this.files = files;
 
         /**
          * @memberOf Everlive
@@ -16124,23 +16208,27 @@ module.exports = (function () {
     return Everlive;
 }());
 
-},{"./EverliveError":43,"./Push":48,"./Request":49,"./Setup":50,"./auth/Authentication":51,"./common":53,"./constants":54,"./offline/offline":60,"./types/Data":70,"./types/Files":71,"./types/Users":72,"./utils":73,"events":1}],43:[function(require,module,exports){
+},{"./EverliveError":43,"./Push":48,"./Request":49,"./Setup":50,"./auth/Authentication":51,"./common":53,"./constants":54,"./offline/offline":61,"./types/Data":71,"./types/Files":72,"./types/Users":73,"./utils":74,"events":1}],43:[function(require,module,exports){
 var EverliveErrors = {
     itemNotFound: {
         code: 801,
         message: 'Item not found.'
     },
     syncConflict: {
-        code: 4242,
+        code: 10001,
         message: 'A conflict occurred while syncing data.'
     },
     syncError: {
-        code: 4243,
+        code: 10002,
         message: 'Synchronization failed for item.'
     },
     syncInProgress: {
-        code: 4244,
+        code: 10003,
         message: 'Cannot perform operation while synchronization is in progress'
+    },
+    syncCancelledByUser: {
+        code: 10004,
+        message: 'Synchronization cancelled by user'
     },
     generalDatabaseError: {
         code: 107,
@@ -16166,16 +16254,18 @@ var EverliveErrors = {
 
 var EverliveError = (function () {
     function EverliveError(message, code) {
-        var tmp = Error.apply(this, arguments);
+        var tmpError = Error.apply(this);
 
-        tmp.name = this.name = 'EverliveError';
+        tmpError.message = message;
+        tmpError.code = code || 0;
+        tmpError.name = this.name = 'EverliveError';
 
-        this.message = tmp.message;
+        this.message = tmpError.message;
         this.code = code;
 
         Object.defineProperty(this, 'stack', {
             get: function () {
-                return tmp.stack
+                return tmpError.stack
             }
         });
 
@@ -16261,7 +16351,7 @@ module.exports = (function () {
     });
 }());
 
-},{"./EverliveError":43,"./common":53,"./query/DataQuery":63,"./query/Query":64}],45:[function(require,module,exports){
+},{"./EverliveError":43,"./common":53,"./query/DataQuery":64,"./query/Query":65}],45:[function(require,module,exports){
 module.exports = (function () {
     function Expression(operator, operands) {
         this.operator = operator;
@@ -16442,11 +16532,17 @@ module.exports = (function () {
          * @param {Object} settings.iOS=null iOS-specific settings.
          * @param {Boolean} settings.iOS.alert=true If set to true, the push notification will display as a standard iOS alert.
          * @param {String|Number} settings.iOS.badge='+1' Specifies the badge counter to be displayed on the device.
+         * @param {Boolean} settings.iOS.clearBadge=false Specifies whether to reset the badge count to 0.
          * @param {Boolean} settings.iOS.sound=true If set to true, the device will play a notification sound.
          * @param {Object} settings.android=null Android-specific settings.
          * @param {String} settings.android.senderID=null Your Google API project number. It is required when obtaining a push token for an Android device.
          * @param {String} settings.android.projectNumber=null Synonym for android.senderID. Available in JavaScript SDK versions 1.2.7 and later.
          * @param {Object} settings.wp8=null Windows Phone specific settings.
+         * @param {String} settings.wp8.channelName=null The name of the push channel that the device is registering to.
+         * @param {Function} settings.notificationCallbackIOS Specifies a custom callback to be used when a push notification is received on iOS.
+         * @param {Function} settings.notificationCallbackAndroid Specifies a custom callback to be used when a push notification is received on Android.
+         * @param {Function} settings.notificationCallbackWP8 Specifies a custom callback to be used when a push notification is received on Windows Phone 8.
+         * @param {Object} settings.customParameters=null Specifies optional custom registration parameters that will be saved in Telerik Backend Services.
          * @returns {Promise} The promise for the request.
          */
         /**
@@ -16460,11 +16556,17 @@ module.exports = (function () {
          * @param {Object} settings.iOS=null iOS specific settings
          * @param {Boolean} settings.iOS.alert=true Specifies whether the device will display an alert message.
          * @param {String|Number} settings.iOS.badge='+1' Specifies the badge counter to be displayed on the device.
+         * @param {Boolean} settings.iOS.clearBadge=false Specifies whether to reset the badge count to 0.
          * @param {Boolean} settings.iOS.sound=true Specifies whether the device will play a sound.
          * @param {Object} settings.android=null Android specific settings
          * @param {String} settings.android.senderID=null This is your Google API project number. It is required when obtaining a push token for an Android device.
          * @param {String} settings.android.projectNumber=null Synonym for android.senderID. Available in JavaScript SDK versions 1.2.7 and later.
          * @param {Object} settings.wp8=null Windows Phone specific settings
+         * @param {String} settings.wp8.channelName=null The name of the push channel that the device is registering to.
+         * @param {Function} settings.notificationCallbackIOS Specifies a custom callback to be used when a push notification is received on iOS.
+         * @param {Function} settings.notificationCallbackAndroid Specifies a custom callback to be used when a push notification is received on Android.
+         * @param {Function} settings.notificationCallbackWP8 Specifies a custom callback to be used when a push notification is received on Windows Phone 8.
+         * @param {Object} settings.customParameters=null Specifies optional custom registration parameters that will be saved in Telerik Backend Services.
          * @param {Function} [success] Callback to invoke on success.
          * @param {Function} [error] Callback to invoke on error.
          */
@@ -16730,7 +16832,7 @@ module.exports = (function () {
 
     return Push;
 }());
-},{"./CurrentDevice":41,"./EverliveError":43,"./constants":54,"./utils":73}],49:[function(require,module,exports){
+},{"./CurrentDevice":41,"./EverliveError":43,"./constants":54,"./utils":74}],49:[function(require,module,exports){
 var utils = require('./utils');
 var rsvp = require('./common').rsvp;
 var buildAuthHeader = utils.buildAuthHeader;
@@ -16852,6 +16954,7 @@ module.exports = (function () {
         Request.sendRequest = function (request) {
             var url = request.buildUrl(request.setup) + request.endpoint;
             url = Everlive.disableRequestCache(url, request.method);
+            request.method = request.method || 'GET';
             var data = request.method === 'GET' ? request.data : JSON.stringify(request.data);
 
             var requestParams = {
@@ -16890,7 +16993,7 @@ module.exports = (function () {
 
     return Request;
 }());
-},{"./common":53,"./constants":54,"./everlive.platform":56,"./utils":73}],50:[function(require,module,exports){
+},{"./common":53,"./constants":54,"./everlive.platform":56,"./utils":74}],50:[function(require,module,exports){
 var _ = require('./common')._;
 var constants = require('./constants');
 var AuthenticationSetup = require('./auth/AuthenticationSetup');
@@ -17263,6 +17366,7 @@ module.exports = (function () {
         if (this.isAuthenticating()) {
             return this._authenticationCallbacks.promise;
         }
+
         this.clearAuthorization();
         this.authSetup.onAuthenticationRequired.call(this);
         this._authenticationCallbacks = utils.getCallbacks();
@@ -17376,32 +17480,35 @@ module.exports = (function () {
     return Authentication;
 }());
 
-},{"../Everlive":42,"../EverliveError":43,"../LocalStore":47,"../Request":49,"../constants":54,"../query/DataQuery":63,"../utils":73}],52:[function(require,module,exports){
+},{"../Everlive":42,"../EverliveError":43,"../LocalStore":47,"../Request":49,"../constants":54,"../query/DataQuery":64,"../utils":74}],52:[function(require,module,exports){
 'use strict';
-var AuthenticationSetup = function (everlive, options) {
-    options = options || {};
-    this.onAuthenticationRequired = options.onAuthenticationRequired;
-    this.persist = options.persist;
-};
+module.exports = (function () {
+    var AuthenticationSetup = function (everlive, options) {
+        options = options || {};
+        this.onAuthenticationRequired = options.onAuthenticationRequired;
+        this.persist = options.persist;
+    };
 
-module.exports = AuthenticationSetup;
+    return AuthenticationSetup;
+}());
 },{}],53:[function(require,module,exports){
 (function (global){
 module.exports = (function () {
     var common = {};
+    var dependencyStore = {};
 
     var platform = require('./everlive.platform');
     var isNativeScript = platform.isNativeScript;
     var isNodejs = platform.isNodejs;
 
     if (!isNodejs && !isNativeScript) {
-        common.reqwest = require('reqwest');
+        dependencyStore.reqwest = require('reqwest');
     } else if (isNativeScript) {
         common.root = global;
-        common.reqwest = require('./reqwest.nativescript');
+        dependencyStore.reqwest = require('./reqwest.nativescript');
     } else if (isNodejs) {
         common.root = global;
-        common.reqwest = require('./reqwest.nodejs');
+        dependencyStore.reqwest = require('./reqwest.nodejs');
     }
 
     if (!common.root) {
@@ -17409,46 +17516,59 @@ module.exports = (function () {
         common.root = window;
     }
 
-    var ensureDependency = function ensureDependency(globalName, localName) {
+    var exportDependency = function exportDependency(globalName, localName) {
         if (!localName) {
             localName = globalName;
         }
 
-        if (!Object.keys(common[localName]).length) {
-            common[localName] = common.root[globalName];
+        //for the everlive bundle without dependencies included, browserify replaces them with empty objects
+        //we need to make sure that these dependencies are marked as undefined
+        if (dependencyStore[localName] &&
+            typeof dependencyStore[localName] === 'object' &&
+            !Object.keys(dependencyStore[localName]).length) {
+
+            dependencyStore[localName] = undefined;
         }
+
+        Object.defineProperty(common, localName, {
+            get: function () {
+                return dependencyStore[localName] || this.root[globalName];
+            }
+        });
     };
 
-    //for the everlive bundle without dependencies included browserify replaces them with empty objects
-    common._ = require('underscore');
-    ensureDependency('_');
+    dependencyStore._ = require('underscore');
+    exportDependency('_');
 
-    common.jstz = require('jstimezonedetect').jstz;
-    ensureDependency('jstz');
+    dependencyStore.jstz = require('jstimezonedetect').jstz;
+    exportDependency('jstz');
 
-    common.mongoQuery = require('mongo-query');
-    ensureDependency('mongoQuery');
+    dependencyStore.mongoQuery = require('mongo-query');
+    exportDependency('mongoQuery');
 
-    common.Mingo = require('mingo');
-    ensureDependency('Mingo');
+    dependencyStore.Mingo = require('mingo');
+    exportDependency('Mingo');
 
-    common.uuid = require('uuid');
-    ensureDependency('uuid');
+    dependencyStore.uuid = require('uuid');
+    exportDependency('uuid');
 
-    common.Processor = require('../scripts/bs-expand-processor');
-    ensureDependency('Processor');
+    dependencyStore.Processor = require('../scripts/bs-expand-processor');
+    exportDependency('Processor');
 
-    common.rsvp = require('rsvp');
-    ensureDependency('RSVP', 'rsvp');
+    dependencyStore.rsvp = require('rsvp');
+    exportDependency('RSVP', 'rsvp');
 
-    if (!isNodejs && !isNativeScript) {
-        ensureDependency('reqwest');
-    }
+    exportDependency('reqwest');
 
     return common;
 }());
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../scripts/bs-expand-processor":36,"./everlive.platform":56,"./reqwest.nativescript":68,"./reqwest.nodejs":69,"jstimezonedetect":6,"mingo":7,"mongo-query":9,"reqwest":28,"rsvp":29,"underscore":30,"uuid":32}],54:[function(require,module,exports){
+},{"../scripts/bs-expand-processor":36,"./everlive.platform":56,"./reqwest.nativescript":69,"./reqwest.nodejs":70,"jstimezonedetect":6,"mingo":7,"mongo-query":9,"reqwest":28,"rsvp":29,"underscore":30,"uuid":32}],54:[function(require,module,exports){
+/**
+ * Constants used by the SDK
+ * @typedef {Object} Everlive.Constants
+ */
+
 var constants = {
     idField: 'Id',
     guidEmpty: '00000000-0000-0000-0000-000000000000',
@@ -17458,7 +17578,7 @@ var constants = {
      * @property {string} ClientWins
      * @property {string} ServerWins
      * @property {string} Custom
-     * @typedef {string} Everlive.ConflictResolutionStrategy
+     * @typedef {string} Everlive.Constants.ConflictResolutionStrategy
      */
     ConflictResolutionStrategy: {
         ClientWins: 'clientWins',
@@ -17468,14 +17588,15 @@ var constants = {
     ConflictResolution: {
         KeepServer: 'keepServer',
         KeepClient: 'keepClient',
-        Custom: 'custom'
+        Custom: 'custom',
+        Skip: 'skip'
     },
     /**
      * A class used to represent the available storage providers.
      * @property {string} LocalStorage
      * @property {string} FileSystem
      * @property {string} Custom
-     * @typedef {string} Everlive.StorageProvider
+     * @typedef {string} Everlive.Constants.StorageProvider
      */
     StorageProvider: {
         LocalStorage: 'localStorage',
@@ -17483,12 +17604,13 @@ var constants = {
         Custom: 'custom'
     },
 
-    DefaultStoragePath: 'el_store/',
+    DefaultStoragePath: 'el_store',
 
     EncryptionProvider: {
         Default: 'default',
         Custom: 'custom'
     },
+
     // The headers used by the Everlive services
     Headers: {
         filter: 'X-Everlive-Filter',
@@ -17562,7 +17684,7 @@ var constants = {
      * @property {string} invalidAuthentication Indicates an authentication has been attempted, but it was invalid.
      * @property {string} authenticated Indicates that a user is authenticated.
      * @property {string} authenticating Indicates that a user is currently authenticating. Some requests might be pending and waiting for the user to authenticate.
-     * @property {string} expiredAuthentication Indicates that a user is currently authenticating. Some requests might be pending and waiting for the user to authenticate.
+     * @property {string} expiredAuthentication Indicates that a user's authentication has expired and that the user must log back in.
      * @typedef {string} Everlive.AuthStatus
      */
     AuthStatus: {
@@ -17574,9 +17696,9 @@ var constants = {
         authenticating: 'authenticating'
     },
     offlineItemStates: {
-        created: 'created',
-        modified: 'modified',
-        deleted: 'deleted'
+        created: 'create',
+        modified: 'update',
+        deleted: 'delete'
     },
 
     /**
@@ -17618,6 +17740,7 @@ constants.AuthStoreKey = '__everlive_auth_key';
 constants.defaultSyncInterval = 1000 * 60 * 10; // 10 minutes
 
 module.exports = constants;
+
 },{}],55:[function(require,module,exports){
 var CryptoJS = require('node-cryptojs-aes').CryptoJS;
 var AES = CryptoJS.AES;
@@ -17658,11 +17781,11 @@ module.exports = (function () {
 }());
 },{"node-cryptojs-aes":20}],56:[function(require,module,exports){
 (function (global){
-var isNativeScriptApplication = Boolean(((typeof android !== 'undefined' && android && android.widget && android.widget.Button)
+var isNativeScript = Boolean(((typeof android !== 'undefined' && android && android.widget && android.widget.Button)
     || (typeof UIButton !== 'undefined' && UIButton)));
 
-if (isNativeScriptApplication) {
-    global.isNativeScriptApplication = isNativeScriptApplication;
+if (isNativeScript) {
+    global.isNativeScriptApplication = isNativeScript;
     global.isCordovaApplication = false;
 
     global.window = {
@@ -17671,15 +17794,17 @@ if (isNativeScriptApplication) {
             }
         };
 } else if (typeof window !== 'undefined') {
-    var isCordovaApplication = /^file:\/{3}[^\/]/i.test(window.location.href) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+    var isCordova = /^file:\/{3}[^\/]|x-wmapp/i.test(window.location.href) && /ios|iphone|ipod|ipad|android|iemobile/i.test(navigator.userAgent);
+    var isWindowsPhone = isCordova && /iemobile/i.test(navigator.userAgent);
 }
 
 var isNodejs = typeof exports === 'object' && typeof window === 'undefined';
 var isRequirejs = typeof define === 'function' && define.amd;
 
 module.exports = {
-    isCordova: isCordovaApplication,
-    isNativeScript: isNativeScriptApplication,
+    isCordova: isCordova,
+    isNativeScript: isNativeScript,
+    isWindowsPhone: isWindowsPhone,
     isNodejs: isNodejs,
     isRequirejs: isRequirejs
 };
@@ -17706,7 +17831,7 @@ module.exports = {
  */
 /*!
  Everlive SDK
- Version 1.3.0
+ Version 1.3.2
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -17744,7 +17869,7 @@ module.exports = {
         module.exports = common.root.Everlive;
     }
 }());
-},{"./Everlive":42,"./GeoPoint":46,"./Request":49,"./common":53,"./constants":54,"./everlive.platform":56,"./kendo/kendo.everlive":58,"./offline/offlinePersisters":61,"./query/Query":64,"./query/QueryBuilder":65,"./types/Data":70,"./utils":73}],58:[function(require,module,exports){
+},{"./Everlive":42,"./GeoPoint":46,"./Request":49,"./common":53,"./constants":54,"./everlive.platform":56,"./kendo/kendo.everlive":58,"./offline/offlinePersisters":62,"./query/Query":65,"./query/QueryBuilder":66,"./types/Data":71,"./utils":74}],58:[function(require,module,exports){
 var QueryBuilder = require('../query/QueryBuilder');
 var Query = require('../query/Query');
 var Request = require('../Request');
@@ -17754,7 +17879,9 @@ var Everlive = require('../Everlive');
 var EverliveError = require('../EverliveError').EverliveError;
 
 (function () {
-    if (typeof window !== 'undefined' && typeof window.jQuery === 'undefined' || typeof window.kendo === 'undefined') {
+    'use strict';
+
+    if (typeof window !== 'undefined' && typeof window.jQuery === 'undefined' || typeof window.kendo === 'undefined' || _.isEmpty(window.kendo.data)) {
         return;
     }
 
@@ -17794,9 +17921,9 @@ var EverliveError = require('../EverliveError').EverliveError;
             var id = options.data.Id;
 
             if (id) {
-                this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).getById(id).then(options.success, options.error);
+                this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).getById(id).then(options.success, options.error).catch(options.error);
             } else {
-                this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).get(everliveQuery).then(options.success, options.error);
+                this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).get(everliveQuery).then(options.success, options.error).catch(options.error);
             }
         },
 
@@ -17815,7 +17942,7 @@ var EverliveError = require('../EverliveError').EverliveError;
             } else {
                 var itemForUpdate = options.data;
                 return this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).updateSingle(itemForUpdate)
-                    .then(options.success.bind(this, itemForUpdate), options.error);
+                    .then(options.success.bind(this, itemForUpdate), options.error).catch(options.error);
             }
         },
 
@@ -17832,7 +17959,7 @@ var EverliveError = require('../EverliveError').EverliveError;
             var createData = isMultiple ? options.data.models : options.data;
 
             return this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).create(createData)
-                .then(options.success.bind(this, createData), options.error);
+                .then(options.success.bind(this, createData), options.error).catch(options.error);
         },
 
         destroy: function (options) {
@@ -17849,7 +17976,7 @@ var EverliveError = require('../EverliveError').EverliveError;
                 throw new Error('Batch destroy is not supported.');
             }
             return this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).destroy(options.data)
-                .then(options.success, options.error);
+                .then(options.success, options.error).catch(options.error);
         }
     });
 
@@ -18027,10 +18154,10 @@ var EverliveError = require('../EverliveError').EverliveError;
     /**
      * Creates a new Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) that manages a certain Backend Services content type.
      * Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) is used in conjunction with other Kendo UI widgets (such as [ListView](http://docs.telerik.com/kendo-ui/web/listview/overview) and [Grid](http://docs.telerik.com/kendo-ui/web/grid/overview)) to provide an easy way to render data from Backend Services.
-     * *including Kendo scripts is required*.
-     * @param options data source options. See Kendo UI documentation of [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more info.
-     * @param options.transport.typeName the content type name in Backend Services that will be managed.
-     * @returns {DataSource} A new instance of Kendo UI DataSource. See Kendo UI documentation of [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more info.
+     * *including Kendo UI scripts is required*.
+     * @param options data source options. See the Kendo UI documentation for [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more information.
+     * @param options.transport.typeName The content type name in Backend Services that will be managed.
+     * @returns {DataSource} A new instance of Kendo UI DataSource. See the Kendo UI documentation for [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more information.
      * @example ```js
      * var booksDataSource = Everlive.createDataSource({
      *   transport: {
@@ -18044,33 +18171,33 @@ var EverliveError = require('../EverliveError').EverliveError;
         var typeName = options.typeName;
         var everlive$ = options.dataProvider || Everlive.$;
         if (!everlive$) {
-            throw new Error("You need to instantiate an Everlive instance in order to create a kendo DataSource.");
+            throw new Error("You need to instantiate an Everlive instance in order to create a Kendo UI DataSource.");
         }
 
         if (!typeName) {
-            throw new Error("You need to specify a 'typeName' in order to create a kendo DataSource.");
+            throw new Error("You need to specify a 'typeName' in order to create a Kendo UI DataSource.");
         }
 
         return everlive$.getKendoDataSource(typeName, options);
     };
 
     /**
-     * Creates a new [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) that manages a certain Backend Services content type and can expand a chain of relations.
-     * Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) is used in conjunction with other Kendo widgets (such as [TreeView](http://docs.telerik.com/kendo-ui/web/treeview/overview)) to render data from Backend Services in a structured way.
+     * Creates a new Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) that manages a certain Backend Services content type and can expand a chain of relations.
+     * Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) is used in conjunction with other Kendo UI widgets (such as [TreeView](http://docs.telerik.com/kendo-ui/web/treeview/overview)) to render data from Backend Services in a structured way.
      * The chain of relations is defined by specifying the field names that contain the relation on each level. For example a generic hierarchy chain is a content type 'Continents' with relation to 'Countries', which in turn contains a relation to 'Towns'.
-     * *including Kendo scripts is required*.
-     * @param options data source options for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource).
-     * @param options.typeName name of the main content type for the data source.
-     * @param {ExpandDefinition[]} options.expand an array of expand definitions. It defines the levels of hierarchy by specifying the relation fields. An expand definition can either be the field name as a **string**, or an **object** that allows additional options.
+     * *including Kendo UI scripts is required*.
+     * @param options data source Options for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource).
+     * @param options.typeName Name of the main content type for the data source.
+     * @param {ExpandDefinition[]} options.expand An array of expand definitions. It defines the levels of hierarchy by specifying the relation fields. An expand definition can either be the field name as a **string**, or an **object** that allows additional options.
      * @param {string} ExpandDefinition - The field name of the relation that will be expanded. Only supported in online mode.
      * @param {string} ExpandDefinition.relation - *Required*. The field name of the relation that will be expanded.
      * @param {string} ExpandDefinition.typeName - *Required in offline mode*. The type name of the relation that will be expanded.
-     * @param {object} ExpandDefinition.filter - an object specifying the filter expression.
-     * @param {object} ExpandDefinition.sort - an object specifying the sort expression.
-     * @param {object} ExpandDefinition.skip - a number specifying the skip value.
-     * @param {object} ExpandDefinition.take - a number specifying the take value.
-     * @param {object} ExpandDefinition.fields - an object specifying the fields expression.
-     * @returns {HierarchicalDataSource} A new instance of Kendo UI HierarchicalDataSource. See Kendo UI documentation for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource)
+     * @param {object} ExpandDefinition.filter - An object specifying the filter expression.
+     * @param {object} ExpandDefinition.sort - An object specifying the sort expression.
+     * @param {object} ExpandDefinition.skip - A number specifying the skip value.
+     * @param {object} ExpandDefinition.take - A number specifying the take value.
+     * @param {object} ExpandDefinition.fields - An object specifying the fields expression.
+     * @returns {HierarchicalDataSource} A new instance of Kendo UI HierarchicalDataSource. See the Kendo UI documentation for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource).
      * @example ```js
      * var el = new Everlive('your-api-key-here');
      * var continents = Everlive.createHierarchicalDataSource({
@@ -18089,15 +18216,23 @@ var EverliveError = require('../EverliveError').EverliveError;
         var typeName = options.typeName;
         var everlive$ = options.dataProvider || Everlive.$;
         if (!everlive$) {
-            throw new Error("You need to instantiate an Everlive instance in order to create a kendo DataSource.");
+            throw new Error("You need to instantiate an Everlive instance in order to create a Kendo UI DataSource.");
         }
         if (!typeName) {
-            throw new Error("You need to specify a 'typeName' in order to create a kendo DataSource.");
+            throw new Error("You need to specify a 'typeName' in order to create a Kendo UI DataSource.");
         }
         return everlive$.getHierarchicalDataSource(typeName, options);
 
     };
 
+    /**
+     * Get a Kendo UI DataSource that is attached to the current instance of the SDK with default options.
+     * @method getKendoDataSource
+     * @memberOf Everlive.prototype
+     * @param {String} typeName The corresponding type name for the DataSource.
+     * @param {Object} [datasourceOptions] Additional DataSource options.
+     * @returns {DataSource}
+     */
     Everlive.prototype.getKendoDataSource = function (typeName, datasourceOptions) {
         datasourceOptions = _.extend({}, datasourceOptions);
         if (datasourceOptions.hasOwnProperty('serverGrouping') && datasourceOptions.serverGrouping === true) {
@@ -18133,7 +18268,7 @@ var EverliveError = require('../EverliveError').EverliveError;
                 return url;
             }
         }(pathUrl, expandField));
-    }
+    };
 
     var getHeadersForExpandNode = function (expandNode) {
         if (typeof expandNode === "string") {
@@ -18162,6 +18297,14 @@ var EverliveError = require('../EverliveError').EverliveError;
         }
     };
 
+    /**
+     * Get a Kendo UI HierarchicalDataSource that is attached to the current instance of the SDK with default options.
+     * @method getHierarchicalDataSource
+     * @memberOf Everlive.prototype
+     * @param {String} typeName The corresponding type name for the DataSource.
+     * @param {Object} dataSourceOptions Additional DataSource options that describe the hierarchical structure.
+     * @returns {HierarchicalDataSource}
+     */
     Everlive.prototype.getHierarchicalDataSource = function (typeName, dataSourceOptions) {
         dataSourceOptions = dataSourceOptions || {};
         if (dataSourceOptions.hasOwnProperty('serverGrouping') && dataSourceOptions.serverGrouping === true) {
@@ -18170,10 +18313,10 @@ var EverliveError = require('../EverliveError').EverliveError;
         var expand = dataSourceOptions.expand || dataSourceOptions;
         delete dataSourceOptions.expand;
         if (!typeName) {
-            throw new Error("You need to specify a 'typeName' in order to create a kendo HierarchicalDataSource.");
+            throw new Error("You need to specify a 'typeName' in order to create a Kendo UI HierarchicalDataSource.");
         }
         if (!$.isArray(expand)) {
-            throw new Error("You need to set 'expand' array option in order to create a kendo HierarchicalDataSource");
+            throw new Error("You need to set 'expand' array option in order to create a Kendo UI HierarchicalDataSource");
         }
         var baseUrl = this.buildUrl() + typeName;
 
@@ -18265,46 +18408,730 @@ var EverliveError = require('../EverliveError').EverliveError;
         createHierarchicalDataSource: createHierarchicalDataSource
     };
 }());
-},{"../Everlive":42,"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/Query":64,"../query/QueryBuilder":65}],59:[function(require,module,exports){
+},{"../Everlive":42,"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/Query":65,"../query/QueryBuilder":66}],59:[function(require,module,exports){
+'use strict';
+
 var DataQuery = require('../query/DataQuery');
+var utils = require('../utils');
+var offlineTransformations = require('./offlineTransformations');
+var expandProcessor = require('../ExpandProcessor');
+
 var everliveErrorModule = require('../EverliveError');
 var EverliveError = everliveErrorModule.EverliveError;
 var EverliveErrors = everliveErrorModule.EverliveErrors;
-var constants = require('../constants');
-var offlineItemStates = constants.offlineItemStates;
-var Headers = constants.Headers;
-var RequestOptionsBuilder = require('../query/RequestOptionsBuilder');
+
+var buildPromise = require('../utils').buildPromise;
 var common = require('../common');
 var _ = common._;
 var rsvp = common.rsvp;
 var mingo = common.Mingo;
 var mongoQuery = common.mongoQuery;
 var uuid = common.uuid;
+
+
+var constants = require('../constants');
+var Headers = constants.Headers;
+var offlineItemStates = constants.offlineItemStates;
+
+function OfflineQueryProcessor(persister, everlive, setup) {
+    this._collectionCache = {};
+    this._persister = persister;
+    this.everlive = everlive;
+    this.setup = setup;
+}
+
+var unsupportedOfflineHeaders = [Headers.powerFields];
+
+var unsupportedUsersOperations = {};
+unsupportedUsersOperations[DataQuery.operations.create] = true;
+unsupportedUsersOperations[DataQuery.operations.update] = true;
+unsupportedUsersOperations[DataQuery.operations.remove] = true;
+unsupportedUsersOperations[DataQuery.operations.removeSingle] = true;
+unsupportedUsersOperations[DataQuery.operations.rawUpdate] = true;
+unsupportedUsersOperations[DataQuery.operations.setAcl] = true;
+unsupportedUsersOperations[DataQuery.operations.setOwner] = true;
+unsupportedUsersOperations[DataQuery.operations.userLoginWithProvider] = true;
+unsupportedUsersOperations[DataQuery.operations.userLinkWithProvider] = true;
+unsupportedUsersOperations[DataQuery.operations.userUnlinkFromProvider] = true;
+unsupportedUsersOperations[DataQuery.operations.userLogin] = true;
+unsupportedUsersOperations[DataQuery.operations.userLogout] = true;
+unsupportedUsersOperations[DataQuery.operations.userChangePassword] = true;
+
+function buildUsersErrorMessage(dataQuery) {
+    var operation = dataQuery.operation;
+    if (operation === DataQuery.operations.userLoginWithProvider ||
+        operation === DataQuery.operations.userLinkWithProvider ||
+        operation === DataQuery.operations.userUnlinkFromProvider) {
+        operation += dataQuery.data.Provider || dataQuery.data.Identity.Provider;
+    }
+
+    return 'The Users operation ' + operation + ' is not supported in offline mode';
+}
+
+OfflineQueryProcessor.prototype = {
+    processQuery: function (dataQuery) {
+        var unsupportedClientOpMessage = this.getUnsupportedClientOpMessage(dataQuery);
+        if (unsupportedClientOpMessage && !dataQuery.isSync) {
+            return new rsvp.Promise(function (resolve, reject) {
+                reject(new EverliveError(unsupportedClientOpMessage));
+            });
+        }
+
+        var sort = dataQuery.getHeaderAsJSON(Headers.sort);
+        var limit = dataQuery.getHeaderAsJSON(Headers.take);
+        var skip = dataQuery.getHeaderAsJSON(Headers.skip);
+        var select = dataQuery.getHeaderAsJSON(Headers.select);
+        var filter = dataQuery.getHeaderAsJSON(Headers.filter);
+        var expand = dataQuery.getHeaderAsJSON(Headers.expand);
+
+        if (dataQuery.filter instanceof Everlive.Query) {
+            var filterObj = dataQuery.filter.build();
+            filter = filterObj.$where || filter;
+            sort = filterObj.$sort || sort;
+            limit = filterObj.$take || limit;
+            skip = filterObj.$skip || skip;
+            select = filterObj.$select || select;
+            expand = filterObj.$expand || expand;
+        } else {
+            filter = dataQuery.filter || filter;
+        }
+
+        if (!filter) {
+            filter = {};
+        }
+
+        var unsupportedOperators = utils.getUnsupportedOperators(filter);
+        var unsupportedOperatorCount = unsupportedOperators.length;
+        if (unsupportedOperatorCount) {
+            return new rsvp.Promise(function (resolve, reject) {
+                var errorMessage;
+                if (unsupportedOperatorCount === 1) {
+                    errorMessage = 'The operator ' + unsupportedOperators[0] + ' is not supported in offline mode.';
+                } else {
+                    errorMessage = 'The operators ' + unsupportedOperators.join(',') + 'are not supported in offline mode.';
+                }
+
+                reject(new EverliveError(errorMessage));
+            });
+        }
+
+        offlineTransformations.traverseAndTransformFilterId(filter);
+
+        switch (dataQuery.operation) {
+            case DataQuery.operations.read:
+                return this.read(dataQuery, filter, sort, skip, limit, select, expand);
+            case DataQuery.operations.readById:
+                return this.readById(dataQuery, expand);
+            case DataQuery.operations.count:
+                return this.count(dataQuery, filter);
+            case DataQuery.operations.create:
+                return this.create(dataQuery);
+            case DataQuery.operations.rawUpdate:
+            case DataQuery.operations.update :
+                return this.update(dataQuery, filter);
+            case DataQuery.operations.remove:
+                return this.remove(dataQuery, filter);
+            case DataQuery.operations.removeSingle:
+                filter._id = dataQuery.additionalOptions.id;
+                return this.remove(dataQuery, filter);
+            default:
+                return new rsvp.Promise(function (resolve, reject) {
+                    if (dataQuery.isSync) {
+                        resolve();
+                    } else {
+                        reject(new EverliveError(dataQuery.operation + ' is not supported in offline mode'));
+                    }
+                });
+        }
+    },
+
+    getUnsupportedClientOpMessage: function (dataQuery) {
+        for (var i = 0; i < unsupportedOfflineHeaders.length; i++) {
+            var header = unsupportedOfflineHeaders[i];
+            if (dataQuery.getHeader(header)) {
+                return 'The header ' + header + ' is not supported in offline mode';
+            }
+        }
+
+        if (dataQuery.collectionName.toLowerCase() === 'files') {
+            return 'Operations on files are not supported in offline mode';
+        }
+
+        if (dataQuery.collectionName.toLowerCase() === 'users' && unsupportedUsersOperations[dataQuery.operation]) {
+            return buildUsersErrorMessage(dataQuery);
+        }
+    },
+
+    _getCreateResult: function (createdItems) {
+        if (createdItems.length === 1) {
+            return {
+                result: {
+                    CreatedAt: utils.cloneDate(createdItems[0].CreatedAt),
+                    Id: createdItems[0]._id
+                }
+            }
+        } else {
+            var multipleCreateResult = [];
+            _.each(createdItems, function (createdItem) {
+                multipleCreateResult.push({
+                    CreatedAt: utils.cloneDate(createdItem.CreatedAt),
+                    Id: createdItem._id
+                });
+            });
+
+            return {
+                result: multipleCreateResult
+            }
+        }
+    },
+
+    create: function (dataQuery) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState, function (createdItems) {
+                var createResult = self._getCreateResult(createdItems);
+                resolve(createResult);
+            }, reject);
+        });
+    },
+
+    read: function (dataQuery, filter, sort, skip, limit, select, expand) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            var collectionLength;
+
+            self._prepareExpand(expand, dataQuery, true)
+                .then(function (prepareExpandResult) {
+                    if (prepareExpandResult) {
+                        select = prepareExpandResult.mainQueryFieldsExpression;
+                    }
+
+                    return self._getCollection(dataQuery.collectionName)
+                        .then(function (collection) {
+                            var result = self._readInternal(collection, filter, sort, skip, limit, select);
+
+                            if (skip || limit) {
+                                var all = self._readInternal(collection);
+                                collectionLength = all.length;
+                            }
+
+                            if (!self._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
+                                result = offlineTransformations.removeIdTransform(result, true);
+                            } else {
+                                result = offlineTransformations.idTransform(result);
+                            }
+
+                            return self._expandResult(prepareExpandResult, result);
+                        });
+                })
+                .then(function (result) {
+                    var response = self._transformOfflineResult(result, collectionLength, dataQuery);
+                    resolve(response);
+                })
+                .catch(reject);
+        });
+    },
+
+    _readInternal: function (collection, filter, sort, skip, limit, select) {
+        var filterCopy = _.extend({}, filter);
+        var actualFilter = this._getWithoutDeletedFilter(filterCopy);
+        offlineTransformations.traverseAndTransformFilterId(actualFilter);
+        var query = mingo.Query(actualFilter);
+        var cursor = mingo.Cursor(collection, query, select);
+        if (sort) {
+            cursor = cursor.sort(sort);
+        }
+
+        if (skip) {
+            cursor.skip(skip);
+        }
+
+        if (limit) {
+            cursor.limit(limit);
+        }
+
+        return _.map(cursor.all(), function (item) {
+            return _.extend({}, item);
+        });
+    },
+
+    readById: function (dataQuery, expand) {
+        var self = this;
+
+        return self._prepareExpand(expand, dataQuery, false)
+            .then(function (prepareExpandResult) {
+                return self._getCollection(dataQuery.collectionName)
+                    .then(function (collection) {
+                        return new rsvp.Promise(function (resolve, reject) {
+                            var item = self._getById(collection, dataQuery.additionalOptions.id);
+
+                            if (!item) {
+                                return reject(EverliveErrors.itemNotFound);
+                            }
+
+                            item = offlineTransformations.idTransform(item);
+                            return self._expandResult(prepareExpandResult, item).then(resolve).catch(reject);
+                        });
+                    });
+            })
+            .then(function (result) {
+                var response = self._transformOfflineResult(result, null, dataQuery);
+                return response;
+            });
+    },
+
+    _getById: function (collection, id) {
+        if (!id) {
+            throw new EverliveError('Id field is mandatory when using offline storage');
+        }
+
+        if (collection[id]) {
+            var item = _.extend({}, collection[id]);
+            var isDeleted = item && item[constants.offlineItemsStateMarker] === offlineItemStates.deleted;
+
+            return isDeleted ? undefined : item;
+        }
+    },
+
+    _prepareExpand: function (expand, dataQuery, isArray) {
+        return new rsvp.Promise(function (resolve, reject) {
+            if (expand) {
+                expandProcessor.prepare(expand, dataQuery.collectionName, isArray, dataQuery.fields, null, null, function (err, prepareResult) {
+                    if (err) {
+                        if (err.name === 'ExpandError') {
+                            err.code = EverliveErrors.invalidExpandExpression.code;
+                        }
+                        return reject(err);
+                    }
+                    resolve(prepareResult);
+                });
+            } else {
+                resolve();
+            }
+        });
+    },
+
+    _expandResult: function (prepareExpandResult, result) {
+        var self = this;
+        return new rsvp.Promise(function (resolve, reject) {
+            if (prepareExpandResult) {
+                expandProcessor.expand(prepareExpandResult.relationsTree, result, {
+                    offlineModule: self
+                }, function (err, result) {
+                    if (err) {
+                        if (err.name === 'ExpandError') {
+                            err.code = EverliveErrors.invalidExpandExpression.code;
+                        }
+                        return reject(err);
+                    }
+                    resolve(result);
+                });
+            } else {
+                resolve(result);
+            }
+        })
+    },
+
+    _getWithoutDeletedFilter: function (filter) {
+        var withoutDeletedFilter = {
+            $and: []
+        };
+        withoutDeletedFilter.$and.push(filter);
+        var deleteOfflineFilter = {};
+        deleteOfflineFilter[constants.offlineItemsStateMarker] = {$ne: offlineItemStates.deleted};
+        withoutDeletedFilter.$and.push(deleteOfflineFilter);
+        return withoutDeletedFilter;
+    },
+
+    update: function (dataQuery, filter) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync, resolve, reject);
+        });
+    },
+
+    remove: function (dataQuery, filter) {
+        var self = this;
+        return new rsvp.Promise(function (resolve, reject) {
+            self._removeItems(dataQuery, filter, dataQuery.isSync, resolve, reject);
+        });
+    },
+
+    count: function (dataQuery, filter) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self._getCollection(dataQuery.collectionName)
+                .then(function (collection) {
+                    var filterResult = self._readInternal(collection, filter);
+                    resolve({result: filterResult.length});
+                }).catch(reject);
+        });
+    },
+
+
+    _createItems: function (contentType, items, isSync, preserveState, success, error) {
+        var self = this;
+        this._getCollection(contentType)
+            .then(function (collection) {
+                var itemsForCreate = _.isArray(items) ? items : [items];
+                var createdItems = _.map(itemsForCreate, function (currentItem, index) {
+                    var itemToCreate = _.extend({}, currentItem);
+
+                    itemToCreate._id = itemToCreate.Id || uuid.v1();
+                    delete itemToCreate.Id;
+
+                    var existingItem = self._getById(collection, itemToCreate._id);
+                    var itemExists = !!existingItem;
+                    var state;
+                    if (itemExists && (!isSync && !preserveState)) {
+                        // TODO: [offline] return the same error as the server does
+                        return error(new Error('An item with the specified id already exists'));
+                    } else {
+                        if (isSync && preserveState && itemExists) {
+                            state = existingItem[constants.offlineItemsStateMarker];
+                        } else {
+                            state = isSync ? undefined : offlineItemStates.created; // set the state to created only if not syncing
+                        }
+                    }
+
+                    // we need to manually clone the dates in order to dereference them from the original object as
+                    // _.extends will pass a reference to the original date instead of creating a new instance
+                    if (currentItem.CreatedAt && currentItem.CreatedAt instanceof Date) {
+                        itemToCreate.CreatedAt = utils.cloneDate(currentItem.CreatedAt);
+                    } else {
+                        itemToCreate.CreatedAt = new Date();
+                    }
+
+                    if (currentItem.ModifiedAt && currentItem.ModifiedAt instanceof Date) {
+                        itemToCreate.ModifiedAt = utils.cloneDate(currentItem.ModifiedAt);
+                    } else {
+                        itemToCreate.ModifiedAt = utils.cloneDate(itemToCreate.CreatedAt);
+                    }
+
+                    itemToCreate.CreatedBy = itemToCreate.CreatedBy || self.everlive.setup.principalId || constants.guidEmpty;
+                    itemToCreate.ModifiedBy = itemToCreate.ModifiedBy || itemToCreate.CreatedBy;
+                    if (contentType === 'Users') {
+                        itemToCreate.Owner = itemToCreate._id;
+                    } else {
+                        itemToCreate.Owner = itemToCreate.CreatedBy || constants.guidEmpty;
+                    }
+
+                    self._setItem(collection, _.extend({}, itemToCreate), state);
+                    return itemToCreate;
+                });
+
+                return self._persistData(contentType).then(function () {
+                    if (!self._shouldAutogenerateIdForContentType(contentType) && !isSync) {
+                        createdItems = offlineTransformations.removeIdTransform(createdItems);
+                    }
+                    success(createdItems);
+                });
+            }).catch(error);
+    },
+
+    _applyUpdateOperation: function (originalUpdateExpression, itemToUpdate, collection, isSync, modifiedAt) {
+        var dbOperators = utils.getDbOperators(originalUpdateExpression, true);
+        var hasDbOperator = dbOperators.length !== 0;
+
+        var updateExpression;
+        if (hasDbOperator) {
+            updateExpression = originalUpdateExpression;
+        } else {
+            updateExpression = {
+                $set: originalUpdateExpression
+            };
+        }
+        var updateExpressionForUser = {
+            ModifiedBy: this.everlive.setup.principalId || constants.guidEmpty
+        };
+        updateExpression.$set = _.extend(updateExpressionForUser, updateExpression.$set);
+
+        if (isSync) {
+            updateExpression.$set.ModifiedAt = utils.cloneDate(originalUpdateExpression.ModifiedAt || modifiedAt);
+        }
+
+        mongoQuery(itemToUpdate, {}, updateExpression, {strict: true}); // Setting strict to true so only exact matches would be updated
+
+        itemToUpdate._id = itemToUpdate._id || updateExpression._id || updateExpression.Id;
+        delete itemToUpdate.Id;
+
+        var newState;
+        if (isSync) {
+            newState = undefined;
+        } else if (itemToUpdate[constants.offlineItemsStateMarker] === offlineItemStates.created) {
+            newState = offlineItemStates.created;
+        } else {
+            newState = offlineItemStates.modified;
+        }
+
+        this._setItem(collection, itemToUpdate, newState);
+    },
+
+    _updateItems: function (dataQuery, updateExpression, filter, isSync, resolve, reject) {
+        var self = this;
+
+        self._getCollection(dataQuery.collectionName)
+            .then(function (collection) {
+                var updateItems;
+
+                if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
+                    itemToUpdate = self._getById(collection, dataQuery.additionalOptions.id);
+                    self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync, dataQuery.ModifiedAt);
+                    updateItems = [itemToUpdate];
+                } else {
+                    updateItems = self._readInternal(collection, filter);
+                    for (var i = 0; i < updateItems.length; i++) {
+                        var itemToUpdate = updateItems[i];
+                        var itemExists = !!self._getById(collection, itemToUpdate._id.toString());
+
+                        if (!itemExists && !isSync) {
+                            return reject(EverliveErrors.itemNotFound);
+                        }
+
+                        self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync, dataQuery.ModifiedAt);
+                    }
+                }
+
+                return self._persistData(dataQuery.collectionName)
+                    .then(function () {
+                        var updatedItemCount = updateItems.length;
+                        var modifiedAtResult = updatedItemCount ? updateItems[0].ModifiedAt : new Date();
+
+                        var result = {
+                            ModifiedAt: modifiedAtResult,
+                            result: updatedItemCount
+                        };
+
+                        resolve(result);
+                    });
+            }).catch(reject);
+    },
+
+    _getAllCollections: function () {
+        return new rsvp.Promise(this._persister.getAllData.bind(this._persister));
+    },
+
+    _getCollection: function (contentType) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            // check the persister if there is no data in the collection cache for this content type
+            if (!self._collectionCache[contentType]) {
+                self._persister.getData(contentType, function (data) {
+                    self._collectionCache[contentType] = data || {};
+                    resolve(self._collectionCache[contentType]);
+                }, reject);
+            } else {
+                resolve(self._collectionCache[contentType]);
+            }
+        });
+    },
+
+    _setItem: function (collection, item, state) {
+        if (!state) {
+            delete item[constants.offlineItemsStateMarker];
+        } else {
+            item[constants.offlineItemsStateMarker] = state;
+        }
+
+        collection[item._id] = item;
+    },
+
+
+    _getDirtyItems: function (collection) {
+        var filter = {};
+        filter[constants.offlineItemsStateMarker] = {$exists: true};
+        var query = mingo.Query(filter);
+        var cursor = mingo.Cursor(collection, query);
+        return cursor.all();
+    },
+
+    _persistData: function (contentType) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            var contentTypeData = self._collectionCache[contentType];
+            self._transformPersistedData(contentType, contentTypeData);
+            self._persister.saveData(contentType, contentTypeData, resolve, reject);
+        });
+    },
+
+    _shouldAutogenerateIdForContentType: function (contentType) {
+        return !(this.setup && this.setup.typeSettings && this.setup.typeSettings[contentType] && this.setup.typeSettings[contentType].autoGenerateId === false);
+    },
+
+    _clearItem: function (collection, item) {
+        delete collection[item._id];
+    },
+
+    _removeItems: function (dataQuery, filter, isSync, resolve, reject) {
+        var self = this;
+
+        self._getCollection(dataQuery.collectionName)
+            .then(function (collection) {
+                var itemsToRemove = self._readInternal(collection, filter);
+
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    var itemToRemove = itemsToRemove[i];
+                    itemToRemove._id = itemToRemove._id || itemToRemove.Id;
+                    var itemExists = !!self._getById(collection, itemToRemove._id.toString());
+
+                    if (!itemExists && !isSync) {
+                        return reject(new EverliveError('Cannot delete item - item with id ' + itemToRemove._id + ' does not exist.'));
+                    }
+
+                    var removeFromMemory = itemToRemove[constants.offlineItemsStateMarker] === offlineItemStates.created || isSync;
+                    if (removeFromMemory) {
+                        self._clearItem(collection, itemToRemove);
+                    } else {
+                        self._setItem(collection, itemToRemove, offlineItemStates.deleted);
+                    }
+                }
+
+                return self._persistData(dataQuery.collectionName)
+                    .then(function () {
+                        var response = self._transformOfflineResult(itemsToRemove.length);
+                        resolve(response);
+                    });
+            }).catch(reject);
+    },
+
+    _applyTransformations: function (transformedResult, transformations) {
+        if (Array.isArray(transformedResult.result)) {
+            _.each(transformations, function (transformation) {
+                transformedResult.result.map(function (value, key) {
+                    transformedResult.result[key] = transformation(value);
+                });
+            });
+        } else {
+            _.each(transformations, function (transformation) {
+                transformedResult.result = transformation(transformedResult.result);
+            });
+        }
+    },
+
+    _transformOfflineResult: function (resultSet, count, dataQuery, additionalTransformations) {
+        var transformedResult = {
+            result: resultSet,
+            count: count || (resultSet || []).length
+        };
+
+        if ((count !== undefined && count !== null) || Array.isArray(resultSet)) {
+            transformedResult.count = count || resultSet.length;
+        }
+
+        var transformations = [];
+
+        transformations.push(offlineTransformations.idTransform);
+        transformations.push(offlineTransformations.removeMarkersTransform);
+
+        if (dataQuery) {
+            var includeCount = dataQuery.getHeader(Headers.includeCount);
+            if (includeCount === false) {
+                delete transformedResult.count;
+            }
+
+            var singleFieldExpression = dataQuery.getHeader(Headers.singleField);
+            if (typeof singleFieldExpression === 'string') {
+                transformations.push(offlineTransformations.singleFieldTransform.bind(this, singleFieldExpression));
+            }
+        }
+
+        if (additionalTransformations) {
+            transformations = transformations.concat(additionalTransformations);
+        }
+
+        this._applyTransformations(transformedResult, transformations);
+
+        if (transformedResult.count === undefined) {
+            delete transformedResult.count;
+        }
+
+        return transformedResult;
+    },
+
+    _transformPersistedData: function (contentType, contentTypeData) {
+        var transformFields = [];
+
+        if (contentType === 'Users') {
+            transformFields = transformFields.concat(['Password', 'SecretQuestionId', 'SecretAnswer']);
+        }
+
+        if (transformFields.length) {
+            _.each(contentTypeData, function (contentTypeObject) {
+                offlineTransformations.removeFieldsTransform(contentTypeObject, transformFields);
+            });
+        }
+    },
+
+    purgeAll: function (success, error) {
+        var self = this;
+        this._collectionCache = {};
+        return buildPromise(function (success, error) {
+            self._persister.purgeAll(success, error);
+        }, success, error);
+    },
+
+    purge: function (contentType, success, error) {
+        var self = this;
+        return buildPromise(function (success, error) {
+            self._persister.purge(contentType, success, error);
+        }, success, error);
+    }
+};
+
+module.exports = OfflineQueryProcessor;
+},{"../EverliveError":43,"../ExpandProcessor":44,"../common":53,"../constants":54,"../query/DataQuery":64,"../utils":74,"./offlineTransformations":63}],60:[function(require,module,exports){
+var DataQuery = require('../query/DataQuery');
+var everliveErrorModule = require('../EverliveError');
+var EverliveError = everliveErrorModule.EverliveError;
+var EverliveErrors = everliveErrorModule.EverliveErrors;
+var constants = require('../constants');
+var offlineItemStates = constants.offlineItemStates;
+var RequestOptionsBuilder = require('../query/RequestOptionsBuilder');
+var common = require('../common');
+var _ = common._;
+var rsvp = common.rsvp;
 var utils = require('../utils');
 var Request = require('../Request');
-var expandProcessor = require('../ExpandProcessor');
 var offlineTransformations = require('./offlineTransformations');
 var buildPromise = require('../utils').buildPromise;
+var OfflineQueryProcessor = require('./OfflineQueryProcessor');
+
+var syncLocation = {
+    server: 'server',
+    client: 'client'
+};
+
+var syncStartEventData = {
+    cancel: function () {
+        throw new EverliveError(EverliveErrors.syncCancelledByUser.message, EverliveErrors.syncCancelledByUser.code);
+    }
+};
+
 
 /**
  * @class OfflineModule
- * @classDesc A class providing access to some offline storage functionalities.
+ * @classDesc A class providing access to the various offline storage features.
  */
 
 /**
  * Represents the {@link OfflineModule} class.
  * @memberOf Everlive.prototype
- * @member {OfflineModule} storage
+ * @member {OfflineModule} offlineStorage
  */
 
 module.exports = (function () {
     function OfflineModule(everlive, options, persister, encryptionProvider) {
         this.everlive = everlive;
         this.setup = options;
-        this._persister = persister;
         this._encryptionProvider = encryptionProvider;
         this._isSynchronizing = false;
-        this._collectionCache = {};
+        this._queryProcessor = new OfflineQueryProcessor(persister, everlive, options);
     }
 
 
@@ -18320,366 +19147,54 @@ module.exports = (function () {
         }
     };
 
-    function buildUsersErrorMessage(dataQuery) {
-        var operation = dataQuery.operation;
-        if (operation === DataQuery.operations.userLoginWithProvider ||
-            operation === DataQuery.operations.userLinkWithProvider ||
-            operation === DataQuery.operations.userUnlinkFromProvider) {
-            operation += dataQuery.data.Provider || dataQuery.data.Identity.Provider;
-        }
-
-        return 'The Users operation ' + operation + ' is not supported in offline mode';
-    }
-
-    var unsupportedUsersOperations = {};
-    unsupportedUsersOperations[DataQuery.operations.create] = true;
-    unsupportedUsersOperations[DataQuery.operations.update] = true;
-    unsupportedUsersOperations[DataQuery.operations.remove] = true;
-    unsupportedUsersOperations[DataQuery.operations.removeSingle] = true;
-    unsupportedUsersOperations[DataQuery.operations.rawUpdate] = true;
-    unsupportedUsersOperations[DataQuery.operations.setAcl] = true;
-    unsupportedUsersOperations[DataQuery.operations.setOwner] = true;
-    unsupportedUsersOperations[DataQuery.operations.userLoginWithProvider] = true;
-    unsupportedUsersOperations[DataQuery.operations.userLinkWithProvider] = true;
-    unsupportedUsersOperations[DataQuery.operations.userUnlinkFromProvider] = true;
-    unsupportedUsersOperations[DataQuery.operations.userLogin] = true;
-    unsupportedUsersOperations[DataQuery.operations.userLogout] = true;
-    unsupportedUsersOperations[DataQuery.operations.userChangePassword] = true;
-
-    var unsupportedOfflineHeaders = [Headers.powerFields];
 
     OfflineModule.prototype = {
         /**
-         * Removes all data from the offline storage
+         * Removes all data from the offline storage.
+         * @method purgeAll
+         * @name purgeAll
          * @memberOf OfflineModule.prototype
-         * @param {function} success
-         * @param {function} error
+         * @param {function} [success] A success callback.
+         * @param {function} [error] An error callback.
          */
         /**
-         * Removes all data from the offline storage
+         * Removes all data from the offline storage.
+         * @method purgeAll
+         * @name purgeAll
          * @memberOf OfflineModule.prototype
          * @returns Promise
          */
         purgeAll: function (success, error) {
-            var self = this;
-            this._collectionCache = {};
-            return buildPromise(function (success, error) {
-                self._persister.purgeAll(success, error);
-            }, success, error);
+            return this._queryProcessor.purgeAll(success, error);
         },
 
         /**
-         * Removes all data for a specific content type from the offline storage
-         * @memberOf OfflineStorageModule.prototype
-         * @param {string} contentType The content type to purge
-         * @param success
-         * @param error
+         * Removes all data for a specific content type from the offline storage.
+         * @method purge
+         * @name purge
+         * @memberOf OfflineModule.prototype
+         * @param {string} contentType The content type to purge.
+         * @param {function} [success] A success callback.
+         * @param {function} [error] An error callback.
          */
         /**
-         * Removes all data for a specific content type from the offline storage
-         * @memberOf OfflineStorageModule.prototype
-         * @param {string} contentType The content type to purge
+         * Removes all data for a specific content type from the offline storage.
+         * @method purge
+         * @name purge
+         * @memberOf OfflineModule.prototype
+         * @param {string} contentType The content type to purge.
          * @returns Promise
          */
         purge: function (contentType, success, error) {
-            var self = this;
-            return buildPromise(function (success, error) {
-                self._persister.purge(contentType, success, error);
-            }, success, error);
+            return this._queryProcessor.purge(contentType, success, error);
         },
 
-        processQuery: function (dataQuery) {
-            var unsupportedClientOpMessage = this.getUnsupportedClientOpMessage(dataQuery);
-            if (unsupportedClientOpMessage && !dataQuery.isSync) {
-                return new rsvp.Promise(function (resolve, reject) {
-                    reject(new EverliveError(unsupportedClientOpMessage));
-                });
-            }
-
-            var sort = dataQuery.getHeaderAsJSON(Headers.sort);
-            var limit = dataQuery.getHeaderAsJSON(Headers.take);
-            var skip = dataQuery.getHeaderAsJSON(Headers.skip);
-            var select = dataQuery.getHeaderAsJSON(Headers.select);
-            var filter = dataQuery.getHeaderAsJSON(Headers.filter);
-            var expand = dataQuery.getHeaderAsJSON(Headers.expand);
-
-            if (dataQuery.filter instanceof Everlive.Query) {
-                var filterObj = dataQuery.filter.build();
-                filter = filterObj.$where || filter;
-                sort = filterObj.$sort || sort;
-                limit = filterObj.$take || limit;
-                skip = filterObj.$skip || skip;
-                select = filterObj.$select || select;
-                expand = filterObj.$expand || expand;
-            } else {
-                filter = dataQuery.filter || filter;
-            }
-
-            if (!filter) {
-                filter = {};
-            }
-
-            var unsupportedOperators = utils.getUnsupportedOperators(filter);
-            var unsupportedOperatorCount = unsupportedOperators.length;
-            if (unsupportedOperatorCount) {
-                return new rsvp.Promise(function (resolve, reject) {
-                    var errorMessage;
-                    if (unsupportedOperatorCount === 1) {
-                        errorMessage = 'The operator ' + unsupportedOperators[0] + ' is not supported in offline mode.';
-                    } else {
-                        errorMessage = 'The operators ' + unsupportedOperators.join(',') + 'are not supported in offline mode.';
-                    }
-
-                    reject(new EverliveError(errorMessage));
-                });
-            }
-
-            offlineTransformations.traverseAndTransformFilterId(filter);
-
-            switch (dataQuery.operation) {
-                case DataQuery.operations.read:
-                    return this.read(dataQuery, filter, sort, skip, limit, select, expand);
-                case DataQuery.operations.readById:
-                    return this.readById(dataQuery, expand);
-                case DataQuery.operations.count:
-                    return this.count(dataQuery, filter);
-                case DataQuery.operations.create:
-                    return this.create(dataQuery);
-                case DataQuery.operations.rawUpdate:
-                case DataQuery.operations.update:
-                    return this.update(dataQuery, filter);
-                case DataQuery.operations.remove:
-                    return this.remove(dataQuery, filter);
-                case DataQuery.operations.removeSingle:
-                    filter._id = dataQuery.additionalOptions.id;
-                    return this.remove(dataQuery, filter);
-                default:
-                    return new rsvp.Promise(function (resolve, reject) {
-                        if (dataQuery.isSync) {
-                            resolve();
-                        } else {
-                            reject(new EverliveError(dataQuery.operation + ' is not supported in offline mode'));
-                        }
-                    });
-            }
-        },
-
-        getUnsupportedClientOpMessage: function (dataQuery) {
-            for (var i = 0; i < unsupportedOfflineHeaders.length; i++) {
-                var header = unsupportedOfflineHeaders[i];
-                if (dataQuery.getHeader(header)) {
-                    return 'The header ' + header + ' is not supported in offline mode';
-                }
-            }
-
-            if (dataQuery.collectionName.toLowerCase() === 'files') {
-                return 'Operations on files are not supported in offline mode';
-            }
-
-            if (dataQuery.collectionName.toLowerCase() === 'users' && unsupportedUsersOperations[dataQuery.operation]) {
-                return buildUsersErrorMessage(dataQuery);
-            }
+        processQuery: function (query) {
+            return this._queryProcessor.processQuery(query);
         },
 
         _getEncryptionProvider: function () {
             return this._encryptionProvider;
-        },
-
-        _getCreateResult: function (createdItems) {
-            if (createdItems.length === 1) {
-                return {
-                    result: {
-                        CreatedAt: utils.cloneDate(createdItems[0].CreatedAt),
-                        Id: createdItems[0]._id
-                    }
-                }
-            } else {
-                var multipleCreateResult = [];
-                _.each(createdItems, function (createdItem) {
-                    multipleCreateResult.push({
-                        CreatedAt: utils.cloneDate(createdItem.CreatedAt),
-                        Id: createdItem._id
-                    });
-                });
-
-                return {
-                    result: multipleCreateResult
-                }
-            }
-        },
-
-        create: function (dataQuery) {
-            var self = this;
-
-            return new rsvp.Promise(function (resolve, reject) {
-                self._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState, function (createdItems) {
-                    var createResult = self._getCreateResult(createdItems);
-                    resolve(createResult);
-                }, reject);
-            });
-        },
-
-        read: function (dataQuery, filter, sort, skip, limit, select, expand) {
-            var self = this;
-
-            return new rsvp.Promise(function (resolve, reject) {
-                var collectionLength;
-
-                self._prepareExpand(expand, dataQuery, true)
-                    .then(function (prepareExpandResult) {
-                        if (prepareExpandResult) {
-                            select = prepareExpandResult.mainQueryFieldsExpression;
-                        }
-
-                        return self._getCollection(dataQuery.collectionName)
-                            .then(function (collection) {
-                                var result = self._readInternal(collection, filter, sort, skip, limit, select);
-
-                                if (skip || limit) {
-                                    var all = self._readInternal(collection);
-                                    collectionLength = all.length;
-                                }
-
-                                if (!self._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
-                                    result = offlineTransformations.removeIdTransform(result, true);
-                                } else {
-                                    result = offlineTransformations.idTransform(result);
-                                }
-
-                                return self._expandResult(prepareExpandResult, result);
-                            });
-                    })
-                    .then(function (result) {
-                        var response = self._transformOfflineResult(result, collectionLength, dataQuery);
-                        resolve(response);
-                    })
-                    .catch(reject);
-            });
-        },
-
-        _readInternal: function (collection, filter, sort, skip, limit, select) {
-            var filterCopy = _.extend({}, filter);
-            var actualFilter = this._getWithoutDeletedFilter(filterCopy);
-            offlineTransformations.traverseAndTransformFilterId(actualFilter);
-            var query = mingo.Query(actualFilter);
-            var cursor = mingo.Cursor(collection, query, select);
-            if (sort) {
-                cursor = cursor.sort(sort);
-            }
-
-            if (skip) {
-                cursor.skip(skip);
-            }
-
-            if (limit) {
-                cursor.limit(limit);
-            }
-
-            return _.map(cursor.all(), function (item) {
-                return _.extend({}, item);
-            });
-        },
-
-        readById: function (dataQuery, expand) {
-            var self = this;
-
-            return self._prepareExpand(expand, dataQuery, false)
-                .then(function (prepareExpandResult) {
-                    return self._getCollection(dataQuery.collectionName)
-                        .then(function (collection) {
-                            return new rsvp.Promise(function (resolve, reject) {
-                                var item = self._getById(collection, dataQuery.additionalOptions.id);
-
-                                if (!item) {
-                                    return reject(EverliveErrors.itemNotFound);
-                                }
-
-                                item = offlineTransformations.idTransform(item);
-                                return self._expandResult(prepareExpandResult, item).then(resolve).catch(reject);
-                            });
-                        });
-                })
-                .then(function (result) {
-                    var response = self._transformOfflineResult(result, null, dataQuery);
-                    return response;
-                });
-        },
-
-        _prepareExpand: function (expand, dataQuery, isArray) {
-            return new rsvp.Promise(function (resolve, reject) {
-                if (expand) {
-                    expandProcessor.prepare(expand, dataQuery.collectionName, isArray, dataQuery.fields, null, null, function (err, prepareResult) {
-                        if (err) {
-                            if (err.name === 'ExpandError') {
-                                err.code = EverliveErrors.invalidExpandExpression.code;
-                            }
-                            return reject(err);
-                        }
-                        resolve(prepareResult);
-                    });
-                } else {
-                    resolve();
-                }
-            });
-        },
-
-        _expandResult: function (prepareExpandResult, result) {
-            var self = this;
-            return new rsvp.Promise(function (resolve, reject) {
-                if (prepareExpandResult) {
-                    expandProcessor.expand(prepareExpandResult.relationsTree, result, {
-                        offlineModule: self
-                    }, function (err, result) {
-                        if (err) {
-                            if (err.name === 'ExpandError') {
-                                err.code = EverliveErrors.invalidExpandExpression.code;
-                            }
-                            return reject(err);
-                        }
-                        resolve(result);
-                    });
-                } else {
-                    resolve(result);
-                }
-            })
-        },
-
-        _getWithoutDeletedFilter: function (filter) {
-            var withoutDeletedFilter = {
-                $and: []
-            };
-            withoutDeletedFilter.$and.push(filter);
-            var deleteOfflineFilter = {};
-            deleteOfflineFilter[constants.offlineItemsStateMarker] = {$ne: offlineItemStates.deleted};
-            withoutDeletedFilter.$and.push(deleteOfflineFilter);
-            return withoutDeletedFilter;
-        },
-
-        update: function (dataQuery, filter) {
-            var self = this;
-
-            return new rsvp.Promise(function (resolve, reject) {
-                self._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync, resolve, reject);
-            });
-        },
-
-        remove: function (dataQuery, filter) {
-            var self = this;
-            return new rsvp.Promise(function (resolve, reject) {
-                self._removeItems(dataQuery, filter, dataQuery.isSync, resolve, reject);
-            });
-        },
-
-        count: function (dataQuery, filter) {
-            var self = this;
-
-            return new rsvp.Promise(function (resolve, reject) {
-                self._getCollection(dataQuery.collectionName)
-                    .then(function (collection) {
-                        var filterResult = self._readInternal(collection, filter);
-                        resolve({result: filterResult.length});
-                    }).catch(reject);
-            });
         },
 
         _setOffline: function (offline) {
@@ -18727,7 +19242,7 @@ module.exports = (function () {
             return new rsvp.Promise(function (resolve) {
                 if (!self._isSynchronizing) {
                     self._isSynchronizing = true;
-                    self.everlive._emitter.emit('syncStart');
+                    self.everlive._emitter.emit('syncStart', syncStartEventData);
                     resolve();
                 } else {
                     resolve();
@@ -18740,8 +19255,8 @@ module.exports = (function () {
 
             this._isSynchronizing = false;
             _.each(this._syncResultInfo.syncedItems, function (syncedItems, contentTypeName) {
-                self._syncResultInfo.syncedToServer += _.where(syncedItems, {storage: 'server'}).length;
-                self._syncResultInfo.syncedToClient += _.where(syncedItems, {storage: 'client'}).length;
+                self._syncResultInfo.syncedToServer += _.where(syncedItems, {storage: syncLocation.server}).length;
+                self._syncResultInfo.syncedToClient += _.where(syncedItems, {storage: syncLocation.client}).length;
             });
 
             this.everlive._emitter.emit('syncEnd', this._syncResultInfo);
@@ -18755,25 +19270,31 @@ module.exports = (function () {
                 var itemFilter = getFilterFunction(item.remoteItem);
                 // if we already have an error for this item we do not want to try and sync it again
                 var resultItem = item.resultingItem;
+                var isCustom = item.isCustom;
                 if (_.some(self._syncResultInfo.failedItems[contentTypeName], {itemId: resultItem.Id})) {
                     return;
                 }
 
-                operation(resultItem, itemFilter);
+                operation(resultItem, itemFilter, isCustom);
             });
+        },
+
+        _shouldAutogenerateIdForContentType: function (collectionName) {
+            return this._queryProcessor._shouldAutogenerateIdForContentType(collectionName);
         },
 
         _addCreatedItemsForSync: function (contentTypeData, syncPromises, dataCollection) {
             var self = this;
+            var collectionName = dataCollection.collectionName;
 
             var resultingItemsForCreate = _.pluck(contentTypeData.createdItems, 'resultingItem');
             var ids;
-            if (!this._shouldAutogenerateIdForContentType(dataCollection.collectionName)) {
+            if (!this._shouldAutogenerateIdForContentType(collectionName)) {
                 ids = _.pluck(resultingItemsForCreate, 'Id');
                 resultingItemsForCreate = offlineTransformations.removeIdTransform(resultingItemsForCreate);
             }
 
-            syncPromises['create'] =
+            syncPromises[offlineItemStates.created] =
                 new rsvp.Promise(function (resolve, reject) {
                     dataCollection
                         .isSync(true)
@@ -18783,6 +19304,9 @@ module.exports = (function () {
                             resultingItemsForCreate = _.map(resultingItemsForCreate, function (item, index) {
                                 item.Id = res.result[index].Id;
                                 item.CreatedAt = item.ModifiedAt = res.result[index].CreatedAt;
+                                if (contentTypeData.isCustom) {
+                                    self._addSyncedItemToResult(item, collectionName, syncLocation.client, offlineItemStates.created);
+                                }
                                 return item;
                             });
 
@@ -18791,9 +19315,8 @@ module.exports = (function () {
                                 .useOffline(true)
                                 .create(resultingItemsForCreate)
                                 .then(function () {
-                                    var collectionName = dataCollection.collectionName;
                                     _.each(resultingItemsForCreate, function (createdItem) {
-                                        self._addItemSynced(createdItem, collectionName, 'server', 'create');
+                                        self._addSyncedItemToResult(createdItem, collectionName, syncLocation.server, offlineItemStates.created);
                                     });
 
                                     if (ids && ids.length) {
@@ -18803,38 +19326,38 @@ module.exports = (function () {
                                             .useOffline(true)
                                             .destroy(filter).catch(function (err) {
                                                 reject({
-                                                    type: 'create',
+                                                    type: offlineItemStates.created,
                                                     items: resultingItemsForCreate,
-                                                    contentType: dataCollection.collectionName,
+                                                    contentType: collectionName,
                                                     error: err,
-                                                    storage: 'client'
+                                                    storage: syncLocation.client
                                                 })
                                             });
                                     }
                                 }, function (err) {
                                     reject({
-                                        type: 'create',
+                                        type: offlineItemStates.created,
                                         items: resultingItemsForCreate,
-                                        contentType: dataCollection.collectionName,
+                                        contentType: collectionName,
                                         error: err,
-                                        storage: 'client'
+                                        storage: syncLocation.client
                                     })
                                 });
                         }, function (err) {
                             reject({
-                                type: 'create',
+                                type: offlineItemStates.created,
                                 items: resultingItemsForCreate,
-                                contentType: dataCollection.collectionName,
+                                contentType: collectionName,
                                 error: err,
-                                storage: 'server'
+                                storage: syncLocation.server
                             })
                         })
                         .then(resolve)
                         .catch(function (err) {
                             reject({
-                                type: 'create',
+                                type: offlineItemStates.created,
                                 items: resultingItemsForCreate,
-                                contentType: dataCollection.collectionName,
+                                contentType: collectionName,
                                 error: err
                             });
                         });
@@ -18854,19 +19377,18 @@ module.exports = (function () {
             self._eachSyncItem(contentTypeData.deletedItems, getFilterOperation, collectionName, itemDeleteOperation);
         },
 
-        _onSyncResponse: function (res, item, collectionName, operation) {
+        _onSyncResponse: function (res, item, collectionName, operation, isCustomItem) {
             var self = this;
 
             if (res.result !== 1) {
                 return new rsvp.Promise(function (resolve, reject) {
-                    self._removeItemSynced(item, collectionName);
                     reject(_.extend({}, EverliveErrors.syncConflict, {
                         contentType: collectionName
                     }));
                 });
             } else {
                 if (operation === DataQuery.operations.update) {
-                    self._addItemSynced(item, collectionName, 'server', 'update');
+                    self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.modified);
                     var updatedItem = _.extend({}, item, {
                         ModifiedAt: res.ModifiedAt
                     });
@@ -18881,10 +19403,20 @@ module.exports = (function () {
                         isSync: true
                     });
 
-                    return this.processQuery(updateQuery);
+                    return this.processQuery(updateQuery)
+                        .then(function () {
+                            if (isCustomItem) {
+                                self._addSyncedItemToResult(item, collectionName, syncLocation.client, offlineItemStates.modified);
+                            }
+                        });
                 } else if (operation === DataQuery.operations.remove) {
-                    self._addItemSynced(item, collectionName, 'server', 'delete');
-                    return this._purgeById(collectionName, item.Id);
+                    self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.deleted);
+                    return this._purgeById(collectionName, item.Id)
+                        .then(function () {
+                            if (isCustomItem) {
+                                self._addSyncedItemToResult(item, collectionName, syncLocation.client, offlineItemStates.deleted);
+                            }
+                        });
                 }
             }
         },
@@ -18892,10 +19424,10 @@ module.exports = (function () {
         _purgeById: function (contentType, itemId) {
             var self = this;
 
-            return self._getCollection(contentType)
+            return this._queryProcessor._getCollection(contentType)
                 .then(function (collection) {
                     delete collection[itemId];
-                    return self._persistData(contentType);
+                    return self._queryProcessor._persistData(contentType);
                 });
         },
 
@@ -18928,14 +19460,12 @@ module.exports = (function () {
                                 // and set the same error for all items.
                                 var type = syncResult.reason.type;
                                 self._syncResultInfo.failedItems[targetType] = self._syncResultInfo.failedItems[targetType] || [];
-                                if (type === 'create') {
+                                if (type === offlineItemStates.created) {
                                     _.each(syncResult.reason.items, function (item) {
-                                        self._removeItemSynced(item, targetType, 'server', 'create');
                                         self._syncResultInfo.failedItems[targetType]
                                             .push(_.extend({itemId: item.Id}, _.pick(syncResult.reason, 'storage', 'type', 'error')));
                                     });
                                 } else {
-                                    self._removeItemSynced(itemId, targetType, 'server');
                                     self._syncResultInfo.failedItems[targetType]
                                         .push(_.extend({itemId: itemId}, _.pick(syncResult.reason, 'storage', 'type', 'error')));
                                 }
@@ -18997,13 +19527,13 @@ module.exports = (function () {
                     .then(function () {
                         switch (syncQuery.operation) {
                             case DataQuery.operations.update:
-                                self._addItemSynced(serverItem, typeName, 'client', 'update');
+                                self._addSyncedItemToResult(serverItem, typeName, syncLocation.client, offlineItemStates.modified);
                                 break;
                             case DataQuery.operations.create:
-                                self._addItemSynced(serverItem, typeName, 'client', 'create');
+                                self._addSyncedItemToResult(serverItem, typeName, syncLocation.client, offlineItemStates.created);
                                 break;
                             case DataQuery.operations.removeSingle:
-                                self._addItemSynced(clientItem, typeName, 'client', 'delete');
+                                self._addSyncedItemToResult(clientItem, typeName, syncLocation.client, offlineItemStates.deleted);
                                 break;
                         }
                         resolve();
@@ -19013,15 +19543,15 @@ module.exports = (function () {
                         switch (syncQuery.operation) {
                             case DataQuery.operations.update:
                                 itemId = serverItem.Id;
-                                operation = 'update';
+                                operation = offlineItemStates.modified;
                                 break;
                             case DataQuery.operations.create:
                                 itemId = serverItem.Id;
-                                operation = 'create';
+                                operation = offlineItemStates.created;
                                 break;
                             case DataQuery.operations.removeSingle:
                                 itemId = clientItem.Id;
-                                operation = 'delete';
+                                operation = offlineItemStates.deleted;
                                 break;
                         }
 
@@ -19030,7 +19560,7 @@ module.exports = (function () {
                             type: operation,
                             contentType: syncQuery.collectionName,
                             error: err,
-                            storage: 'client'
+                            storage: syncLocation.client
                         })
                     })
             }));
@@ -19082,12 +19612,14 @@ module.exports = (function () {
                 customItem.Id = serverItem.Id;
                 contentTypeSyncData.modifiedItems.push({
                     remoteItem: serverItem,
-                    resultingItem: customItem
+                    resultingItem: customItem,
+                    isCustom: true
                 });
             } else if (serverItem && !customItem) {
                 contentTypeSyncData.deletedItems.push({
                     remoteItem: conflictingItem.serverItem,
-                    resultingItem: serverItem
+                    resultingItem: serverItem,
+                    isCustom: true
                 });
             } else if (!serverItem && customItem && clientItem) {
                 var updateItemOfflineQuery = new DataQuery({
@@ -19104,13 +19636,15 @@ module.exports = (function () {
 
                 contentTypeSyncData.createdItems.push({
                     remoteItem: serverItem,
-                    resultingItem: customItem
+                    resultingItem: customItem,
+                    isCustom: true
                 });
             } else {
                 customItem.Id = serverItem.Id;
                 contentTypeSyncData.modifiedItems.push({
                     remoteItem: serverItem,
-                    resultingItem: customItem
+                    resultingItem: customItem,
+                    isCustom: true
                 });
             }
         },
@@ -19132,6 +19666,8 @@ module.exports = (function () {
                             break;
                         case constants.ConflictResolution.Custom:
                             self._handleCustom(conflictingItem, typeName, offlineSyncOperations, contentTypeSyncData);
+                            break;
+                        case constants.ConflictResolution.Skip:
                             break;
                     }
                 });
@@ -19162,8 +19698,8 @@ module.exports = (function () {
                         self._syncResultInfo.failedItems[contentType] = self._syncResultInfo.failedItems[contentType] || [];
                         self._syncResultInfo.failedItems[contentType].push({
                             itemId: serverItem.Id,
-                            type: 'create',
-                            storage: 'client',
+                            type: offlineItemStates.created,
+                            storage: syncLocation.client,
                             error: EverliveErrors.syncError
                         });
 
@@ -19238,8 +19774,6 @@ module.exports = (function () {
                                 _.each(conflict.conflictingItems,
                                     self._setResolutionTypeForItem.bind(self, constants.ConflictResolution.KeepServer));
                                 break;
-                            case constants.ConflictResolutionStrategy.ClientWins:
-                                break;
                             case constants.ConflictResolutionStrategy.Custom:
                                 var customStrategy = self.setup.conflicts.implementation;
                                 if (!customStrategy) {
@@ -19285,6 +19819,10 @@ module.exports = (function () {
             });
         },
 
+        _getDirtyItems: function (collection) {
+            return this._queryProcessor._getDirtyItems(collection);
+        },
+
         _getSyncPromiseForCollection: function (collection, contentType) {
             var self = this;
 
@@ -19326,32 +19864,19 @@ module.exports = (function () {
                 });
         },
 
-        _addItemSynced: function (item, contentType, syncStorage, syncType) {
+        _addSyncedItemToResult: function (item, contentType, syncStorage, syncType) {
             if (!this._syncResultInfo.syncedItems[contentType]) {
                 this._syncResultInfo.syncedItems[contentType] = [];
             }
 
-            this._syncResultInfo.syncedItems[contentType].push({
+            var syncInfo = {
                 itemId: item.Id,
                 type: syncType,
                 storage: syncStorage
-            })
-        },
+            };
+            this._syncResultInfo.syncedItems[contentType].push(syncInfo);
 
-        _removeItemSynced: function (item, contentType) {
-            var itemId;
-            if (typeof item === 'string' || typeof item === 'number') {
-                itemId = item;
-            } else {
-                itemId = item.Id;
-            }
-
-            if (!this._syncResultInfo.syncedItems[contentType]) {
-                this._syncResultInfo.syncedItems[contentType] = [];
-            }
-
-            var syncedItems = this._syncResultInfo.syncedItems[contentType];
-            this._syncResultInfo.syncedItems[contentType] = _.without(syncedItems, _.findWhere(syncedItems, {itemId: itemId}));
+            this.everlive._emitter.emit('itemSynced', syncInfo);
         },
 
         _getClientWinsSyncData: function (collections) {
@@ -19414,7 +19939,7 @@ module.exports = (function () {
                         .applyOffline(false)
                         .updateSingle(item)
                         .then(function (res) {
-                            self._addItemSynced(item, collectionName, 'server', 'update');
+                            self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.modified);
                             var updatedItem = _.extend({}, item, {
                                 ModifiedAt: res.ModifiedAt
                             });
@@ -19431,8 +19956,8 @@ module.exports = (function () {
 
                             return self.processQuery(updateQuery).then(resolve, function () {
                                 reject(_.extend({}, {
-                                    storage: 'client',
-                                    type: 'update',
+                                    storage: syncLocation.client,
+                                    type: offlineItemStates.modified,
                                     itemId: item.Id,
                                     contentType: collectionName,
                                     error: res
@@ -19440,8 +19965,8 @@ module.exports = (function () {
                             });
                         }, function (res) {
                             reject(_.extend({}, {
-                                storage: 'server',
-                                type: 'update',
+                                storage: syncLocation.server,
+                                type: offlineItemStates.modified,
                                 itemId: item.Id,
                                 contentType: collectionName,
                                 error: res
@@ -19468,13 +19993,13 @@ module.exports = (function () {
                             .applyOffline(false)
                             .destroySingle(itemFilter)
                             .then(function () {
-                                self._addItemSynced(item, collectionName, 'server', 'delete');
+                                self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.deleted);
                                 return self._purgeById(collectionName, item.Id).then(function () {
                                     resolve();
                                 }, function (err) {
                                     reject(_.extend({}, {
-                                        storage: 'client',
-                                        type: 'delete',
+                                        storage: syncLocation.client,
+                                        type: offlineItemStates.deleted,
                                         contentType: collectionName,
                                         itemId: itemId,
                                         error: err
@@ -19482,8 +20007,8 @@ module.exports = (function () {
                                 });
                             }, function (err) {
                                 reject(_.extend({}, {
-                                    storage: 'server',
-                                    type: 'delete',
+                                    storage: syncLocation.server,
+                                    type: offlineItemStates.deleted,
                                     contentType: collectionName,
                                     error: err,
                                     itemId: itemId
@@ -19536,25 +20061,25 @@ module.exports = (function () {
                         }
 
                         if (contentTypeData.modifiedItems.length) {
-                            self._addUpdatedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter) {
+                            self._addUpdatedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter, isCustom) {
                                 syncPromises[item.Id] = dataCollection
                                     .isSync(true)
                                     .applyOffline(false)
                                     .update(item, itemFilter)
                                     .then(function (res) {
-                                        return self._onSyncResponse(res, item, typeName, DataQuery.operations.update);
+                                        return self._onSyncResponse(res, item, typeName, DataQuery.operations.update, isCustom);
                                     });
                             });
                         }
 
                         if (contentTypeData.deletedItems.length) {
-                            self._addDeletedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter) {
+                            self._addDeletedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter, isCustom) {
                                 syncPromises[item.Id] = dataCollection
                                     .isSync(true)
                                     .applyOffline(false)
                                     .destroy(itemFilter)
                                     .then(function (res) {
-                                        return self._onSyncResponse(res, item, typeName, DataQuery.operations.remove);
+                                        return self._onSyncResponse(res, item, typeName, DataQuery.operations.remove, isCustom);
                                     });
                             });
                         }
@@ -19567,7 +20092,7 @@ module.exports = (function () {
         _applySync: function () {
             var self = this;
 
-            return this._getAllCollections()
+            return this._queryProcessor._getAllCollections()
                 .then(function (collections) {
                     if (self.setup.conflicts.strategy === constants.ConflictResolutionStrategy.ClientWins) {
                         return self._applyClientWins(collections);
@@ -19577,317 +20102,49 @@ module.exports = (function () {
                 });
         },
 
-        _getDirtyItems: function (collection) {
-            var filter = {};
-            filter[constants.offlineItemsStateMarker] = {$exists: true};
-            var query = mingo.Query(filter);
-            var cursor = mingo.Cursor(collection, query);
-            return cursor.all();
-        },
-
-        _getAllCollections: function () {
-            return new rsvp.Promise(this._persister.getAllData.bind(this._persister));
-        },
-
-        _getCollection: function (contentType) {
+        /**
+         * Get all the offline items that have not been synced online.
+         * @method getItemsForSync
+         * @name getItemsForSync
+         * @memberOf OfflineModule.prototype
+         * @param {function} [success] A success callback.
+         * @param {function} [error] An error callback.
+         */
+        /**
+         * Get all the offline items that have not been synced online.
+         * @method getItemsForSync
+         * @name getItemsForSync
+         * @memberOf OfflineModule.prototype
+         * @returns Promise
+         */
+        getItemsForSync: function (success, error) {
             var self = this;
+            var dirtyItemsForSync = {};
+            return buildPromise(function (successCb, errorCb) {
+                self._queryProcessor._getAllCollections()
+                    .then(function (collections) {
+                        _.each(collections, function (collection, collectionName) {
+                            var dirtyItems = self._getDirtyItems(collection);
+                            dirtyItemsForSync[collectionName] = _.map(dirtyItems, function (item) {
+                                var itemForSync = {
+                                    item: _.extend({}, item),
+                                    action: item[constants.offlineItemsStateMarker]
+                                };
 
-            return new rsvp.Promise(function (resolve, reject) {
-                // check the persister if there is no data in the collection cache for this content type
-                if (!self._collectionCache[contentType]) {
-                    self._persister.getData(contentType, function (data) {
-                        self._collectionCache[contentType] = data || {};
-                        resolve(self._collectionCache[contentType]);
-                    }, reject);
-                } else {
-                    resolve(self._collectionCache[contentType]);
-                }
-            });
-        },
-
-        _persistData: function (contentType) {
-            var self = this;
-
-            return new rsvp.Promise(function (resolve, reject) {
-                var contentTypeData = self._collectionCache[contentType];
-                self._transformPersistedData(contentType, contentTypeData);
-                self._persister.saveData(contentType, contentTypeData, resolve, reject);
-            });
-        },
-
-        _getById: function (collection, id) {
-            if (!id) {
-                throw new EverliveError('Id field is mandatory when using offline storage');
-            }
-
-            if (collection[id]) {
-                var item = _.extend({}, collection[id]);
-                var isDeleted = item && item[constants.offlineItemsStateMarker] === offlineItemStates.deleted;
-
-                return isDeleted ? undefined : item;
-            }
-        },
-
-        _setItem: function (collection, item, state) {
-            if (!state) {
-                delete item[constants.offlineItemsStateMarker];
-            } else {
-                item[constants.offlineItemsStateMarker] = state;
-            }
-
-            collection[item._id] = item;
-        },
-
-        _shouldAutogenerateIdForContentType: function (contentType) {
-            return !(this.setup && this.setup.typeSettings && this.setup.typeSettings[contentType] && this.setup.typeSettings[contentType].autoGenerateId === false);
-        },
-
-        _createItems: function (contentType, items, isSync, preserveState, success, error) {
-            var self = this;
-            this._getCollection(contentType)
-                .then(function (collection) {
-                    var itemsForCreate = _.isArray(items) ? items : [items];
-                    var createdItems = _.map(itemsForCreate, function (currentItem, index) {
-                        var itemToCreate = _.extend({}, currentItem);
-
-                        itemToCreate._id = itemToCreate.Id || uuid.v1();
-                        delete itemToCreate.Id;
-
-                        var existingItem = self._getById(collection, itemToCreate._id);
-                        var itemExists = !!existingItem;
-                        var state;
-                        if (itemExists && (!isSync && !preserveState)) {
-                            // TODO: [offline] return the same error as the server does
-                            return error(new Error('An item with the specified id already exists'));
-                        } else {
-                            if (isSync && preserveState && itemExists) {
-                                state = existingItem[constants.offlineItemsStateMarker];
-                            } else {
-                                state = isSync ? undefined : offlineItemStates.created; // set the state to created only if not syncing
-                            }
-                        }
-
-                        // we need to manually clone the dates in order to dereference them from the original object as
-                        // _.extends will pass a reference to the original date instead of creating a new instance
-                        if (currentItem.CreatedAt && currentItem.CreatedAt instanceof Date) {
-                            itemToCreate.CreatedAt = utils.cloneDate(currentItem.CreatedAt);
-                        } else {
-                            itemToCreate.CreatedAt = new Date();
-                        }
-
-                        if (currentItem.ModifiedAt && currentItem.ModifiedAt instanceof Date) {
-                            itemToCreate.ModifiedAt = utils.cloneDate(currentItem.ModifiedAt);
-                        } else {
-                            itemToCreate.ModifiedAt = utils.cloneDate(itemToCreate.CreatedAt);
-                        }
-
-                        itemToCreate.CreatedBy = itemToCreate.CreatedBy || self.everlive.setup.principalId || constants.guidEmpty;
-                        itemToCreate.ModifiedBy = itemToCreate.ModifiedBy || itemToCreate.CreatedBy;
-                        if (contentType === 'Users') {
-                            itemToCreate.Owner = itemToCreate._id;
-                        } else {
-                            itemToCreate.Owner = itemToCreate.CreatedBy || constants.guidEmpty;
-                        }
-
-                        self._setItem(collection, _.extend({}, itemToCreate), state);
-                        return itemToCreate;
-                    });
-
-                    return self._persistData(contentType).then(function () {
-                        if (!self._shouldAutogenerateIdForContentType(contentType) && !isSync) {
-                            createdItems = offlineTransformations.removeIdTransform(createdItems);
-                        }
-                        success(createdItems);
-                    });
-                }).catch(error);
-        },
-
-        _applyUpdateOperation: function (originalUpdateExpression, itemToUpdate, collection, isSync) {
-            var dbOperators = utils.getDbOperators(originalUpdateExpression, true);
-            var hasDbOperator = dbOperators.length !== 0;
-
-            var updateExpression;
-            if (hasDbOperator) {
-                updateExpression = originalUpdateExpression;
-            } else {
-                updateExpression = {
-                    $set: originalUpdateExpression
-                };
-            }
-            var updateExpressionForUser = {
-                ModifiedBy: this.everlive.setup.principalId || constants.guidEmpty
-            };
-            updateExpression.$set = _.extend(updateExpressionForUser, updateExpression.$set);
-
-            if (isSync) {
-                updateExpression.$set.ModifiedAt = utils.cloneDate(originalUpdateExpression.ModifiedAt);
-            }
-
-            mongoQuery(itemToUpdate, {}, updateExpression, {strict: true}); // Setting strict to true so only exact matches would be updated
-
-            itemToUpdate._id = itemToUpdate._id || updateExpression._id || updateExpression.Id;
-            delete itemToUpdate.Id;
-
-            var newState;
-            if (isSync) {
-                newState = undefined;
-            } else if (itemToUpdate[constants.offlineItemsStateMarker] === offlineItemStates.created) {
-                newState = offlineItemStates.created;
-            } else {
-                newState = offlineItemStates.modified;
-            }
-
-            this._setItem(collection, itemToUpdate, newState);
-        },
-
-        _updateItems: function (dataQuery, updateExpression, filter, isSync, resolve, reject) {
-            var self = this;
-
-            self._getCollection(dataQuery.collectionName)
-                .then(function (collection) {
-                    var updateItems;
-
-                    if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
-                        itemToUpdate = self._getById(collection, dataQuery.additionalOptions.id);
-                        self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync);
-                        updateItems = [itemToUpdate];
-                    } else {
-                        updateItems = self._readInternal(collection, filter);
-                        for (var i = 0; i < updateItems.length; i++) {
-                            var itemToUpdate = updateItems[i];
-                            var itemExists = !!self._getById(collection, itemToUpdate._id.toString());
-
-                            if (!itemExists && !isSync) {
-                                return reject(EverliveErrors.itemNotFound);
-                            }
-
-                            self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync);
-                        }
-                    }
-
-                    return self._persistData(dataQuery.collectionName)
-                        .then(function () {
-                            var updatedItemCount = updateItems.length;
-                            var modifiedAtResult = updatedItemCount ? updateItems[0].ModifiedAt : new Date();
-
-                            var result = {
-                                ModifiedAt: modifiedAtResult,
-                                result: updatedItemCount
-                            };
-
-                            resolve(result);
+                                delete itemForSync.item[constants.offlineItemsStateMarker];
+                                return itemForSync;
+                            });
                         });
-                }).catch(reject);
-        },
 
-        _clearItem: function (collection, item) {
-            delete collection[item._id];
-        },
-
-        _removeItems: function (dataQuery, filter, isSync, resolve, reject) {
-            var self = this;
-
-            self._getCollection(dataQuery.collectionName)
-                .then(function (collection) {
-                    var itemsToRemove = self._readInternal(collection, filter);
-
-                    for (var i = 0; i < itemsToRemove.length; i++) {
-                        var itemToRemove = itemsToRemove[i];
-                        itemToRemove._id = itemToRemove._id || itemToRemove.Id;
-                        var itemExists = !!self._getById(collection, itemToRemove._id.toString());
-
-                        if (!itemExists && !isSync) {
-                            return reject(new EverliveError('Cannot delete item - item with id ' + itemToRemove._id + ' does not exist.'));
-                        }
-
-                        var removeFromMemory = itemToRemove[constants.offlineItemsStateMarker] === offlineItemStates.created || isSync;
-                        if (removeFromMemory) {
-                            self._clearItem(collection, itemToRemove);
-                        } else {
-                            self._setItem(collection, itemToRemove, offlineItemStates.deleted);
-                        }
-                    }
-
-                    return self._persistData(dataQuery.collectionName)
-                        .then(function () {
-                            var response = self._transformOfflineResult(itemsToRemove.length);
-                            resolve(response);
-                        });
-                }).catch(reject);
-        },
-
-        _applyTransformations: function (transformedResult, transformations) {
-            if (Array.isArray(transformedResult.result)) {
-                _.each(transformations, function (transformation) {
-                    transformedResult.result.map(function (value, key) {
-                        transformedResult.result[key] = transformation(value);
-                    });
-                });
-            } else {
-                _.each(transformations, function (transformation) {
-                    transformedResult.result = transformation(transformedResult.result);
-                });
-            }
-        },
-
-        _transformOfflineResult: function (resultSet, count, dataQuery, additionalTransformations) {
-            var transformedResult = {
-                result: resultSet,
-                count: count || (resultSet || []).length
-            };
-
-            if ((count !== undefined && count !== null) || Array.isArray(resultSet)) {
-                transformedResult.count = count || resultSet.length;
-            }
-
-            var transformations = [];
-
-            transformations.push(offlineTransformations.idTransform);
-            transformations.push(offlineTransformations.removeMarkersTransform);
-
-            if (dataQuery) {
-                var includeCount = dataQuery.getHeader(Headers.includeCount);
-                if (includeCount === false) {
-                    delete transformedResult.count;
-                }
-
-                var singleFieldExpression = dataQuery.getHeader(Headers.singleField);
-                if (typeof singleFieldExpression === 'string') {
-                    transformations.push(offlineTransformations.singleFieldTransform.bind(this, singleFieldExpression));
-                }
-            }
-
-            if (additionalTransformations) {
-                transformations = transformations.concat(additionalTransformations);
-            }
-
-            this._applyTransformations(transformedResult, transformations);
-
-            if (transformedResult.count === undefined) {
-                delete transformedResult.count;
-            }
-
-            return transformedResult;
-        },
-
-        _transformPersistedData: function (contentType, contentTypeData) {
-            var transformFields = [];
-
-            if (contentType === 'Users') {
-                transformFields = transformFields.concat(['Password', 'QuestionId', 'SecretAnswer']);
-            }
-
-            if (transformFields.length) {
-                _.each(contentTypeData, function (contentTypeObject) {
-                    offlineTransformations.removeFieldsTransform(contentTypeObject, transformFields);
-                });
-            }
+                        successCb(dirtyItemsForSync);
+                    }).catch(errorCb);
+            }, success, error);
         }
     };
 
     return OfflineModule;
 })();
-},{"../EverliveError":43,"../ExpandProcessor":44,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":63,"../query/RequestOptionsBuilder":66,"../utils":73,"./offlineTransformations":62}],60:[function(require,module,exports){
+},{"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":64,"../query/RequestOptionsBuilder":67,"../utils":74,"./OfflineQueryProcessor":59,"./offlineTransformations":63}],61:[function(require,module,exports){
 var constants = require('../constants');
 var persistersModule = require('./offlinePersisters');
 var LocalStoragePersister = persistersModule.LocalStoragePersister;
@@ -20014,7 +20271,7 @@ module.exports = (function () {
         initOfflineStorage: initOfflineStorage
     }
 }());
-},{"../EverliveError":43,"../common":53,"../constants":54,"../encryption/CryptographicProvider":55,"../everlive.platform":56,"./OfflineStorageModule":59,"./offlinePersisters":61}],61:[function(require,module,exports){
+},{"../EverliveError":43,"../common":53,"../constants":54,"../encryption/CryptographicProvider":55,"../everlive.platform":56,"./OfflineStorageModule":60,"./offlinePersisters":62}],62:[function(require,module,exports){
 var common = require('../common');
 var _ = common._;
 var platform = require('../everlive.platform');
@@ -20027,20 +20284,13 @@ var util = require('util');
 var LocalStore = require('../LocalStore');
 var constants = require('../constants');
 
-/**
- * Can be one of the following types: {@link LocalStoragePersister},
- * {@link FileSystemPersister} or a custom based on {@link BasePersister}
- * @memberOf OfflineModule
- * @instance
- * @member {BasePersister} local
- */
 
 var BasePersister = (function () {
 
     /**
      * @class BasePersister
      * @classdesc An abstraction layer for all persisters. Every persister can write/read
-     * data from a specific place. The data is saved as key-value pairs where the keys are
+     * data to/from a specific place. The data is saved as key-value pairs where the keys are
      * content types.
      */
     function BasePersister(key, sdk) {
@@ -20053,34 +20303,34 @@ var BasePersister = (function () {
          * Gets all the saved data.
          * @method getAllData
          * @memberof BasePersister
-         * @param {Function} success A success callback
-         * @param {Function} error An error callback
-         * @returns {Object} Keys are the content types and the values are the corresponding data
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         * @returns {Object} The keys are the content types and the values are the corresponding data items.
          */
         getAllData: function (success, error) {
             throw new EverliveError('The method getAllData is not implemented');
         },
 
         /**
-         * Returns the saved data for a specific content type
+         * Returns the saved data for a specific content type.
          * @method getData
-         * @param {string} contentType The content type for which to retreive the data
-         * @param {Function} success A success callback
-         * @param {Function} error An error callback
+         * @param {string} contentType The content type for which to retrieve the data.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
          * @memberof BasePersister
-         * @returns {Object} The retrieved data
+         * @returns {Object} The retrieved data.
          */
         getData: function (contentType, success, error) {
             throw new EverliveError('The method getData is not implemented');
         },
 
         /**
-         * Saves data for a specific content type
+         * Saves data for a specific content type.
          * @method saveData
-         * @param {string} contentType The content for which to save the data
-         * @param {object} data The data corresponding to the specified content type
-         * @param {Function} success A success callback
-         * @param {Function} error An error callback
+         * @param {string} contentType The content for which to save the data.
+         * @param {object} data The data corresponding to the specified content type.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
          * @memberof BasePersister
          */
         saveData: function (contentType, data, success, error) {
@@ -20088,11 +20338,11 @@ var BasePersister = (function () {
         },
 
         /**
-         * Clears the persisted data for a specific content type
-         * @method clear
-         * @param {string} contentType The content type for which to clear the data
-         * @param {Function} success A success callback
-         * @param {Function} error An error callback
+         * Clears the persisted data for a specific content type.
+         * @method purge
+         * @param {string} contentType The content type for which to clear the data.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
          * @memberof BasePersister
          */
         purge: function (contentType, success, error) {
@@ -20100,11 +20350,11 @@ var BasePersister = (function () {
         },
 
         /**
-         * Clears the persisted data for a content type
-         * @method clearAll
+         * Clears all persisted data in the offline store.
+         * @method purgeAll
          * @memberof BasePersister
-         * @param {Function} success A success callback
-         * @param {Function} error An error callback
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
          */
         purgeAll: function (success, error) {
             throw new EverliveError('The method clearAll is not implemented');
@@ -20219,7 +20469,7 @@ var LocalStoragePersister = (function () {
         this._ensureLocalStore();
         var encryptionProvider = this._getEncryptionProvider();
         value = encryptionProvider.encrypt(value);
-		return this._localStore.setItem(key, value);
+        return this._localStore.setItem(key, value);
 
     };
 
@@ -20268,6 +20518,7 @@ var LocalStoragePersister = (function () {
 var FileSystemPersister = (function () {
     /**
      * @class FileSystemPersister
+     * @protected
      * @extends BasePersister
      */
     function FileSystemPersister(key, sdk) {
@@ -20335,17 +20586,17 @@ var FileSystemPersister = (function () {
     FileSystemPersister.prototype._ensureProperties = function () {
         if (!this.filesDirectoryPath) {
             this.filesDirectoryPath = this.sdk.offlineStorage.setup.storage.storagePath;
+            if (platform.isWindowsPhone) {
+                //windows phone must have a leading slash only
+                this.filesDirectoryPath = '/' + this.filesDirectoryPath;
+            } else {
+                //other platforms must have a trailing slash only
+                this.filesDirectoryPath += '/';
+            }
         }
 
         if (!this.dataDirectoryPath) {
-            if (isCordova) {
-                if (cordova && !cordova.file) {
-                    throw new EverliveError('You need to enable the cordova file plugin to use file offline storage. ' +
-                    'Make sure that the "deviceReady" event has fired.');
-                }
-
-                this.dataDirectoryPath = cordova.file.dataDirectory;
-            } else if (isNativeScript) {
+            if (isNativeScript) {
                 this.fs = require('file-system');
                 this.dataDirectoryPath = this.fs.knownFolders.documents().path;
             }
@@ -20473,13 +20724,23 @@ var FileSystemPersister = (function () {
 
     FileSystemPersister.prototype._getFilePath = function (contentType) {
         this._ensureProperties();
-        return this.filesDirectoryPath + this._getKey(contentType);
+        var filePath = this.filesDirectoryPath;
+        if (platform.isWindowsPhone) {
+            //since windows phone must not have a trailing slash in its initial dir
+            //we must add it now
+            filePath += '/';
+        }
+
+        filePath += this._getKey(contentType);
+        return filePath;
     };
 
     FileSystemPersister.prototype._resolveDataDirectory = function (success, error) {
         this._ensureProperties();
         if (isCordova) {
-            resolveLocalFileSystemURL(this.dataDirectoryPath, success, error);
+            requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
+                success(fileSystem.root);
+            }, error);
         } else if (isNativeScript) {
             var dataDirectory = this.fs.Folder.fromPath(this.dataDirectoryPath);
             success(dataDirectory);
@@ -20501,7 +20762,7 @@ var FileSystemPersister = (function () {
                     this.fs.Folder.fromPath(fileDirectoryPath);
                     success();
                 } catch (e) {
-                    error (e);
+                    error(e);
                 }
             }
         }.bind(this), error);
@@ -20509,7 +20770,10 @@ var FileSystemPersister = (function () {
 
     FileSystemPersister.prototype._fileSystemErrorHandler = function (callback) {
         if (!isNativeScript) {
-            var errorsMap = {};
+            var errorsMap = {
+                1000: 'NOT_FOUND'
+            };
+
             _.each(Object.keys(FileError), function (error) {
                 errorsMap[FileError[error]] = error;
             });
@@ -20533,7 +20797,7 @@ module.exports = {
     LocalStoragePersister: LocalStoragePersister,
     FileSystemPersister: FileSystemPersister
 };
-},{"../EverliveError":43,"../LocalStore":47,"../common":53,"../constants":54,"../everlive.platform":56,"../utils":73,"file-system":"file-system","util":5}],62:[function(require,module,exports){
+},{"../EverliveError":43,"../LocalStore":47,"../common":53,"../constants":54,"../everlive.platform":56,"../utils":74,"file-system":"file-system","util":5}],63:[function(require,module,exports){
 'use strict';
 
 var constants = require('../constants');
@@ -20617,7 +20881,7 @@ var offlineTransformations = {
 };
 
 module.exports = offlineTransformations;
-},{"../common":53,"../constants":54}],63:[function(require,module,exports){
+},{"../common":53,"../constants":54}],64:[function(require,module,exports){
 var _ = require('../common')._;
 
 module.exports = (function () {
@@ -20698,7 +20962,7 @@ module.exports = (function () {
 
     return DataQuery;
 }());
-},{"../common":53}],64:[function(require,module,exports){
+},{"../common":53}],65:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 var WhereQuery = require('./WhereQuery');
@@ -20824,7 +21088,7 @@ module.exports = (function () {
 
     return Query;
 }());
-},{"../Expression":45,"../constants":54,"./QueryBuilder":65,"./WhereQuery":67}],65:[function(require,module,exports){
+},{"../Expression":45,"../constants":54,"./QueryBuilder":66,"./WhereQuery":68}],66:[function(require,module,exports){
 var constants = require('../constants');
 var OperatorType = constants.OperatorType;
 var _ = require('../common')._;
@@ -21174,7 +21438,7 @@ module.exports = (function () {
 
     return QueryBuilder;
 }());
-},{"../EverliveError":43,"../Expression":45,"../GeoPoint":46,"../common":53,"../constants":54}],66:[function(require,module,exports){
+},{"../EverliveError":43,"../Expression":45,"../GeoPoint":46,"../common":53,"../constants":54}],67:[function(require,module,exports){
 var DataQuery = require('./DataQuery');
 var Request = require('../Request');
 var _ = require('../common')._;
@@ -21377,7 +21641,7 @@ module.exports = (function () {
 
     return RequestOptionsBuilder;
 }());
-},{"../Request":49,"../common":53,"./DataQuery":63}],67:[function(require,module,exports){
+},{"../Request":49,"../common":53,"./DataQuery":64}],68:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 
@@ -21673,7 +21937,7 @@ module.exports = (function () {
 
     return WhereQuery;
 }());
-},{"../Expression":45,"../constants":54}],68:[function(require,module,exports){
+},{"../Expression":45,"../constants":54}],69:[function(require,module,exports){
 var http = require('http');
 module.exports = (function () {
     'use strict';
@@ -21723,7 +21987,7 @@ module.exports = (function () {
 
     return reqwest;
 }());
-},{"http":"http"}],69:[function(require,module,exports){
+},{"http":"http"}],70:[function(require,module,exports){
 (function (Buffer){
 var url = require('url');
 var http = require('http');
@@ -21817,7 +22081,7 @@ module.exports = (function () {
     return reqwest;
 }());
 }).call(this,require("buffer").Buffer)
-},{"buffer":"buffer","http":"http","https":"https","rsvp":29,"underscore":30,"url":"url","zlib":"zlib"}],70:[function(require,module,exports){
+},{"buffer":"buffer","http":"http","https":"https","rsvp":29,"underscore":30,"url":"url","zlib":"zlib"}],71:[function(require,module,exports){
 var buildPromise = require('../utils').buildPromise;
 var DataQuery = require('../query/DataQuery');
 var RequestOptionsBuilder = require('../query/RequestOptionsBuilder');
@@ -21898,23 +22162,29 @@ module.exports = (function () {
                     case DataQuery.operations.readById:
                         var syncReadQuery = new DataQuery(_.defaults({
                             data: requestResponse.result,
-                            isSync: true
+                            isSync: true,
+                            operation: DataQuery.operations.create
                         }, query));
-                        return this.offlineStorage.create(syncReadQuery);
+                        return this.offlineStorage.processQuery(syncReadQuery);
                     case DataQuery.operations.create:
                         var createData = this._getOfflineCreateData(query, requestResponse);
                         var createQuery = new DataQuery(_.defaults({
                             data: createData,
                             isSync: true
                         }, query));
-                        return this.offlineStorage.create(createQuery);
+                        return this.offlineStorage.processQuery(createQuery);
+                    case DataQuery.operations.update:
+                    case DataQuery.operations.rawUpdate:
+                        query.isSync = true;
+                        query.ModifiedAt = requestResponse.ModifiedAt;
+                        return this.offlineStorage.processQuery(query);
                     default:
                         query.isSync = true;
                         return this.offlineStorage.processQuery(query);
                 }
             }
 
-            return new rsvp.Promise(function (resolve, reject) {
+            return new rsvp.Promise(function (resolve) {
                 resolve();
             });
         },
@@ -22584,7 +22854,7 @@ module.exports = (function () {
     return Data;
 }());
 
-},{"../Everlive":42,"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":63,"../query/RequestOptionsBuilder":66,"../utils":73}],71:[function(require,module,exports){
+},{"../Everlive":42,"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":64,"../query/RequestOptionsBuilder":67,"../utils":74}],72:[function(require,module,exports){
 /**
  * @class Files
  * @protected
@@ -22612,6 +22882,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
      * @memberof Files.prototype
      * @method getDownloadUrl
      * @deprecated
+     * @see {@link Files.getDownloadUrlById}
      * @param {string} fileId The ID of the file.
      * @returns {string} url The download URL.
      */
@@ -22695,7 +22966,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
         }, success, error);
     };
 };
-},{"../Request":49,"../query/DataQuery":63,"../utils":73}],72:[function(require,module,exports){
+},{"../Request":49,"../query/DataQuery":64,"../utils":74}],73:[function(require,module,exports){
 /**
  * @class Users
  * @extends Data
@@ -22746,14 +23017,14 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
     };
 
     /**
-     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK.
+     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK. The success function is called with {@link Users.ResultTypes.curentUserResult}.
      * @memberOf Users.prototype
      * @method currentUser
      * @name currentUser
      * @returns {Promise} The promise for the request.
      */
     /**
-     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK.
+     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK. The success function is called with {@link Users.ResultTypes.curentUserResult}.
      * @memberOf Users.prototype
      * @method currentUser
      * @name currentUser
@@ -22851,6 +23122,8 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @memberOf Users.prototype
      * @method login
      * @name login
+     * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.login}
      * @param {string} username The user's username.
      * @param {string} password The user's password.
      * @returns {Promise} The promise for the request.
@@ -22861,6 +23134,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @method login
      * @name login
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.login}
      * @param {string} username The user's username.
      * @param {string} password The user's password.
      * @param {Function} [success] A success callback.
@@ -22877,6 +23151,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @method logout
      * @name logout
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.logout}
      * @returns {Promise} The promise for the request.
      */
     /**
@@ -22885,6 +23160,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @method logout
      * @name logout
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.logout}
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
      */
@@ -22898,6 +23174,8 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @memberOf Users.prototype
      * @method loginWithFacebook
      * @name loginWithFacebook
+     * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithFacebook}
      * @param {string} accessToken Facebook access token.
      * @returns {Promise} The promise for the request.
      */
@@ -22907,6 +23185,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @method loginWithFacebook
      * @name loginWithFacebook
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithFacebook}
      * @param {string} accessToken Facebook access token.
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
@@ -22968,6 +23247,8 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @memberOf Users.prototype
      * @method loginWithADFS
      * @name loginWithADFS
+     * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithADFS}
      * @param {string} accessToken ADFS access token.
      * @returns {Promise} The promise for the request.
      */
@@ -22977,6 +23258,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @method loginWithADFS
      * @name loginWithADFS
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithADFS}
      * @param {string} accessToken ADFS access token.
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
@@ -23034,20 +23316,23 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
     };
 
     /**
-     * Log in a user using a LiveID access token.
-     * @memberOf Users.prototype
-     * @method loginWithLiveID
-     * @name loginWithLiveID
-     * @param {string} accessToken LiveID access token.
-     * @returns {Promise} The promise for the request.
-     */
-    /**
-     * Log in a user using a LiveID access token.
+     * Log in a user using a Microsoft Account access token.
      * @memberOf Users.prototype
      * @method loginWithLiveID
      * @name loginWithLiveID
      * @deprecated
-     * @param {string} accessToken LiveID access token.
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithLiveID}
+     * @param {string} accessToken Microsoft Account access token.
+     * @returns {Promise} The promise for the request.
+     */
+    /**
+     * Log in a user using a Microsoft Account access token.
+     * @memberOf Users.prototype
+     * @method loginWithLiveID
+     * @name loginWithLiveID
+     * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithLiveID}
+     * @param {string} accessToken Microsoft Account access token.
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
      */
@@ -23056,21 +23341,21 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
     };
 
     /**
-     * Links a {{site.TelerikBackendServices}} user account to a LiveId access token.
+     * Links a {{site.TelerikBackendServices}} user account to a Microsoft Account access token.
      * @memberOf Users.prototype
      * @method linkWithLiveID
      * @name linkWithLiveID
      * @param {string} userId The user's ID in {{site.bs}}.
-     * @param {string} accessToken The LiveID access token that will be linked to the {{site.bs}} user account.
+     * @param {string} accessToken The Microsoft Account access token that will be linked to the {{site.bs}} user account.
      * @returns {Promise} The promise for the request.
      */
     /**
-     * Links a {{site.TelerikBackendServices}} user account to a LiveId access token.
+     * Links a {{site.TelerikBackendServices}} user account to a Microsoft Account access token.
      * @memberOf Users.prototype
      * @method linkWithLiveID
      * @name linkWithLiveID
      * @param {string} userId The user's ID in {{site.bs}}.
-     * @param {string} accessToken The LiveID access token that will be linked to the {{site.bs}} user account.
+     * @param {string} accessToken The Microsoft Account access token that will be linked to the {{site.bs}} user account.
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
      */
@@ -23083,7 +23368,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
     };
 
     /**
-     * Unlinks a {{site.TelerikBackendServices}} user account from the LiveID access token that it is linked to.
+     * Unlinks a {{site.TelerikBackendServices}} user account from the Microsoft Account access token that it is linked to.
      * @memberOf Users.prototype
      * @method unlinkFromLiveID
      * @name unlinkFromLiveID
@@ -23091,7 +23376,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @returns {Promise} The promise for the request.
      */
     /**
-     * Unlinks a {{site.TelerikBackendServices}} user account from the LiveID access token that it is linked to.
+     * Unlinks a {{site.TelerikBackendServices}} user account from the Microsoft Account access token that it is linked to.
      * @memberOf Users.prototype
      * @method unlinkFromLiveID
      * @name unlinkFromLiveID
@@ -23108,6 +23393,8 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @memberOf Users.prototype
      * @method loginWithGoogle
      * @name loginWithGoogle
+     * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithGoogle}
      * @param {string} accessToken Google access token.
      * @returns {Promise} The promise for the request.
      */
@@ -23117,6 +23404,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @method loginWithGoogle
      * @name loginWithGoogle
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.loginWithGoogle}
      * @param {string} accessToken Google access token.
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
@@ -23254,6 +23542,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * @memberOf Users.prototype
      * @method setAuthorization
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.setAuthorization}
      * @param {string} token Token that will be used for authorization.
      * @param {Everlive.TokenType} tokenType Token type. Currently only 'bearer' token is supported.
      * @param {string} principalId The id of the user that is logged in.
@@ -23266,6 +23555,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
      * Clears the authentication token that the {{site.bs}} JavaScript SDK currently uses. Note that this is different than logging out, because the current authorization token is not invalidated.
      * @method clearAuthorization
      * @deprecated
+     * @see [authentication.login]{@link ../Authentication/authentication.clearAuthorization}
      * @memberOf Users.prototype
      */
     ns.clearAuthorization = function clearAuthorization() {
@@ -23315,7 +23605,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
         }, success, error);
     };
 };
-},{"../EverliveError":43,"../Request":49,"../common":53,"../query/DataQuery":63,"../utils":73}],73:[function(require,module,exports){
+},{"../EverliveError":43,"../Request":49,"../common":53,"../query/DataQuery":64,"../utils":74}],74:[function(require,module,exports){
 var EverliveError = require('./EverliveError').EverliveError;
 var common = require('./common');
 var _ = common._;

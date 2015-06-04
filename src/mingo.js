@@ -280,9 +280,9 @@
         _.extend(this._operators, {"$project": this._projection});
       }
 
-      if (!_.isArray(this._collection) && !_.isObject(this._collection)) {
-        throw new Error("Input collection is not of valid type. Must be an Array.");
-      }
+      // if (!_.isArray(this._collection) && !_.isObject(this._collection)) {
+      //   throw new Error("Input collection is not of valid type. Must be an Array.");
+      // }
 
       // filter collection
       this._result = _.filter(this._collection, this._query.test, this._query);
@@ -633,6 +633,15 @@
       if (_.isEmpty(expr)) {
         return collection;
       }
+      var usesExclusion = false;
+      _.each(expr, function(val, key) {
+        if(val === 0 && key !== settings.key) {
+           usesExclusion = true;
+        }
+        if(val !== 0 && usesExclusion) {
+            throw new Error("You cannot mix including and excluding fields."); 
+        }
+      });
 
       // result collection
       var projected = [];
