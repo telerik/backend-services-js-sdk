@@ -1,4 +1,8 @@
-if (typeof define !== "undefined" && define.amd) { define(function () { return Everlive; }); }(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function () { 
+	if (typeof module === "object") { var everliveModule = module; } 
+	if (typeof define !== "undefined" && define.amd) { define(function() { return Everlive; }); } 
+
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -16394,7 +16398,14 @@ module.exports = (function () {
 
     function getLocalStorage(sdk) {
         if (isNativeScript) {
-            var localSettings = require('application-settings');
+            var localSettings;
+
+            //workound for older nativescript versions
+            try {
+                localSettings = require('application-settings');
+            } catch (e) {
+                localSettings = require('local-settings');
+            }
 
             return {
                 getItem: function (key) {
@@ -16455,7 +16466,7 @@ module.exports = (function () {
 
     return LocalStore;
 }());
-},{"./constants":54,"./everlive.platform":56,"application-settings":"application-settings","node-localstorage":"node-localstorage"}],48:[function(require,module,exports){
+},{"./constants":54,"./everlive.platform":56,"application-settings":"application-settings","local-settings":"local-settings","node-localstorage":"node-localstorage"}],48:[function(require,module,exports){
 var utils = require('./utils');
 var buildPromise = utils.buildPromise;
 var DeviceRegistrationResult = utils.DeviceRegistrationResult;
@@ -17785,9 +17796,6 @@ var isNativeScript = Boolean(((typeof android !== 'undefined' && android && andr
     || (typeof UIButton !== 'undefined' && UIButton)));
 
 if (isNativeScript) {
-    global.isNativeScriptApplication = isNativeScript;
-    global.isCordovaApplication = false;
-
     global.window = {
             localStorage: {
                 removeItem: function () { } //shim for mongo-query under nativescript
@@ -17831,13 +17839,12 @@ module.exports = {
  */
 /*!
  Everlive SDK
- Version 1.3.2
+ Version 1.3.3
  */
 (function () {
     var Everlive = require('./Everlive');
     var platform = require('./everlive.platform');
     var common = require('./common');
-    common.root.Everlive = Everlive;
 
     if (!platform.isNativeScript && !platform.isNodejs) {
         var kendo = require('./kendo/kendo.everlive');
@@ -17865,8 +17872,19 @@ module.exports = {
         FileSystem: persistersModule.FileSystemPersister
     };
 
-    if (typeof exports === 'object') {
-        module.exports = common.root.Everlive;
+    //everliveModule is provided by a closure generated during build
+    if (platform.isNodejs || platform.isNativeScript) {
+        if (typeof everliveModule !== 'undefined') {
+            everliveModule.exports = Everlive;
+        }
+
+        if (typeof module !== 'undefined') {
+            module.exports = Everlive;
+        }
+    } else {
+        //in requirejs Everlive is defined in the same closure
+        //browser
+        common.root.Everlive = Everlive;
     }
 }());
 },{"./Everlive":42,"./GeoPoint":46,"./Request":49,"./common":53,"./constants":54,"./everlive.platform":56,"./kendo/kendo.everlive":58,"./offline/offlinePersisters":62,"./query/Query":65,"./query/QueryBuilder":66,"./types/Data":71,"./utils":74}],58:[function(require,module,exports){
@@ -23893,4 +23911,5 @@ utils.getUnsupportedOperators = function (filter) {
 module.exports = utils;
 
 },{"./Everlive":42,"./EverliveError":43,"./common":53,"./everlive.platform":56}]},{},[57]);
-if (typeof module === "object" && typeof exports === "object") { module.exports = Everlive; }
+
+}())
