@@ -1,8 +1,67 @@
-(function () { 
-	if (typeof module === "object") { var everliveModule = module; } 
-	if (typeof define !== "undefined" && define.amd) { define(function() { return Everlive; }); } 
+(function () { if (typeof module === "object") { var everliveModule = module; } if (typeof define !== "undefined" && define.amd) { define(function() { return Everlive; }); } (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+;(function () {
 
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+  var object = typeof exports != 'undefined' ? exports : this; // #8: web workers
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+  function InvalidCharacterError(message) {
+    this.message = message;
+  }
+  InvalidCharacterError.prototype = new Error;
+  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+
+  // encoder
+  // [https://gist.github.com/999166] by [https://github.com/nignag]
+  object.btoa || (
+  object.btoa = function (input) {
+    var str = String(input);
+    for (
+      // initialize result and counter
+      var block, charCode, idx = 0, map = chars, output = '';
+      // if the next str index does not exist:
+      //   change the mapping table to "="
+      //   check if d has no fractional digits
+      str.charAt(idx | 0) || (map = '=', idx % 1);
+      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+    ) {
+      charCode = str.charCodeAt(idx += 3/4);
+      if (charCode > 0xFF) {
+        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+      }
+      block = block << 8 | charCode;
+    }
+    return output;
+  });
+
+  // decoder
+  // [https://gist.github.com/1020396] by [https://github.com/atk]
+  object.atob || (
+  object.atob = function (input) {
+    var str = String(input).replace(/=+$/, '');
+    if (str.length % 4 == 1) {
+      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+    }
+    for (
+      // initialize result and counters
+      var bc = 0, bs, buffer, idx = 0, output = '';
+      // get next character
+      buffer = str.charAt(idx++);
+      // character found in table? initialize bit storage and add its ascii value;
+      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+        // and if not first of each 4 characters,
+        // convert the first 8 bits to one ascii character
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+    ) {
+      // try to find character in table (0-63, not found => -1)
+      buffer = chars.indexOf(buffer);
+    }
+    return output;
+  });
+
+}());
+
+},{}],2:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -305,7 +364,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -330,7 +389,235 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+(function (process){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+}).call(this,require('_process'))
+},{"_process":5}],5:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -390,14 +677,14 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -987,7 +1274,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":4,"_process":3,"inherits":2}],6:[function(require,module,exports){
+},{"./support/isBuffer":6,"_process":5,"inherits":3}],8:[function(require,module,exports){
 /**
  * This script gives you the zone info key representing your device's time zone setting.
  *
@@ -1348,7 +1635,7 @@ function hasOwnProperty(obj, prop) {
 })(this);
 
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // Mingo.js 0.4.0
 // Copyright (c) 2015 Francis Asante <kofrasa@gmail.com>
 // MIT
@@ -3247,7 +3534,7 @@ function hasOwnProperty(obj, prop) {
 
 }(this));
 
-},{"stream":"stream","underscore":30,"util":5}],8:[function(require,module,exports){
+},{"stream":"stream","underscore":32,"util":7}],10:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3391,7 +3678,7 @@ function compare(matcher, val){
   }
 }
 
-},{"./ops":19,"component-type":11,"debug":12,"dot-component":15,"mongo-eql":17,"object-component":18}],9:[function(require,module,exports){
+},{"./ops":21,"component-type":13,"debug":14,"dot-component":17,"mongo-eql":19,"object-component":20}],11:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3507,7 +3794,7 @@ function query(obj, query, update, opts){
   return log;
 }
 
-},{"./filter":8,"./mods":10,"component-type":11,"debug":12,"dot-component":15,"object-component":18}],10:[function(require,module,exports){
+},{"./filter":10,"./mods":12,"component-type":13,"debug":14,"dot-component":17,"object-component":20}],12:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4124,7 +4411,7 @@ function numeric(val){
   return 'number' == type(val) || Number(val) == val;
 }
 
-},{"component-type":11,"debug":12,"dot-component":15,"mongo-eql":17,"object-component":18}],11:[function(require,module,exports){
+},{"component-type":13,"debug":14,"dot-component":17,"mongo-eql":19,"object-component":20}],13:[function(require,module,exports){
 /**
  * toString ref.
  */
@@ -4160,7 +4447,7 @@ module.exports = function(val){
   return typeof val;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -4337,7 +4624,7 @@ function localstorage(){
   } catch (e) {}
 }
 
-},{"./debug":13}],13:[function(require,module,exports){
+},{"./debug":15}],15:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -4536,7 +4823,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":14}],14:[function(require,module,exports){
+},{"ms":16}],16:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -4661,7 +4948,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4745,7 +5032,7 @@ function parent(obj, key, init){
   }
 }
 
-},{"type-component":16}],16:[function(require,module,exports){
+},{"type-component":18}],18:[function(require,module,exports){
 
 /**
  * toString ref.
@@ -4777,7 +5064,7 @@ module.exports = function(val){
   return typeof val;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4848,7 +5135,7 @@ function eql(matcher, val){
   }
 }
 
-},{"component-type":11}],18:[function(require,module,exports){
+},{"component-type":13}],20:[function(require,module,exports){
 
 /**
  * HOP ref.
@@ -4933,7 +5220,7 @@ exports.length = function(obj){
 exports.isEmpty = function(obj){
   return 0 == exports.length(obj);
 };
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -5032,7 +5319,7 @@ exports.$size = function(matcher, val){
   return Array.isArray(val) && matcher == val.length;
 };
 
-},{"component-type":11,"mongo-eql":17}],20:[function(require,module,exports){
+},{"component-type":13,"mongo-eql":19}],22:[function(require,module,exports){
 var CryptoJS = require('./lib/core').CryptoJS;
 require('./lib/enc-base64');
 require('./lib/md5');
@@ -5043,7 +5330,7 @@ var JsonFormatter = require('./lib/jsonformatter').JsonFormatter;
 
 exports.CryptoJS = CryptoJS;
 exports.JsonFormatter = JsonFormatter;
-},{"./lib/aes":21,"./lib/cipher-core":22,"./lib/core":23,"./lib/enc-base64":24,"./lib/evpkdf":25,"./lib/jsonformatter":26,"./lib/md5":27}],21:[function(require,module,exports){
+},{"./lib/aes":23,"./lib/cipher-core":24,"./lib/core":25,"./lib/enc-base64":26,"./lib/evpkdf":27,"./lib/jsonformatter":28,"./lib/md5":29}],23:[function(require,module,exports){
 var CryptoJS = require('./core').CryptoJS;
 
 /*
@@ -5260,7 +5547,7 @@ code.google.com/p/crypto-js/wiki/License
     C.AES = BlockCipher._createHelper(AES);
 }());
 
-},{"./core":23}],22:[function(require,module,exports){
+},{"./core":25}],24:[function(require,module,exports){
 var CryptoJS = require('./core').CryptoJS;
 
 /*
@@ -6127,7 +6414,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
     });
 }());
 
-},{"./core":23}],23:[function(require,module,exports){
+},{"./core":25}],25:[function(require,module,exports){
 /*
 CryptoJS v3.1.2
 code.google.com/p/crypto-js
@@ -6843,7 +7130,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
 exports.CryptoJS = CryptoJS;
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 var CryptoJS = require('./core').CryptoJS;
 
 /*
@@ -6956,7 +7243,7 @@ code.google.com/p/crypto-js/wiki/License
     };
 }());
 
-},{"./core":23}],25:[function(require,module,exports){
+},{"./core":25}],27:[function(require,module,exports){
 var CryptoJS = require('./core').CryptoJS;
 
 /*
@@ -7078,7 +7365,7 @@ code.google.com/p/crypto-js/wiki/License
     };
 }());
 
-},{"./core":23}],26:[function(require,module,exports){
+},{"./core":25}],28:[function(require,module,exports){
 var CryptoJS = require('./core').CryptoJS;
 
 // create custom json serialization format
@@ -7125,7 +7412,7 @@ var JsonFormatter = {
 };
 
 exports.JsonFormatter = JsonFormatter;
-},{"./core":23}],27:[function(require,module,exports){
+},{"./core":25}],29:[function(require,module,exports){
 var CryptoJS = require('./core').CryptoJS;
 
 /*
@@ -7383,7 +7670,7 @@ code.google.com/p/crypto-js/wiki/License
     C.HmacMD5 = Hasher._createHmacHelper(MD5);
 }(Math));
 
-},{"./core":23}],28:[function(require,module,exports){
+},{"./core":25}],30:[function(require,module,exports){
 /*!
   * Reqwest! A general purpose XHR connection manager
   * license MIT (c) Dustin Diaz 2014
@@ -8000,7 +8287,7 @@ code.google.com/p/crypto-js/wiki/License
   return reqwest
 });
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (process){
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
@@ -9675,8 +9962,8 @@ code.google.com/p/crypto-js/wiki/License
 
 
 }).call(this,require('_process'))
-},{"_process":3}],30:[function(require,module,exports){
-//     Underscore.js 1.8.3
+},{"_process":5}],32:[function(require,module,exports){
+//     Underscore.js 1.8.2
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
@@ -9733,7 +10020,7 @@ code.google.com/p/crypto-js/wiki/License
   }
 
   // Current version.
-  _.VERSION = '1.8.3';
+  _.VERSION = '1.8.2';
 
   // Internal function that returns an efficient (for current engines) version
   // of the passed-in callback, to be repeatedly applied in other Underscore
@@ -9800,20 +10087,12 @@ code.google.com/p/crypto-js/wiki/License
     return result;
   };
 
-  var property = function(key) {
-    return function(obj) {
-      return obj == null ? void 0 : obj[key];
-    };
-  };
-
   // Helper for collection methods to determine whether a collection
   // should be iterated as an array or as an object
   // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-  var getLength = property('length');
   var isArrayLike = function(collection) {
-    var length = getLength(collection);
+    var length = collection && collection.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 
@@ -9938,12 +10217,11 @@ code.google.com/p/crypto-js/wiki/License
     return false;
   };
 
-  // Determine if the array or object contains a given item (using `===`).
+  // Determine if the array or object contains a given value (using `===`).
   // Aliased as `includes` and `include`.
-  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+  _.contains = _.includes = _.include = function(obj, target, fromIndex) {
     if (!isArrayLike(obj)) obj = _.values(obj);
-    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
-    return _.indexOf(obj, item, fromIndex) >= 0;
+    return _.indexOf(obj, target, typeof fromIndex == 'number' && fromIndex) >= 0;
   };
 
   // Invoke a method (with arguments) on every item in a collection.
@@ -10167,7 +10445,7 @@ code.google.com/p/crypto-js/wiki/License
   // Internal implementation of a recursive `flatten` function.
   var flatten = function(input, shallow, strict, startIndex) {
     var output = [], idx = 0;
-    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
+    for (var i = startIndex || 0, length = input && input.length; i < length; i++) {
       var value = input[i];
       if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
         //flatten current level of array or arguments object
@@ -10198,6 +10476,7 @@ code.google.com/p/crypto-js/wiki/License
   // been sorted, you have the option of using a faster algorithm.
   // Aliased as `unique`.
   _.uniq = _.unique = function(array, isSorted, iteratee, context) {
+    if (array == null) return [];
     if (!_.isBoolean(isSorted)) {
       context = iteratee;
       iteratee = isSorted;
@@ -10206,7 +10485,7 @@ code.google.com/p/crypto-js/wiki/License
     if (iteratee != null) iteratee = cb(iteratee, context);
     var result = [];
     var seen = [];
-    for (var i = 0, length = getLength(array); i < length; i++) {
+    for (var i = 0, length = array.length; i < length; i++) {
       var value = array[i],
           computed = iteratee ? iteratee(value, i, array) : value;
       if (isSorted) {
@@ -10233,9 +10512,10 @@ code.google.com/p/crypto-js/wiki/License
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
   _.intersection = function(array) {
+    if (array == null) return [];
     var result = [];
     var argsLength = arguments.length;
-    for (var i = 0, length = getLength(array); i < length; i++) {
+    for (var i = 0, length = array.length; i < length; i++) {
       var item = array[i];
       if (_.contains(result, item)) continue;
       for (var j = 1; j < argsLength; j++) {
@@ -10264,7 +10544,7 @@ code.google.com/p/crypto-js/wiki/License
   // Complement of _.zip. Unzip accepts an array of arrays and groups
   // each array's elements on shared indices
   _.unzip = function(array) {
-    var length = array && _.max(array, getLength).length || 0;
+    var length = array && _.max(array, 'length').length || 0;
     var result = Array(length);
 
     for (var index = 0; index < length; index++) {
@@ -10278,7 +10558,7 @@ code.google.com/p/crypto-js/wiki/License
   // the corresponding values.
   _.object = function(list, values) {
     var result = {};
-    for (var i = 0, length = getLength(list); i < length; i++) {
+    for (var i = 0, length = list && list.length; i < length; i++) {
       if (values) {
         result[list[i]] = values[i];
       } else {
@@ -10288,11 +10568,42 @@ code.google.com/p/crypto-js/wiki/License
     return result;
   };
 
+  // Return the position of the first occurrence of an item in an array,
+  // or -1 if the item is not included in the array.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = function(array, item, isSorted) {
+    var i = 0, length = array && array.length;
+    if (typeof isSorted == 'number') {
+      i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
+    } else if (isSorted && length) {
+      i = _.sortedIndex(array, item);
+      return array[i] === item ? i : -1;
+    }
+    if (item !== item) {
+      return _.findIndex(slice.call(array, i), _.isNaN);
+    }
+    for (; i < length; i++) if (array[i] === item) return i;
+    return -1;
+  };
+
+  _.lastIndexOf = function(array, item, from) {
+    var idx = array ? array.length : 0;
+    if (typeof from == 'number') {
+      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
+    }
+    if (item !== item) {
+      return _.findLastIndex(slice.call(array, 0, idx), _.isNaN);
+    }
+    while (--idx >= 0) if (array[idx] === item) return idx;
+    return -1;
+  };
+
   // Generator function to create the findIndex and findLastIndex functions
-  function createPredicateIndexFinder(dir) {
+  function createIndexFinder(dir) {
     return function(array, predicate, context) {
       predicate = cb(predicate, context);
-      var length = getLength(array);
+      var length = array != null && array.length;
       var index = dir > 0 ? 0 : length - 1;
       for (; index >= 0 && index < length; index += dir) {
         if (predicate(array[index], index, array)) return index;
@@ -10302,15 +10613,16 @@ code.google.com/p/crypto-js/wiki/License
   }
 
   // Returns the first index on an array-like that passes a predicate test
-  _.findIndex = createPredicateIndexFinder(1);
-  _.findLastIndex = createPredicateIndexFinder(-1);
+  _.findIndex = createIndexFinder(1);
+
+  _.findLastIndex = createIndexFinder(-1);
 
   // Use a comparator function to figure out the smallest index at which
   // an object should be inserted so as to maintain order. Uses binary search.
   _.sortedIndex = function(array, obj, iteratee, context) {
     iteratee = cb(iteratee, context, 1);
     var value = iteratee(obj);
-    var low = 0, high = getLength(array);
+    var low = 0, high = array.length;
     while (low < high) {
       var mid = Math.floor((low + high) / 2);
       if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
@@ -10318,43 +10630,11 @@ code.google.com/p/crypto-js/wiki/License
     return low;
   };
 
-  // Generator function to create the indexOf and lastIndexOf functions
-  function createIndexFinder(dir, predicateFind, sortedIndex) {
-    return function(array, item, idx) {
-      var i = 0, length = getLength(array);
-      if (typeof idx == 'number') {
-        if (dir > 0) {
-            i = idx >= 0 ? idx : Math.max(idx + length, i);
-        } else {
-            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
-        }
-      } else if (sortedIndex && idx && length) {
-        idx = sortedIndex(array, item);
-        return array[idx] === item ? idx : -1;
-      }
-      if (item !== item) {
-        idx = predicateFind(slice.call(array, i, length), _.isNaN);
-        return idx >= 0 ? idx + i : -1;
-      }
-      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
-        if (array[idx] === item) return idx;
-      }
-      return -1;
-    };
-  }
-
-  // Return the position of the first occurrence of an item in an array,
-  // or -1 if the item is not included in the array.
-  // If the array is large and already in sort order, pass `true`
-  // for **isSorted** to use binary search.
-  _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
-  _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
-
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
   // [the Python documentation](http://docs.python.org/library/functions.html#range).
   _.range = function(start, stop, step) {
-    if (stop == null) {
+    if (arguments.length <= 1) {
       stop = start || 0;
       start = 0;
     }
@@ -10733,15 +11013,6 @@ code.google.com/p/crypto-js/wiki/License
   // Fill in a given object with default properties.
   _.defaults = createAssigner(_.allKeys, true);
 
-  // Creates an object that inherits from the given prototype object.
-  // If additional properties are provided then they will be added to the
-  // created object.
-  _.create = function(prototype, props) {
-    var result = baseCreate(prototype);
-    if (props) _.extendOwn(result, props);
-    return result;
-  };
-
   // Create a (shallow-cloned) duplicate of an object.
   _.clone = function(obj) {
     if (!_.isObject(obj)) return obj;
@@ -10819,7 +11090,7 @@ code.google.com/p/crypto-js/wiki/License
     }
     // Assume equality for cyclic structures. The algorithm for detecting cyclic
     // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-
+    
     // Initializing stack of traversed objects.
     // It's done here since we only need them for objects and arrays comparison.
     aStack = aStack || [];
@@ -10970,7 +11241,11 @@ code.google.com/p/crypto-js/wiki/License
 
   _.noop = function(){};
 
-  _.property = property;
+  _.property = function(key) {
+    return function(obj) {
+      return obj == null ? void 0 : obj[key];
+    };
+  };
 
   // Generates a function for a given object that returns a given property.
   _.propertyOf = function(obj) {
@@ -10979,7 +11254,7 @@ code.google.com/p/crypto-js/wiki/License
     };
   };
 
-  // Returns a predicate for checking whether an object has a given set of
+  // Returns a predicate for checking whether an object has a given set of 
   // `key:value` pairs.
   _.matcher = _.matches = function(attrs) {
     attrs = _.extendOwn({}, attrs);
@@ -11206,7 +11481,7 @@ code.google.com/p/crypto-js/wiki/License
   // Provide unwrapping proxy for some methods used in engine operations
   // such as arithmetic and JSON stringification.
   _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
-
+  
   _.prototype.toString = function() {
     return '' + this._wrapped;
   };
@@ -11225,227 +11500,7 @@ code.google.com/p/crypto-js/wiki/License
   }
 }.call(this));
 
-},{}],31:[function(require,module,exports){
-(function (global){
-
-var rng;
-
-if (global.crypto && crypto.getRandomValues) {
-  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
-  // Moderately fast, high quality
-  var _rnds8 = new Uint8Array(16);
-  rng = function whatwgRNG() {
-    crypto.getRandomValues(_rnds8);
-    return _rnds8;
-  };
-}
-
-if (!rng) {
-  // Math.random()-based (RNG)
-  //
-  // If all else fails, use Math.random().  It's fast, but is of unspecified
-  // quality.
-  var  _rnds = new Array(16);
-  rng = function() {
-    for (var i = 0, r; i < 16; i++) {
-      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-    }
-
-    return _rnds;
-  };
-}
-
-module.exports = rng;
-
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],32:[function(require,module,exports){
-//     uuid.js
-//
-//     Copyright (c) 2010-2012 Robert Kieffer
-//     MIT License - http://opensource.org/licenses/mit-license.php
-
-// Unique ID creation requires a high quality random # generator.  We feature
-// detect to determine the best RNG source, normalizing to a function that
-// returns 128-bits of randomness, since that's what's usually required
-var _rng = require('./rng');
-
-// Maps for number <-> hex string conversion
-var _byteToHex = [];
-var _hexToByte = {};
-for (var i = 0; i < 256; i++) {
-  _byteToHex[i] = (i + 0x100).toString(16).substr(1);
-  _hexToByte[_byteToHex[i]] = i;
-}
-
-// **`parse()` - Parse a UUID into it's component bytes**
-function parse(s, buf, offset) {
-  var i = (buf && offset) || 0, ii = 0;
-
-  buf = buf || [];
-  s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
-    if (ii < 16) { // Don't overflow!
-      buf[i + ii++] = _hexToByte[oct];
-    }
-  });
-
-  // Zero out remaining bytes if string was short
-  while (ii < 16) {
-    buf[i + ii++] = 0;
-  }
-
-  return buf;
-}
-
-// **`unparse()` - Convert UUID byte array (ala parse()) into a string**
-function unparse(buf, offset) {
-  var i = offset || 0, bth = _byteToHex;
-  return  bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] + '-' +
-          bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]] +
-          bth[buf[i++]] + bth[buf[i++]];
-}
-
-// **`v1()` - Generate time-based UUID**
-//
-// Inspired by https://github.com/LiosK/UUID.js
-// and http://docs.python.org/library/uuid.html
-
-// random #'s we need to init node and clockseq
-var _seedBytes = _rng();
-
-// Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-var _nodeId = [
-  _seedBytes[0] | 0x01,
-  _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]
-];
-
-// Per 4.2.2, randomize (14 bit) clockseq
-var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
-
-// Previous uuid creation time
-var _lastMSecs = 0, _lastNSecs = 0;
-
-// See https://github.com/broofa/node-uuid for API details
-function v1(options, buf, offset) {
-  var i = buf && offset || 0;
-  var b = buf || [];
-
-  options = options || {};
-
-  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
-
-  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
-  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
-  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
-  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
-
-  // Per 4.2.1.2, use count of uuid's generated during the current clock
-  // cycle to simulate higher resolution clock
-  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
-
-  // Time since last uuid creation (in msecs)
-  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
-
-  // Per 4.2.1.2, Bump clockseq on clock regression
-  if (dt < 0 && options.clockseq === undefined) {
-    clockseq = clockseq + 1 & 0x3fff;
-  }
-
-  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
-  // time interval
-  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
-    nsecs = 0;
-  }
-
-  // Per 4.2.1.2 Throw error if too many uuids are requested
-  if (nsecs >= 10000) {
-    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
-  }
-
-  _lastMSecs = msecs;
-  _lastNSecs = nsecs;
-  _clockseq = clockseq;
-
-  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-  msecs += 12219292800000;
-
-  // `time_low`
-  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-  b[i++] = tl >>> 24 & 0xff;
-  b[i++] = tl >>> 16 & 0xff;
-  b[i++] = tl >>> 8 & 0xff;
-  b[i++] = tl & 0xff;
-
-  // `time_mid`
-  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
-  b[i++] = tmh >>> 8 & 0xff;
-  b[i++] = tmh & 0xff;
-
-  // `time_high_and_version`
-  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-  b[i++] = tmh >>> 16 & 0xff;
-
-  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-  b[i++] = clockseq >>> 8 | 0x80;
-
-  // `clock_seq_low`
-  b[i++] = clockseq & 0xff;
-
-  // `node`
-  var node = options.node || _nodeId;
-  for (var n = 0; n < 6; n++) {
-    b[i + n] = node[n];
-  }
-
-  return buf ? buf : unparse(b);
-}
-
-// **`v4()` - Generate random UUID**
-
-// See https://github.com/broofa/node-uuid for API details
-function v4(options, buf, offset) {
-  // Deprecated - 'format' argument, as supported in v1.2
-  var i = buf && offset || 0;
-
-  if (typeof(options) == 'string') {
-    buf = options == 'binary' ? new Array(16) : null;
-    options = null;
-  }
-  options = options || {};
-
-  var rnds = options.random || (options.rng || _rng)();
-
-  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-  rnds[6] = (rnds[6] & 0x0f) | 0x40;
-  rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-  // Copy bytes to buffer, if provided
-  if (buf) {
-    for (var ii = 0; ii < 16; ii++) {
-      buf[i + ii] = rnds[ii];
-    }
-  }
-
-  return buf || unparse(rnds);
-}
-
-// Export public API
-var uuid = v4;
-uuid.v1 = v1;
-uuid.v4 = v4;
-uuid.parse = parse;
-uuid.unparse = unparse;
-
-module.exports = uuid;
-
-},{"./rng":31}],33:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 var Constants = {};
 Constants.DefaultTakeItemsCount = 50;
@@ -13651,1545 +13706,9 @@ module.exports = RelationTreeBuilder;
 }());
 
 }).call(this,require('_process'))
-},{"_process":3}],40:[function(require,module,exports){
-//     Underscore.js 1.8.2
-//     http://underscorejs.org
-//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-//     Underscore may be freely distributed under the MIT license.
-
-(function() {
-
-  // Baseline setup
-  // --------------
-
-  // Establish the root object, `window` in the browser, or `exports` on the server.
-  var root = this;
-
-  // Save the previous value of the `_` variable.
-  var previousUnderscore = root._;
-
-  // Save bytes in the minified (but not gzipped) version:
-  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
-
-  // Create quick reference variables for speed access to core prototypes.
-  var
-    push             = ArrayProto.push,
-    slice            = ArrayProto.slice,
-    toString         = ObjProto.toString,
-    hasOwnProperty   = ObjProto.hasOwnProperty;
-
-  // All **ECMAScript 5** native function implementations that we hope to use
-  // are declared here.
-  var
-    nativeIsArray      = Array.isArray,
-    nativeKeys         = Object.keys,
-    nativeBind         = FuncProto.bind,
-    nativeCreate       = Object.create;
-
-  // Naked function reference for surrogate-prototype-swapping.
-  var Ctor = function(){};
-
-  // Create a safe reference to the Underscore object for use below.
-  var _ = function(obj) {
-    if (obj instanceof _) return obj;
-    if (!(this instanceof _)) return new _(obj);
-    this._wrapped = obj;
-  };
-
-  // Export the Underscore object for **Node.js**, with
-  // backwards-compatibility for the old `require()` API. If we're in
-  // the browser, add `_` as a global object.
-  if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = _;
-    }
-    exports._ = _;
-  } else {
-    root._ = _;
-  }
-
-  // Current version.
-  _.VERSION = '1.8.2';
-
-  // Internal function that returns an efficient (for current engines) version
-  // of the passed-in callback, to be repeatedly applied in other Underscore
-  // functions.
-  var optimizeCb = function(func, context, argCount) {
-    if (context === void 0) return func;
-    switch (argCount == null ? 3 : argCount) {
-      case 1: return function(value) {
-        return func.call(context, value);
-      };
-      case 2: return function(value, other) {
-        return func.call(context, value, other);
-      };
-      case 3: return function(value, index, collection) {
-        return func.call(context, value, index, collection);
-      };
-      case 4: return function(accumulator, value, index, collection) {
-        return func.call(context, accumulator, value, index, collection);
-      };
-    }
-    return function() {
-      return func.apply(context, arguments);
-    };
-  };
-
-  // A mostly-internal function to generate callbacks that can be applied
-  // to each element in a collection, returning the desired result — either
-  // identity, an arbitrary callback, a property matcher, or a property accessor.
-  var cb = function(value, context, argCount) {
-    if (value == null) return _.identity;
-    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
-    if (_.isObject(value)) return _.matcher(value);
-    return _.property(value);
-  };
-  _.iteratee = function(value, context) {
-    return cb(value, context, Infinity);
-  };
-
-  // An internal function for creating assigner functions.
-  var createAssigner = function(keysFunc, undefinedOnly) {
-    return function(obj) {
-      var length = arguments.length;
-      if (length < 2 || obj == null) return obj;
-      for (var index = 1; index < length; index++) {
-        var source = arguments[index],
-            keys = keysFunc(source),
-            l = keys.length;
-        for (var i = 0; i < l; i++) {
-          var key = keys[i];
-          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
-        }
-      }
-      return obj;
-    };
-  };
-
-  // An internal function for creating a new object that inherits from another.
-  var baseCreate = function(prototype) {
-    if (!_.isObject(prototype)) return {};
-    if (nativeCreate) return nativeCreate(prototype);
-    Ctor.prototype = prototype;
-    var result = new Ctor;
-    Ctor.prototype = null;
-    return result;
-  };
-
-  // Helper for collection methods to determine whether a collection
-  // should be iterated as an array or as an object
-  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-  var isArrayLike = function(collection) {
-    var length = collection && collection.length;
-    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
-  };
-
-  // Collection Functions
-  // --------------------
-
-  // The cornerstone, an `each` implementation, aka `forEach`.
-  // Handles raw objects in addition to array-likes. Treats all
-  // sparse array-likes as if they were dense.
-  _.each = _.forEach = function(obj, iteratee, context) {
-    iteratee = optimizeCb(iteratee, context);
-    var i, length;
-    if (isArrayLike(obj)) {
-      for (i = 0, length = obj.length; i < length; i++) {
-        iteratee(obj[i], i, obj);
-      }
-    } else {
-      var keys = _.keys(obj);
-      for (i = 0, length = keys.length; i < length; i++) {
-        iteratee(obj[keys[i]], keys[i], obj);
-      }
-    }
-    return obj;
-  };
-
-  // Return the results of applying the iteratee to each element.
-  _.map = _.collect = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length,
-        results = Array(length);
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      results[index] = iteratee(obj[currentKey], currentKey, obj);
-    }
-    return results;
-  };
-
-  // Create a reducing function iterating left or right.
-  function createReduce(dir) {
-    // Optimized iterator function as using arguments.length
-    // in the main function will deoptimize the, see #1991.
-    function iterator(obj, iteratee, memo, keys, index, length) {
-      for (; index >= 0 && index < length; index += dir) {
-        var currentKey = keys ? keys[index] : index;
-        memo = iteratee(memo, obj[currentKey], currentKey, obj);
-      }
-      return memo;
-    }
-
-    return function(obj, iteratee, memo, context) {
-      iteratee = optimizeCb(iteratee, context, 4);
-      var keys = !isArrayLike(obj) && _.keys(obj),
-          length = (keys || obj).length,
-          index = dir > 0 ? 0 : length - 1;
-      // Determine the initial value if none is provided.
-      if (arguments.length < 3) {
-        memo = obj[keys ? keys[index] : index];
-        index += dir;
-      }
-      return iterator(obj, iteratee, memo, keys, index, length);
-    };
-  }
-
-  // **Reduce** builds up a single result from a list of values, aka `inject`,
-  // or `foldl`.
-  _.reduce = _.foldl = _.inject = createReduce(1);
-
-  // The right-associative version of reduce, also known as `foldr`.
-  _.reduceRight = _.foldr = createReduce(-1);
-
-  // Return the first value which passes a truth test. Aliased as `detect`.
-  _.find = _.detect = function(obj, predicate, context) {
-    var key;
-    if (isArrayLike(obj)) {
-      key = _.findIndex(obj, predicate, context);
-    } else {
-      key = _.findKey(obj, predicate, context);
-    }
-    if (key !== void 0 && key !== -1) return obj[key];
-  };
-
-  // Return all the elements that pass a truth test.
-  // Aliased as `select`.
-  _.filter = _.select = function(obj, predicate, context) {
-    var results = [];
-    predicate = cb(predicate, context);
-    _.each(obj, function(value, index, list) {
-      if (predicate(value, index, list)) results.push(value);
-    });
-    return results;
-  };
-
-  // Return all the elements for which a truth test fails.
-  _.reject = function(obj, predicate, context) {
-    return _.filter(obj, _.negate(cb(predicate)), context);
-  };
-
-  // Determine whether all of the elements match a truth test.
-  // Aliased as `all`.
-  _.every = _.all = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length;
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      if (!predicate(obj[currentKey], currentKey, obj)) return false;
-    }
-    return true;
-  };
-
-  // Determine if at least one element in the object matches a truth test.
-  // Aliased as `any`.
-  _.some = _.any = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length;
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      if (predicate(obj[currentKey], currentKey, obj)) return true;
-    }
-    return false;
-  };
-
-  // Determine if the array or object contains a given value (using `===`).
-  // Aliased as `includes` and `include`.
-  _.contains = _.includes = _.include = function(obj, target, fromIndex) {
-    if (!isArrayLike(obj)) obj = _.values(obj);
-    return _.indexOf(obj, target, typeof fromIndex == 'number' && fromIndex) >= 0;
-  };
-
-  // Invoke a method (with arguments) on every item in a collection.
-  _.invoke = function(obj, method) {
-    var args = slice.call(arguments, 2);
-    var isFunc = _.isFunction(method);
-    return _.map(obj, function(value) {
-      var func = isFunc ? method : value[method];
-      return func == null ? func : func.apply(value, args);
-    });
-  };
-
-  // Convenience version of a common use case of `map`: fetching a property.
-  _.pluck = function(obj, key) {
-    return _.map(obj, _.property(key));
-  };
-
-  // Convenience version of a common use case of `filter`: selecting only objects
-  // containing specific `key:value` pairs.
-  _.where = function(obj, attrs) {
-    return _.filter(obj, _.matcher(attrs));
-  };
-
-  // Convenience version of a common use case of `find`: getting the first object
-  // containing specific `key:value` pairs.
-  _.findWhere = function(obj, attrs) {
-    return _.find(obj, _.matcher(attrs));
-  };
-
-  // Return the maximum element (or element-based computation).
-  _.max = function(obj, iteratee, context) {
-    var result = -Infinity, lastComputed = -Infinity,
-        value, computed;
-    if (iteratee == null && obj != null) {
-      obj = isArrayLike(obj) ? obj : _.values(obj);
-      for (var i = 0, length = obj.length; i < length; i++) {
-        value = obj[i];
-        if (value > result) {
-          result = value;
-        }
-      }
-    } else {
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index, list) {
-        computed = iteratee(value, index, list);
-        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
-          result = value;
-          lastComputed = computed;
-        }
-      });
-    }
-    return result;
-  };
-
-  // Return the minimum element (or element-based computation).
-  _.min = function(obj, iteratee, context) {
-    var result = Infinity, lastComputed = Infinity,
-        value, computed;
-    if (iteratee == null && obj != null) {
-      obj = isArrayLike(obj) ? obj : _.values(obj);
-      for (var i = 0, length = obj.length; i < length; i++) {
-        value = obj[i];
-        if (value < result) {
-          result = value;
-        }
-      }
-    } else {
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index, list) {
-        computed = iteratee(value, index, list);
-        if (computed < lastComputed || computed === Infinity && result === Infinity) {
-          result = value;
-          lastComputed = computed;
-        }
-      });
-    }
-    return result;
-  };
-
-  // Shuffle a collection, using the modern version of the
-  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
-  _.shuffle = function(obj) {
-    var set = isArrayLike(obj) ? obj : _.values(obj);
-    var length = set.length;
-    var shuffled = Array(length);
-    for (var index = 0, rand; index < length; index++) {
-      rand = _.random(0, index);
-      if (rand !== index) shuffled[index] = shuffled[rand];
-      shuffled[rand] = set[index];
-    }
-    return shuffled;
-  };
-
-  // Sample **n** random values from a collection.
-  // If **n** is not specified, returns a single random element.
-  // The internal `guard` argument allows it to work with `map`.
-  _.sample = function(obj, n, guard) {
-    if (n == null || guard) {
-      if (!isArrayLike(obj)) obj = _.values(obj);
-      return obj[_.random(obj.length - 1)];
-    }
-    return _.shuffle(obj).slice(0, Math.max(0, n));
-  };
-
-  // Sort the object's values by a criterion produced by an iteratee.
-  _.sortBy = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    return _.pluck(_.map(obj, function(value, index, list) {
-      return {
-        value: value,
-        index: index,
-        criteria: iteratee(value, index, list)
-      };
-    }).sort(function(left, right) {
-      var a = left.criteria;
-      var b = right.criteria;
-      if (a !== b) {
-        if (a > b || a === void 0) return 1;
-        if (a < b || b === void 0) return -1;
-      }
-      return left.index - right.index;
-    }), 'value');
-  };
-
-  // An internal function used for aggregate "group by" operations.
-  var group = function(behavior) {
-    return function(obj, iteratee, context) {
-      var result = {};
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index) {
-        var key = iteratee(value, index, obj);
-        behavior(result, value, key);
-      });
-      return result;
-    };
-  };
-
-  // Groups the object's values by a criterion. Pass either a string attribute
-  // to group by, or a function that returns the criterion.
-  _.groupBy = group(function(result, value, key) {
-    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
-  });
-
-  // Indexes the object's values by a criterion, similar to `groupBy`, but for
-  // when you know that your index values will be unique.
-  _.indexBy = group(function(result, value, key) {
-    result[key] = value;
-  });
-
-  // Counts instances of an object that group by a certain criterion. Pass
-  // either a string attribute to count by, or a function that returns the
-  // criterion.
-  _.countBy = group(function(result, value, key) {
-    if (_.has(result, key)) result[key]++; else result[key] = 1;
-  });
-
-  // Safely create a real, live array from anything iterable.
-  _.toArray = function(obj) {
-    if (!obj) return [];
-    if (_.isArray(obj)) return slice.call(obj);
-    if (isArrayLike(obj)) return _.map(obj, _.identity);
-    return _.values(obj);
-  };
-
-  // Return the number of elements in an object.
-  _.size = function(obj) {
-    if (obj == null) return 0;
-    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
-  };
-
-  // Split a collection into two arrays: one whose elements all satisfy the given
-  // predicate, and one whose elements all do not satisfy the predicate.
-  _.partition = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var pass = [], fail = [];
-    _.each(obj, function(value, key, obj) {
-      (predicate(value, key, obj) ? pass : fail).push(value);
-    });
-    return [pass, fail];
-  };
-
-  // Array Functions
-  // ---------------
-
-  // Get the first element of an array. Passing **n** will return the first N
-  // values in the array. Aliased as `head` and `take`. The **guard** check
-  // allows it to work with `_.map`.
-  _.first = _.head = _.take = function(array, n, guard) {
-    if (array == null) return void 0;
-    if (n == null || guard) return array[0];
-    return _.initial(array, array.length - n);
-  };
-
-  // Returns everything but the last entry of the array. Especially useful on
-  // the arguments object. Passing **n** will return all the values in
-  // the array, excluding the last N.
-  _.initial = function(array, n, guard) {
-    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
-  };
-
-  // Get the last element of an array. Passing **n** will return the last N
-  // values in the array.
-  _.last = function(array, n, guard) {
-    if (array == null) return void 0;
-    if (n == null || guard) return array[array.length - 1];
-    return _.rest(array, Math.max(0, array.length - n));
-  };
-
-  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
-  // Especially useful on the arguments object. Passing an **n** will return
-  // the rest N values in the array.
-  _.rest = _.tail = _.drop = function(array, n, guard) {
-    return slice.call(array, n == null || guard ? 1 : n);
-  };
-
-  // Trim out all falsy values from an array.
-  _.compact = function(array) {
-    return _.filter(array, _.identity);
-  };
-
-  // Internal implementation of a recursive `flatten` function.
-  var flatten = function(input, shallow, strict, startIndex) {
-    var output = [], idx = 0;
-    for (var i = startIndex || 0, length = input && input.length; i < length; i++) {
-      var value = input[i];
-      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
-        //flatten current level of array or arguments object
-        if (!shallow) value = flatten(value, shallow, strict);
-        var j = 0, len = value.length;
-        output.length += len;
-        while (j < len) {
-          output[idx++] = value[j++];
-        }
-      } else if (!strict) {
-        output[idx++] = value;
-      }
-    }
-    return output;
-  };
-
-  // Flatten out an array, either recursively (by default), or just one level.
-  _.flatten = function(array, shallow) {
-    return flatten(array, shallow, false);
-  };
-
-  // Return a version of the array that does not contain the specified value(s).
-  _.without = function(array) {
-    return _.difference(array, slice.call(arguments, 1));
-  };
-
-  // Produce a duplicate-free version of the array. If the array has already
-  // been sorted, you have the option of using a faster algorithm.
-  // Aliased as `unique`.
-  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
-    if (array == null) return [];
-    if (!_.isBoolean(isSorted)) {
-      context = iteratee;
-      iteratee = isSorted;
-      isSorted = false;
-    }
-    if (iteratee != null) iteratee = cb(iteratee, context);
-    var result = [];
-    var seen = [];
-    for (var i = 0, length = array.length; i < length; i++) {
-      var value = array[i],
-          computed = iteratee ? iteratee(value, i, array) : value;
-      if (isSorted) {
-        if (!i || seen !== computed) result.push(value);
-        seen = computed;
-      } else if (iteratee) {
-        if (!_.contains(seen, computed)) {
-          seen.push(computed);
-          result.push(value);
-        }
-      } else if (!_.contains(result, value)) {
-        result.push(value);
-      }
-    }
-    return result;
-  };
-
-  // Produce an array that contains the union: each distinct element from all of
-  // the passed-in arrays.
-  _.union = function() {
-    return _.uniq(flatten(arguments, true, true));
-  };
-
-  // Produce an array that contains every item shared between all the
-  // passed-in arrays.
-  _.intersection = function(array) {
-    if (array == null) return [];
-    var result = [];
-    var argsLength = arguments.length;
-    for (var i = 0, length = array.length; i < length; i++) {
-      var item = array[i];
-      if (_.contains(result, item)) continue;
-      for (var j = 1; j < argsLength; j++) {
-        if (!_.contains(arguments[j], item)) break;
-      }
-      if (j === argsLength) result.push(item);
-    }
-    return result;
-  };
-
-  // Take the difference between one array and a number of other arrays.
-  // Only the elements present in just the first array will remain.
-  _.difference = function(array) {
-    var rest = flatten(arguments, true, true, 1);
-    return _.filter(array, function(value){
-      return !_.contains(rest, value);
-    });
-  };
-
-  // Zip together multiple lists into a single array -- elements that share
-  // an index go together.
-  _.zip = function() {
-    return _.unzip(arguments);
-  };
-
-  // Complement of _.zip. Unzip accepts an array of arrays and groups
-  // each array's elements on shared indices
-  _.unzip = function(array) {
-    var length = array && _.max(array, 'length').length || 0;
-    var result = Array(length);
-
-    for (var index = 0; index < length; index++) {
-      result[index] = _.pluck(array, index);
-    }
-    return result;
-  };
-
-  // Converts lists into objects. Pass either a single array of `[key, value]`
-  // pairs, or two parallel arrays of the same length -- one of keys, and one of
-  // the corresponding values.
-  _.object = function(list, values) {
-    var result = {};
-    for (var i = 0, length = list && list.length; i < length; i++) {
-      if (values) {
-        result[list[i]] = values[i];
-      } else {
-        result[list[i][0]] = list[i][1];
-      }
-    }
-    return result;
-  };
-
-  // Return the position of the first occurrence of an item in an array,
-  // or -1 if the item is not included in the array.
-  // If the array is large and already in sort order, pass `true`
-  // for **isSorted** to use binary search.
-  _.indexOf = function(array, item, isSorted) {
-    var i = 0, length = array && array.length;
-    if (typeof isSorted == 'number') {
-      i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
-    } else if (isSorted && length) {
-      i = _.sortedIndex(array, item);
-      return array[i] === item ? i : -1;
-    }
-    if (item !== item) {
-      return _.findIndex(slice.call(array, i), _.isNaN);
-    }
-    for (; i < length; i++) if (array[i] === item) return i;
-    return -1;
-  };
-
-  _.lastIndexOf = function(array, item, from) {
-    var idx = array ? array.length : 0;
-    if (typeof from == 'number') {
-      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
-    }
-    if (item !== item) {
-      return _.findLastIndex(slice.call(array, 0, idx), _.isNaN);
-    }
-    while (--idx >= 0) if (array[idx] === item) return idx;
-    return -1;
-  };
-
-  // Generator function to create the findIndex and findLastIndex functions
-  function createIndexFinder(dir) {
-    return function(array, predicate, context) {
-      predicate = cb(predicate, context);
-      var length = array != null && array.length;
-      var index = dir > 0 ? 0 : length - 1;
-      for (; index >= 0 && index < length; index += dir) {
-        if (predicate(array[index], index, array)) return index;
-      }
-      return -1;
-    };
-  }
-
-  // Returns the first index on an array-like that passes a predicate test
-  _.findIndex = createIndexFinder(1);
-
-  _.findLastIndex = createIndexFinder(-1);
-
-  // Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
-  _.sortedIndex = function(array, obj, iteratee, context) {
-    iteratee = cb(iteratee, context, 1);
-    var value = iteratee(obj);
-    var low = 0, high = array.length;
-    while (low < high) {
-      var mid = Math.floor((low + high) / 2);
-      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
-    }
-    return low;
-  };
-
-  // Generate an integer Array containing an arithmetic progression. A port of
-  // the native Python `range()` function. See
-  // [the Python documentation](http://docs.python.org/library/functions.html#range).
-  _.range = function(start, stop, step) {
-    if (arguments.length <= 1) {
-      stop = start || 0;
-      start = 0;
-    }
-    step = step || 1;
-
-    var length = Math.max(Math.ceil((stop - start) / step), 0);
-    var range = Array(length);
-
-    for (var idx = 0; idx < length; idx++, start += step) {
-      range[idx] = start;
-    }
-
-    return range;
-  };
-
-  // Function (ahem) Functions
-  // ------------------
-
-  // Determines whether to execute a function as a constructor
-  // or a normal function with the provided arguments
-  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
-    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
-    var self = baseCreate(sourceFunc.prototype);
-    var result = sourceFunc.apply(self, args);
-    if (_.isObject(result)) return result;
-    return self;
-  };
-
-  // Create a function bound to a given object (assigning `this`, and arguments,
-  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
-  // available.
-  _.bind = function(func, context) {
-    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
-    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
-    var args = slice.call(arguments, 2);
-    var bound = function() {
-      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
-    };
-    return bound;
-  };
-
-  // Partially apply a function by creating a version that has had some of its
-  // arguments pre-filled, without changing its dynamic `this` context. _ acts
-  // as a placeholder, allowing any combination of arguments to be pre-filled.
-  _.partial = function(func) {
-    var boundArgs = slice.call(arguments, 1);
-    var bound = function() {
-      var position = 0, length = boundArgs.length;
-      var args = Array(length);
-      for (var i = 0; i < length; i++) {
-        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
-      }
-      while (position < arguments.length) args.push(arguments[position++]);
-      return executeBound(func, bound, this, this, args);
-    };
-    return bound;
-  };
-
-  // Bind a number of an object's methods to that object. Remaining arguments
-  // are the method names to be bound. Useful for ensuring that all callbacks
-  // defined on an object belong to it.
-  _.bindAll = function(obj) {
-    var i, length = arguments.length, key;
-    if (length <= 1) throw new Error('bindAll must be passed function names');
-    for (i = 1; i < length; i++) {
-      key = arguments[i];
-      obj[key] = _.bind(obj[key], obj);
-    }
-    return obj;
-  };
-
-  // Memoize an expensive function by storing its results.
-  _.memoize = function(func, hasher) {
-    var memoize = function(key) {
-      var cache = memoize.cache;
-      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
-      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
-      return cache[address];
-    };
-    memoize.cache = {};
-    return memoize;
-  };
-
-  // Delays a function for the given number of milliseconds, and then calls
-  // it with the arguments supplied.
-  _.delay = function(func, wait) {
-    var args = slice.call(arguments, 2);
-    return setTimeout(function(){
-      return func.apply(null, args);
-    }, wait);
-  };
-
-  // Defers a function, scheduling it to run after the current call stack has
-  // cleared.
-  _.defer = _.partial(_.delay, _, 1);
-
-  // Returns a function, that, when invoked, will only be triggered at most once
-  // during a given window of time. Normally, the throttled function will run
-  // as much as it can, without ever going more than once per `wait` duration;
-  // but if you'd like to disable the execution on the leading edge, pass
-  // `{leading: false}`. To disable execution on the trailing edge, ditto.
-  _.throttle = function(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
-    var previous = 0;
-    if (!options) options = {};
-    var later = function() {
-      previous = options.leading === false ? 0 : _.now();
-      timeout = null;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    };
-    return function() {
-      var now = _.now();
-      if (!previous && options.leading === false) previous = now;
-      var remaining = wait - (now - previous);
-      context = this;
-      args = arguments;
-      if (remaining <= 0 || remaining > wait) {
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        previous = now;
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, remaining);
-      }
-      return result;
-    };
-  };
-
-  // Returns a function, that, as long as it continues to be invoked, will not
-  // be triggered. The function will be called after it stops being called for
-  // N milliseconds. If `immediate` is passed, trigger the function on the
-  // leading edge, instead of the trailing.
-  _.debounce = function(func, wait, immediate) {
-    var timeout, args, context, timestamp, result;
-
-    var later = function() {
-      var last = _.now() - timestamp;
-
-      if (last < wait && last >= 0) {
-        timeout = setTimeout(later, wait - last);
-      } else {
-        timeout = null;
-        if (!immediate) {
-          result = func.apply(context, args);
-          if (!timeout) context = args = null;
-        }
-      }
-    };
-
-    return function() {
-      context = this;
-      args = arguments;
-      timestamp = _.now();
-      var callNow = immediate && !timeout;
-      if (!timeout) timeout = setTimeout(later, wait);
-      if (callNow) {
-        result = func.apply(context, args);
-        context = args = null;
-      }
-
-      return result;
-    };
-  };
-
-  // Returns the first function passed as an argument to the second,
-  // allowing you to adjust arguments, run code before and after, and
-  // conditionally execute the original function.
-  _.wrap = function(func, wrapper) {
-    return _.partial(wrapper, func);
-  };
-
-  // Returns a negated version of the passed-in predicate.
-  _.negate = function(predicate) {
-    return function() {
-      return !predicate.apply(this, arguments);
-    };
-  };
-
-  // Returns a function that is the composition of a list of functions, each
-  // consuming the return value of the function that follows.
-  _.compose = function() {
-    var args = arguments;
-    var start = args.length - 1;
-    return function() {
-      var i = start;
-      var result = args[start].apply(this, arguments);
-      while (i--) result = args[i].call(this, result);
-      return result;
-    };
-  };
-
-  // Returns a function that will only be executed on and after the Nth call.
-  _.after = function(times, func) {
-    return function() {
-      if (--times < 1) {
-        return func.apply(this, arguments);
-      }
-    };
-  };
-
-  // Returns a function that will only be executed up to (but not including) the Nth call.
-  _.before = function(times, func) {
-    var memo;
-    return function() {
-      if (--times > 0) {
-        memo = func.apply(this, arguments);
-      }
-      if (times <= 1) func = null;
-      return memo;
-    };
-  };
-
-  // Returns a function that will be executed at most one time, no matter how
-  // often you call it. Useful for lazy initialization.
-  _.once = _.partial(_.before, 2);
-
-  // Object Functions
-  // ----------------
-
-  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
-  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
-                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
-
-  function collectNonEnumProps(obj, keys) {
-    var nonEnumIdx = nonEnumerableProps.length;
-    var constructor = obj.constructor;
-    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
-
-    // Constructor is a special case.
-    var prop = 'constructor';
-    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
-
-    while (nonEnumIdx--) {
-      prop = nonEnumerableProps[nonEnumIdx];
-      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
-        keys.push(prop);
-      }
-    }
-  }
-
-  // Retrieve the names of an object's own properties.
-  // Delegates to **ECMAScript 5**'s native `Object.keys`
-  _.keys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    if (nativeKeys) return nativeKeys(obj);
-    var keys = [];
-    for (var key in obj) if (_.has(obj, key)) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  };
-
-  // Retrieve all the property names of an object.
-  _.allKeys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    var keys = [];
-    for (var key in obj) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  };
-
-  // Retrieve the values of an object's properties.
-  _.values = function(obj) {
-    var keys = _.keys(obj);
-    var length = keys.length;
-    var values = Array(length);
-    for (var i = 0; i < length; i++) {
-      values[i] = obj[keys[i]];
-    }
-    return values;
-  };
-
-  // Returns the results of applying the iteratee to each element of the object
-  // In contrast to _.map it returns an object
-  _.mapObject = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    var keys =  _.keys(obj),
-          length = keys.length,
-          results = {},
-          currentKey;
-      for (var index = 0; index < length; index++) {
-        currentKey = keys[index];
-        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
-      }
-      return results;
-  };
-
-  // Convert an object into a list of `[key, value]` pairs.
-  _.pairs = function(obj) {
-    var keys = _.keys(obj);
-    var length = keys.length;
-    var pairs = Array(length);
-    for (var i = 0; i < length; i++) {
-      pairs[i] = [keys[i], obj[keys[i]]];
-    }
-    return pairs;
-  };
-
-  // Invert the keys and values of an object. The values must be serializable.
-  _.invert = function(obj) {
-    var result = {};
-    var keys = _.keys(obj);
-    for (var i = 0, length = keys.length; i < length; i++) {
-      result[obj[keys[i]]] = keys[i];
-    }
-    return result;
-  };
-
-  // Return a sorted list of the function names available on the object.
-  // Aliased as `methods`
-  _.functions = _.methods = function(obj) {
-    var names = [];
-    for (var key in obj) {
-      if (_.isFunction(obj[key])) names.push(key);
-    }
-    return names.sort();
-  };
-
-  // Extend a given object with all the properties in passed-in object(s).
-  _.extend = createAssigner(_.allKeys);
-
-  // Assigns a given object with all the own properties in the passed-in object(s)
-  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
-  _.extendOwn = _.assign = createAssigner(_.keys);
-
-  // Returns the first key on an object that passes a predicate test
-  _.findKey = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = _.keys(obj), key;
-    for (var i = 0, length = keys.length; i < length; i++) {
-      key = keys[i];
-      if (predicate(obj[key], key, obj)) return key;
-    }
-  };
-
-  // Return a copy of the object only containing the whitelisted properties.
-  _.pick = function(object, oiteratee, context) {
-    var result = {}, obj = object, iteratee, keys;
-    if (obj == null) return result;
-    if (_.isFunction(oiteratee)) {
-      keys = _.allKeys(obj);
-      iteratee = optimizeCb(oiteratee, context);
-    } else {
-      keys = flatten(arguments, false, false, 1);
-      iteratee = function(value, key, obj) { return key in obj; };
-      obj = Object(obj);
-    }
-    for (var i = 0, length = keys.length; i < length; i++) {
-      var key = keys[i];
-      var value = obj[key];
-      if (iteratee(value, key, obj)) result[key] = value;
-    }
-    return result;
-  };
-
-   // Return a copy of the object without the blacklisted properties.
-  _.omit = function(obj, iteratee, context) {
-    if (_.isFunction(iteratee)) {
-      iteratee = _.negate(iteratee);
-    } else {
-      var keys = _.map(flatten(arguments, false, false, 1), String);
-      iteratee = function(value, key) {
-        return !_.contains(keys, key);
-      };
-    }
-    return _.pick(obj, iteratee, context);
-  };
-
-  // Fill in a given object with default properties.
-  _.defaults = createAssigner(_.allKeys, true);
-
-  // Create a (shallow-cloned) duplicate of an object.
-  _.clone = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
-  };
-
-  // Invokes interceptor with the obj, and then returns obj.
-  // The primary purpose of this method is to "tap into" a method chain, in
-  // order to perform operations on intermediate results within the chain.
-  _.tap = function(obj, interceptor) {
-    interceptor(obj);
-    return obj;
-  };
-
-  // Returns whether an object has a given set of `key:value` pairs.
-  _.isMatch = function(object, attrs) {
-    var keys = _.keys(attrs), length = keys.length;
-    if (object == null) return !length;
-    var obj = Object(object);
-    for (var i = 0; i < length; i++) {
-      var key = keys[i];
-      if (attrs[key] !== obj[key] || !(key in obj)) return false;
-    }
-    return true;
-  };
-
-
-  // Internal recursive comparison function for `isEqual`.
-  var eq = function(a, b, aStack, bStack) {
-    // Identical objects are equal. `0 === -0`, but they aren't identical.
-    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
-    if (a === b) return a !== 0 || 1 / a === 1 / b;
-    // A strict comparison is necessary because `null == undefined`.
-    if (a == null || b == null) return a === b;
-    // Unwrap any wrapped objects.
-    if (a instanceof _) a = a._wrapped;
-    if (b instanceof _) b = b._wrapped;
-    // Compare `[[Class]]` names.
-    var className = toString.call(a);
-    if (className !== toString.call(b)) return false;
-    switch (className) {
-      // Strings, numbers, regular expressions, dates, and booleans are compared by value.
-      case '[object RegExp]':
-      // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
-      case '[object String]':
-        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-        // equivalent to `new String("5")`.
-        return '' + a === '' + b;
-      case '[object Number]':
-        // `NaN`s are equivalent, but non-reflexive.
-        // Object(NaN) is equivalent to NaN
-        if (+a !== +a) return +b !== +b;
-        // An `egal` comparison is performed for other numeric values.
-        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-      case '[object Date]':
-      case '[object Boolean]':
-        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-        // millisecond representations. Note that invalid dates with millisecond representations
-        // of `NaN` are not equivalent.
-        return +a === +b;
-    }
-
-    var areArrays = className === '[object Array]';
-    if (!areArrays) {
-      if (typeof a != 'object' || typeof b != 'object') return false;
-
-      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
-      // from different frames are.
-      var aCtor = a.constructor, bCtor = b.constructor;
-      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
-                               _.isFunction(bCtor) && bCtor instanceof bCtor)
-                          && ('constructor' in a && 'constructor' in b)) {
-        return false;
-      }
-    }
-    // Assume equality for cyclic structures. The algorithm for detecting cyclic
-    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-    
-    // Initializing stack of traversed objects.
-    // It's done here since we only need them for objects and arrays comparison.
-    aStack = aStack || [];
-    bStack = bStack || [];
-    var length = aStack.length;
-    while (length--) {
-      // Linear search. Performance is inversely proportional to the number of
-      // unique nested structures.
-      if (aStack[length] === a) return bStack[length] === b;
-    }
-
-    // Add the first object to the stack of traversed objects.
-    aStack.push(a);
-    bStack.push(b);
-
-    // Recursively compare objects and arrays.
-    if (areArrays) {
-      // Compare array lengths to determine if a deep comparison is necessary.
-      length = a.length;
-      if (length !== b.length) return false;
-      // Deep compare the contents, ignoring non-numeric properties.
-      while (length--) {
-        if (!eq(a[length], b[length], aStack, bStack)) return false;
-      }
-    } else {
-      // Deep compare objects.
-      var keys = _.keys(a), key;
-      length = keys.length;
-      // Ensure that both objects contain the same number of properties before comparing deep equality.
-      if (_.keys(b).length !== length) return false;
-      while (length--) {
-        // Deep compare each member
-        key = keys[length];
-        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
-      }
-    }
-    // Remove the first object from the stack of traversed objects.
-    aStack.pop();
-    bStack.pop();
-    return true;
-  };
-
-  // Perform a deep comparison to check if two objects are equal.
-  _.isEqual = function(a, b) {
-    return eq(a, b);
-  };
-
-  // Is a given array, string, or object empty?
-  // An "empty" object has no enumerable own-properties.
-  _.isEmpty = function(obj) {
-    if (obj == null) return true;
-    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
-    return _.keys(obj).length === 0;
-  };
-
-  // Is a given value a DOM element?
-  _.isElement = function(obj) {
-    return !!(obj && obj.nodeType === 1);
-  };
-
-  // Is a given value an array?
-  // Delegates to ECMA5's native Array.isArray
-  _.isArray = nativeIsArray || function(obj) {
-    return toString.call(obj) === '[object Array]';
-  };
-
-  // Is a given variable an object?
-  _.isObject = function(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-  };
-
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
-  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
-    _['is' + name] = function(obj) {
-      return toString.call(obj) === '[object ' + name + ']';
-    };
-  });
-
-  // Define a fallback version of the method in browsers (ahem, IE < 9), where
-  // there isn't any inspectable "Arguments" type.
-  if (!_.isArguments(arguments)) {
-    _.isArguments = function(obj) {
-      return _.has(obj, 'callee');
-    };
-  }
-
-  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
-  // IE 11 (#1621), and in Safari 8 (#1929).
-  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
-    _.isFunction = function(obj) {
-      return typeof obj == 'function' || false;
-    };
-  }
-
-  // Is a given object a finite number?
-  _.isFinite = function(obj) {
-    return isFinite(obj) && !isNaN(parseFloat(obj));
-  };
-
-  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
-  _.isNaN = function(obj) {
-    return _.isNumber(obj) && obj !== +obj;
-  };
-
-  // Is a given value a boolean?
-  _.isBoolean = function(obj) {
-    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
-  };
-
-  // Is a given value equal to null?
-  _.isNull = function(obj) {
-    return obj === null;
-  };
-
-  // Is a given variable undefined?
-  _.isUndefined = function(obj) {
-    return obj === void 0;
-  };
-
-  // Shortcut function for checking if an object has a given property directly
-  // on itself (in other words, not on a prototype).
-  _.has = function(obj, key) {
-    return obj != null && hasOwnProperty.call(obj, key);
-  };
-
-  // Utility Functions
-  // -----------------
-
-  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
-  // previous owner. Returns a reference to the Underscore object.
-  _.noConflict = function() {
-    root._ = previousUnderscore;
-    return this;
-  };
-
-  // Keep the identity function around for default iteratees.
-  _.identity = function(value) {
-    return value;
-  };
-
-  // Predicate-generating functions. Often useful outside of Underscore.
-  _.constant = function(value) {
-    return function() {
-      return value;
-    };
-  };
-
-  _.noop = function(){};
-
-  _.property = function(key) {
-    return function(obj) {
-      return obj == null ? void 0 : obj[key];
-    };
-  };
-
-  // Generates a function for a given object that returns a given property.
-  _.propertyOf = function(obj) {
-    return obj == null ? function(){} : function(key) {
-      return obj[key];
-    };
-  };
-
-  // Returns a predicate for checking whether an object has a given set of 
-  // `key:value` pairs.
-  _.matcher = _.matches = function(attrs) {
-    attrs = _.extendOwn({}, attrs);
-    return function(obj) {
-      return _.isMatch(obj, attrs);
-    };
-  };
-
-  // Run a function **n** times.
-  _.times = function(n, iteratee, context) {
-    var accum = Array(Math.max(0, n));
-    iteratee = optimizeCb(iteratee, context, 1);
-    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
-    return accum;
-  };
-
-  // Return a random integer between min and max (inclusive).
-  _.random = function(min, max) {
-    if (max == null) {
-      max = min;
-      min = 0;
-    }
-    return min + Math.floor(Math.random() * (max - min + 1));
-  };
-
-  // A (possibly faster) way to get the current timestamp as an integer.
-  _.now = Date.now || function() {
-    return new Date().getTime();
-  };
-
-   // List of HTML entities for escaping.
-  var escapeMap = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-    '`': '&#x60;'
-  };
-  var unescapeMap = _.invert(escapeMap);
-
-  // Functions for escaping and unescaping strings to/from HTML interpolation.
-  var createEscaper = function(map) {
-    var escaper = function(match) {
-      return map[match];
-    };
-    // Regexes for identifying a key that needs to be escaped
-    var source = '(?:' + _.keys(map).join('|') + ')';
-    var testRegexp = RegExp(source);
-    var replaceRegexp = RegExp(source, 'g');
-    return function(string) {
-      string = string == null ? '' : '' + string;
-      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
-    };
-  };
-  _.escape = createEscaper(escapeMap);
-  _.unescape = createEscaper(unescapeMap);
-
-  // If the value of the named `property` is a function then invoke it with the
-  // `object` as context; otherwise, return it.
-  _.result = function(object, property, fallback) {
-    var value = object == null ? void 0 : object[property];
-    if (value === void 0) {
-      value = fallback;
-    }
-    return _.isFunction(value) ? value.call(object) : value;
-  };
-
-  // Generate a unique integer id (unique within the entire client session).
-  // Useful for temporary DOM ids.
-  var idCounter = 0;
-  _.uniqueId = function(prefix) {
-    var id = ++idCounter + '';
-    return prefix ? prefix + id : id;
-  };
-
-  // By default, Underscore uses ERB-style template delimiters, change the
-  // following template settings to use alternative delimiters.
-  _.templateSettings = {
-    evaluate    : /<%([\s\S]+?)%>/g,
-    interpolate : /<%=([\s\S]+?)%>/g,
-    escape      : /<%-([\s\S]+?)%>/g
-  };
-
-  // When customizing `templateSettings`, if you don't want to define an
-  // interpolation, evaluation or escaping regex, we need one that is
-  // guaranteed not to match.
-  var noMatch = /(.)^/;
-
-  // Certain characters need to be escaped so that they can be put into a
-  // string literal.
-  var escapes = {
-    "'":      "'",
-    '\\':     '\\',
-    '\r':     'r',
-    '\n':     'n',
-    '\u2028': 'u2028',
-    '\u2029': 'u2029'
-  };
-
-  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
-
-  var escapeChar = function(match) {
-    return '\\' + escapes[match];
-  };
-
-  // JavaScript micro-templating, similar to John Resig's implementation.
-  // Underscore templating handles arbitrary delimiters, preserves whitespace,
-  // and correctly escapes quotes within interpolated code.
-  // NB: `oldSettings` only exists for backwards compatibility.
-  _.template = function(text, settings, oldSettings) {
-    if (!settings && oldSettings) settings = oldSettings;
-    settings = _.defaults({}, settings, _.templateSettings);
-
-    // Combine delimiters into one regular expression via alternation.
-    var matcher = RegExp([
-      (settings.escape || noMatch).source,
-      (settings.interpolate || noMatch).source,
-      (settings.evaluate || noMatch).source
-    ].join('|') + '|$', 'g');
-
-    // Compile the template source, escaping string literals appropriately.
-    var index = 0;
-    var source = "__p+='";
-    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
-      source += text.slice(index, offset).replace(escaper, escapeChar);
-      index = offset + match.length;
-
-      if (escape) {
-        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
-      } else if (interpolate) {
-        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
-      } else if (evaluate) {
-        source += "';\n" + evaluate + "\n__p+='";
-      }
-
-      // Adobe VMs need the match returned to produce the correct offest.
-      return match;
-    });
-    source += "';\n";
-
-    // If a variable is not specified, place data values in local scope.
-    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
-
-    source = "var __t,__p='',__j=Array.prototype.join," +
-      "print=function(){__p+=__j.call(arguments,'');};\n" +
-      source + 'return __p;\n';
-
-    try {
-      var render = new Function(settings.variable || 'obj', '_', source);
-    } catch (e) {
-      e.source = source;
-      throw e;
-    }
-
-    var template = function(data) {
-      return render.call(this, data, _);
-    };
-
-    // Provide the compiled source as a convenience for precompilation.
-    var argument = settings.variable || 'obj';
-    template.source = 'function(' + argument + '){\n' + source + '}';
-
-    return template;
-  };
-
-  // Add a "chain" function. Start chaining a wrapped Underscore object.
-  _.chain = function(obj) {
-    var instance = _(obj);
-    instance._chain = true;
-    return instance;
-  };
-
-  // OOP
-  // ---------------
-  // If Underscore is called as a function, it returns a wrapped object that
-  // can be used OO-style. This wrapper holds altered versions of all the
-  // underscore functions. Wrapped objects may be chained.
-
-  // Helper function to continue chaining intermediate results.
-  var result = function(instance, obj) {
-    return instance._chain ? _(obj).chain() : obj;
-  };
-
-  // Add your own custom functions to the Underscore object.
-  _.mixin = function(obj) {
-    _.each(_.functions(obj), function(name) {
-      var func = _[name] = obj[name];
-      _.prototype[name] = function() {
-        var args = [this._wrapped];
-        push.apply(args, arguments);
-        return result(this, func.apply(_, args));
-      };
-    });
-  };
-
-  // Add all of the Underscore functions to the wrapper object.
-  _.mixin(_);
-
-  // Add all mutator Array functions to the wrapper.
-  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
-    var method = ArrayProto[name];
-    _.prototype[name] = function() {
-      var obj = this._wrapped;
-      method.apply(obj, arguments);
-      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
-      return result(this, obj);
-    };
-  });
-
-  // Add all accessor Array functions to the wrapper.
-  _.each(['concat', 'join', 'slice'], function(name) {
-    var method = ArrayProto[name];
-    _.prototype[name] = function() {
-      return result(this, method.apply(this._wrapped, arguments));
-    };
-  });
-
-  // Extracts the result from a wrapped and chained object.
-  _.prototype.value = function() {
-    return this._wrapped;
-  };
-
-  // Provide unwrapping proxy for some methods used in engine operations
-  // such as arithmetic and JSON stringification.
-  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
-  
-  _.prototype.toString = function() {
-    return '' + this._wrapped;
-  };
-
-  // AMD registration happens at the end for compatibility with AMD loaders
-  // that may not enforce next-turn semantics on modules. Even though general
-  // practice for AMD registration is to be anonymous, underscore registers
-  // as a named module because, like jQuery, it is a base library that is
-  // popular enough to be bundled in a third party lib, but not be part of
-  // an AMD load request. Those cases could generate an error when an
-  // anonymous define() is called outside of a loader request.
-  if (typeof define === 'function' && define.amd) {
-    define('underscore', [], function() {
-      return _;
-    });
-  }
-}.call(this));
-
-},{}],41:[function(require,module,exports){
+},{"_process":5}],40:[function(require,module,exports){
+arguments[4][32][0].apply(exports,arguments)
+},{"dup":32}],41:[function(require,module,exports){
 var buildPromise = require('./utils').buildPromise;
 var EverliveError = require('./EverliveError').EverliveError;
 var Platform = require('./constants').Platform;
@@ -15806,7 +14325,43 @@ module.exports = (function () {
 
     return CurrentDevice;
 }());
-},{"./EverliveError":43,"./common":53,"./constants":54,"./utils":74}],42:[function(require,module,exports){
+},{"./EverliveError":44,"./common":53,"./constants":54,"./utils":87}],42:[function(require,module,exports){
+'use strict';
+
+var EventEmitter = require('events').EventEmitter;
+
+var apply = function apply(obj) {
+    obj._emitter = new EventEmitter();
+
+    obj._emitterProxy = function (event, args) {
+        obj._emitter[event].apply(obj._emitter, args);
+    };
+
+    obj.addListener = function () {
+        obj._emitterProxy('addListener', arguments);
+    };
+
+    obj.on = obj.addListener;
+
+    obj.removeListener = function () {
+        obj._emitterProxy('removeListener', arguments);
+    };
+
+    obj.off = obj.removeListener;
+
+    obj.once = function () {
+        obj._emitterProxy('once', arguments);
+    };
+
+    obj.removeAllListeners = function () {
+        obj._emitterProxy('removeAllListeners', arguments);
+    };
+};
+
+module.exports = {
+    apply: apply
+};
+},{"events":2}],43:[function(require,module,exports){
 var Setup = require('./Setup');
 var Data = require('./types/Data');
 var usersModule = require('./types/Users');
@@ -15823,7 +14378,8 @@ var rsvp = common.rsvp;
 var _ = common._;
 var EverliveError = require('./EverliveError').EverliveError;
 var EverliveErrors = require('./EverliveError').EverliveErrors;
-var EventEmitter = require('events').EventEmitter;
+var helpers = require('./helpers/helpers');
+var EventEmitterProxy = require('./EventEmitterProxy');
 
 module.exports = (function () {
 
@@ -15845,6 +14401,8 @@ module.exports = (function () {
      * @param {boolean} [options.offlineStorage.isOnline=true] - Whether the storage is in online mode initially.
      * @param {ConflictResolutionStrategy|function} [options.offlineStorage.conflicts.strategy=ConflictResolutionStrategy.ClientWins] - A constant specifying the conflict resolution strategy or a function used to resolve the conflicts.
      * @param {StorageProvider|object} [options.offlineStorage.storage.provider=StorageProvider.LocalStorage] - An object specifying settings for the offline storage provider.
+     * @param {string} [options.offlineStorage.storage.storagePath=el_store] - A relative path specifying where the files will be saved if file system is used for persistence.
+     * @param {number} [options.offlineStorage.storage.requestedQuota=10485760] - How much memory (in bytes) to be requested when using the file system for persistence. This option is only valid for Chrome as the other platforms use all the available space.
      * @param {string} [options.offlineStorage.encryption.key] - A key that will be used to encrypt the data stored offline.
      * @param {boolean} [options.authentication.persist=false] - Indicates whether the current user's authentication will be persisted.
      * @param {Function} [options.authentication.onAuthenticationRequired] - Invoked when the user's credentials have expired. Allowing you to perform custom logic.
@@ -15860,12 +14418,8 @@ module.exports = (function () {
             Everlive.$ = self;
         }
 
-        this._emitter = new EventEmitter();
+        EventEmitterProxy.apply(this);
     }
-
-    Everlive.prototype._emitterProxy = function (event, args) {
-        this._emitter[event].apply(this._emitter, args);
-    };
 
     /**
      * Adds an event listener to the SDK.
@@ -15874,9 +14428,6 @@ module.exports = (function () {
      * @param {Function} eventListener An event listener which will be called once the event is raised.
      * @memberOf Everlive.prototype
      */
-    Everlive.prototype.addListener = function () {
-        this._emitterProxy('addListener', arguments);
-    };
 
     /**
      * Adds an event listener to the SDK.
@@ -15885,7 +14436,6 @@ module.exports = (function () {
      * @param {Function} eventListener An event listener which will be called once the event is raised.
      * @memberOf Everlive.prototype
      */
-    Everlive.prototype.on = Everlive.prototype.addListener;
 
     /**
      * Removes an SDK event listener.
@@ -15894,9 +14444,6 @@ module.exports = (function () {
      * @param {Function} eventListener The event listener to remove.
      * @memberOf Everlive.prototype
      */
-    Everlive.prototype.removeListener = function () {
-        this._emitterProxy('removeListener', arguments);
-    };
 
     /**
      * Removes an SDK event listener.
@@ -15904,7 +14451,6 @@ module.exports = (function () {
      * @param {Function} eventListener
      * @memberOf Everlive.prototype
      */
-    Everlive.prototype.off = Everlive.prototype.removeListener;
 
     /**
      * Adds an event listener to the SDK which will be called only the first time the event is emitted.
@@ -15913,18 +14459,12 @@ module.exports = (function () {
      * @param {Function} eventListener An event listener which will be called once the event is raised.
      * @memberOf Everlive.prototype
      */
-    Everlive.prototype.once = function () {
-        this._emitterProxy('once', arguments);
-    };
 
     /**
      * Removes all SDK event listeners.
      * @memberOf Everlive.prototype
      * @method removeAllListeners
      */
-    Everlive.prototype.removeAllListeners = function () {
-        this._emitterProxy('removeAllListeners', arguments);
-    };
 
     /** Reference to the current {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
      * @memberOf Everlive
@@ -15982,15 +14522,7 @@ module.exports = (function () {
         return buildAuthHeader(this.setup);
     };
 
-    Everlive.disableRequestCache = function (url, method) {
-        if (method === 'GET') {
-            var timestamp = (new Date()).getTime();
-            var separator = url.indexOf('?') > -1 ? '&' : '?';
-            url += separator + '_el=' + timestamp;
-        }
-
-        return url;
-    };
+    Everlive.disableRequestCache = utils.disableRequestCache;
 
     Everlive.AuthStatus = constants.AuthStatus;
 
@@ -16092,7 +14624,7 @@ module.exports = (function () {
         }
         this.offlineStorage._setOffline(isOffline);
     };
-    
+
     /**
      * Sets the SDK to work in online mode.
      * @method online
@@ -16205,14 +14737,28 @@ module.exports = (function () {
         this.authentication = new Authentication(this, this.setup.authentication);
     };
 
+    var initializeHelpers = function initializeHelpers(options) {
+        if (!_.size(options.helpers)) {
+            return;
+        }
+
+        var self = this;
+        self.helpers = {};
+        _.each(helpers, function (helper) {
+            self.helpers[helper.name] = new helper.ctor(self, options.helpers[helper.name]);
+        });
+    };
+
     initializations.push({name: 'offlineStorage', func: offlineModule.initOfflineStorage});
     initializations.push({name: 'default', func: initDefault});
     initializations.push({name: 'authentication', func: initAuthentication});
+    initializations.push({name: 'helpers', func: initializeHelpers});
+
 
     return Everlive;
 }());
 
-},{"./EverliveError":43,"./Push":48,"./Request":49,"./Setup":50,"./auth/Authentication":51,"./common":53,"./constants":54,"./offline/offline":61,"./types/Data":71,"./types/Files":72,"./types/Users":73,"./utils":74,"events":1}],43:[function(require,module,exports){
+},{"./EventEmitterProxy":42,"./EverliveError":44,"./Push":48,"./Request":49,"./Setup":50,"./auth/Authentication":51,"./common":53,"./constants":54,"./helpers/helpers":57,"./offline/offline":67,"./types/Data":84,"./types/Files":85,"./types/Users":86,"./utils":87}],44:[function(require,module,exports){
 var EverliveErrors = {
     itemNotFound: {
         code: 801,
@@ -16253,6 +14799,22 @@ var EverliveErrors = {
     invalidRequest: {
         code: 601,
         message: 'Invalid request.'
+    },
+    missingContentType: {
+        code: 701,
+        message: 'ContentType not specified.'
+    },
+    missingOrInvalidFileContent: {
+        code: 702,
+        message: 'Missing or invalid file content.'
+    },
+    customFileSyncNotSupported: {
+        code: 703,
+        message: 'Custom ConflictResolution for files is not allowed'
+    },
+    cannotDownloadOffline: {
+        code: 704,
+        message: 'Cannot download a file while offline'
     }
 };
 
@@ -16333,7 +14895,7 @@ module.exports = {
     EverliveErrors: EverliveErrors,
     DeviceRegistrationError: DeviceRegistrationError
 };
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var Processor = require('./common').Processor;
 var DataQuery = require('./query/DataQuery');
 var Query = require('./query/Query');
@@ -16355,7 +14917,7 @@ module.exports = (function () {
     });
 }());
 
-},{"./EverliveError":43,"./common":53,"./query/DataQuery":64,"./query/Query":65}],45:[function(require,module,exports){
+},{"./EverliveError":44,"./common":53,"./query/DataQuery":73,"./query/Query":74}],46:[function(require,module,exports){
 module.exports = (function () {
     function Expression(operator, operands) {
         this.operator = operator;
@@ -16370,7 +14932,7 @@ module.exports = (function () {
 
     return Expression;
 }());
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports = (function () {
     //TODO add a function for calculating the distances in geospatial queries
 
@@ -16387,86 +14949,7 @@ module.exports = (function () {
 
     return GeoPoint;
 }());
-},{}],47:[function(require,module,exports){
-var platform = require('./everlive.platform');
-var isNativeScript = platform.isNativeScript;
-var isNodejs = platform.isNodejs;
-var constants = require('./constants');
-
-module.exports = (function () {
-    'use strict';
-
-    function getLocalStorage(sdk) {
-        if (isNativeScript) {
-            var localSettings;
-
-            //workound for older nativescript versions
-            try {
-                localSettings = require('application-settings');
-            } catch (e) {
-                localSettings = require('local-settings');
-            }
-
-            return {
-                getItem: function (key) {
-                    return localSettings.getString(key);
-                },
-
-                removeItem: function (key) {
-                    return localSettings.remove(key);
-                },
-
-                setItem: function (key, value) {
-                    return localSettings.setString(key, value);
-                }
-            };
-        } else {
-            var localStorage;
-            if (isNodejs) {
-                var LocalStorage = require('node-localstorage').LocalStorage;
-                localStorage = new LocalStorage(sdk.offlineStorage.setup.storage.storagePath);
-            } else {
-                localStorage = window.localStorage;
-            }
-
-            return {
-                getItem: function (key) {
-                    return localStorage.getItem(key);
-                },
-
-                removeItem: function (key) {
-                    return localStorage.removeItem(key);
-                },
-
-                setItem: function (key, value) {
-                    return localStorage.setItem(key, value);
-                }
-            };
-        }
-    }
-
-    function LocalStore(sdk) {
-        this.sdk = sdk;
-        this._localStorage = getLocalStorage(this.sdk);
-    }
-
-    LocalStore.prototype = {
-        getItem: function (key) {
-            return this._localStorage.getItem(key);
-        },
-
-        removeItem: function (key) {
-            return this._localStorage.removeItem(key);
-        },
-
-        setItem: function (key, value) {
-            return this._localStorage.setItem(key, value);
-        }
-    };
-
-    return LocalStore;
-}());
-},{"./constants":54,"./everlive.platform":56,"application-settings":"application-settings","local-settings":"local-settings","node-localstorage":"node-localstorage"}],48:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var utils = require('./utils');
 var buildPromise = utils.buildPromise;
 var DeviceRegistrationResult = utils.DeviceRegistrationResult;
@@ -16843,7 +15326,7 @@ module.exports = (function () {
 
     return Push;
 }());
-},{"./CurrentDevice":41,"./EverliveError":43,"./constants":54,"./utils":74}],49:[function(require,module,exports){
+},{"./CurrentDevice":41,"./EverliveError":44,"./constants":54,"./utils":87}],49:[function(require,module,exports){
 var utils = require('./utils');
 var rsvp = require('./common').rsvp;
 var buildAuthHeader = utils.buildAuthHeader;
@@ -16854,6 +15337,7 @@ var reqwest = common.reqwest;
 var _ = common._;
 var Headers = require('./constants').Headers;
 var isNodejs = require('./everlive.platform').isNodejs;
+var Query = require('./query/Query');
 
 module.exports = (function () {
     var _self;
@@ -16894,7 +15378,7 @@ module.exports = (function () {
         // Processes the given query to return appropriate headers to be used by the request
         buildQueryHeaders: function buildQueryHeaders(query) {
             if (query) {
-                if (query instanceof Everlive.Query) {
+                if (query instanceof Query) {
                     return Request.prototype._buildQueryHeaders(query);
                 }
                 else {
@@ -16964,7 +15448,7 @@ module.exports = (function () {
     if (typeof Request.sendRequest === 'undefined') {
         Request.sendRequest = function (request) {
             var url = request.buildUrl(request.setup) + request.endpoint;
-            url = Everlive.disableRequestCache(url, request.method);
+            url = utils.disableRequestCache(url, request.method);
             request.method = request.method || 'GET';
             var data = request.method === 'GET' ? request.data : JSON.stringify(request.data);
 
@@ -17004,7 +15488,7 @@ module.exports = (function () {
 
     return Request;
 }());
-},{"./common":53,"./constants":54,"./everlive.platform":56,"./utils":74}],50:[function(require,module,exports){
+},{"./common":53,"./constants":54,"./everlive.platform":56,"./query/Query":74,"./utils":87}],50:[function(require,module,exports){
 var _ = require('./common')._;
 var constants = require('./constants');
 var AuthenticationSetup = require('./auth/AuthenticationSetup');
@@ -17058,7 +15542,7 @@ var Everlive = require('../Everlive');
 var constants = require('../constants');
 var usersCollectionName = 'Users';
 var buildPromise = utils.buildPromise;
-var LocalStore = require('../LocalStore');
+var LocalStore = require('../storages/LocalStore');
 var EverliveErrors = require('../EverliveError').EverliveErrors;
 
 module.exports = (function () {
@@ -17073,9 +15557,8 @@ module.exports = (function () {
         this.authSetup = setup || {};
         this._el = el;
         this._authenticationCallbacks = null;
-        this._localStore = new LocalStore(el);
         if (this.authSetup.persist) {
-            var self = this;
+            this._localStore = new LocalStore(el);
             var localStoreKey = this._getLocalStoreKey();
             var authOptions = this._localStore.getItem(localStoreKey);
             var authInfo;
@@ -17083,7 +15566,7 @@ module.exports = (function () {
                 authInfo = JSON.parse(this._localStore.getItem(localStoreKey));
             }
             if (authInfo) {
-                self._el.setup.setAuthorizationProperties(authInfo.token, authInfo.tokenType, authInfo.principalId);
+                this._el.setup.setAuthorizationProperties(authInfo.token, authInfo.tokenType, authInfo.principalId);
             }
         }
     };
@@ -17352,6 +15835,7 @@ module.exports = (function () {
         if (this._localStore) {
             var localStoreKey = this._getLocalStoreKey();
             this._localStore.removeItem(localStoreKey);
+            this._el.setup.setAuthorizationProperties(null, null, null);
         }
     };
 
@@ -17491,7 +15975,7 @@ module.exports = (function () {
     return Authentication;
 }());
 
-},{"../Everlive":42,"../EverliveError":43,"../LocalStore":47,"../Request":49,"../constants":54,"../query/DataQuery":64,"../utils":74}],52:[function(require,module,exports){
+},{"../Everlive":43,"../EverliveError":44,"../Request":49,"../constants":54,"../query/DataQuery":73,"../storages/LocalStore":81,"../utils":87}],52:[function(require,module,exports){
 'use strict';
 module.exports = (function () {
     var AuthenticationSetup = function (everlive, options) {
@@ -17560,11 +16044,11 @@ module.exports = (function () {
     dependencyStore.Mingo = require('mingo');
     exportDependency('Mingo');
 
-    dependencyStore.uuid = require('uuid');
-    exportDependency('uuid');
-
     dependencyStore.Processor = require('../scripts/bs-expand-processor');
     exportDependency('Processor');
+
+    dependencyStore.Base64 = require('Base64');
+    exportDependency('Base64');
 
     dependencyStore.rsvp = require('rsvp');
     exportDependency('RSVP', 'rsvp');
@@ -17574,7 +16058,7 @@ module.exports = (function () {
     return common;
 }());
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../scripts/bs-expand-processor":36,"./everlive.platform":56,"./reqwest.nativescript":69,"./reqwest.nodejs":70,"jstimezonedetect":6,"mingo":7,"mongo-query":9,"reqwest":28,"rsvp":29,"underscore":30,"uuid":32}],54:[function(require,module,exports){
+},{"../scripts/bs-expand-processor":36,"./everlive.platform":56,"./reqwest.nativescript":78,"./reqwest.nodejs":79,"Base64":1,"jstimezonedetect":8,"mingo":9,"mongo-query":11,"reqwest":30,"rsvp":31,"underscore":32}],54:[function(require,module,exports){
 /**
  * Constants used by the SDK
  * @typedef {Object} Everlive.Constants
@@ -17616,6 +16100,12 @@ var constants = {
     },
 
     DefaultStoragePath: 'el_store',
+
+    // the default location for storing files offline
+    DefaultFilesStoragePath: 'el_file_store/',
+
+    // the default location for storing offline to online location map
+    DefaultFilesMetadataPath: 'el_file_mapping/',
 
     EncryptionProvider: {
         Default: 'default',
@@ -17749,6 +16239,8 @@ constants.AuthStoreKey = '__everlive_auth_key';
 
 // the minimum interval between sync requests
 constants.defaultSyncInterval = 1000 * 60 * 10; // 10 minutes
+constants.fileUploadKey = 'fileUpload';
+constants.fileUploadDelimiter = '_';
 
 module.exports = constants;
 
@@ -17758,13 +16250,13 @@ var AES = CryptoJS.AES;
 
 module.exports = (function () {
 
-    function CryptographicProvider (sdk) {
-        this.sdk = sdk;
+    function CryptographicProvider(options) {
+        this.options = options;
     }
 
     CryptographicProvider.prototype = {
         _getKey: function () {
-            return this.sdk.offlineStorage.setup.encryption.key;
+            return this.options.encryption.key;
         },
 
         _canEncryptDecrypt: function (content) {
@@ -17790,7 +16282,7 @@ module.exports = (function () {
 
     return CryptographicProvider;
 }());
-},{"node-cryptojs-aes":20}],56:[function(require,module,exports){
+},{"node-cryptojs-aes":22}],56:[function(require,module,exports){
 (function (global){
 var isNativeScript = Boolean(((typeof android !== 'undefined' && android && android.widget && android.widget.Button)
     || (typeof UIButton !== 'undefined' && UIButton)));
@@ -17804,20 +16296,715 @@ if (isNativeScript) {
 } else if (typeof window !== 'undefined') {
     var isCordova = /^file:\/{3}[^\/]|x-wmapp/i.test(window.location.href) && /ios|iphone|ipod|ipad|android|iemobile/i.test(navigator.userAgent);
     var isWindowsPhone = isCordova && /iemobile/i.test(navigator.userAgent);
+    var isAndroid = isCordova && cordova.platformId === 'android';
 }
 
 var isNodejs = typeof exports === 'object' && typeof window === 'undefined';
 var isRequirejs = typeof define === 'function' && define.amd;
+var isDesktop = !isNativeScript && !isCordova && !isNodejs;
 
 module.exports = {
     isCordova: isCordova,
     isNativeScript: isNativeScript,
+    isDesktop: isDesktop,
     isWindowsPhone: isWindowsPhone,
+    isAndroid: isAndroid,
     isNodejs: isNodejs,
     isRequirejs: isRequirejs
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],57:[function(require,module,exports){
+'use strict';
+
+/**
+ * @class Helpers
+ * @classdesc Everlive helper classes
+ */
+
+var platform = require('../everlive.platform');
+
+var helpers = [];
+
+var htmlHelper = require('./html/htmlHelper');
+
+if (platform.isCordova || platform.isDesktop) {
+    helpers.push({
+        name: 'html',
+        ctor: htmlHelper
+    });
+}
+
+module.exports = helpers;
+},{"../everlive.platform":56,"./html/htmlHelper":58}],58:[function(require,module,exports){
+'use strict';
+
+var platform = require('../../everlive.platform');
+var common = require('../../common');
+var _ = common._;
+var utils = require('../../utils');
+var rsvp = common.rsvp;
+var HtmlHelperResponsiveModule = require('./htmlHelperResponsiveModule');
+var HtmlHelperOfflineModule = require('./htmlHelperOfflineModule');
+var constants = require('../../constants');
+var EverliveError = require('../../EverliveError').EverliveError;
+var EventEmitterProxy = require('../../EventEmitterProxy');
+
+module.exports = (function () {
+    var defaults = {
+        processOnLoad: false,
+        processOnResize: false,
+        loadingImageUrl: '',
+        errorImageUrl: '',
+        attributes: {
+            loadingImage: 'data-loading-image',
+            errorImage: 'data-error-image',
+            dpi: 'data-dpi',
+            imageSource: 'data-src',
+            fileSource: 'data-href',
+            enableOffline: 'data-offline',
+            enableResponsive: 'data-responsive'
+        }
+    };
+
+    /**
+     * @typedef Helpers.html
+     * @description Everlive helper for html related operations, such as processing html elements with specific tags.
+     */
+
+    function HtmlHelper(everlive, config) {
+        EventEmitterProxy.apply(this);
+
+        this._everlive = everlive;
+        this._settings = {
+            urlTemplate: '[protocol][hostname][apikey]/[operations][url]',
+            server: 'bs1.cdn.telerik.com/image/v1/'
+        };
+
+        if (config === true) {
+            config = defaults;
+        }
+
+        config = config || {};
+
+        this.options = _.extend({}, defaults, config);
+        this.options.attributes = _.extend({}, defaults.attributes, config.attributes);
+
+        this._responsive = new HtmlHelperResponsiveModule(this);
+        this._offline = new HtmlHelperOfflineModule(this);
+
+        this._init();
+    }
+
+    HtmlHelper.prototype = {
+        _init: function _init() {
+            var self = this;
+            if (self.options.processOnLoad) {
+                window.addEventListener('load', this.processAll.bind(this), false);
+            }
+
+            if (this.options.processOnResize) {
+                window.addEventListener('resize', _.debounce(this.processAll.bind(this), 300), false);
+            }
+        },
+
+        _triggerOnProcessed: function _triggerOnProcessed(args) {
+            this._emitter.emit('processed', args);
+        },
+
+        _defaultProcessSettings: function _defaultProcessSettings(settings) {
+            return _.defaults({}, settings, {
+                responsive: true,
+                offline: true
+            });
+        },
+
+        _setLoadingUrl: function _setLoadingUrl(element) {
+            var loadingImageUri = element.getAttribute(this.options.attributes.loadingImage) || this.options.loadingImageUrl;
+            if (!loadingImageUri || utils.isElement.anchor(element)) {
+                return utils.successfulPromise();
+            }
+
+            return this._setUrl(element, loadingImageUri, true);
+        },
+
+        _getBackgroundSrc: function _getBackgroundSrc(el) {
+            var elStyle = window.getComputedStyle(el, null);
+            var backgrImage = elStyle.getPropertyValue('background-image');
+
+            var img = backgrImage !== 'none' ? backgrImage : false;
+            if (img) {
+                img = img.replace(/url\(('?"?)(.*?)\1\)/gi, '$2');
+            }
+
+            return img;
+        },
+
+        _setErrorUrl: function (element) {
+            var errorImageUrl = element.getAttribute(this.options.attributes.errorImage) || this.options.errorImageUrl;
+            if (!errorImageUrl || utils.isElement.anchor(element)) {
+                return utils.successfulPromise();
+            }
+
+            return this._setUrl(element, errorImageUrl, true);
+        },
+
+        _setUrl: function _setUrl(element, url, apply) {
+            var self = this;
+            return new rsvp.Promise(function (resolve, reject) {
+                var elAttr = self._getAttr(element);
+                if (utils.isElement.image(element) && elAttr === self.options.attributes.imageSource) {
+                    if (apply) {
+                        element.src = url;
+                        element.style.visibility = 'visible';
+                    } else {
+                        var img = new Image();
+
+                        img.onerror = function () {
+                            img = null;
+                            reject(new EverliveError('Can\'t be loaded: ' + url));
+                        };
+
+                        img.onload = function () {
+                            img = null;
+                            self._setUrl(element, url, true)
+                                .then(resolve)
+                                .catch(reject);
+                        };
+
+                        img.src = url;
+                    }
+                } else {
+                    apply = true;
+                    if (elAttr) {
+                        var attr;
+                        if (elAttr === self.options.attributes.imageSource) {
+                            attr = 'src';
+                        } else if (elAttr === self.options.attributes.fileSource) {
+                            attr = 'href';
+                        } else {
+                            attr = _.last(elAttr.split('-'));
+                        }
+
+                        element.setAttribute(attr, url);
+                    } else {
+                        element.style.backgroundImage = 'url(' + url + ')';
+                    }
+                }
+
+                if (apply) {
+                    resolve();
+                }
+            });
+        },
+
+        _getAttr: function _getAttr(element) {
+            if (element.getAttribute(this.options.attributes.imageSource)) {
+                return this.options.attributes.imageSource;
+            }
+
+            if (element.getAttribute(this.options.attributes.fileSource)) {
+                return this.options.attributes.fileSource;
+            }
+        },
+
+        _getUrl: function _getUrl(element) {
+            var url = element.getAttribute(this.options.attributes.imageSource)
+                || element.getAttribute(this.options.attributes.fileSource)
+                || this._getBackgroundSrc(element);
+
+            return url;
+        },
+
+        _wrapElements: function _wrapElements(elements) {
+            var self = this;
+
+            var results = _.map(elements, function (element) {
+                var tag = element.tagName.toLowerCase();
+
+                var evaluateDataAttr = function evaluateDataAttr(attr) {
+                    // data-a - true
+                    // data-a="" - true
+                    // data-a="true" - true
+                    // data-a="anything" - true
+                    // data-a="false" - false
+                    // missing - false
+                    var val;
+                    var dataVal = (element.attributes[attr] || {value: null}).value;
+                    if (dataVal === '') {
+                        val = true;
+                    } else if (!dataVal) {
+                        val = false;
+                    } else {
+                        try {
+                            val = JSON.parse(dataVal);
+                        } catch (e) {
+                            val = true;
+                        }
+                    }
+
+                    return val;
+                };
+
+                var canResponsive = evaluateDataAttr(self.options.attributes.enableResponsive);
+                var canOffline = evaluateDataAttr(self.options.attributes.enableOffline);
+
+                return {
+                    item: element,
+                    tag: tag,
+                    operations: {
+                        responsive: canResponsive,
+                        offline: canOffline
+                    }
+                };
+            });
+
+            return results;
+        },
+
+        /**
+         * @method process
+         * @memberOf Helpers.html
+         * @param {HtmlElement} elements
+         * @param {Object} settings A settings specifying custom behavior
+         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
+         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
+
+        /**
+         * @method process
+         * @memberOf Helpers.html
+         * @param {HtmlElement[]} elements
+         * @param {Object} settings A settings specifying custom behavior
+         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
+         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
+
+        /**
+         * @method process
+         * @memberOf Helpers.html
+         * @param {HtmlElement} elements
+         * @param {Object} settings A settings specifying custom behavior
+         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
+         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @returns {Promise} A promise to the process state
+         */
+
+        /**
+         * @method process
+         * @memberOf Helpers.html
+         * @param {HtmlElement[]} elements
+         * @param {Object} settings A settings specifying custom behavior
+         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
+         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @returns {Promise} A promise to the process state
+         */
+        process: function process(elements, settings, success, error) {
+            var self = this;
+
+            return utils.buildPromise(function (resolve) {
+                settings = self._defaultProcessSettings(settings);
+                if (_.isArray(elements) || elements instanceof NodeList || elements.length) {
+                    elements = _.flatten(elements);
+                } else {
+                    elements = [elements];
+                }
+
+                var wrappedElements = self._wrapElements(elements);
+                var promises = [];
+                _.each(wrappedElements, function (element) {
+                    var result = {
+                        element: element.item,
+                        responsive: false,
+                        offline: false
+                    };
+
+                    var dataUrl = self._getUrl(result.element);
+
+                    if (!dataUrl) {
+                        return promises.push(utils.successfulPromise(result));
+                    }
+
+                    var canResponsive = settings.responsive ? element.operations.responsive : false;
+                    var canOffline = settings.offline ? element.operations.offline : false;
+
+                    if (!canResponsive && !canOffline) {
+                        return promises.push(self._setUrl(result.element, dataUrl, true)
+                            .then(function () {
+                                return result;
+                            }));
+                    }
+
+                    var promise = self._setLoadingUrl(result.element);
+                    var handleOperation = function handleOperation(operation, url) {
+                        if (url) {
+                            result[operation] = true;
+                            return url;
+                        }
+                    };
+
+                    if (canResponsive) {
+                        promise = promise.then(function () {
+                            return self._responsive.responsiveImage(element, dataUrl)
+                                .then(handleOperation.bind(this, 'responsive'));
+                        });
+                    }
+
+                    if (canOffline) {
+                        promise = promise.then(function (responsiveSrc) {
+                            return self._offline.processOffline(responsiveSrc || dataUrl)
+                                .then(handleOperation.bind(this, 'offline'));
+                        });
+                    }
+
+                    promise = promise.then(function (finalUrl) {
+                        return self._setUrl(result.element, finalUrl)
+                            .then(function () {
+                                return result;
+                            });
+                    }).catch(function (err) {
+                        return self._setErrorUrl(result.element)
+                            .then(function () {
+                                throw {
+                                    element: result.element,
+                                    error: err
+                                }
+                            });
+                    });
+
+                    promises.push(promise);
+                });
+
+                rsvp.allSettled(promises)
+                    .then(function (results) {
+                        var processed = [];
+                        var failed = [];
+
+                        _.each(results, function (result) {
+                            if (result.state === 'fulfilled') {
+                                processed.push(result.value);
+                            } else {
+                                failed.push(result.reason);
+                            }
+                        });
+
+                        var result = {
+                            processed: processed,
+                            failed: failed
+                        };
+
+                        self._triggerOnProcessed(result);
+                        resolve(result);
+                    });
+            }, success, error);
+        },
+
+        /**
+         * @method processAll
+         * @memberOf Helpers.html
+         * @param {Object} settings A settings specifying custom behavior
+         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
+         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
+
+        /**
+         * @method processAll
+         * @memberOf Helpers.html
+         * @param {Object} settings A settings specifying custom behavior
+         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
+         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @returns {Promise} A promise to the process state
+         */
+        processAll: function processAll(settings, success, error) {
+            settings = this._defaultProcessSettings(settings);
+            var responsiveSelector = '[' + this.options.attributes.enableResponsive + ']';
+            var offlineSelector = '[' + this.options.attributes.enableOffline + ']';
+
+            var elements;
+
+            if (settings.responsive && settings.offline) {
+                elements = document.querySelectorAll(responsiveSelector + offlineSelector);
+            }
+
+            if (!elements) {
+                var responsiveElements = [];
+                if (settings.responsive) {
+                    responsiveElements = document.querySelectorAll(responsiveSelector);
+                }
+
+                var offlineElements = [];
+                if (settings.offline) {
+                    offlineElements = document.querySelectorAll(offlineSelector);
+                }
+
+                var slice = [].slice;
+                elements = slice.call(responsiveElements).concat(slice.call(offlineElements));
+            }
+
+
+            return this.process(elements, settings, success, error);
+        }
+    };
+
+    return HtmlHelper;
+}());
+
+},{"../../EventEmitterProxy":42,"../../EverliveError":44,"../../common":53,"../../constants":54,"../../everlive.platform":56,"../../utils":87,"./htmlHelperOfflineModule":59,"./htmlHelperResponsiveModule":60}],59:[function(require,module,exports){
+'use strict';
+
+var utils = require('../../utils');
+var EverliveErrorModule = require('../../EverliveError');
+var EverliveErrors = EverliveErrorModule.EverliveErrors;
+var EverliveError = EverliveErrorModule.EverliveError;
+var constants = require('../../constants');
+var path = require('path');
+var common = require('../../common');
+var _ = common._;
+
+module.exports = (function () {
+    function HtmlHelperOfflineModule(htmlHelper) {
+        this.htmlHelper = htmlHelper;
+    }
+
+    HtmlHelperOfflineModule.prototype = {
+        processOffline: function (url) {
+            var self = this;
+
+            if (!self.htmlHelper._everlive.offlineStorage.files) {
+                return utils.rejectedPromise(new EverliveError('Offline storage must be enabled in order to use the offline features of the images component.'));
+            }
+
+            return self.htmlHelper._everlive.offlineStorage.files.downloadOffline(url)
+                .then(function (localUrl) {
+                    return localUrl;
+                })
+                .catch(function (err) {
+                    if (err !== EverliveErrors.cannotDownloadOffline) {
+                        throw err;
+                    }
+
+                    return self.htmlHelper._everlive.offlineStorage._offlineFilesProcessor
+                        .getOfflineFilesData()
+                        .then(function (offlineFilesData) {
+                            var basename = path.basename(url);
+                            var oldFile = _.find(offlineFilesData, function (entry) {
+                                if (entry.onlineLocation && entry.offlineLocation) {
+                                    var onlineLocation = entry.onlineLocation;
+                                    var basenameIndex = onlineLocation.lastIndexOf(basename);
+                                    return basenameIndex !== -1;
+                                }
+                            });
+
+                            if (oldFile) {
+                                return oldFile.offlineLocation;
+                            }
+
+                            throw new EverliveError('Cannot find offline image ' + url, EverliveErrors.missingOrInvalidFileContent.code);
+                        });
+                });
+        }
+    };
+
+    return HtmlHelperOfflineModule;
+}());
+},{"../../EverliveError":44,"../../common":53,"../../constants":54,"../../utils":87,"path":4}],60:[function(require,module,exports){
+'use strict';
+
+var common = require('../../common');
+var _ = common._;
+var rsvp = common.rsvp;
+var EverliveError = require('../../EverliveError').EverliveError;
+var constants = require('../../constants');
+var utils = require('../../utils');
+
+module.exports = (function () {
+    function HtmlHelperResponsiveModule(htmlHelper) {
+        this.htmlHelper = htmlHelper;
+    }
+
+    HtmlHelperResponsiveModule.prototype = {
+        getBackgroundWidth: function getBackgroundWidth(el) {
+            return Math.ceil(el.offsetWidth);
+        },
+
+        parseParamsString: function parseParamsString(str) {
+            if (!str || typeof str === 'undefined' || str.length <= 1) {
+                return false;
+            }
+
+            var isUserResize = false;
+            var params = [];
+            var tmp = str.split('/');
+            var ii = tmp.length;
+
+            for (var i = 0; i < ii; i++) {
+                var item = tmp[i].split('='),
+                    tmpObj = {};
+                if (typeof item[1] === 'undefined') {
+                    item[1] = false;
+                } else {
+                    item[1] = unescape(item[1].replace(/\+/g, ' '));
+                }
+
+                tmpObj[item[0]] = item[1];
+                params.push(tmpObj);
+                if (item[0] === 'resize') {
+                    isUserResize = true;
+                }
+            }
+            return {
+                params: params,
+                isUserResize: isUserResize
+            };
+        },
+
+        getImgParams: function getImgParams(src) {
+            var operations;
+            var imgUrl = src.replace(/.*?resize=[^//]*\//gi, '');
+            var protocolRe = new RegExp('https?://', 'gi');
+            var serverRe = new RegExp(this.htmlHelper._settings.server, 'gi');
+            var apiKeyRe = new RegExp(this.htmlHelper._everlive.apiKey + '/', 'gi');
+
+            operations = src.replace(imgUrl, '').replace(protocolRe, '').replace(serverRe, '').replace(apiKeyRe, '').toLowerCase();
+            if (operations !== '') {
+                operations = operations.indexOf('/') ? operations.substring(0, operations.length - 1) : operations;
+            } else {
+                operations = false;
+            }
+
+            operations = this.parseParamsString(operations);
+            // If it's a user resize operation, use the passed url in the data-src property
+            if (operations.isUserResize) {
+                imgUrl = src;
+            }
+
+            return {
+                imgUrl: imgUrl,
+                operations: operations.params,
+                isUserResize: operations.isUserResize
+            };
+        },
+
+        hasClass: function hasClass(el, cl) {
+            var regex = new RegExp('(?:\\s|^)' + cl + '(?:\\s|$)');
+            return !!el.className.match(regex);
+        },
+
+        getImageWidth: function getImageWidth(el) {
+            var parentEl = el.parentNode;
+            var parentWidth = parentEl.offsetWidth;
+            var itemStyle = window.getComputedStyle(parentEl, null);
+            var pl = parseFloat(itemStyle.getPropertyValue('padding-left'));
+            var pr = parseFloat(itemStyle.getPropertyValue('padding-right'));
+            var bl = parseFloat(itemStyle.getPropertyValue('border-left-width'));
+            var br = parseFloat(itemStyle.getPropertyValue('border-right-width'));
+
+            return Math.abs(parentWidth - Math.ceil(pl + pr + bl + br));
+        },
+
+        getDevicePixelRatio: function getDevicePixelRatio() {
+            return window.devicePixelRatio ? window.devicePixelRatio : 1;
+        },
+
+        getPixelRatio:function getPixelRatio(el) {
+            var pixelDensity = el.getAttribute(this.htmlHelper.options.attributes.dpi) || '';
+            return pixelDensity !== '' ? _.isNumber(pixelDensity) ? parseFloat(pixelDensity) : false : this.getDevicePixelRatio();
+        },
+
+        getImgParamsString: function getImgParamsString(image, params) {
+            var paramsStr = '';
+            var i = 0;
+            var ii = params.length;
+            for (; i < ii; i++) {
+                var item = params[i];
+                var key = _.keys(item)[0];
+                var value;
+
+                if (!utils.isElement.image(image) && key === 'resize') {
+                    continue;
+                }
+
+                var pixelDensity = this.getPixelRatio(image.item);
+                pixelDensity = (pixelDensity) ? ',pd:' + pixelDensity : '';
+                for (var k in item) {
+                    value = (key === 'resize') ? item[k] + pixelDensity : item[k];
+                }
+
+                paramsStr += key + '=' + value + '/';
+            }
+
+            return paramsStr;
+        },
+
+        responsiveImage: function responsiveImage(item, dataSrc) {
+            var self = this;
+            var image = _.extend({}, item);
+            var element = image.item;
+            var tag = image.tag;
+
+            var isImage = utils.isElement.image(tag);
+            var imgWidth;
+
+            image = _.extend({}, image, self.getImgParams(dataSrc));
+
+            if (!image.isUserResize) {
+                imgWidth = (!isImage) ? self.getBackgroundWidth(element) : self.getImageWidth(element);
+            }
+
+            imgWidth = imgWidth ? imgWidth : false;
+            var src = image.isUserResize ? image.imgUrl : self.getImgSrc(image, imgWidth);
+
+            return new rsvp.Promise(function (resolve) {
+                if (!imgWidth && !image.isUserResize) { // we don't have the width of the user image either.
+                    // if this element is not visible, we don't have to process it.
+
+                    return resolve();
+                }
+
+                return resolve(src);
+            });
+        },
+
+        getImgSrc: function getImgSrc(image, imgWidth) {
+            var protocol = this.htmlHelper._everlive.setup.scheme + '://';
+            var apiKey = this.htmlHelper._everlive.setup.apiKey;
+            var server = this.htmlHelper._settings.server;
+            var url = this.htmlHelper._settings.urlTemplate;
+            var pixelDensity = this.getPixelRatio(image.item);
+
+            pixelDensity = pixelDensity ? ',pd:' + pixelDensity : '';
+
+            url = url.replace('[protocol]', protocol);
+            url = url.replace('[apikey]', apiKey ? apiKey : '');
+            url = url.replace('[hostname]', server);
+
+            var params = image.operations || false;
+            if (params) {
+                var operations = '';
+                params = this.getImgParamsString(image, params);
+                if (utils.isElement.image(image.tag)) {
+                    operations = imgWidth ? 'resize=w:' + imgWidth + pixelDensity + '/' + params : params;
+                } else {
+                    operations = 'resize=w:' + imgWidth + pixelDensity + '/' + params;
+                }
+                url = url.replace('[operations]', operations);
+            } else {
+                url = url.replace('[operations]', 'resize=w:' + imgWidth + pixelDensity + '/');
+            }
+
+            url = url.replace('[url]', image.imgUrl);
+            return url;
+        }
+    };
+
+    return HtmlHelperResponsiveModule;
+}());
+},{"../../EverliveError":44,"../../common":53,"../../constants":54,"../../utils":87}],61:[function(require,module,exports){
 /*!
  The MIT License (MIT)
  Copyright (c) 2013 Telerik AD
@@ -17839,7 +17026,7 @@ module.exports = {
  */
 /*!
  Everlive SDK
- Version 1.3.4
+ Version 1.4.0
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -17887,7 +17074,7 @@ module.exports = {
         common.root.Everlive = Everlive;
     }
 }());
-},{"./Everlive":42,"./GeoPoint":46,"./Request":49,"./common":53,"./constants":54,"./everlive.platform":56,"./kendo/kendo.everlive":58,"./offline/offlinePersisters":62,"./query/Query":65,"./query/QueryBuilder":66,"./types/Data":71,"./utils":74}],58:[function(require,module,exports){
+},{"./Everlive":43,"./GeoPoint":47,"./Request":49,"./common":53,"./constants":54,"./everlive.platform":56,"./kendo/kendo.everlive":62,"./offline/offlinePersisters":68,"./query/Query":74,"./query/QueryBuilder":75,"./types/Data":84,"./utils":87}],62:[function(require,module,exports){
 var QueryBuilder = require('../query/QueryBuilder');
 var Query = require('../query/Query');
 var Request = require('../Request');
@@ -18426,7 +17613,649 @@ var EverliveError = require('../EverliveError').EverliveError;
         createHierarchicalDataSource: createHierarchicalDataSource
     };
 }());
-},{"../Everlive":42,"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/Query":65,"../query/QueryBuilder":66}],59:[function(require,module,exports){
+},{"../Everlive":43,"../EverliveError":44,"../Request":49,"../common":53,"../constants":54,"../query/Query":74,"../query/QueryBuilder":75}],63:[function(require,module,exports){
+'use strict';
+
+var utils = require('../utils');
+var buildPromise = utils.buildPromise;
+var Request = require('../Request');
+var common = require('../common');
+var rsvp = common.rsvp;
+var _ = common._;
+var reqwest = common.reqwest;
+var uuid = common.uuid;
+var path = require('path');
+var CryptoJS = require('node-cryptojs-aes').CryptoJS;
+var errors = require('../EverliveError');
+var EverliveErrors = errors.EverliveErrors;
+var EverliveError = errors.EverliveError;
+
+var OfflineFilesModule = function (offlineFilesProcessor, everlive) {
+    this._offlineFilesProcessor = offlineFilesProcessor;
+    this._everlive = everlive;
+};
+
+OfflineFilesModule.prototype = {
+    _getFilenameMetadata: function (location, offlineFileInfo) {
+        return new rsvp.Promise(function (resolve) {
+            reqwest({
+                url: location,
+                method: 'HEAD',
+                async: true,
+                crossDomain: true
+            }).then(function (xmlResponse) {
+                var contentDispositionHeader = xmlResponse.getResponseHeader('Content-Disposition');
+                if (contentDispositionHeader) {
+                    var matches = /filename="([^"\\]*(?:\\.[^"\\]*)*)"/i.exec(contentDispositionHeader);
+                    if (_.isArray(matches)) {
+                        offlineFileInfo.filename = matches[1];
+                    }
+                } else {
+                    offlineFileInfo.filename = path.basename(xmlResponse.responseURL);
+                }
+
+                resolve();
+            }).catch(function () {
+                resolve();
+            });
+
+        });
+    },
+
+    /**
+     * Updates a file's content
+     * @memberof OfflineFilesModule.prototype
+     * @method downloadOffline
+     * @param {string} location A file location or the id of a file stored in Backend Services.
+     * @param {boolean} overwrite Boolean option that indicates whether the file should be overwritten if it already exists offline.
+     * @returns {Promise} The promise for the request
+     */
+    /**
+     * Updates a file's content
+     * @memberof OfflineFilesModule.prototype
+     * @method downloadOffline
+     * @param {string} location A file location or the id of a file stored in Backend Services.
+     * @param {boolean} overwrite Boolean option that indicates whether the file should be overwritten if it already exists offline.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+    downloadOffline: function (location, overwrite, success, error) {
+        var self = this;
+
+        return buildPromise(function (success, error) {
+            var offlineFileInfo;
+            return self._getOfflineFileInfo(location)
+                .then(function (_offlineFileInfo) {
+                    offlineFileInfo = _offlineFileInfo;
+                    if (overwrite) {
+                        return false;
+                    }
+
+                    return self.existsOffline(location);
+                })
+                .then(function (exists) {
+                    if (!exists) {
+                        if (self._everlive.isOnline()) {
+                            return utils.successfulPromise()
+                                .then(function () {
+                                    if (!offlineFileInfo.filename) {
+                                        return self._getFilenameMetadata(location, offlineFileInfo);
+                                    }
+                                })
+                                .then(function () {
+                                    return self._saveFile(offlineFileInfo.location, offlineFileInfo.filename);
+                                });
+                        }
+
+                        error(EverliveErrors.cannotDownloadOffline);
+                    } else {
+                        return self._getOfflineFileInfo(location)
+                            .then(function (fileInfo) {
+                                return self._getOfflineLocation(fileInfo);
+                            });
+                    }
+                })
+                .then(success)
+                .catch(error);
+        }, success, error);
+    },
+
+    _saveFile: function (location, filename) {
+        var self = this;
+        var actualLocation;
+        location = self._sanitizeUrl(location);
+
+        return self._downloadFile(location, filename)
+            .then(function (_actualLocation) {
+                actualLocation = _actualLocation;
+                return self._offlineFilesProcessor.getOfflineFilesData();
+            })
+            .then(function (offlineFilesData) {
+                offlineFilesData.push({
+                    offlineLocation: actualLocation,
+                    onlineLocation: location
+                });
+
+                return self._offlineFilesProcessor.saveOfflineFilesData();
+            })
+            .then(function () {
+                return actualLocation;
+            });
+    },
+
+    /**
+     * Remove all files stored offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method purgeAll
+     * @returns {Promise} The promise for the request
+     */
+    /**
+     * Remove all files stored offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method purgeAll
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+    purgeAll: function (success, error) {
+        var self = this;
+
+        return utils.buildPromise(function (success, error) {
+            self._offlineFilesProcessor.fileStore.removeFilesDirectory()
+                .then(function () {
+                    return self._offlineFilesProcessor.filesMetaStore.removeFilesDirectory();
+                })
+                .then(function () {
+                    self._offlineFilesProcessor._offlineFilesData = null;
+                })
+                .then(success)
+                .catch(error);
+        }, success, error);
+    },
+
+    _getOfflineLocation: function (fileInfo) {
+        var self = this;
+        var url = fileInfo.location;
+        var filename = fileInfo.filename;
+        var id = fileInfo.Id;
+
+        return self._offlineFilesProcessor.getOfflineLocation(url, filename)
+            .then(function (offlineUrl) {
+                if (offlineUrl) {
+                    return offlineUrl;
+                }
+
+                // if no url is provided this means that the file exists only offline
+                // the Uri field has not been populated by the server
+                if (id && !url) {
+                    return self._getFileUrlForId(id, filename);
+                }
+
+                return null;
+            });
+    },
+
+    _downloadFile: function (url, name) {
+        var self = this;
+
+        // TODO: [offline] this will not work in NativeScript at the moment
+        return new rsvp.Promise(function (resolve, reject) {
+            var fileTransfer = new FileTransfer();
+            var sanitizedUrl = self._sanitizeUrl(url);
+            var fileId = path.basename(sanitizedUrl);
+            var extension = path.extname(name);
+            var filename = fileId + extension;
+
+            var fileParentDirectory = '';
+            if (!utils.isGuid(url)) {
+                var fileIdIndex = url.lastIndexOf(fileId);
+                var baseUrl = url.substr(0, fileIdIndex);
+                fileParentDirectory = CryptoJS.MD5(baseUrl).toString();
+            }
+
+            return self._offlineFilesProcessor.fileStore.getDataDirectory()
+                .then(function (dataDir) {
+                    return utils.joinPath(dataDir.nativeURL, self._offlineFilesProcessor.fileStore.filesDirectoryPath,
+                        fileParentDirectory, filename);
+                })
+                .then(function (location) {
+                    fileTransfer.download(url, location, function () {
+                        resolve(location);
+                    }, reject, {
+                        headers: self._everlive.buildAuthHeader()
+                    });
+                })
+                .catch(reject);
+        });
+    },
+
+    _sanitizeUrl: function (url) {
+        if (!url) {
+            return url;
+        }
+
+        var sanitizedUrl = encodeURI(url);
+        var questionMarkIndex = sanitizedUrl.lastIndexOf('?');
+        if (questionMarkIndex !== -1) {
+            sanitizedUrl = sanitizedUrl.substr(0, questionMarkIndex); //linux does not allow question marks in its filenames
+        }
+
+        return sanitizedUrl;
+    },
+
+    _getFileUrlForId: function (fileId, filename) {
+        var self = this;
+
+        return this._offlineFilesProcessor.fileStore.getDataDirectory()
+            .then(function (dataDirectory) {
+                var fileExtension = path.extname(filename);
+                return utils.joinPath(dataDirectory.nativeURL, self._offlineFilesProcessor.fileStore.filesDirectoryPath, fileId + fileExtension);
+            });
+    },
+
+    /**
+     * Check if a file exists offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method exists
+     * @param {String} location The location or file id to check.
+     * @returns {Promise} The promise for the request
+     */
+    /**
+     * Check if a file exists offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method exists
+     * @param {String} location The location or file id to check.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+    existsOffline: function (location, success, error) {
+        var self = this;
+
+        return buildPromise(function (success, error) {
+            self._getOfflineFileInfo(location)
+                .then(function (fileInfo) {
+                    return self._getOfflineLocation(fileInfo);
+                })
+                .then(function (offlineUrl) {
+                    if (offlineUrl) {
+                        return self._offlineFilesProcessor.fileStore.getFileByAbsolutePath(offlineUrl);
+                    }
+                })
+                .then(function (offlineFile) {
+                    return !!offlineFile;
+                })
+                .then(success)
+                .catch(function (err) {
+                    if (err.code === EverliveErrors.itemNotFound.code) {
+                        return success(false);
+                    }
+
+                    return error.apply(this, arguments);
+                });
+        }, success, error);
+    },
+
+
+    /**
+     * Remove a file from the offline storage.
+     * @memberof OfflineFilesModule.prototype
+     * @method purge
+     * @param {String} location The location or file id to remove.
+     * @returns {Promise} The promise for the request
+     */
+    /**
+     * Check if a file exists offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method purge
+     * @param {String} location The location or file id to check.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+    purge: function (location, success, error) {
+        var self = this;
+
+        return buildPromise(function (success, error) {
+            self._getOfflineFileInfo(location)
+                .then(function (fileInfo) {
+                    return self._getOfflineLocation(fileInfo);
+                })
+                .then(function (location) {
+                    if (location) {
+                        return self._offlineFilesProcessor.purge(location);
+                    }
+                })
+                .then(success)
+                .catch(error);
+        }, success, error);
+    },
+
+    /**
+     * Get the native URL for a file which is stored offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method getOfflineLocation
+     * @param {String} location The location or file id to process.
+     * @returns {Promise} The promise for the request
+     */
+    /**
+     * Get the native URL for a file which is stored offline.
+     * @memberof OfflineFilesModule.prototype
+     * @method getOfflineLocation
+     * @param {String} location The location or file id to process.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+    getOfflineLocation: function (location, success, error) {
+        var self = this;
+
+        return buildPromise(function (success, error) {
+            self._getOfflineFileInfo(location)
+                .then(self._getOfflineLocation.bind(self))
+                .then(success)
+                .catch(error);
+        }, success, error);
+    },
+
+    _getOfflineFileInfo: function (location) {
+        var self = this;
+        var sanitizedUrl = this._sanitizeUrl(location);
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self._everlive.Files
+                .isSync(true)
+                .useOffline(true)
+                .getById(sanitizedUrl)
+                .then(function (response) {
+                    var file = response.result;
+                    resolve({
+                        location: self._sanitizeUrl(file.Uri),
+                        filename: file.Filename,
+                        Id: sanitizedUrl
+                    });
+                })
+                .catch(function (err) {
+                    if (err && err.code === EverliveErrors.itemNotFound.code) {
+                        resolve({
+                            location: sanitizedUrl
+                        });
+                    } else {
+                        reject(err);
+                    }
+                });
+        });
+    },
+
+    changeFileExtensionById: function (id, extension) {
+        var self = this;
+
+        if (typeof extension !== 'string') {
+            return new rsvp.Promise(function (resolve) {
+                resolve();
+            });
+        }
+
+        return self._changeExtension(id, extension);
+    },
+
+    _changeExtension: function (id, newExtension) {
+        var self = this;
+
+        var dataDir;
+
+        var fileStore = self._offlineFilesProcessor.fileStore;
+        var fileName = id + newExtension;
+        return fileStore.getFilesDirectory()
+            .then(function (directoryEntry) {
+                dataDir = directoryEntry;
+                return self.getOfflineLocation(id);
+            })
+            .then(function (localPath) {
+
+                var existingFileName = path.basename(localPath);
+                if (existingFileName !== fileName) {
+                    return fileStore.getFileByAbsolutePath(localPath)
+                        .then(function (fileEntry) {
+                            return fileStore.renameFile(dataDir, fileEntry, fileName);
+                        })
+                        .then(function () {
+                            return self._offlineFilesProcessor.getOfflineFilesData();
+                        })
+                        .then(function (offlineFilesData) {
+                            var mappedEntry = _.findWhere(offlineFilesData, {offlineLocation: localPath});
+                            if (!mappedEntry) {
+                                throw new EverliveError('Could not find a cached location for the specified file.');
+                            }
+
+                            var previousLocation = mappedEntry.offlineLocation;
+                            var previousExtension = path.extname(previousLocation);
+                            var actualLocation = previousLocation.slice(0, previousLocation.length - previousExtension.length) + newExtension;
+                            mappedEntry.offlineLocation = actualLocation;
+
+                            return self._offlineFilesProcessor.saveOfflineFilesData();
+                        });
+                }
+            });
+    }
+};
+
+module.exports = OfflineFilesModule;
+},{"../EverliveError":44,"../Request":49,"../common":53,"../utils":87,"node-cryptojs-aes":22,"path":4}],64:[function(require,module,exports){
+'use strict';
+
+var EverliveErrorModule = require('../EverliveError');
+var EverliveError = EverliveErrorModule.EverliveError;
+var EverliveErrors = EverliveErrorModule.EverliveErrors;
+var FileStore = require('../storages/FileStore');
+var platform = require('../everlive.platform');
+var constants = require('../constants');
+var common = require('../common');
+var rsvp = common.rsvp;
+var utils = require('../utils');
+var _ = common._;
+var path = require('path');
+
+var FILES_METADATA_FILE_NAME = 'filesMetadataMap';
+
+var OfflineFilesProcessor = function (setup, everlive) {
+    this.fileStore = new FileStore(setup.files.storagePath, setup);
+    this.filesMetaStore = new FileStore(setup.files.metaPath, setup);
+    this._everlive = everlive;
+};
+
+OfflineFilesProcessor.prototype = {
+    validateFileCreateObject: function (obj, isSync) {
+        return new rsvp.Promise(function (resolve, reject) {
+            if (!obj.base64 && !isSync) {
+                return reject(EverliveErrors.missingOrInvalidFileContent);
+            } else if (!obj.ContentType) {
+                return reject(EverliveErrors.missingContentType);
+            } else if (!obj.Filename) {
+                //TODO: [offline] add an appropriate error
+                return reject(EverliveErrors.invalidRequest);
+            }
+
+            resolve();
+        });
+    },
+
+    getOfflineFilesData: function () {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            if (!self._offlineFilesData) {
+                return self.filesMetaStore.getFile(FILES_METADATA_FILE_NAME)
+                    .then(function (metadataFileHandle) {
+                        return self.filesMetaStore.readFileAsText(metadataFileHandle);
+                    })
+                    .then(function (metadataText) {
+                        if (!metadataText) {
+                            metadataText = '[]';
+                        }
+
+                        self._offlineFilesData = JSON.parse(metadataText);
+                        resolve(self._offlineFilesData);
+                    }).catch(reject);
+            } else {
+                resolve(self._offlineFilesData);
+            }
+        });
+    },
+
+    saveOfflineFilesData: function () {
+        var self = this;
+
+        return self.getOfflineFilesData()
+            .then(function (offlineFilesData) {
+                return self.filesMetaStore.writeText(FILES_METADATA_FILE_NAME, JSON.stringify(offlineFilesData));
+            });
+    },
+
+    upsertFileFromObject: function (obj, isCreate, isSync) {
+        var self = this;
+
+        if (!isSync) {
+            if (isCreate) {
+                if (!obj.base64) {
+                    return utils.rejectedPromise(EverliveErrors.missingOrInvalidFileContent);
+                }
+
+                if (!obj.ContentType) {
+                    return utils.rejectedPromise(EverliveErrors.missingContentType);
+                }
+            } else {
+                if (!obj.base64) {
+                    return utils.successfulPromise();
+                }
+            }
+        }
+
+        if (!obj.base64) {
+            var id = utils.getId(obj);
+            var uri;
+            var downloadFilePromise = obj.Uri ? utils.successfulPromise(obj.Uri) :
+                self._everlive.files
+                    .isSync(isSync)
+                    .applyOffline(false)
+                    .getDownloadUrlById(id);
+
+            return downloadFilePromise.then(function (_uri) {
+                uri = _uri;
+                return self._everlive.offlineStorage.files.existsOffline(id);
+            }).then(function (exists) {
+                if (!exists) {
+                    return self._everlive.offlineStorage.files._saveFile(uri, obj.Filename);
+                }
+            });
+        }
+
+        obj.Storage = 'internal';
+        return utils.successfulPromise().then(function () {
+            if (!isSync) {
+                return self.validateFileCreateObject(obj, isSync);
+            }
+        }).then(function () {
+            var onlineLocation = obj.Uri;
+            var filename = self.getFilenameForObject(obj);
+
+            var offlineFileInfo;
+            var base64Contents = obj.base64;
+            delete obj.base64;
+
+            var contents = utils.b64toBlob(base64Contents, obj.ContentType);
+
+            return self.writeFile(filename, contents)
+                .then(function (fileInfo) {
+                    offlineFileInfo = fileInfo;
+                    return self.getOfflineFilesData();
+                })
+                .then(function (offlineFilesData) {
+                    offlineFilesData.push({
+                        offlineLocation: offlineFileInfo.offlineLocation,
+                        onlineLocation: onlineLocation
+                    });
+
+                    //TODO: maybe save the filesdata?
+
+                    obj.Length = offlineFileInfo.size;
+                });
+        });
+    },
+
+    purge: function (localLocation) {
+        var self = this;
+
+        return this.getOfflineFilesData()
+            .then(function (offlineFilesData) {
+                var offlineFile = _.where(offlineFilesData, {offlineLocation: localLocation});
+
+                // TODO: [offline] check if the length of offlineFile === 0
+                var offlineInfoIndex = offlineFilesData.indexOf(offlineFile[0]);
+                if (offlineInfoIndex !== -1) {
+                    offlineFilesData.splice(offlineInfoIndex, 1);
+                }
+
+                return self.saveOfflineFilesData();
+            })
+            .then(function () {
+                return self.fileStore.getFileByAbsolutePath(localLocation);
+            }).then(function (file) {
+                if (file) {
+                    return self.fileStore.removeFile(file);
+                }
+            });
+    },
+
+    writeFile: function (filename, contents, folder) {
+        var self = this;
+        var offlineLocation;
+
+        return self.fileStore.writeText(filename, contents, folder)
+            .then(function (locationOnDisk) {
+                offlineLocation = locationOnDisk;
+                return self.saveOfflineFilesData();
+            })
+            .then(function () {
+                return self.fileStore.getFileSize(filename, folder);
+            })
+            .then(function (size) {
+                return {
+                    size: size,
+                    offlineLocation: offlineLocation
+                };
+            });
+    },
+
+    getFilenameForObject: function (obj) {
+        var extension = path.extname(obj.Filename);
+        return obj._id + extension;
+    },
+
+    getOfflineLocation: function (url) {
+        return this.getOfflineFilesData()
+            .then(function (offlineFilesData) {
+                if (!url) {
+                    return;
+                }
+
+                var isOfflineUrl = !!_.findWhere(offlineFilesData, {
+                    offlineLocation: url
+                });
+
+                if (isOfflineUrl) {
+                    return url;
+                }
+
+                var offlineFileData = _.findWhere(offlineFilesData, {
+                    onlineLocation: url
+                });
+
+                if (offlineFileData) {
+                    return offlineFileData.offlineLocation;
+                }
+            });
+    }
+};
+
+module.exports = OfflineFilesProcessor;
+},{"../EverliveError":44,"../common":53,"../constants":54,"../everlive.platform":56,"../storages/FileStore":80,"../utils":87,"path":4}],65:[function(require,module,exports){
 'use strict';
 
 var DataQuery = require('../query/DataQuery');
@@ -18444,19 +18273,13 @@ var _ = common._;
 var rsvp = common.rsvp;
 var mingo = common.Mingo;
 var mongoQuery = common.mongoQuery;
-var uuid = common.uuid;
+var Query = require('../query/Query');
 
+var path = require('path');
 
 var constants = require('../constants');
 var Headers = constants.Headers;
 var offlineItemStates = constants.offlineItemStates;
-
-function OfflineQueryProcessor(persister, everlive, setup) {
-    this._collectionCache = {};
-    this._persister = persister;
-    this.everlive = everlive;
-    this.setup = setup;
-}
 
 var unsupportedOfflineHeaders = [Headers.powerFields];
 
@@ -18486,6 +18309,19 @@ function buildUsersErrorMessage(dataQuery) {
     return 'The Users operation ' + operation + ' is not supported in offline mode';
 }
 
+function buildFilesErrorMessage(dataQuery) {
+    return 'The Files operation ' + dataQuery.operation + ' is not supported in offline mode';
+}
+
+function OfflineQueryProcessor(persister, encryptionProvider, offlineFilesProcessor, everlive, setup) {
+    this._collectionCache = {};
+    this.offlineFilesProcessor = offlineFilesProcessor;
+    this._persister = persister;
+    this._encryptionProvider = encryptionProvider;
+    this.everlive = everlive;
+    this.setup = setup;
+}
+
 OfflineQueryProcessor.prototype = {
     processQuery: function (dataQuery) {
         var unsupportedClientOpMessage = this.getUnsupportedClientOpMessage(dataQuery);
@@ -18502,20 +18338,16 @@ OfflineQueryProcessor.prototype = {
         var filter = dataQuery.getHeaderAsJSON(Headers.filter);
         var expand = dataQuery.getHeaderAsJSON(Headers.expand);
 
-        if (dataQuery.filter instanceof Everlive.Query) {
+        if (dataQuery.filter instanceof Query) {
             var filterObj = dataQuery.filter.build();
-            filter = filterObj.$where || filter;
+            filter = filterObj.$where || filter || {};
             sort = filterObj.$sort || sort;
             limit = filterObj.$take || limit;
             skip = filterObj.$skip || skip;
             select = filterObj.$select || select;
             expand = filterObj.$expand || expand;
         } else {
-            filter = dataQuery.filter || filter;
-        }
-
-        if (!filter) {
-            filter = {};
+            filter = (dataQuery.filter || filter) || {};
         }
 
         var unsupportedOperators = utils.getUnsupportedOperators(filter);
@@ -18540,13 +18372,17 @@ OfflineQueryProcessor.prototype = {
                 return this.read(dataQuery, filter, sort, skip, limit, select, expand);
             case DataQuery.operations.readById:
                 return this.readById(dataQuery, expand);
+            case DataQuery.operations.filesGetDownloadUrlById:
+                return this.getDownloadUrlById(dataQuery);
             case DataQuery.operations.count:
                 return this.count(dataQuery, filter);
             case DataQuery.operations.create:
                 return this.create(dataQuery);
             case DataQuery.operations.rawUpdate:
-            case DataQuery.operations.update :
+            case DataQuery.operations.update:
                 return this.update(dataQuery, filter);
+            case DataQuery.operations.filesUpdateContent:
+                return this.updateFileContent(dataQuery, filter);
             case DataQuery.operations.remove:
                 return this.remove(dataQuery, filter);
             case DataQuery.operations.removeSingle:
@@ -18563,6 +18399,39 @@ OfflineQueryProcessor.prototype = {
         }
     },
 
+    getDownloadUrlById: function (dataQuery) {
+        var self = this;
+        var id = dataQuery.additionalOptions.id;
+        var offlineFilePath;
+
+        return self.everlive
+            .files
+            .useOffline(true)
+            .isSync(dataQuery.isSync)
+            .getById(id)
+            .then(function (res) {
+                var file = res.result;
+                return self.everlive.offlineStorage.files._getFileUrlForId(file.Id, file.Filename);
+            })
+            .then(function (filePath) {
+                offlineFilePath = filePath;
+                return self.everlive.offlineStorage._offlineFilesProcessor.fileStore.getFileByAbsolutePath(filePath);
+            })
+            .then(function (fileEntry) {
+                if (fileEntry) {
+                    return {
+                        result: {
+                            Uri: offlineFilePath
+                        }
+                    }
+                }
+
+                return {
+                    result: {}
+                }
+            });
+    },
+
     getUnsupportedClientOpMessage: function (dataQuery) {
         for (var i = 0; i < unsupportedOfflineHeaders.length; i++) {
             var header = unsupportedOfflineHeaders[i];
@@ -18571,78 +18440,97 @@ OfflineQueryProcessor.prototype = {
             }
         }
 
-        if (dataQuery.collectionName.toLowerCase() === 'files') {
-            return 'Operations on files are not supported in offline mode';
+        if (utils.isContentType.users(dataQuery.collectionName) && unsupportedUsersOperations[dataQuery.operation]) {
+            return buildUsersErrorMessage(dataQuery);
         }
 
-        if (dataQuery.collectionName.toLowerCase() === 'users' && unsupportedUsersOperations[dataQuery.operation]) {
-            return buildUsersErrorMessage(dataQuery);
+        var isSingle = dataQuery.additionalOptions && dataQuery.additionalOptions.id;
+        var isUpdateByFilter = dataQuery.operation === DataQuery.operations.update && !isSingle;
+        var isRawUpdate = dataQuery.operation === DataQuery.operations.rawUpdate;
+        if (utils.isContentType.files(dataQuery.collectionName) && (isRawUpdate || isUpdateByFilter)) {
+            return buildFilesErrorMessage(dataQuery);
         }
     },
 
-    _getCreateResult: function (createdItems) {
+    _getCreateResult: function (createdItems, returnFullItem) {
         if (createdItems.length === 1) {
-            return {
-                result: {
+            var result;
+            if (returnFullItem) {
+                var item = _.extend({}, createdItems[0]);
+                result = offlineTransformations.idTransform(item);
+            } else {
+                result = {
                     CreatedAt: utils.cloneDate(createdItems[0].CreatedAt),
                     Id: createdItems[0]._id
                 }
             }
+
+            return {
+                result: result
+            };
         } else {
             var multipleCreateResult = [];
             _.each(createdItems, function (createdItem) {
-                multipleCreateResult.push({
-                    CreatedAt: utils.cloneDate(createdItem.CreatedAt),
-                    Id: createdItem._id
-                });
+                var item;
+                if (returnFullItem) {
+                    var itemCopy = _.extend({}, createdItem);
+                    item = offlineTransformations.idTransform(itemCopy);
+                } else {
+                    item = {
+                        CreatedAt: utils.cloneDate(createdItem.CreatedAt),
+                        Id: createdItem._id
+                    };
+                }
+                multipleCreateResult.push(item);
             });
 
             return {
                 result: multipleCreateResult
-            }
+            };
         }
     },
 
     create: function (dataQuery) {
         var self = this;
 
-        return new rsvp.Promise(function (resolve, reject) {
-            self._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState, function (createdItems) {
-                var createResult = self._getCreateResult(createdItems);
-                resolve(createResult);
-            }, reject);
-        });
+        return self._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState)
+            .then(function (createdItems) {
+                var isFilesQuery = utils.isContentType.files(dataQuery.collectionName);
+                return self._getCreateResult(createdItems, isFilesQuery);
+            });
     },
 
     read: function (dataQuery, filter, sort, skip, limit, select, expand) {
         var self = this;
+        var expandResult;
 
         return new rsvp.Promise(function (resolve, reject) {
             var collectionLength;
 
             self._prepareExpand(expand, dataQuery, true)
                 .then(function (prepareExpandResult) {
+                    expandResult = prepareExpandResult;
                     if (prepareExpandResult) {
                         select = prepareExpandResult.mainQueryFieldsExpression;
                     }
 
-                    return self._getCollection(dataQuery.collectionName)
-                        .then(function (collection) {
-                            var result = self._readInternal(collection, filter, sort, skip, limit, select);
+                    return self._getCollection(dataQuery.collectionName);
+                })
+                .then(function (collection) {
+                    var result = self._readInternal(collection, filter, sort, skip, limit, select);
 
-                            if (skip || limit) {
-                                var all = self._readInternal(collection);
-                                collectionLength = all.length;
-                            }
+                    if (skip || limit) {
+                        var all = self._readInternal(collection);
+                        collectionLength = all.length;
+                    }
 
-                            if (!self._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
-                                result = offlineTransformations.removeIdTransform(result, true);
-                            } else {
-                                result = offlineTransformations.idTransform(result);
-                            }
+                    if (!self._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
+                        result = offlineTransformations.removeIdTransform(result, true);
+                    } else {
+                        result = offlineTransformations.idTransform(result);
+                    }
 
-                            return self._expandResult(prepareExpandResult, result);
-                        });
+                    return self._expandResult(expandResult, result);
                 })
                 .then(function (result) {
                     var response = self._transformOfflineResult(result, collectionLength, dataQuery);
@@ -18677,26 +18565,26 @@ OfflineQueryProcessor.prototype = {
 
     readById: function (dataQuery, expand) {
         var self = this;
-
+        var expandResult;
         return self._prepareExpand(expand, dataQuery, false)
             .then(function (prepareExpandResult) {
-                return self._getCollection(dataQuery.collectionName)
-                    .then(function (collection) {
-                        return new rsvp.Promise(function (resolve, reject) {
-                            var item = self._getById(collection, dataQuery.additionalOptions.id);
+                expandResult = prepareExpandResult;
+                return self._getCollection(dataQuery.collectionName);
+            })
+            .then(function (collection) {
+                return new rsvp.Promise(function (resolve, reject) {
+                    var item = self._getById(collection, dataQuery.additionalOptions.id);
 
-                            if (!item) {
-                                return reject(EverliveErrors.itemNotFound);
-                            }
+                    if (!item) {
+                        return reject(EverliveErrors.itemNotFound);
+                    }
 
-                            item = offlineTransformations.idTransform(item);
-                            return self._expandResult(prepareExpandResult, item).then(resolve).catch(reject);
-                        });
-                    });
+                    item = offlineTransformations.idTransform(item);
+                    return self._expandResult(expandResult, item).then(resolve).catch(reject);
+                });
             })
             .then(function (result) {
-                var response = self._transformOfflineResult(result, null, dataQuery);
-                return response;
+                return self._transformOfflineResult(result, null, dataQuery);
             });
     },
 
@@ -18749,7 +18637,7 @@ OfflineQueryProcessor.prototype = {
             } else {
                 resolve(result);
             }
-        })
+        });
     },
 
     _getWithoutDeletedFilter: function (filter) {
@@ -18763,19 +18651,26 @@ OfflineQueryProcessor.prototype = {
         return withoutDeletedFilter;
     },
 
+    _getUpdateItemsResult: function (updateItems) {
+        var updatedItemCount = updateItems.length;
+        var modifiedAtResult = updatedItemCount ? updateItems[0].ModifiedAt : new Date();
+
+        return {
+            ModifiedAt: modifiedAtResult,
+            result: updatedItemCount
+        };
+    },
+
     update: function (dataQuery, filter) {
         var self = this;
 
-        return new rsvp.Promise(function (resolve, reject) {
-            self._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync, resolve, reject);
+        return this._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync).then(function (updateItems) {
+            return self._getUpdateItemsResult(updateItems);
         });
     },
 
     remove: function (dataQuery, filter) {
-        var self = this;
-        return new rsvp.Promise(function (resolve, reject) {
-            self._removeItems(dataQuery, filter, dataQuery.isSync, resolve, reject);
-        });
+        return this._removeItems(dataQuery, filter, dataQuery.isSync);
     },
 
     count: function (dataQuery, filter) {
@@ -18790,65 +18685,87 @@ OfflineQueryProcessor.prototype = {
         });
     },
 
+    _setItemDates: function (currentItem, itemToCreate, contentType) {
+        // we need to manually clone the dates in order to dereference them from the original object as
+        // _.extends will pass a reference to the original date instead of creating a new instance
+        if (currentItem.CreatedAt && currentItem.CreatedAt instanceof Date) {
+            itemToCreate.CreatedAt = utils.cloneDate(currentItem.CreatedAt);
+        } else {
+            itemToCreate.CreatedAt = new Date();
+        }
 
-    _createItems: function (contentType, items, isSync, preserveState, success, error) {
+        if (currentItem.ModifiedAt && currentItem.ModifiedAt instanceof Date) {
+            itemToCreate.ModifiedAt = utils.cloneDate(currentItem.ModifiedAt);
+        } else {
+            itemToCreate.ModifiedAt = utils.cloneDate(itemToCreate.CreatedAt);
+        }
+
+        itemToCreate.CreatedBy = itemToCreate.CreatedBy || this.everlive.setup.principalId || constants.guidEmpty;
+        itemToCreate.ModifiedBy = itemToCreate.ModifiedBy || itemToCreate.CreatedBy;
+        if (contentType === 'Users') {
+            itemToCreate.Owner = itemToCreate._id;
+        } else {
+            itemToCreate.Owner = itemToCreate.CreatedBy || constants.guidEmpty;
+        }
+    },
+
+    _mapCreateItem: function (currentItem, collection, isSync, preserveState, contentType) {
         var self = this;
-        this._getCollection(contentType)
+
+        var itemToCreate = _.extend({}, currentItem);
+        itemToCreate._id = itemToCreate.Id || utils.uuid();
+        delete itemToCreate.Id;
+
+        var existingItem = self._getById(collection, itemToCreate._id);
+        var itemExists = !!existingItem;
+        var state;
+        if (itemExists && (!isSync && !preserveState)) {
+            // TODO: [offline] return the same error as the server does
+            throw new EverliveError('An item with the specified id already exists');
+        } else {
+            if (isSync && preserveState && itemExists) {
+                state = existingItem[constants.offlineItemsStateMarker];
+            } else {
+                state = isSync ? undefined : offlineItemStates.created; // set the state to created only if not syncing
+            }
+        }
+
+        function processItemResult() {
+            self._setItemDates(currentItem, itemToCreate, contentType);
+            self._setItem(collection, _.extend({}, itemToCreate), state);
+            return itemToCreate;
+        }
+
+        if (utils.isContentType.files(contentType)) {
+            return self.offlineFilesProcessor.upsertFileFromObject(itemToCreate, true, isSync).then(processItemResult);
+        } else {
+            return processItemResult();
+        }
+    },
+
+    _createItems: function (contentType, items, isSync, preserveState) {
+        var self = this;
+        return this._getCollection(contentType)
             .then(function (collection) {
                 var itemsForCreate = _.isArray(items) ? items : [items];
-                var createdItems = _.map(itemsForCreate, function (currentItem, index) {
-                    var itemToCreate = _.extend({}, currentItem);
-
-                    itemToCreate._id = itemToCreate.Id || uuid.v1();
-                    delete itemToCreate.Id;
-
-                    var existingItem = self._getById(collection, itemToCreate._id);
-                    var itemExists = !!existingItem;
-                    var state;
-                    if (itemExists && (!isSync && !preserveState)) {
-                        // TODO: [offline] return the same error as the server does
-                        return error(new Error('An item with the specified id already exists'));
-                    } else {
-                        if (isSync && preserveState && itemExists) {
-                            state = existingItem[constants.offlineItemsStateMarker];
-                        } else {
-                            state = isSync ? undefined : offlineItemStates.created; // set the state to created only if not syncing
-                        }
-                    }
-
-                    // we need to manually clone the dates in order to dereference them from the original object as
-                    // _.extends will pass a reference to the original date instead of creating a new instance
-                    if (currentItem.CreatedAt && currentItem.CreatedAt instanceof Date) {
-                        itemToCreate.CreatedAt = utils.cloneDate(currentItem.CreatedAt);
-                    } else {
-                        itemToCreate.CreatedAt = new Date();
-                    }
-
-                    if (currentItem.ModifiedAt && currentItem.ModifiedAt instanceof Date) {
-                        itemToCreate.ModifiedAt = utils.cloneDate(currentItem.ModifiedAt);
-                    } else {
-                        itemToCreate.ModifiedAt = utils.cloneDate(itemToCreate.CreatedAt);
-                    }
-
-                    itemToCreate.CreatedBy = itemToCreate.CreatedBy || self.everlive.setup.principalId || constants.guidEmpty;
-                    itemToCreate.ModifiedBy = itemToCreate.ModifiedBy || itemToCreate.CreatedBy;
-                    if (contentType === 'Users') {
-                        itemToCreate.Owner = itemToCreate._id;
-                    } else {
-                        itemToCreate.Owner = itemToCreate.CreatedBy || constants.guidEmpty;
-                    }
-
-                    self._setItem(collection, _.extend({}, itemToCreate), state);
-                    return itemToCreate;
+                var createdItems = _.map(itemsForCreate, function (currentItem) {
+                    return self._mapCreateItem(currentItem, collection, isSync, preserveState, contentType);
                 });
 
-                return self._persistData(contentType).then(function () {
-                    if (!self._shouldAutogenerateIdForContentType(contentType) && !isSync) {
-                        createdItems = offlineTransformations.removeIdTransform(createdItems);
-                    }
-                    success(createdItems);
-                });
-            }).catch(error);
+                return rsvp.all(createdItems)
+                    .then(function (items) {
+                        return self._persistData(contentType)
+                            .then(function () {
+                                // Ids are generated regardless of the autoGenerateId option. However the Id's are omitted when returning
+                                // the items to the client if autoGenerateId is false
+                                if (!self._shouldAutogenerateIdForContentType(contentType) && !isSync) {
+                                    createdItems = offlineTransformations.removeIdTransform(items);
+                                }
+
+                                return items;
+                            });
+                    });
+            });
     },
 
     _applyUpdateOperation: function (originalUpdateExpression, itemToUpdate, collection, isSync, modifiedAt) {
@@ -18889,17 +18806,70 @@ OfflineQueryProcessor.prototype = {
         this._setItem(collection, itemToUpdate, newState);
     },
 
-    _updateItems: function (dataQuery, updateExpression, filter, isSync, resolve, reject) {
+    updateFileContent: function (dataQuery) {
+        var isSync = dataQuery.isSync;
+        var updateExpression = dataQuery.data;
+        var self = this;
+        var itemId = dataQuery.additionalOptions.id;
+        var updateItems;
+        var typeName = dataQuery.collectionName;
+        return this._getCollection(typeName)
+            .then(function (collection) {
+                var singleItemForUpdate = self._getById(collection, itemId);
+                updateItems = [singleItemForUpdate];
+                singleItemForUpdate.base64 = updateExpression.base64;
+                singleItemForUpdate.Filename = updateExpression.Filename;
+                singleItemForUpdate.ContentType = updateExpression.ContentType;
+                delete singleItemForUpdate.Uri;
+
+                return self._overwriteFile(itemId, singleItemForUpdate, isSync)
+                    .then(function () {
+                        self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection);
+                        self._setItem(collection, singleItemForUpdate, constants.offlineItemStates.modified);
+                        return self._persistData(typeName);
+                    })
+                    .then(function () {
+                        return self._getUpdateItemsResult(updateItems);
+                    })
+            });
+    },
+
+    _overwriteFile: function (itemId, itemForUpdate, isSync) {
         var self = this;
 
-        self._getCollection(dataQuery.collectionName)
+        return self.everlive.offlineStorage.files.purge(itemId)
+            .then(function () {
+                return self.offlineFilesProcessor.upsertFileFromObject(itemForUpdate, true, isSync);
+            })
+    },
+
+    _updateItems: function (dataQuery, updateExpression, filter, isSync) {
+        var self = this;
+        var collectionName = dataQuery.collectionName;
+
+        return self._getCollection(collectionName)
             .then(function (collection) {
                 var updateItems;
 
                 if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
-                    itemToUpdate = self._getById(collection, dataQuery.additionalOptions.id);
-                    self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync, dataQuery.ModifiedAt);
-                    updateItems = [itemToUpdate];
+                    var itemId = dataQuery.additionalOptions.id;
+                    var singleItemForUpdate = self._getById(collection, itemId);
+                    updateItems = [singleItemForUpdate];
+
+                    if (utils.isContentType.files(collectionName) && updateExpression.$set && updateExpression.$set.Filename || updateExpression.Filename) {
+                        var filename = updateExpression.Filename || updateExpression.$set.Filename;
+                        var extension = path.extname(filename);
+                        return self.everlive.offlineStorage.files.changeFileExtensionById(itemId, extension)
+                            .then(function () {
+                                self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
+                                return self._persistData(collectionName);
+                            })
+                            .then(function () {
+                                return updateItems;
+                            });
+                    } else {
+                        self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
+                    }
                 } else {
                     updateItems = self._readInternal(collection, filter);
                     for (var i = 0; i < updateItems.length; i++) {
@@ -18907,30 +18877,33 @@ OfflineQueryProcessor.prototype = {
                         var itemExists = !!self._getById(collection, itemToUpdate._id.toString());
 
                         if (!itemExists && !isSync) {
-                            return reject(EverliveErrors.itemNotFound);
+                            // TODO: [offline] return the correct error
+                            throw new Error(EverliveErrors.itemNotFound);
                         }
 
                         self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync, dataQuery.ModifiedAt);
                     }
                 }
 
-                return self._persistData(dataQuery.collectionName)
+                return self._persistData(collectionName)
                     .then(function () {
-                        var updatedItemCount = updateItems.length;
-                        var modifiedAtResult = updatedItemCount ? updateItems[0].ModifiedAt : new Date();
-
-                        var result = {
-                            ModifiedAt: modifiedAtResult,
-                            result: updatedItemCount
-                        };
-
-                        resolve(result);
+                        return updateItems;
                     });
-            }).catch(reject);
+            });
     },
 
     _getAllCollections: function () {
-        return new rsvp.Promise(this._persister.getAllData.bind(this._persister));
+        var self = this;
+        return new rsvp.Promise(function (resolve, reject) {
+            self._persister.getAllData(function (allData) {
+                _.each(allData, function (value, key) {
+                    var decryptedData = self._encryptionProvider.decrypt(value);
+                    allData[key] = JSON.parse(decryptedData || '{}', utils.parseUtilities.getReviver());
+                });
+
+                resolve(allData);
+            }, reject);
+        });
     },
 
     _getCollection: function (contentType) {
@@ -18940,7 +18913,10 @@ OfflineQueryProcessor.prototype = {
             // check the persister if there is no data in the collection cache for this content type
             if (!self._collectionCache[contentType]) {
                 self._persister.getData(contentType, function (data) {
-                    self._collectionCache[contentType] = data || {};
+                    var decryptedDataRaw = self._encryptionProvider.decrypt(data);
+                    var decryptedData = JSON.parse(decryptedDataRaw || '{}', utils.parseUtilities.getReviver());
+                    self._collectionCache[contentType] = decryptedData;
+
                     resolve(self._collectionCache[contentType]);
                 }, reject);
             } else {
@@ -18972,9 +18948,11 @@ OfflineQueryProcessor.prototype = {
         var self = this;
 
         return new rsvp.Promise(function (resolve, reject) {
-            var contentTypeData = self._collectionCache[contentType];
+            var contentTypeData = self._collectionCache[contentType] || {};
             self._transformPersistedData(contentType, contentTypeData);
-            self._persister.saveData(contentType, contentTypeData, resolve, reject);
+            var contentTypeDataRaw = JSON.stringify(contentTypeData);
+            var contentTypeDataRawEncrypted = self._encryptionProvider.encrypt(contentTypeDataRaw);
+            self._persister.saveData(contentType, contentTypeDataRawEncrypted, resolve, reject);
         });
     },
 
@@ -18986,36 +18964,57 @@ OfflineQueryProcessor.prototype = {
         delete collection[item._id];
     },
 
-    _removeItems: function (dataQuery, filter, isSync, resolve, reject) {
+    _mapRemoveItem: function (itemToRemove, collection, isSync, collectionName) {
         var self = this;
 
-        self._getCollection(dataQuery.collectionName)
+        return new rsvp.Promise(function (resolve, reject) {
+            if (utils.isContentType.files(collectionName)) {
+                return self.everlive.offlineStorage.files.purge(itemToRemove._id).then(resolve, reject);
+            } else {
+                return resolve();
+            }
+        }).then(function () {
+                itemToRemove._id = itemToRemove._id || itemToRemove.Id;
+
+                var itemExists = !!self._getById(collection, itemToRemove._id.toString());
+                if (!itemExists && !isSync) {
+                    throw new EverliveError('Cannot delete item - item with id ' + itemToRemove._id + ' does not exist.');
+                }
+
+                // if the item has existed only offline or the data is syncing
+                // and the item was deleted by the conflict resolution strategy
+                var removeFromMemory = itemToRemove[constants.offlineItemsStateMarker] === offlineItemStates.created || isSync;
+                if (removeFromMemory) {
+                    self._clearItem(collection, itemToRemove);
+                } else {
+                    self._setItem(collection, itemToRemove, offlineItemStates.deleted);
+                }
+            });
+    },
+
+    _removeItems: function (dataQuery, filter, isSync) {
+        var self = this;
+        var collectionName = dataQuery.collectionName;
+
+        return self._getCollection(collectionName)
             .then(function (collection) {
                 var itemsToRemove = self._readInternal(collection, filter);
 
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    var itemToRemove = itemsToRemove[i];
-                    itemToRemove._id = itemToRemove._id || itemToRemove.Id;
-                    var itemExists = !!self._getById(collection, itemToRemove._id.toString());
+                var removedItemsPromises = _.map(itemsToRemove, function (itemToRemove) {
+                    return self._mapRemoveItem(itemToRemove, collection, isSync, collectionName);
+                });
 
-                    if (!itemExists && !isSync) {
-                        return reject(new EverliveError('Cannot delete item - item with id ' + itemToRemove._id + ' does not exist.'));
-                    }
-
-                    var removeFromMemory = itemToRemove[constants.offlineItemsStateMarker] === offlineItemStates.created || isSync;
-                    if (removeFromMemory) {
-                        self._clearItem(collection, itemToRemove);
-                    } else {
-                        self._setItem(collection, itemToRemove, offlineItemStates.deleted);
-                    }
-                }
-
-                return self._persistData(dataQuery.collectionName)
+                return rsvp.all(removedItemsPromises);
+            })
+            .then(function (itemsToRemove) {
+                return self._persistData(collectionName)
                     .then(function () {
-                        var response = self._transformOfflineResult(itemsToRemove.length);
-                        resolve(response);
+                        return itemsToRemove;
                     });
-            }).catch(reject);
+            })
+            .then(function (itemsToRemove) {
+                return self._transformOfflineResult(itemsToRemove.length);
+            });
     },
 
     _applyTransformations: function (transformedResult, transformations) {
@@ -19103,7 +19102,7 @@ OfflineQueryProcessor.prototype = {
 };
 
 module.exports = OfflineQueryProcessor;
-},{"../EverliveError":43,"../ExpandProcessor":44,"../common":53,"../constants":54,"../query/DataQuery":64,"../utils":74,"./offlineTransformations":63}],60:[function(require,module,exports){
+},{"../EverliveError":44,"../ExpandProcessor":45,"../common":53,"../constants":54,"../query/DataQuery":73,"../query/Query":74,"../utils":87,"./offlineTransformations":69,"path":4}],66:[function(require,module,exports){
 var DataQuery = require('../query/DataQuery');
 var everliveErrorModule = require('../EverliveError');
 var EverliveError = everliveErrorModule.EverliveError;
@@ -19119,6 +19118,9 @@ var Request = require('../Request');
 var offlineTransformations = require('./offlineTransformations');
 var buildPromise = require('../utils').buildPromise;
 var OfflineQueryProcessor = require('./OfflineQueryProcessor');
+var OfflineFilesProcessor = require('./OfflineFilesProcessor');
+var OfflineFilesModule = require('./OfflineFilesModule');
+var path = require('path');
 
 var syncLocation = {
     server: 'server',
@@ -19145,13 +19147,25 @@ var syncStartEventData = {
 
 module.exports = (function () {
     function OfflineModule(everlive, options, persister, encryptionProvider) {
-        this.everlive = everlive;
+        this._everlive = everlive;
         this.setup = options;
-        this._encryptionProvider = encryptionProvider;
         this._isSynchronizing = false;
-        this._queryProcessor = new OfflineQueryProcessor(persister, everlive, options);
-    }
+        this._encryptionProvider = encryptionProvider;
 
+        if (this.setup.enabled) {
+            this._offlineFilesProcessor = new OfflineFilesProcessor(this.setup, this._everlive);
+            this._queryProcessor = new OfflineQueryProcessor(persister, encryptionProvider, this._offlineFilesProcessor, this._everlive, this.setup);
+
+
+            /**
+             * @memberOf OfflineModule
+             * @instance
+             * @description An instance of the [OfflineFilesModule]{@link OfflineFilesModule} class for working with files in offline mode.
+             * @member {OfflineFilesModule} files
+             */
+            this.files = new OfflineFilesModule(this._offlineFilesProcessor, this._everlive);
+        }
+    }
 
     var getSyncFilterForItem = function (item) {
         var filter = getSyncFilterNoModifiedAt(item);
@@ -19211,10 +19225,6 @@ module.exports = (function () {
             return this._queryProcessor.processQuery(query);
         },
 
-        _getEncryptionProvider: function () {
-            return this._encryptionProvider;
-        },
-
         _setOffline: function (offline) {
             this.setup.offline = offline;
         },
@@ -19244,7 +19254,9 @@ module.exports = (function () {
         _resolveConflicts: function (syncData) {
             var self = this;
             return this._applyResolutionStrategy(syncData.conflicts)
-                .then(self._mergeResolvedConflicts.bind(self, syncData.conflicts, syncData.contentTypesSyncData))
+                .then(function () {
+                    return self._mergeResolvedConflicts(syncData.conflicts, syncData.contentTypesSyncData);
+                })
                 .then(function () {
                     return syncData.contentTypesSyncData;
                 });
@@ -19260,7 +19272,7 @@ module.exports = (function () {
             return new rsvp.Promise(function (resolve) {
                 if (!self._isSynchronizing) {
                     self._isSynchronizing = true;
-                    self.everlive._emitter.emit('syncStart', syncStartEventData);
+                    self._everlive._emitter.emit('syncStart', syncStartEventData);
                     resolve();
                 } else {
                     resolve();
@@ -19272,12 +19284,12 @@ module.exports = (function () {
             var self = this;
 
             this._isSynchronizing = false;
-            _.each(this._syncResultInfo.syncedItems, function (syncedItems, contentTypeName) {
+            _.each(this._syncResultInfo.syncedItems, function (syncedItems) {
                 self._syncResultInfo.syncedToServer += _.where(syncedItems, {storage: syncLocation.server}).length;
                 self._syncResultInfo.syncedToClient += _.where(syncedItems, {storage: syncLocation.client}).length;
             });
 
-            this.everlive._emitter.emit('syncEnd', this._syncResultInfo);
+            this._everlive._emitter.emit('syncEnd', this._syncResultInfo);
             delete this._syncResultInfo;
         },
 
@@ -19301,16 +19313,118 @@ module.exports = (function () {
             return this._queryProcessor._shouldAutogenerateIdForContentType(collectionName);
         },
 
-        _addCreatedItemsForSync: function (contentTypeData, syncPromises, dataCollection) {
+        _addCreatedFileToSyncPromises: function (resultingItemsForCreate, syncPromises, collectionName) {
             var self = this;
-            var collectionName = dataCollection.collectionName;
 
-            var resultingItemsForCreate = _.pluck(contentTypeData.createdItems, 'resultingItem');
-            var ids;
-            if (!this._shouldAutogenerateIdForContentType(collectionName)) {
-                ids = _.pluck(resultingItemsForCreate, 'Id');
-                resultingItemsForCreate = offlineTransformations.removeIdTransform(resultingItemsForCreate);
-            }
+            _.each(resultingItemsForCreate, function (item) {
+                var filesCollection = self._everlive.files;
+                syncPromises[item.Id] = new rsvp.Promise(function (resolve, reject) {
+                    self.files.getOfflineLocation(item.Id)
+                        .then(function (location) {
+                            if (location) {
+                                return self._transferFile(false, item, location);
+                            }
+                        }, function (err) {
+                            reject({
+                                type: offlineItemStates.created,
+                                items: item,
+                                contentType: collectionName,
+                                error: err,
+                                storage: syncLocation.server
+                            });
+                        })
+                        .then(function (res) {
+                            var mergedWithServerResponseItem = _.extend({}, item, res.result);
+                            self._addSyncedItemToResult(mergedWithServerResponseItem, collectionName, syncLocation.server, offlineItemStates.created);
+                            return filesCollection
+                                .isSync(true)
+                                .useOffline(true)
+                                .updateSingle(mergedWithServerResponseItem);
+                        }, function (err) {
+                            reject({
+                                type: offlineItemStates.created,
+                                items: item,
+                                contentType: collectionName,
+                                error: err,
+                                storage: syncLocation.server
+                            });
+                        })
+                        .then(resolve, function (err) {
+                            reject({
+                                type: offlineItemStates.modified,
+                                items: item,
+                                contentType: collectionName,
+                                error: err,
+                                storage: syncLocation.client
+                            });
+                        });
+                });
+            });
+        },
+
+        _transferFile: function (isUpdate, item, location) {
+            var sdk = this._everlive;
+
+            return new rsvp.Promise(function (resolve, reject) {
+                var self = this;
+                var uploadUrl = sdk.files.getUploadUrl();
+                var fileExistsPromise = utils.successfulPromise();
+
+                if (isUpdate) {
+                    fileExistsPromise = new rsvp.Promise(function (resolve) {
+                        sdk.files
+                            .isSync(true)
+                            .applyOffline(false)
+                            .getById(item.Id)
+                            .then(function () {
+                                resolve(true);
+                            }).catch(function () {
+                                resolve(false);
+                            });
+                    });
+                }
+
+                fileExistsPromise.then(function (fileExistsOnServer) {
+                    var canUpdate = isUpdate && fileExistsOnServer;
+                    if (canUpdate) {
+                        uploadUrl += '/' + item.Id + '/Content';
+                    }
+
+                    var fileTransfer = new FileTransfer();
+                    var fileKey = constants.fileUploadKey;
+                    var options = {
+                        fileKey: fileKey,
+                        httpMethod: canUpdate ? 'PUT' : 'POST',
+                        mimeType: item.ContentType,
+                        fileName: item.Filename,
+                        headers: sdk.buildAuthHeader()
+                    };
+
+                    options.params = {};
+
+                    _.each(item, function (value, key) {
+                        var prefixedKey = constants.fileUploadKey + constants.fileUploadDelimiter + key;
+                        options.params[prefixedKey] = value;
+                    });
+
+                    fileTransfer.upload(location, uploadUrl, function (result) {
+                        var parsedResult = utils.parseUtilities.parseJSON(result.response);
+                        if (parsedResult.Result === false) {
+                            reject.apply(self, arguments);
+                        } else if (_.isArray(parsedResult.Result)) {
+                            resolve({
+                                result: parsedResult.Result[0]
+                            })
+                        } else {
+                            resolve(parsedResult);
+                        }
+                    }, reject, options);
+                });
+            });
+        },
+
+        _addCreatedObjectToSyncPromises: function (syncPromises, dataCollection, resultingItemsForCreate, contentTypeData, collectionName, ids) {
+            var self = this;
 
             syncPromises[offlineItemStates.created] =
                 new rsvp.Promise(function (resolve, reject) {
@@ -19325,42 +19439,9 @@ module.exports = (function () {
                                 if (contentTypeData.isCustom) {
                                     self._addSyncedItemToResult(item, collectionName, syncLocation.client, offlineItemStates.created);
                                 }
+
                                 return item;
                             });
-
-                            return dataCollection
-                                .isSync(true)
-                                .useOffline(true)
-                                .create(resultingItemsForCreate)
-                                .then(function () {
-                                    _.each(resultingItemsForCreate, function (createdItem) {
-                                        self._addSyncedItemToResult(createdItem, collectionName, syncLocation.server, offlineItemStates.created);
-                                    });
-
-                                    if (ids && ids.length) {
-                                        var filter = {Id: {$in: ids}};
-                                        return dataCollection
-                                            .isSync(true)
-                                            .useOffline(true)
-                                            .destroy(filter).catch(function (err) {
-                                                reject({
-                                                    type: offlineItemStates.created,
-                                                    items: resultingItemsForCreate,
-                                                    contentType: collectionName,
-                                                    error: err,
-                                                    storage: syncLocation.client
-                                                })
-                                            });
-                                    }
-                                }, function (err) {
-                                    reject({
-                                        type: offlineItemStates.created,
-                                        items: resultingItemsForCreate,
-                                        contentType: collectionName,
-                                        error: err,
-                                        storage: syncLocation.client
-                                    })
-                                });
                         }, function (err) {
                             reject({
                                 type: offlineItemStates.created,
@@ -19370,8 +19451,43 @@ module.exports = (function () {
                                 storage: syncLocation.server
                             })
                         })
-                        .then(resolve)
-                        .catch(function (err) {
+                        .then(function () {
+                            return dataCollection
+                                .isSync(true)
+                                .useOffline(true)
+                                .create(resultingItemsForCreate)
+                                .then(function () {
+                                    _.each(resultingItemsForCreate, function (createdItem) {
+                                        self._addSyncedItemToResult(createdItem, collectionName, syncLocation.server, offlineItemStates.created);
+                                    });
+                                }, function (err) {
+                                    reject({
+                                        type: offlineItemStates.created,
+                                        items: resultingItemsForCreate,
+                                        contentType: collectionName,
+                                        error: err,
+                                        storage: syncLocation.client
+                                    })
+                                });
+                        })
+                        .then(function () {
+                            if (ids && ids.length) {
+                                var filter = {Id: {$in: ids}};
+                                return dataCollection
+                                    .isSync(true)
+                                    .useOffline(true)
+                                    .destroy(filter).catch(function (err) {
+                                        reject({
+                                            type: offlineItemStates.created,
+                                            items: resultingItemsForCreate,
+                                            contentType: collectionName,
+                                            error: err,
+                                            storage: syncLocation.client
+                                        })
+                                    });
+                            }
+                        })
+                        .then(resolve, function (err) {
                             reject({
                                 type: offlineItemStates.created,
                                 items: resultingItemsForCreate,
@@ -19380,6 +19496,25 @@ module.exports = (function () {
                             });
                         });
                 });
+
+            return resultingItemsForCreate;
+        },
+
+        _addCreatedItemsForSync: function (contentTypeData, syncPromises, dataCollection) {
+            var collectionName = dataCollection.collectionName;
+
+            var resultingItemsForCreate = _.pluck(contentTypeData.createdItems, 'resultingItem');
+            var ids;
+            if (!this._shouldAutogenerateIdForContentType(collectionName)) {
+                ids = _.pluck(resultingItemsForCreate, 'Id');
+                resultingItemsForCreate = offlineTransformations.removeIdTransform(resultingItemsForCreate);
+            }
+
+            if (utils.isContentType.files(collectionName)) {
+                return this._addCreatedFileToSyncPromises(resultingItemsForCreate, syncPromises, collectionName);
+            } else {
+                return this._addCreatedObjectToSyncPromises(syncPromises, dataCollection, resultingItemsForCreate, contentTypeData, collectionName, ids);
+            }
         },
 
         _addUpdatedItemsForSync: function (contentTypeData, getFilterOperation, syncPromises, dataCollection, itemUpdateOperation) {
@@ -19464,7 +19599,9 @@ module.exports = (function () {
             }
 
             self._fireSyncStart()
-                .then(self._applySync.bind(self))
+                .then(function () {
+                    return self._applySync();
+                })
                 .then(function (syncResults) {
                     var conflictsWhileSync = [];
                     _.each(syncResults, function (syncResult, itemId) {
@@ -19683,6 +19820,11 @@ module.exports = (function () {
                             self._handleKeepClient(conflictingItem, contentTypeSyncData);
                             break;
                         case constants.ConflictResolution.Custom:
+                            if (utils.isContentType.files(typeName)) {
+                                var err = EverliveErrors.customFileSyncNotSupported;
+                                throw new EverliveError(err.message, err.code);
+                            }
+
                             self._handleCustom(conflictingItem, typeName, offlineSyncOperations, contentTypeSyncData);
                             break;
                         case constants.ConflictResolution.Skip:
@@ -19728,7 +19870,9 @@ module.exports = (function () {
                     var hasUpdateConflict = false;
 
                     if (clientItemChanged) {
-                        hasUpdateConflict = serverItem.ModifiedAt.getTime() !== offlineItem.ModifiedAt.getTime();
+                        hasUpdateConflict = serverItem.ModifiedAt.getTime() !== offlineItem.ModifiedAt.getTime()
+                        || offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.deleted;
+                        //TODO: when an item is removed offline its ModifiedAt field is not set, check if it needs to be set or we can use this
                     }
 
                     if (hasUpdateConflict) {
@@ -19784,6 +19928,8 @@ module.exports = (function () {
             var self = this;
             var conflictResolutionStrategy = self.setup.conflicts.strategy;
             return new rsvp.Promise(function (resolve, reject) {
+                var conflictResolutionPromises = [];
+
                 for (var i = 0; i < conflicts.length; i++) {
                     var conflict = conflicts[i];
                     if (conflict.conflictingItems.length) {
@@ -19799,7 +19945,9 @@ module.exports = (function () {
                                     'must be provided when set to Custom'));
                                 }
 
-                                customStrategy(conflicts, resolve);
+                                conflictResolutionPromises.push(new rsvp.Promise(function (resolve) {
+                                    customStrategy(conflicts, resolve)
+                                }));
                                 break;
                             default:
                                 return reject(new EverliveError('Invalid resolution strategy provided'));
@@ -19807,7 +19955,10 @@ module.exports = (function () {
                     }
                 }
 
-                resolve();
+                rsvp.all(conflictResolutionPromises)
+                    .then(function () {
+                        resolve();
+                    });
             });
         },
 
@@ -19832,7 +19983,7 @@ module.exports = (function () {
 
                 var getRequestOptionsFromQuery = RequestOptionsBuilder[dataQuery.operation];
                 var requestOptions = getRequestOptionsFromQuery(dataQuery);
-                var request = new Request(self.everlive.setup, requestOptions);
+                var request = new Request(self._everlive.setup, requestOptions);
                 request.send();
             });
         },
@@ -19894,16 +20045,15 @@ module.exports = (function () {
             };
             this._syncResultInfo.syncedItems[contentType].push(syncInfo);
 
-            this.everlive._emitter.emit('itemSynced', syncInfo);
+            this._everlive._emitter.emit('itemSynced', syncInfo);
         },
 
         _getClientWinsSyncData: function (collections) {
             var self = this;
-
             var syncData = {};
-            _.each(collections, function (collection, key) {
-                if (!syncData[key]) {
-                    syncData[key] = {
+            _.each(collections, function (collection, typeName) {
+                if (!syncData[typeName]) {
+                    syncData[typeName] = {
                         createdItems: [],
                         modifiedItems: [],
                         deletedItems: []
@@ -19912,22 +20062,23 @@ module.exports = (function () {
 
                 var dirtyItems = self._getDirtyItems(collection);
                 var itemsForSync = offlineTransformations.idTransform(dirtyItems);
+
                 _.each(itemsForSync, function (itemForSync) {
                     switch (itemForSync[constants.offlineItemsStateMarker]) {
                         case offlineItemStates.created:
-                            syncData[key].createdItems.push({
+                            syncData[typeName].createdItems.push({
                                 remoteItem: itemForSync,
                                 resultingItem: itemForSync
                             });
                             break;
                         case offlineItemStates.modified:
-                            syncData[key].modifiedItems.push({
+                            syncData[typeName].modifiedItems.push({
                                 remoteItem: itemForSync,
                                 resultingItem: itemForSync
                             });
                             break;
                         case offlineItemStates.deleted:
-                            syncData[key].deletedItems.push({
+                            syncData[typeName].deletedItems.push({
                                 remoteItem: itemForSync,
                                 resultingItem: itemForSync
                             });
@@ -19936,10 +20087,128 @@ module.exports = (function () {
 
                     delete itemForSync[constants.offlineItemsStateMarker];
                 });
-
-                syncData[key].offlineItemsToSync = itemsForSync;
             });
+
             return syncData;
+        },
+
+        _getModifiedFilesForSyncClientWins: function (itemId, item, collectionName) {
+            var self = this;
+            var sdk = self._everlive;
+
+            return new rsvp.Promise(function (resolve, reject) {
+                var offlineFiles = self.files;
+                offlineFiles.getOfflineLocation(itemId)
+                    .then(function (location) {
+                        if (location) {
+                            return self._transferFile(true, item, location)
+                                .then(function (result) {
+                                    if (result.Result === false) {
+                                        reject({
+                                            type: offlineItemStates.modified,
+                                            itemId: item.Id,
+                                            contentType: collectionName,
+                                            error: result,
+                                            storage: syncLocation.server
+                                        });
+                                    } else {
+                                        return {
+                                            result: result
+                                        };
+                                    }
+                                }, function (err) {
+                                    reject({
+                                        type: offlineItemStates.modified,
+                                        itemId: item.Id,
+                                        contentType: collectionName,
+                                        error: err,
+                                        storage: syncLocation.server
+                                    });
+                                });
+                        } else {
+                            return sdk.files
+                                .isSync(true)
+                                .applyOffline(false)
+                                .updateSingle(item)
+                                .then(function (response) {
+                                    return response;
+                                }, function (err) {
+                                    reject({
+                                        type: offlineItemStates.modified,
+                                        itemId: item.Id,
+                                        contentType: collectionName,
+                                        error: err,
+                                        storage: syncLocation.server
+                                    });
+                                });
+                        }
+                    })
+                    .then(function (onlineResponse) {
+                        var onlineResult = onlineResponse.result;
+                        item.ModifiedAt = onlineResult.ModifiedAt;
+                        self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.modified);
+                        return sdk.files
+                            .isSync(true)
+                            .useOffline(true)
+                            .updateSingle(item);
+                    })
+                    .then(resolve)
+                    .catch(function (err) {
+                        reject({
+                            type: offlineItemStates.modified,
+                            itemId: item.Id,
+                            contentType: collectionName,
+                            error: err,
+                            storage: syncLocation.server
+                        });
+                    });
+            });
+        },
+
+        _getModifiedItemForSyncClientWins: function (dataCollection, item, collectionName) {
+            var self = this;
+
+            return new rsvp.Promise(function (resolve, reject) {
+                return dataCollection
+                    .isSync(true)
+                    .applyOffline(false)
+                    .updateSingle(item)
+                    .then(function (res) {
+                        self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.modified);
+                        var updatedItem = _.extend({}, item, {
+                            ModifiedAt: res.ModifiedAt
+                        });
+
+                        var updateQuery = new DataQuery({
+                            operation: DataQuery.operations.update,
+                            data: updatedItem,
+                            additionalOptions: {
+                                id: item.Id
+                            },
+                            collectionName: collectionName,
+                            isSync: true
+                        });
+
+                        return self.processQuery(updateQuery);
+                    }, function (res) {
+                        reject({
+                            storage: syncLocation.server,
+                            type: offlineItemStates.modified,
+                            itemId: item.Id,
+                            contentType: collectionName,
+                            error: res
+                        });
+                    })
+                    .then(resolve, function (err) {
+                        reject({
+                            storage: syncLocation.client,
+                            type: offlineItemStates.modified,
+                            itemId: item.Id,
+                            contentType: collectionName,
+                            error: err
+                        });
+                    });
+            });
         },
 
         _addModifiedItemsForSyncClientWins: function (contentTypeData, syncPromises, dataCollection) {
@@ -19951,46 +20220,12 @@ module.exports = (function () {
                     throw new EverliveError('When updating an item it must have an Id field.');
                 }
                 var collectionName = dataCollection.collectionName;
-                syncPromises[itemId] = new rsvp.Promise(function (resolve, reject) {
-                    return dataCollection
-                        .isSync(true)
-                        .applyOffline(false)
-                        .updateSingle(item)
-                        .then(function (res) {
-                            self._addSyncedItemToResult(item, collectionName, syncLocation.server, offlineItemStates.modified);
-                            var updatedItem = _.extend({}, item, {
-                                ModifiedAt: res.ModifiedAt
-                            });
 
-                            var updateQuery = new DataQuery({
-                                operation: DataQuery.operations.update,
-                                data: updatedItem,
-                                additionalOptions: {
-                                    id: item.Id
-                                },
-                                collectionName: collectionName,
-                                isSync: true
-                            });
-
-                            return self.processQuery(updateQuery).then(resolve, function () {
-                                reject(_.extend({}, {
-                                    storage: syncLocation.client,
-                                    type: offlineItemStates.modified,
-                                    itemId: item.Id,
-                                    contentType: collectionName,
-                                    error: res
-                                }));
-                            });
-                        }, function (res) {
-                            reject(_.extend({}, {
-                                storage: syncLocation.server,
-                                type: offlineItemStates.modified,
-                                itemId: item.Id,
-                                contentType: collectionName,
-                                error: res
-                            }));
-                        })
-                });
+                if (utils.isContentType.files(collectionName)) {
+                    syncPromises[itemId] = self._getModifiedFilesForSyncClientWins(itemId, item, collectionName);
+                } else {
+                    syncPromises[itemId] = self._getModifiedItemForSyncClientWins(dataCollection, item, collectionName);
+                }
             });
         },
 
@@ -20042,7 +20277,7 @@ module.exports = (function () {
             var syncPromises = {};
 
             _.each(syncData, function (contentTypeData, typeName) {
-                var dataCollection = self.everlive.data(typeName);
+                var dataCollection = self._everlive.data(typeName);
                 if (contentTypeData.createdItems.length) {
                     self._addCreatedItemsForSync(contentTypeData, syncPromises, dataCollection);
                 }
@@ -20068,25 +20303,74 @@ module.exports = (function () {
             });
 
             return rsvp.hash(promises)
-                .then(self._prepareSyncData.bind(self))
-                .then(self._resolveConflicts.bind(self))
+                .then(function (contentTypes) {
+                    return self._prepareSyncData(contentTypes);
+                })
+                .then(function (syncData) {
+                    return self._resolveConflicts(syncData);
+                })
                 .then(function (contentTypeSyncData) {
                     var syncPromises = {};
-                    _.each(contentTypeSyncData, function (contentTypeData, typeName) {
-                        var dataCollection = self.everlive.data(typeName);
+                    _.each(contentTypeSyncData, function (contentTypeData, collectionName) {
+                        var dataCollection = self._everlive.data(collectionName);
                         if (contentTypeData.createdItems.length) {
                             self._addCreatedItemsForSync(contentTypeData, syncPromises, dataCollection);
                         }
 
                         if (contentTypeData.modifiedItems.length) {
                             self._addUpdatedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter, isCustom) {
-                                syncPromises[item.Id] = dataCollection
-                                    .isSync(true)
-                                    .applyOffline(false)
-                                    .update(item, itemFilter)
-                                    .then(function (res) {
-                                        return self._onSyncResponse(res, item, typeName, DataQuery.operations.update, isCustom);
+                                var itemId = item.Id;
+
+                                if (utils.isContentType.files(collectionName)) {
+                                    var filesCollection = self._everlive.files;
+                                    syncPromises[itemId] = new rsvp.Promise(function (resolve, reject) {
+                                        var offlineLocation;
+                                        self.files.getOfflineLocation(itemId)
+                                            .then(function (locationOnDisk) {
+                                                offlineLocation = locationOnDisk;
+                                            })
+                                            .then(function () {
+                                                return filesCollection
+                                                    .isSync(true)
+                                                    .applyOffline(false)
+                                                    .getById(itemId);
+                                            })
+                                            .then(function (response) {
+                                                var file = response.result;
+                                                if (file.ModifiedAt.getTime() !== item.ModifiedAt.getTime()) {
+                                                    reject(_.extend({}, EverliveErrors.syncConflict, {
+                                                        contentType: collectionName
+                                                    }));
+                                                } else {
+                                                    if (offlineLocation) {
+                                                        return self._transferFile(true, item, offlineLocation);
+                                                    } else {
+                                                        return filesCollection.isSync(true).updateSingle(item);
+                                                    }
+                                                }
+                                            })
+                                            .then(resolve)
+                                            .catch(reject);
                                     });
+                                } else {
+                                    syncPromises[itemId] = dataCollection
+                                        .isSync(true)
+                                        .applyOffline(false)
+                                        .update(item, itemFilter)
+                                        .then(function (res) {
+                                            return self._onSyncResponse(res, item, collectionName, DataQuery.operations.update, isCustom);
+                                        }, function (err) {
+                                            return new rsvp.Promise(function (resolve, reject) {
+                                                reject({
+                                                    type: offlineItemStates.modified,
+                                                    itemId: item.Id,
+                                                    contentType: collectionName,
+                                                    error: err,
+                                                    storage: syncLocation.server
+                                                });
+                                            });
+                                        });
+                                }
                             });
                         }
 
@@ -20097,7 +20381,17 @@ module.exports = (function () {
                                     .applyOffline(false)
                                     .destroy(itemFilter)
                                     .then(function (res) {
-                                        return self._onSyncResponse(res, item, typeName, DataQuery.operations.remove, isCustom);
+                                        return self._onSyncResponse(res, item, collectionName, DataQuery.operations.remove, isCustom);
+                                    }, function (err) {
+                                        return new rsvp.Promise(function (resolve, reject) {
+                                            reject({
+                                                type: offlineItemStates.deleted,
+                                                itemId: item.Id,
+                                                contentType: collectionName,
+                                                error: err,
+                                                storage: syncLocation.server
+                                            });
+                                        });
                                     });
                             });
                         }
@@ -20162,7 +20456,7 @@ module.exports = (function () {
 
     return OfflineModule;
 })();
-},{"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":64,"../query/RequestOptionsBuilder":67,"../utils":74,"./OfflineQueryProcessor":59,"./offlineTransformations":63}],61:[function(require,module,exports){
+},{"../EverliveError":44,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":73,"../query/RequestOptionsBuilder":76,"../utils":87,"./OfflineFilesModule":63,"./OfflineFilesProcessor":64,"./OfflineQueryProcessor":65,"./offlineTransformations":69,"path":4}],67:[function(require,module,exports){
 var constants = require('../constants');
 var persistersModule = require('./offlinePersisters');
 var LocalStoragePersister = persistersModule.LocalStoragePersister;
@@ -20194,6 +20488,10 @@ var defaultOfflineStorageOptions = {
         provider: constants.EncryptionProvider.Default,
         implementation: null,
         key: ''
+    },
+    files: {
+        storagePath: constants.DefaultFilesStoragePath,
+        metaPath: constants.DefaultFilesMetadataPath
     }
 };
 
@@ -20223,10 +20521,10 @@ module.exports = (function () {
         } else {
             switch (storageProvider) {
                 case constants.StorageProvider.LocalStorage:
-                    persister = new LocalStoragePersister(storageKey, this);
+                    persister = new LocalStoragePersister(storageKey, options);
                     break;
                 case constants.StorageProvider.FileSystem:
-                    persister = new FileSystemPersister(storageKey, this);
+                    persister = new FileSystemPersister(storageKey, options);
                     break;
                 case constants.StorageProvider.Custom:
                     throw new EverliveError('Custom storage provider requires an implementation object');
@@ -20248,7 +20546,7 @@ module.exports = (function () {
         } else {
             switch (encryptionProvider) {
                 case constants.EncryptionProvider.Default:
-                    encryptor = new CryptographicProvider(this);
+                    encryptor = new CryptographicProvider(options);
                     break;
                 case constants.EncryptionProvider.Custom:
                     throw new EverliveError('Custom encryption provider requires an implementation object');
@@ -20275,8 +20573,10 @@ module.exports = (function () {
             options.enabled = false;
         }
 
-        var persister = initStoragePersister.call(this, options, storageOptions);
-        var encryptionProvider = initEncryptionProvider.call(this, options);
+        if (options.enabled) {
+            var persister = initStoragePersister.call(this, options, storageOptions);
+            var encryptionProvider = initEncryptionProvider.call(this, options);
+        }
 
         return new OfflineStorageModule(this, options, persister, encryptionProvider);
     };
@@ -20289,533 +20589,17 @@ module.exports = (function () {
         initOfflineStorage: initOfflineStorage
     }
 }());
-},{"../EverliveError":43,"../common":53,"../constants":54,"../encryption/CryptographicProvider":55,"../everlive.platform":56,"./OfflineStorageModule":60,"./offlinePersisters":62}],62:[function(require,module,exports){
-var common = require('../common');
-var _ = common._;
-var platform = require('../everlive.platform');
-var isNativeScript = platform.isNativeScript;
-var isCordova = platform.isCordova;
-var rsvp = common.rsvp;
-var parseUtilities = require('../utils').parseUtilities;
-var EverliveError = require('../EverliveError').EverliveError;
-var util = require('util');
-var LocalStore = require('../LocalStore');
-var constants = require('../constants');
-
-
-var BasePersister = (function () {
-
-    /**
-     * @class BasePersister
-     * @classdesc An abstraction layer for all persisters. Every persister can write/read
-     * data to/from a specific place. The data is saved as key-value pairs where the keys are
-     * content types.
-     */
-    function BasePersister(key, sdk) {
-        this.key = key;
-        this.sdk = sdk;
-    }
-
-    BasePersister.prototype = {
-        /**
-         * Gets all the saved data.
-         * @method getAllData
-         * @memberof BasePersister
-         * @param {Function} success A success callback.
-         * @param {Function} error An error callback.
-         * @returns {Object} The keys are the content types and the values are the corresponding data items.
-         */
-        getAllData: function (success, error) {
-            throw new EverliveError('The method getAllData is not implemented');
-        },
-
-        /**
-         * Returns the saved data for a specific content type.
-         * @method getData
-         * @param {string} contentType The content type for which to retrieve the data.
-         * @param {Function} success A success callback.
-         * @param {Function} error An error callback.
-         * @memberof BasePersister
-         * @returns {Object} The retrieved data.
-         */
-        getData: function (contentType, success, error) {
-            throw new EverliveError('The method getData is not implemented');
-        },
-
-        /**
-         * Saves data for a specific content type.
-         * @method saveData
-         * @param {string} contentType The content for which to save the data.
-         * @param {object} data The data corresponding to the specified content type.
-         * @param {Function} success A success callback.
-         * @param {Function} error An error callback.
-         * @memberof BasePersister
-         */
-        saveData: function (contentType, data, success, error) {
-            throw new EverliveError('The method saveData is not implemented');
-        },
-
-        /**
-         * Clears the persisted data for a specific content type.
-         * @method purge
-         * @param {string} contentType The content type for which to clear the data.
-         * @param {Function} success A success callback.
-         * @param {Function} error An error callback.
-         * @memberof BasePersister
-         */
-        purge: function (contentType, success, error) {
-            throw new EverliveError('The method clear is not implemented');
-        },
-
-        /**
-         * Clears all persisted data in the offline store.
-         * @method purgeAll
-         * @memberof BasePersister
-         * @param {Function} success A success callback.
-         * @param {Function} error An error callback.
-         */
-        purgeAll: function (success, error) {
-            throw new EverliveError('The method clearAll is not implemented');
-        },
-
-        _getKey: function (contentType) {
-            return this.key + '_' + contentType;
-        },
-
-        _getEncryptionProvider: function () {
-            return this.sdk.offlineStorage._getEncryptionProvider();
-        }
-    };
-
-    return BasePersister;
-}());
-
-var LocalStoragePersister = (function () {
-    /**
-     * @class LocalStoragePersister
-     * @extends BasePersister
-     */
-    function LocalStoragePersister(key, sdk) {
-        BasePersister.apply(this, arguments);
-        this._localStore = null;
-    }
-
-    util.inherits(LocalStoragePersister, BasePersister);
-
-    //We need to offline storage path from the sdk.offlineStorage.setup in nodejs
-    //but it is not available since it is created after the persisters are initialized
-    //that is why we pospone the localstore initialization for the first time it is needed
-    LocalStoragePersister.prototype._ensureLocalStore = function () {
-        if (!this._localStore) {
-            this._localStore = new LocalStore(this.sdk);
-        }
-    };
-
-    LocalStoragePersister.prototype.getAllData = function (success, error) {
-        var self = this;
-        var contentTypes = this._getContentTypes();
-        var allCollections = {};
-        _.each(contentTypes, function (contentType) {
-            allCollections[contentType] = new rsvp.Promise(function (resolve, reject) {
-                self.getData(contentType, resolve, reject);
-            });
-        });
-
-        rsvp.hash(allCollections).then(success, error);
-    };
-
-    LocalStoragePersister.prototype.getData = function (contentType, success, error) {
-        try {
-            var key = this._getKey(contentType);
-            var storedItem = this._getItem(key) || '{}';
-            var reviver = parseUtilities.getReviver();
-            var storedItemObject = JSON.parse(storedItem, reviver);
-            success(storedItemObject);
-        } catch (e) {
-            error(e);
-        }
-    };
-
-    LocalStoragePersister.prototype.saveData = function (contentType, data, success, error) {
-        try {
-            var collectionsString = JSON.stringify(data);
-            var contentTypeKey = this._getKey(contentType);
-            this._setItem(contentTypeKey, collectionsString);
-            success();
-        } catch (e) {
-            error(e);
-        }
-    };
-
-    LocalStoragePersister.prototype.purge = function (contentType, success, error) {
-        try {
-            var key = this._getKey(contentType);
-            this._removeItem(key);
-            success();
-        } catch (e) {
-            error(e);
-        }
-    };
-
-    LocalStoragePersister.prototype.purgeAll = function (success, error) {
-        try {
-            var self = this;
-
-            var contentTypes = this._getContentTypes();
-            _.each(contentTypes, function (contentType) {
-                var contentTypeKey = self._getKey(contentType);
-                self._removeItem(contentTypeKey);
-            });
-
-            var contentTypesKey = this._getContentTypesCollectionKey();
-            this._removeItem(contentTypesKey);
-
-            success();
-        } catch (e) {
-            error(e);
-        }
-    };
-
-    LocalStoragePersister.prototype._getItem = function (key) {
-        this._ensureLocalStore();
-        var value = this._localStore.getItem(key);
-        var encryptionProvider = this._getEncryptionProvider();
-        return encryptionProvider.decrypt(value);
-    };
-
-    LocalStoragePersister.prototype._setItem = function (key, value) {
-        this._ensureLocalStore();
-        var encryptionProvider = this._getEncryptionProvider();
-        value = encryptionProvider.encrypt(value);
-        return this._localStore.setItem(key, value);
-
-    };
-
-    LocalStoragePersister.prototype._removeItem = function (key) {
-        this._ensureLocalStore();
-        return this._localStore.removeItem(key);
-    };
-
-    LocalStoragePersister.prototype._getKey = function (contentType) {
-        this._ensureLocalStore();
-        this._addTypeToCollectionsCache(contentType);
-        return LocalStoragePersister.super_.prototype._getKey.apply(this, arguments);
-    };
-
-    LocalStoragePersister.prototype._getContentTypesCollectionKey = function () {
-        return this.key + '@ContentTypes';
-    };
-
-    LocalStoragePersister.prototype._getContentTypes = function () {
-        var collectionKey = this._getContentTypesCollectionKey();
-        var localStorageString = this._getItem(collectionKey);
-
-        if (localStorageString) {
-            return JSON.parse(localStorageString);
-        }
-
-        return [];
-    };
-
-    LocalStoragePersister.prototype._setContentTypesCollection = function (collection) {
-        var collectionKey = this._getContentTypesCollectionKey();
-        this._setItem(collectionKey, JSON.stringify(collection));
-    };
-
-    LocalStoragePersister.prototype._addTypeToCollectionsCache = function (typeName) {
-        var contentTypesCollection = this._getContentTypes();
-        if (!_.contains(contentTypesCollection, typeName)) {
-            contentTypesCollection.push(typeName);
-            this._setContentTypesCollection(contentTypesCollection);
-        }
-    };
-
-    return LocalStoragePersister;
-}());
-
-var FileSystemPersister = (function () {
-    /**
-     * @class FileSystemPersister
-     * @protected
-     * @extends BasePersister
-     */
-    function FileSystemPersister(key, sdk) {
-        BasePersister.apply(this, arguments);
-
-        if (!isCordova && !isNativeScript) {
-            throw new EverliveError('FileSystemPersister can be used only with Cordova and NativeScript');
-        }
-
-        this.contentTypesStoreKey = '@ContentTypes';
-    }
-
-    util.inherits(FileSystemPersister, BasePersister);
-
-    FileSystemPersister.prototype.getAllData = function (success, error) {
-        var self = this;
-        var errorHandler = this._fileSystemErrorHandler(error);
-        var promises = {};
-        this._getContentTypesMetadata(function (contentTypes) {
-            Object.keys(contentTypes).forEach(function (contentType) {
-                promises[contentType] = new rsvp.Promise(function (resolve, reject) {
-                    self.getData(contentType, resolve, reject);
-                });
-            });
-
-            rsvp.hash(promises).then(success, errorHandler);
-        }, errorHandler);
-    };
-
-    FileSystemPersister.prototype.getData = function (contentType, success, error) {
-        var self = this;
-        var errorHandler = this._fileSystemErrorHandler(error);
-        this._getFileFull(contentType, function (fileEntry) {
-            self._readFileContent(fileEntry, success, errorHandler);
-        }, error);
-    };
-
-    FileSystemPersister.prototype.saveData = function (contentType, data, success, error) {
-        var self = this;
-        var dataString = JSON.stringify(data);
-        var errorHandler = this._fileSystemErrorHandler(error);
-        this._getFileFull(contentType, function (fileEntry) {
-            self._writeFileContent(fileEntry, dataString, function () {
-                self._saveContentTypesMetadata(contentType, success, errorHandler);
-            }, errorHandler);
-        }, errorHandler);
-    };
-
-    FileSystemPersister.prototype.purge = function (contentType, success, error) {
-        var self = this;
-        var errorHandler = this._fileSystemErrorHandler(error);
-        this._getFileFull(contentType, function (fileEntry) {
-            self._removeFile(fileEntry, success, error);
-        }, errorHandler);
-    };
-
-    FileSystemPersister.prototype.purgeAll = function (success, error) {
-        var self = this;
-        var errorHandler = this._fileSystemErrorHandler(error);
-        this._resolveDataDirectory(function (dataDirEntry) {
-            self._removeFilesDirectory(dataDirEntry, success, errorHandler);
-        }, errorHandler);
-    };
-
-    FileSystemPersister.prototype._ensureProperties = function () {
-        if (!this.filesDirectoryPath) {
-            this.filesDirectoryPath = this.sdk.offlineStorage.setup.storage.storagePath;
-            if (platform.isWindowsPhone) {
-                //windows phone must have a leading slash only
-                this.filesDirectoryPath = '/' + this.filesDirectoryPath;
-            } else {
-                //other platforms must have a trailing slash only
-                this.filesDirectoryPath += '/';
-            }
-        }
-
-        if (!this.dataDirectoryPath) {
-            if (isNativeScript) {
-                this.fs = require('file-system');
-                this.dataDirectoryPath = this.fs.knownFolders.documents().path;
-            }
-        }
-    };
-
-    FileSystemPersister.prototype._getContentTypesMetadata = function (success, error) {
-        this._ensureProperties();
-        this.getData(this.contentTypesStoreKey, success, error);
-    };
-
-    FileSystemPersister.prototype._saveContentTypesMetadata = function (contentType, success, error) {
-        this._ensureProperties();
-        var self = this;
-        this._getContentTypesMetadata(function (savedContentTypes) {
-            savedContentTypes[contentType] = true;
-            self._getFileFull(self.contentTypesStoreKey, function (contentTypesFile) {
-                self._writeFileContent(contentTypesFile, JSON.stringify(savedContentTypes), success, error);
-            }, error);
-        });
-    };
-
-    FileSystemPersister.prototype._getFileFull = function (contentType, success, error) {
-        this._ensureProperties();
-        var self = this;
-        this._ensureFilesDirectory(function () {
-            var path = self._getFilePath(contentType);
-            self._getFileFromSystem(path, success, error);
-        }, error);
-    };
-
-    FileSystemPersister.prototype._removeFilesDirectory = function (directoryEntry, success, error) {
-        this._ensureProperties();
-        if (isCordova) {
-            directoryEntry.getDirectory(this.filesDirectoryPath, {
-                create: true,
-                exclusive: false
-            }, function (filesDirEntry) {
-                filesDirEntry.removeRecursively(function () {
-                    success();
-                }, error);
-            }, error)
-        } else if (isNativeScript) {
-            var filesDirectoryPath = this.fs.path.join(directoryEntry.path, this.filesDirectoryPath);
-            var filesDirectory = this.fs.Folder.fromPath(filesDirectoryPath);
-            filesDirectory.remove().then(success, error);
-        }
-    };
-
-    FileSystemPersister.prototype._removeFile = function (fileEntry, success, error) {
-        this._ensureProperties();
-        if (isCordova) {
-            fileEntry.remove(function () {
-                success();
-            }, error);
-        } else if (isNativeScript) {
-            fileEntry.remove().then(success, error);
-        }
-    };
-
-    FileSystemPersister.prototype._readFileContent = function (fileEntry, success, error) {
-        this._ensureProperties();
-        var that = this;
-        var readTextSuccess = function (content) {
-            var encryptionProvider = that._getEncryptionProvider();
-            content = encryptionProvider.decrypt(content);
-
-            var reviver = parseUtilities.getReviver();
-            var resultObject = JSON.parse(content || '{}', reviver);
-            success(resultObject);
-        };
-
-        if (isCordova) {
-            fileEntry.file(function (file) {
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    readTextSuccess(this.result);
-                };
-                reader.onerror = error;
-                reader.readAsText(file);
-            }, error);
-        } else if (isNativeScript) {
-            fileEntry.readText().then(readTextSuccess, error);
-        }
-    };
-
-    FileSystemPersister.prototype._writeFileContent = function (fileEntry, content, success, error) {
-        this._ensureProperties();
-        var encryptionProvider = this._getEncryptionProvider();
-        content = encryptionProvider.encrypt(content);
-
-        if (isCordova) {
-            fileEntry.createWriter(function (fileWriter) {
-                fileWriter.onwriteend = function () {
-                    success();
-                };
-
-                fileWriter.onerror = error;
-                fileWriter.write(content);
-            }, error);
-        } else if (isNativeScript) {
-            fileEntry.writeText(content).then(success, error);
-        }
-    };
-
-    FileSystemPersister.prototype._getFileFromSystem = function (path, success, error) {
-        this._ensureProperties();
-        this._resolveDataDirectory(function (directoryEntry) {
-            if (isCordova) {
-                directoryEntry.getFile(path, {
-                    create: true,
-                    exclusive: false
-                }, success, error);
-            } else if (isNativeScript) {
-                try {
-                    var fullFilePath = this.fs.path.join(directoryEntry.path, path);
-                    var file = this.fs.File.fromPath(fullFilePath);
-                    success(file);
-                } catch (e) {
-                    error(e);
-                }
-            }
-        }.bind(this));
-    };
-
-    FileSystemPersister.prototype._getFilePath = function (contentType) {
-        this._ensureProperties();
-        var filePath = this.filesDirectoryPath;
-        if (platform.isWindowsPhone) {
-            //since windows phone must not have a trailing slash in its initial dir
-            //we must add it now
-            filePath += '/';
-        }
-
-        filePath += this._getKey(contentType);
-        return filePath;
-    };
-
-    FileSystemPersister.prototype._resolveDataDirectory = function (success, error) {
-        this._ensureProperties();
-        if (isCordova) {
-            requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
-                success(fileSystem.root);
-            }, error);
-        } else if (isNativeScript) {
-            var dataDirectory = this.fs.Folder.fromPath(this.dataDirectoryPath);
-            success(dataDirectory);
-        }
-    };
-
-    FileSystemPersister.prototype._ensureFilesDirectory = function (success, error) {
-        this._ensureProperties();
-        var filesDirectoryPath = this.filesDirectoryPath;
-        this._resolveDataDirectory(function (directoryEntry) {
-            if (isCordova) {
-                directoryEntry.getDirectory(filesDirectoryPath, {
-                    create: true,
-                    exclusive: false
-                }, success, error);
-            } else if (isNativeScript) {
-                try {
-                    var fileDirectoryPath = this.fs.path.join(directoryEntry.path, filesDirectoryPath);
-                    this.fs.Folder.fromPath(fileDirectoryPath);
-                    success();
-                } catch (e) {
-                    error(e);
-                }
-            }
-        }.bind(this), error);
-    };
-
-    FileSystemPersister.prototype._fileSystemErrorHandler = function (callback) {
-        if (!isNativeScript) {
-            var errorsMap = {
-                1000: 'NOT_FOUND'
-            };
-
-            _.each(Object.keys(FileError), function (error) {
-                errorsMap[FileError[error]] = error;
-            });
-
-            return function (e) {
-                e.message = errorsMap[e.code];
-                callback && callback(e);
-            }
-        }
-
-        return function (e) {
-            callback && callback(e);
-        }
-    };
-
-    return FileSystemPersister;
-}());
+},{"../EverliveError":44,"../common":53,"../constants":54,"../encryption/CryptographicProvider":55,"../everlive.platform":56,"./OfflineStorageModule":66,"./offlinePersisters":68}],68:[function(require,module,exports){
+var BasePersister = require('./persisters/BasePersister');
+var LocalStoragePersister = require('./persisters/LocalStoragePersister');
+var FileSystemPersister = require('./persisters/FileSystemPersister');
 
 module.exports = {
     BasePersister: BasePersister,
     LocalStoragePersister: LocalStoragePersister,
     FileSystemPersister: FileSystemPersister
 };
-},{"../EverliveError":43,"../LocalStore":47,"../common":53,"../constants":54,"../everlive.platform":56,"../utils":74,"file-system":"file-system","util":5}],63:[function(require,module,exports){
+},{"./persisters/BasePersister":70,"./persisters/FileSystemPersister":71,"./persisters/LocalStoragePersister":72}],69:[function(require,module,exports){
 'use strict';
 
 var constants = require('../constants');
@@ -20899,7 +20683,365 @@ var offlineTransformations = {
 };
 
 module.exports = offlineTransformations;
-},{"../common":53,"../constants":54}],64:[function(require,module,exports){
+},{"../common":53,"../constants":54}],70:[function(require,module,exports){
+'use strict';
+
+var EverliveError = require('../../EverliveError').EverliveError;
+var utils = require('../../utils');
+var common = require('../../common');
+var _ = common._;
+var rsvp = common.rsvp;
+
+var BasePersister = (function () {
+
+    /**
+     * @class BasePersister
+     * @classdesc An abstraction layer for all persisters. Every persister can write/read
+     * data to/from a specific place. The data is saved as key-value pairs where the keys are
+     * content types.
+     */
+    function BasePersister(key, options) {
+        this.key = key;
+        this.options = options;
+        this.contentTypesStoreKey = this.key + '@ContentTypes';
+    }
+
+    BasePersister.prototype = {
+        /**
+         * Gets all the saved data.
+         * @method getAllData
+         * @memberof BasePersister
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         * @returns {Object} The keys are the content types and the values are the corresponding data items.
+         */
+        getAllData: function (success, error) {
+            var self = this;
+            var promises = {};
+            this._getContentTypes(function (contentTypes) {
+                _.each(contentTypes, function (contentType) {
+                    promises[contentType] = new rsvp.Promise(function (resolve, reject) {
+                        self.getData(contentType, resolve, reject);
+                    });
+                });
+
+                rsvp.hash(promises)
+                    .then(success)
+                    .catch(error);
+            }, error);
+        },
+
+        /**
+         * Returns the saved data for a specific content type.
+         * @method getData
+         * @param {string} contentType The content type for which to retrieve the data.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         * @memberof BasePersister
+         * @returns {string} The retrieved data.
+         */
+        getData: function (contentType, success, error) {
+            throw new EverliveError('The method getData is not implemented');
+        },
+
+        /**
+         * Saves data for a specific content type.
+         * @method saveData
+         * @param {string} contentType The content for which to save the data.
+         * @param {string} data The data corresponding to the specified content type.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         * @memberof BasePersister
+         */
+        saveData: function (contentType, data, success, error) {
+            throw new EverliveError('The method saveData is not implemented');
+        },
+
+        /**
+         * Clears the persisted data for a specific content type.
+         * @method purge
+         * @param {string} contentType The content type for which to clear the data.
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         * @memberof BasePersister
+         */
+        purge: function (contentType, success, error) {
+            throw new EverliveError('The method clear is not implemented');
+        },
+
+        /**
+         * Clears all persisted data in the offline store.
+         * @method purgeAll
+         * @memberof BasePersister
+         * @param {Function} success A success callback.
+         * @param {Function} error An error callback.
+         */
+        purgeAll: function (success, error) {
+            throw new EverliveError('The method clearAll is not implemented');
+        },
+
+        _getKey: function (contentType) {
+            return this.key + '_' + contentType;
+        },
+
+        _getContentTypes: function (success, error) {
+            throw new EverliveError('The method _getContentTypes is not implemented');
+        }
+    };
+
+    return BasePersister;
+}());
+
+module.exports = BasePersister;
+},{"../../EverliveError":44,"../../common":53,"../../utils":87}],71:[function(require,module,exports){
+'use strict';
+
+var FileStore = require('../../storages/FileStore');
+var BasePersister = require('./BasePersister');
+var EverliveError = require('../../EverliveError').EverliveError;
+var common = require('../../common');
+var _ = common._;
+var platform = require('../../everlive.platform');
+var rsvp = common.rsvp;
+var util = require('util');
+var path = require('path');
+var utils = require('../../utils');
+
+var FileSystemPersister = (function () {
+    /**
+     * @class FileSystemPersister
+     * @protected
+     * @extends BasePersister
+     */
+    function FileSystemPersister(key, options) {
+        BasePersister.apply(this, arguments);
+        this.fileStore = new FileStore(options.storage.storagePath, options);
+    }
+
+    util.inherits(FileSystemPersister, BasePersister);
+
+    FileSystemPersister.prototype.getAllData = function (success, error) {
+        var errorHandler = this._fileSystemErrorHandler(error);
+        FileSystemPersister.super_.prototype.getAllData.call(this, success, errorHandler);
+    };
+
+    FileSystemPersister.prototype.getData = function (contentType, success, error) {
+        var self = this;
+        var errorHandler = this._fileSystemErrorHandler(error);
+        this.getFileHandle(contentType, function (fileEntry) {
+            self._readFileContent(fileEntry, success, errorHandler);
+        }, error);
+    };
+
+    FileSystemPersister.prototype.saveData = function (contentType, data, success, error) {
+        var self = this;
+        var errorHandler = this._fileSystemErrorHandler(error);
+        this.getFileHandle(contentType, function (fileEntry) {
+            self._writeFileContent(fileEntry, data, function () {
+                self._saveContentTypes(contentType, success, errorHandler);
+            }, errorHandler);
+        }, errorHandler);
+    };
+
+    FileSystemPersister.prototype.purge = function (contentType, success, error) {
+        var self = this;
+        var errorHandler = this._fileSystemErrorHandler(error);
+        this.getFileHandle(contentType, function (fileEntry) {
+            self.fileStore.removeFile(fileEntry).then(function () {
+                success();
+            }).catch(error);
+        }, errorHandler);
+    };
+
+    FileSystemPersister.prototype.purgeAll = function (success, error) {
+        var errorHandler = this._fileSystemErrorHandler(error);
+        this.fileStore.removeFilesDirectory()
+            .then(function () {
+                success();
+            })
+            .catch(errorHandler);
+    };
+
+    FileSystemPersister.prototype._getContentTypes = function (success, error) {
+        this.getData(this.contentTypesStoreKey, function (savedContentTypesRaw) {
+            var savedContentTypes = JSON.parse(savedContentTypesRaw || '[]');
+            success(savedContentTypes);
+        }, error);
+    };
+
+    FileSystemPersister.prototype._saveContentTypes = function (contentType, success, error) {
+        var self = this;
+        this._getContentTypes(function (savedContentTypes) {
+            if (!_.contains(savedContentTypes, contentType)) {
+                savedContentTypes.push(contentType);
+            }
+
+            self.getFileHandle(self.contentTypesStoreKey, function (contentTypesFile) {
+                self._writeFileContent(contentTypesFile, JSON.stringify(savedContentTypes), success, error);
+            }, error);
+        });
+    };
+
+    FileSystemPersister.prototype.getFileHandle = function (contentType, success, error) {
+        var self = this;
+        var path = self._getFilePath(contentType);
+        this.fileStore.getFilesDirectory()
+            .then(function () {
+                return self.fileStore.getFile(path);
+            })
+            .then(function (fileHandle) {
+                success(fileHandle);
+            })
+            .catch(error);
+    };
+
+    FileSystemPersister.prototype._readFileContent = function (fileEntry, success, error) {
+        this.fileStore.readFileAsText(fileEntry).then(function (content) {
+            success(content);
+        }).catch(error);
+    };
+
+    FileSystemPersister.prototype._writeFileContent = function (fileEntry, content, success, error) {
+        this.fileStore.writeTextToFile(fileEntry, content)
+            .then(success)
+            .catch(error);
+    };
+
+    FileSystemPersister.prototype._getFilePath = function (contentType) {
+        return this._getKey(contentType);
+        //return utils.joinPath(this.fileStore.filesDirectoryPath, this._getKey(contentType));
+    };
+
+    FileSystemPersister.prototype._fileSystemErrorHandler = function (callback) {
+        return this.fileStore.getErrorHandler(callback);
+    };
+
+    return FileSystemPersister;
+}());
+
+module.exports = FileSystemPersister;
+},{"../../EverliveError":44,"../../common":53,"../../everlive.platform":56,"../../storages/FileStore":80,"../../utils":87,"./BasePersister":70,"path":4,"util":7}],72:[function(require,module,exports){
+'use strict';
+
+var common = require('../../common');
+var _ = common._;
+var rsvp = common.rsvp;
+var util = require('util');
+var LocalStore = require('../../storages/LocalStore');
+var BasePersister = require('./BasePersister');
+
+var LocalStoragePersister = (function () {
+
+    /**
+     * @class LocalStoragePersister
+     * @extends BasePersister
+     */
+    function LocalStoragePersister(key, options) {
+        BasePersister.apply(this, arguments);
+        this._localStore = new LocalStore(options);
+    }
+
+    util.inherits(LocalStoragePersister, BasePersister);
+
+    LocalStoragePersister.prototype.getData = function (contentType, success, error) {
+        try {
+            var key = this._getKey(contentType);
+            var storedItem = this._getItem(key);
+            success(storedItem);
+        } catch (e) {
+            error(e);
+        }
+    };
+
+    LocalStoragePersister.prototype.saveData = function (contentType, data, success, error) {
+        try {
+            var contentTypeKey = this._getKey(contentType);
+            this._setItem(contentTypeKey, data);
+            success();
+        } catch (e) {
+            error(e);
+        }
+    };
+
+    LocalStoragePersister.prototype.purge = function (contentType, success, error) {
+        try {
+            var key = this._getKey(contentType);
+            this._removeItem(key);
+            success();
+        } catch (e) {
+            error(e);
+        }
+    };
+
+    LocalStoragePersister.prototype.purgeAll = function (success, error) {
+        try {
+            var self = this;
+
+            this._getContentTypes(function (contentTypes) {
+                _.each(contentTypes, function (contentType) {
+                    var contentTypeKey = self._getKey(contentType);
+                    self._removeItem(contentTypeKey);
+                });
+
+                self._removeItem(self.contentTypesStoreKey);
+                success();
+            }, error);
+        } catch (e) {
+            error(e);
+        }
+    };
+
+    LocalStoragePersister.prototype._getItem = function (key) {
+        return this._localStore.getItem(key);
+    };
+
+    LocalStoragePersister.prototype._setItem = function (key, value) {
+        return this._localStore.setItem(key, value);
+    };
+
+    LocalStoragePersister.prototype._removeItem = function (key) {
+        return this._localStore.removeItem(key);
+    };
+
+    LocalStoragePersister.prototype._getKey = function (contentType) {
+        this._addTypeToCollectionsCache(contentType);
+        return LocalStoragePersister.super_.prototype._getKey.apply(this, arguments);
+    };
+
+    LocalStoragePersister.prototype._getContentTypes = function (success, error) {
+        try {
+            var localStorageString = this._getItem(this.contentTypesStoreKey);
+
+            var data = [];
+            if (localStorageString) {
+                data = JSON.parse(localStorageString);
+            }
+
+            success(data);
+        } catch (e) {
+            error(e);
+        }
+    };
+
+    LocalStoragePersister.prototype._setContentTypesCollection = function (collection) {
+        this._setItem(this.contentTypesStoreKey, JSON.stringify(collection));
+    };
+
+    LocalStoragePersister.prototype._addTypeToCollectionsCache = function (typeName) {
+        var self = this;
+        this._getContentTypes(function (contentTypes) {
+            if (!_.contains(contentTypes, typeName)) {
+                contentTypes.push(typeName);
+                self._setContentTypesCollection(contentTypes);
+            }
+        });
+    };
+
+    return LocalStoragePersister;
+}());
+
+module.exports = LocalStoragePersister;
+},{"../../common":53,"../../storages/LocalStore":81,"./BasePersister":70,"util":7}],73:[function(require,module,exports){
 var _ = require('../common')._;
 
 module.exports = (function () {
@@ -20980,7 +21122,7 @@ module.exports = (function () {
 
     return DataQuery;
 }());
-},{"../common":53}],65:[function(require,module,exports){
+},{"../common":53}],74:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 var WhereQuery = require('./WhereQuery');
@@ -21106,7 +21248,7 @@ module.exports = (function () {
 
     return Query;
 }());
-},{"../Expression":45,"../constants":54,"./QueryBuilder":66,"./WhereQuery":68}],66:[function(require,module,exports){
+},{"../Expression":46,"../constants":54,"./QueryBuilder":75,"./WhereQuery":77}],75:[function(require,module,exports){
 var constants = require('../constants');
 var OperatorType = constants.OperatorType;
 var _ = require('../common')._;
@@ -21456,7 +21598,7 @@ module.exports = (function () {
 
     return QueryBuilder;
 }());
-},{"../EverliveError":43,"../Expression":45,"../GeoPoint":46,"../common":53,"../constants":54}],67:[function(require,module,exports){
+},{"../EverliveError":44,"../Expression":46,"../GeoPoint":47,"../common":53,"../constants":54}],76:[function(require,module,exports){
 var DataQuery = require('./DataQuery');
 var Request = require('../Request');
 var _ = require('../common')._;
@@ -21659,7 +21801,7 @@ module.exports = (function () {
 
     return RequestOptionsBuilder;
 }());
-},{"../Request":49,"../common":53,"./DataQuery":64}],68:[function(require,module,exports){
+},{"../Request":49,"../common":53,"./DataQuery":73}],77:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 
@@ -21955,7 +22097,7 @@ module.exports = (function () {
 
     return WhereQuery;
 }());
-},{"../Expression":45,"../constants":54}],69:[function(require,module,exports){
+},{"../Expression":46,"../constants":54}],78:[function(require,module,exports){
 var http = require('http');
 module.exports = (function () {
     'use strict';
@@ -22005,7 +22147,7 @@ module.exports = (function () {
 
     return reqwest;
 }());
-},{"http":"http"}],70:[function(require,module,exports){
+},{"http":"http"}],79:[function(require,module,exports){
 (function (Buffer){
 var url = require('url');
 var http = require('http');
@@ -22099,7 +22241,484 @@ module.exports = (function () {
     return reqwest;
 }());
 }).call(this,require("buffer").Buffer)
-},{"buffer":"buffer","http":"http","https":"https","rsvp":29,"underscore":30,"url":"url","zlib":"zlib"}],71:[function(require,module,exports){
+},{"buffer":"buffer","http":"http","https":"https","rsvp":31,"underscore":32,"url":"url","zlib":"zlib"}],80:[function(require,module,exports){
+var platform = require('../everlive.platform');
+var WebFileStore = require('./WebFileStore');
+var NativeScriptFileStore = require('./NativeScriptFileStore');
+var _ = require('../common')._;
+
+'use strict';
+
+if (platform.isNativeScript) {
+    module.exports = NativeScriptFileStore;
+} else if (platform.isCordova || platform.isDesktop) {
+    module.exports = WebFileStore;
+} else {
+    module.exports = _.noop;
+}
+},{"../common":53,"../everlive.platform":56,"./NativeScriptFileStore":82,"./WebFileStore":83}],81:[function(require,module,exports){
+var platform = require('./../everlive.platform.js');
+var isNativeScript = platform.isNativeScript;
+var isNodejs = platform.isNodejs;
+var constants = require('./../constants');
+
+module.exports = (function () {
+    'use strict';
+
+    function initLocalStorage(options) {
+        if (isNativeScript) {
+            var localSettings;
+
+            //workound for older nativescript versions
+            try {
+                localSettings = require('application-settings');
+            } catch (e) {
+                localSettings = require('local-settings');
+            }
+
+            return {
+                getItem: function (key) {
+                    return localSettings.getString(key);
+                },
+
+                removeItem: function (key) {
+                    return localSettings.remove(key);
+                },
+
+                setItem: function (key, value) {
+                    return localSettings.setString(key, value);
+                }
+            };
+        } else {
+            var localStorage;
+            if (isNodejs) {
+                var LocalStorage = require('node-localstorage').LocalStorage;
+                localStorage = new LocalStorage(options.storage.storagePath);
+            } else {
+                localStorage = window.localStorage;
+            }
+
+            return {
+                getItem: function (key) {
+                    return localStorage.getItem(key);
+                },
+
+                removeItem: function (key) {
+                    return localStorage.removeItem(key);
+                },
+
+                setItem: function (key, value) {
+                    return localStorage.setItem(key, value);
+                }
+            };
+        }
+    }
+
+    function LocalStore(options) {
+        this.options = options;
+        this._localStorage = initLocalStorage(this.options);
+    }
+
+    LocalStore.prototype = {
+        getItem: function (key) {
+            return this._localStorage.getItem(key);
+        },
+
+        removeItem: function (key) {
+            return this._localStorage.removeItem(key);
+        },
+
+        setItem: function (key, value) {
+            return this._localStorage.setItem(key, value);
+        }
+    };
+
+    return LocalStore;
+}());
+},{"./../constants":54,"./../everlive.platform.js":56,"application-settings":"application-settings","local-settings":"local-settings","node-localstorage":"node-localstorage"}],82:[function(require,module,exports){
+'use strict';
+
+var common = require('../common');
+var rsvp = common.rsvp;
+
+function NativeScriptFileStore(storagePath, options) {
+    this.options = options;
+    this.fs = require('file-system');
+    this.dataDirectoryPath = this.fs.knownFolders.documents().path;
+    this.filesDirectoryPath = storagePath;
+}
+
+NativeScriptFileStore.prototype = {
+    getErrorHandler: function (callback) {
+        return function (e) {
+            callback && callback(e);
+        }
+    },
+
+    removeFilesDirectory: function (directoryEntry) {
+        var filesDirectoryPath = this.fs.path.join(directoryEntry.path, this.filesDirectoryPath);
+        var filesDirectory = this.fs.Folder.fromPath(filesDirectoryPath);
+        return filesDirectory.remove();
+    },
+
+    removeFile: function (fileEntry) {
+        return fileEntry.remove();
+    },
+
+    readFileAsText: function (fileEntry) {
+        return fileEntry.readText();
+    },
+
+    writeTextToFile: function (fileEntry, content) {
+        return fileEntry.writeText(content);
+    },
+
+    getFile: function (path) {
+        var self = this;
+        return new rsvp.Promise(function (resolve, reject) {
+            self.resolveDataDirectory(function (directoryEntry) {
+                var fullFilePath = self.fs.path.join(directoryEntry.path, path);
+                var file = self.fs.File.fromPath(fullFilePath);
+                resolve(file);
+            }, reject);
+        });
+    },
+
+    resolveDataDirectory: function () {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve) {
+            var dataDirectory = self.fs.Folder.fromPath(self.dataDirectoryPath);
+            resolve(dataDirectory);
+        });
+    },
+
+    ensureFilesDirectory: function () {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self.resolveDataDirectory(function (directoryEntry) {
+                var fileDirectoryPath = self.fs.path.join(directoryEntry.path, self.filesDirectoryPath);
+                self.fs.Folder.fromPath(fileDirectoryPath);
+                resolve();
+            });
+        });
+    },
+
+    getFilesDirectoryPath: function () {
+        return this.filesDirectoryPath;
+    },
+
+    // TODO: [offline] Implement
+    writeText: function (fileName, text) {
+        throw new Error('Not implemented');
+    },
+
+    // TODO: [offline] Implement
+    createDirectory: function () {
+        throw new Error('Not implemented');
+    },
+
+    // TODO: [offline] Implement
+    getFileSize: function (file, getFileSize) {
+        throw new Error('Not implemented');
+    },
+
+    // TODO: [offline] Implement
+    getFileByAbsolutePath: function (path) {
+        throw new Error('Not implemented');
+    },
+
+    readFileAsBase64: function (file) {
+        throw new Error('Not implemented');
+    },
+
+    renameFile: function () {
+        throw new Error('Not implemented');
+    },
+};
+
+module.exports = NativeScriptFileStore;
+},{"../common":53,"file-system":"file-system"}],83:[function(require,module,exports){
+'use strict';
+
+var EverliveError = require('../EverliveError').EverliveError;
+var common = require('../common');
+var rsvp = common.rsvp;
+var utils = require('../utils');
+var platform = require('../everlive.platform');
+var path = require('path');
+
+function WebFileStore(storagePath, options) {
+    this.options = options;
+
+    var filesDirectoryPath;
+    if (platform.isWindowsPhone) {
+        filesDirectoryPath = '/' + storagePath;
+    } else {
+        filesDirectoryPath = storagePath + '/';
+    }
+
+    this.filesDirectoryPath = filesDirectoryPath;
+    this._requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+    this._resolveLocalFileSystemURL = window.resolveLocalFileSystemURL || window.webkitResolveLocalFileSystemURL;
+    this._PERSISTENT_FILE_SYSTEM = window.LocalFileSystem ? window.LocalFileSystem.PERSISTENT : window.PERSISTENT;
+}
+
+WebFileStore.prototype = {
+    getErrorHandler: function getErrorHandler(callback) {
+        var errorsMap = {
+            1000: 'NOT_FOUND'
+        };
+
+        _.each(Object.keys(FileError), function (error) {
+            errorsMap[FileError[error]] = error;
+        });
+
+        return function (e) {
+            if (!e.message) {
+                e.message = errorsMap[e.code];
+            }
+
+            callback && callback(e);
+        }
+    },
+
+    getDataDirectory: (function () {
+        var fileSystemRoot;
+
+        return function getDataDirectory() {
+            var self = this;
+            var requestFileSystem = function (bytes, success, error) {
+                self._requestFileSystem.call(window, self._PERSISTENT_FILE_SYSTEM, bytes, function (fileSystem) {
+                    fileSystemRoot = fileSystem.root;
+                    fileSystemRoot.nativeURL = fileSystemRoot.nativeURL || fileSystemRoot.toURL();
+                    success(fileSystemRoot);
+                }, error);
+            };
+
+            return new rsvp.Promise(function (resolve, reject) {
+                if (fileSystemRoot) {
+                    return resolve(fileSystemRoot);
+                }
+
+                if (platform.isDesktop) {
+                    if (navigator && !navigator.webkitPersistentStorage) {
+                        return reject(new EverliveError('FileSystemStorage can be used only with browsers supporting it. Consider using localStorage.'))
+                    }
+
+                    navigator.webkitPersistentStorage.requestQuota(self.options.storage.requestedQuota, function (grantedBytes) {
+                        requestFileSystem(grantedBytes, resolve, reject);
+                    }, reject);
+                } else {
+                    requestFileSystem(0, resolve, reject);
+                }
+            });
+        }
+    }()),
+
+    getFilesDirectory: function getFilesDirectory() {
+        var self = this;
+        return new rsvp.Promise(function (resolve, reject) {
+            self.getDataDirectory()
+                .then(function (dataDirectory) {
+                    dataDirectory.getDirectory(self.filesDirectoryPath, {
+                        create: true,
+                        exclusive: false
+                    }, resolve, reject);
+                })
+                .catch(reject);
+        });
+    },
+
+    removeFilesDirectory: function () {
+        var self = this;
+
+        return this.getFilesDirectory()
+            .then(function (filesDirectory) {
+                return self._removeFolderWrap(filesDirectory);
+            });
+    },
+
+    removeFile: function (fileEntry) {
+        return new rsvp.Promise(function (resolve, reject) {
+            fileEntry.remove(function () {
+                resolve();
+            }, reject);
+        });
+    },
+
+    readFileAsText: function (fileEntry) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self.getFilesDirectory().then(function () {
+                fileEntry.file(function (file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function () {
+                        var result = this.result;
+
+                        //windows phone returns an object....
+                        if (typeof this.result === 'object') {
+                            result = JSON.stringify(this.result);
+                        }
+
+                        resolve(result);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsText(file);
+                }, reject);
+            }).catch(reject);
+        });
+    },
+
+    writeTextToFile: function (fileEntry, content) {
+        var self = this;
+
+        return self.getFilesDirectory()
+            .then(function () {
+                return self._getWriterWrap(fileEntry, content);
+            });
+    },
+
+    getFileSize: function (filename, folder) {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve, reject) {
+            var fileLocation = utils.joinPath(folder, filename);
+
+            return self.getFile(fileLocation)
+                .then(function (fileEntry) {
+                    fileEntry.file(function (file) {
+                        resolve(file.size);
+                    }, reject);
+                })
+        });
+    },
+
+    getFile: function (fileName, dirEntry) {
+        return this.getFilesDirectory()
+            .then(function (directoryEntry) {
+                var fileDirectory;
+                if (dirEntry) {
+                    fileDirectory = dirEntry;
+                } else {
+                    fileDirectory = directoryEntry;
+                }
+
+                return new rsvp.Promise(function (resolve, reject) {
+                    fileDirectory.getFile(fileName, {
+                        create: true,
+                        exclusive: false
+                    }, resolve, reject);
+                });
+            });
+    },
+
+    getFileByAbsolutePath: function (path) {
+        var self = this;
+        path = utils.transformPlatformPath(path);
+
+        return new rsvp.Promise(function (resolve, reject) {
+            self._resolveLocalFileSystemURL.call(window, path, resolve, function (err) {
+                if (err && err.code === FileError.NOT_FOUND_ERR) {
+                    return resolve();
+                }
+
+                return reject(err);
+            });
+        });
+    },
+
+    createDirectory: function (directory) {
+        var self = this;
+
+        return this.getFilesDirectory()
+            .then(function (directoryEntry) {
+                return self._getDirectoryWrap(directory, directoryEntry, {
+                    create: true,
+                    exclusive: false
+                });
+            });
+    },
+
+    renameFile: function (directoryEntry, fileEntry, filename) {
+        return new rsvp.Promise(function (resolve, reject) {
+            fileEntry.moveTo(directoryEntry, filename, resolve, reject);
+        });
+    },
+
+    _getDirectoryWrap: function (directory, directoryEntry, options) {
+        return new rsvp.Promise(function (resolve, reject) {
+            directoryEntry.getDirectory(directory, options, resolve, reject);
+        });
+    },
+
+    _removeFolderWrap: function (filesDirEntry) {
+        return new rsvp.Promise(function (resolve, reject) {
+            filesDirEntry.removeRecursively(function () {
+                resolve();
+            }, reject);
+        });
+    },
+
+    _getWriterWrap: function (fileEntry, content) {
+        return new rsvp.Promise(function (resolve, reject) {
+            fileEntry.createWriter(function (fileWriter) {
+                fileWriter.onwriteend = function () {
+                    resolve();
+                };
+
+                fileWriter.onerror = reject;
+
+                var bb = new Blob([content]);
+                fileWriter.write(bb);
+            }, reject);
+        });
+    },
+
+    writeText: function (fileName, text, path) {
+        var self = this;
+        var fileHandle;
+
+        return this.getFilesDirectory()
+            .then(function (directoryEntry) {
+                if (path) {
+                    return self.createDirectory(path);
+                } else {
+                    return directoryEntry;
+                }
+            })
+            .then(function (directoryEntry) {
+                return self.getFile(fileName, directoryEntry);
+            })
+            .then(function (fileEntry) {
+                fileHandle = fileEntry;
+                return self.writeTextToFile(fileEntry, text);
+            })
+            .then(function () {
+                // there  is a difference between the cordova implementation and the standard FileTransfer fileEntry
+                return fileHandle.nativeURL || fileHandle.toURL();
+            });
+    },
+
+    // http://stackoverflow.com/questions/9583363/get-base64-from-imageuri-with-phonegap
+    readFileAsBase64: function (fileEntry) {
+        return new rsvp.Promise(function (resolve, reject) {
+            fileEntry.file(function (file) {
+                var reader = new FileReader();
+                reader.onloadend = function (evt) {
+                    resolve(utils.arrayBufferToBase64(evt.target.result));
+                };
+
+                reader.readAsArrayBuffer(file);
+            }, reject);
+        });
+    }
+};
+
+module.exports = WebFileStore;
+},{"../EverliveError":44,"../common":53,"../everlive.platform":56,"../utils":87,"path":4}],84:[function(require,module,exports){
 var buildPromise = require('../utils').buildPromise;
 var DataQuery = require('../query/DataQuery');
 var RequestOptionsBuilder = require('../query/RequestOptionsBuilder');
@@ -22217,7 +22836,8 @@ module.exports = (function () {
             return this;
         },
 
-        /**@memberOf Data.prototype
+        /**
+         * @memberOf Data.prototype
          * @method
          * Modifies whether the query should be invoked on the offline storage.
          * Default is true.
@@ -22872,7 +23492,7 @@ module.exports = (function () {
     return Data;
 }());
 
-},{"../Everlive":42,"../EverliveError":43,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":64,"../query/RequestOptionsBuilder":67,"../utils":74}],72:[function(require,module,exports){
+},{"../Everlive":43,"../EverliveError":44,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":73,"../query/RequestOptionsBuilder":76,"../utils":87}],85:[function(require,module,exports){
 /**
  * @class Files
  * @protected
@@ -22928,7 +23548,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
      * @memberof Files.prototype
      * @method updateContent
      * @param {string} fileId File ID.
-     * @param {string} file File contents in base64 encoding.
+     * @param {Object} file The file metadata and the base64 encoded file content.
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
      * @returns {Promise} The promise for the request
@@ -22984,7 +23604,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
         }, success, error);
     };
 };
-},{"../Request":49,"../query/DataQuery":64,"../utils":74}],73:[function(require,module,exports){
+},{"../Request":49,"../query/DataQuery":73,"../utils":87}],86:[function(require,module,exports){
 /**
  * @class Users
  * @extends Data
@@ -23623,13 +24243,14 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
         }, success, error);
     };
 };
-},{"../EverliveError":43,"../Request":49,"../common":53,"../query/DataQuery":64,"../utils":74}],74:[function(require,module,exports){
+},{"../EverliveError":44,"../Request":49,"../common":53,"../query/DataQuery":73,"../utils":87}],87:[function(require,module,exports){
 var EverliveError = require('./EverliveError').EverliveError;
 var common = require('./common');
 var _ = common._;
 var rsvp = common.rsvp;
 var Everlive = require('./Everlive');
-var isNodejs = require('./everlive.platform').isNodejs;
+var platform = require('./everlive.platform');
+var path = require('path');
 
 var utils = {};
 
@@ -23660,7 +24281,7 @@ utils.parseUtilities = {
             }
 
             return value;
-        }
+        };
     },
 
     parseIsoDateString: function (string) {
@@ -23793,6 +24414,10 @@ utils.parseUtilities = {
     parseUpdateResult: function (reviver, data) {
         data = utils.parseUtilities._parseInternal.apply(null, arguments);
         return utils.parseUtilities._transformResult(data, {ModifiedAt: data.ModifiedAt});
+    },
+
+    parseJSON: function (json) {
+        return JSON.parse(json, utils.parseUtilities.getReviver());
     }
 };
 
@@ -23815,7 +24440,7 @@ utils.getCallbacks = function (success, error) {
         });
     };
 
-    if (isNodejs) {
+    if (platform.isNodejs) {
         // node js style continuation
         if (typeof success === 'function' && typeof error !== 'function') {
             var callback = success;
@@ -23894,6 +24519,15 @@ utils.getDbOperators = function (expression, shallow) {
     return dbOperators;
 };
 
+utils.disableRequestCache = function (url, method) {
+    if (method === 'GET') {
+        var timestamp = (new Date()).getTime();
+        var separator = url.indexOf('?') > -1 ? '&' : '?';
+        url += separator + '_el=' + timestamp;
+    }
+
+    return url;
+};
 
 var unsupportedDbOperators = [
     '$geoWithin',
@@ -23908,8 +24542,137 @@ utils.getUnsupportedOperators = function (filter) {
     return _.intersection(dbOperators, unsupportedDbOperators);
 };
 
+// http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+utils.isGuid = function (str) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+};
+
+// http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript/16245768#16245768
+utils.b64toBlob = function (b64Data, contentType, sliceSize) {
+    contentType = contentType || '';
+    sliceSize = sliceSize || 512;
+
+    var byteCharacters = atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        var byteNumbers = new Array(slice.length);
+        for (var i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        var byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+};
+
+// http://stackoverflow.com/questions/9267899/arraybuffer-to-base64-encoded-string
+utils.arrayBufferToBase64 = function (buffer) {
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+
+    return btoa(binary);
+};
+
+utils.successfulPromise = function (data) {
+    return new rsvp.Promise(function (resolve) {
+        resolve(data);
+    });
+};
+
+utils.rejectedPromise = function (err) {
+    return new rsvp.Promise(function (resolve, reject) {
+        reject(err);
+    });
+};
+
+utils.transformPlatformPath = function transformPlatformPath(platformPath) {
+    if (!platformPath) {
+        return '';
+    }
+
+    if (platform.isWindowsPhone) {
+        if (platformPath.charAt(0) === '/' && platformPath.charAt(1) !== '/') {
+            platformPath = '/' + platformPath;
+        }
+    } else if (platform.isAndroid) { //TODO: probably desktop too
+        if (platformPath.indexOf('file:/') !== -1 && platformPath.indexOf('file:///') === -1) {
+            platformPath = platformPath.replace('file:/', 'file:///');
+        }
+    }
+
+    return platformPath;
+};
+
+utils._stringCompare = function (string, check) {
+    return string.toLowerCase() === check;
+};
+
+utils.isContentType = {
+    files: function (collectionName) {
+        return utils._stringCompare(collectionName, 'files');
+    },
+    users: function (collectionName) {
+        return utils._stringCompare(collectionName, 'users');
+    }
+};
+
+utils.isElement = {
+    _isElement: function (el, check) {
+        var tag = el;
+
+        if (typeof tag !== 'string') {
+            if (el instanceof HTMLElement) {
+                tag = el.tagName;
+            }
+        }
+
+        return utils._stringCompare(tag, check);
+    },
+    image: function (el) {
+        return utils.isElement._isElement(el, 'img');
+    },
+    anchor: function (el) {
+        return utils.isElement._isElement(el, 'a');
+    }
+};
+
+utils.joinPath = function joinPath() {
+    var args = [].slice.apply(arguments).map(function (arg) {
+        return arg || '';
+    });
+
+    var joinedPath = path.join.apply(path, args);
+    return utils.transformPlatformPath(joinedPath);
+};
+
+utils.uuid = function () {
+    //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+
+    return uuid;
+};
+
+utils.getId = function (obj) {
+    return obj.Id || obj._id || obj.id;
+};
+
 module.exports = utils;
 
-},{"./Everlive":42,"./EverliveError":43,"./common":53,"./everlive.platform":56}]},{},[57]);
-
+},{"./Everlive":43,"./EverliveError":44,"./common":53,"./everlive.platform":56,"path":4}]},{},[61]);
 }())
