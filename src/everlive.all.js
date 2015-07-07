@@ -14401,11 +14401,28 @@ module.exports = (function () {
      * @param {boolean} [options.offlineStorage.isOnline=true] - Whether the storage is in online mode initially.
      * @param {ConflictResolutionStrategy|function} [options.offlineStorage.conflicts.strategy=ConflictResolutionStrategy.ClientWins] - A constant specifying the conflict resolution strategy or a function used to resolve the conflicts.
      * @param {StorageProvider|object} [options.offlineStorage.storage.provider=StorageProvider.LocalStorage] - An object specifying settings for the offline storage provider.
-     * @param {string} [options.offlineStorage.storage.storagePath=el_store] - A relative path specifying where the files will be saved if file system is used for persistence.
+     * @param {string} [options.offlineStorage.storage.storagePath=el_store] - A relative path specifying where the files will be saved if file system is used for persistence for item metadata.
      * @param {number} [options.offlineStorage.storage.requestedQuota=10485760] - How much memory (in bytes) to be requested when using the file system for persistence. This option is only valid for Chrome as the other platforms use all the available space.
      * @param {string} [options.offlineStorage.encryption.key] - A key that will be used to encrypt the data stored offline.
+     * @param {string} [options.offlineStorage.files.storagePath=el_file_store] - A relative path specifying where the files will be saved if file system is used for persistence of files in offline mode.
+     * @param {string} [options.offlineStorage.files.metaPath=el_file_mapping] - A relative path specifying where the metadata file will be saved if file system is used for persistence of files in offline mode.
+     * @param {object|boolean} [options.offlineStorage.files] - Set this option to true to enable support for files in offline mode.
      * @param {boolean} [options.authentication.persist=false] - Indicates whether the current user's authentication will be persisted.
      * @param {Function} [options.authentication.onAuthenticationRequired] - Invoked when the user's credentials have expired. Allowing you to perform custom logic.
+     * @param {object} [options.helpers] - An object holding options for all Everlive helper components.
+     * @param {object} [options.helpers.html] - HTML Helper configuration objects.
+     * @param {boolean} [options.helpers.html.processOnLoad=false] - Whether to process all HTML elements when the window loads.
+     * @param {boolean} [options.helpers.html.processOnResize=false] - Whether to process all HTML elements when the window resizes.
+     * @param {string} [options.helpers.html.loadingImageUrl] - The image to be displayed while the original image is being processed.
+     * @param {string} [options.helpers.html.errorImageUrl] - The image to be displayed when the original image processing fails.
+     * @param {object} [options.helpers.html.attributes] - HTML Helper attributes configuration object.
+     * @param {object} [options.helpers.html.attributes.loadingImage=data-loading-image] - A custom name for the attribute to be used to set a loading image.
+     * @param {object} [options.helpers.html.attributes.errorImage=data-error-image] - A custom name for the attribute to be used to set an error image.
+     * @param {object} [options.helpers.html.attributes.dpi=data-dpi] - A custom name for the attribute to be used to specify DPI settings.
+     * @param {object} [options.helpers.html.attributes.imageSource=data-src] - A custom name for the attribute to be used to set the image source.
+     * @param {object} [options.helpers.html.attributes.fileSource=data-href] - A custom name for the attribute to be used to set the anchor source.
+     * @param {object} [options.helpers.html.attributes.enableOffline=data-offline] - A custom name for the attribute to be used to control offline processing.
+     * @param {object} [options.helpers.html.attributes.enableResponsive=data-responsive] - A custom name for the attribute to be used to control Responsive Images processing.
      */
     function Everlive(options) {
         var self = this;
@@ -14738,14 +14755,12 @@ module.exports = (function () {
     };
 
     var initializeHelpers = function initializeHelpers(options) {
-        if (!_.size(options.helpers)) {
-            return;
-        }
-
         var self = this;
         self.helpers = {};
+
         _.each(helpers, function (helper) {
-            self.helpers[helper.name] = new helper.ctor(self, options.helpers[helper.name]);
+            var helperOptions = options.helpers ? options.helpers[helper.name] : null;
+            self.helpers[helper.name] = new helper.ctor(self, helperOptions);
         });
     };
 
@@ -16380,10 +16395,6 @@ module.exports = (function () {
             server: 'bs1.cdn.telerik.com/image/v1/'
         };
 
-        if (config === true) {
-            config = defaults;
-        }
-
         config = config || {};
 
         this.options = _.extend({}, defaults, config);
@@ -16564,10 +16575,10 @@ module.exports = (function () {
         /**
          * @method process
          * @memberOf Helpers.html
-         * @param {HtmlElement} elements
-         * @param {Object} settings A settings specifying custom behavior
-         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
-         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @param {HtmlElement|HtmlElement[]} elements
+         * @param {Object} settings A settings specifying custom behavior.
+         * @param {boolean} [settings.responsive] Whether to process the data-responsive attributes that help implement Responsive Images.
+         * @param {boolean} [settings.offline] Whether to process the data-offline attributes that help implement offline files.
          * @param {Function} [success] A success callback.
          * @param {Function} [error] An error callback.
          */
@@ -16575,32 +16586,11 @@ module.exports = (function () {
         /**
          * @method process
          * @memberOf Helpers.html
-         * @param {HtmlElement[]} elements
-         * @param {Object} settings A settings specifying custom behavior
-         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
-         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
-         * @param {Function} [success] A success callback.
-         * @param {Function} [error] An error callback.
-         */
-
-        /**
-         * @method process
-         * @memberOf Helpers.html
-         * @param {HtmlElement} elements
-         * @param {Object} settings A settings specifying custom behavior
-         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
-         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
-         * @returns {Promise} A promise to the process state
-         */
-
-        /**
-         * @method process
-         * @memberOf Helpers.html
-         * @param {HtmlElement[]} elements
-         * @param {Object} settings A settings specifying custom behavior
-         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
-         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
-         * @returns {Promise} A promise to the process state
+         * @param {HtmlElement|HtmlElement[]} elements
+         * @param {Object} settings A settings specifying custom behavior.
+         * @param {boolean} [settings.responsive] Whether to process the data-responsive attributes that help implement Responsive Images.
+         * @param {boolean} [settings.offline] Whether to process the data-offline attributes that help implement offline files.
+         * @returns {Promise} A promise to the process state.
          */
         process: function process(elements, settings, success, error) {
             var self = this;
@@ -16705,9 +16695,9 @@ module.exports = (function () {
         /**
          * @method processAll
          * @memberOf Helpers.html
-         * @param {Object} settings A settings specifying custom behavior
-         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
-         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
+         * @param {Object} settings A settings specifying custom behavior.
+         * @param {boolean} [settings.responsive] Whether to process the data-responsive attributes that help implement Responsive Images.
+         * @param {boolean} [settings.offline] Whether to process the data-offline attributes that help implement offline files.
          * @param {Function} [success] A success callback.
          * @param {Function} [error] An error callback.
          */
@@ -16715,36 +16705,28 @@ module.exports = (function () {
         /**
          * @method processAll
          * @memberOf Helpers.html
-         * @param {Object} settings A settings specifying custom behavior
-         * @param {boolean} [settings.responsive] A value specifying whether responsive processing can be applied on the element if available.
-         * @param {boolean} [settings.offline] A value specifying whether offline processing can be applied on the element if available.
-         * @returns {Promise} A promise to the process state
+         * @param {Object} settings A settings specifying custom behavior.
+         * @param {boolean} [settings.responsive] Whether to process the data-responsive attributes that help implement Responsive Images.
+         * @param {boolean} [settings.offline] Whether to process the data-offline attributes that help implement offline files.
+         * @returns {Promise} A promise to the process state.
          */
         processAll: function processAll(settings, success, error) {
             settings = this._defaultProcessSettings(settings);
             var responsiveSelector = '[' + this.options.attributes.enableResponsive + ']';
             var offlineSelector = '[' + this.options.attributes.enableOffline + ']';
 
-            var elements;
-
-            if (settings.responsive && settings.offline) {
-                elements = document.querySelectorAll(responsiveSelector + offlineSelector);
+            var responsiveElements = [];
+            if (settings.responsive) {
+                responsiveElements = document.querySelectorAll(responsiveSelector);
             }
 
-            if (!elements) {
-                var responsiveElements = [];
-                if (settings.responsive) {
-                    responsiveElements = document.querySelectorAll(responsiveSelector);
-                }
-
-                var offlineElements = [];
-                if (settings.offline) {
-                    offlineElements = document.querySelectorAll(offlineSelector);
-                }
-
-                var slice = [].slice;
-                elements = slice.call(responsiveElements).concat(slice.call(offlineElements));
+            var offlineElements = [];
+            if (settings.offline) {
+                offlineElements = document.querySelectorAll(offlineSelector);
             }
+
+            var slice = [].slice;
+            var elements = _.unique(slice.call(responsiveElements).concat(slice.call(offlineElements)));
 
 
             return this.process(elements, settings, success, error);
@@ -17026,7 +17008,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.4.0
+ Version 1.4.1
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -17635,6 +17617,11 @@ var OfflineFilesModule = function (offlineFilesProcessor, everlive) {
     this._everlive = everlive;
 };
 
+/**
+ * @class OfflineFilesModule
+ * @classdesc A class that provides the means to operate with files in offline mode.
+ * @protected
+ */
 OfflineFilesModule.prototype = {
     _getFilenameMetadata: function (location, offlineFileInfo) {
         return new rsvp.Promise(function (resolve) {
@@ -17663,7 +17650,7 @@ OfflineFilesModule.prototype = {
     },
 
     /**
-     * Updates a file's content
+     * Updates a file's content.
      * @memberof OfflineFilesModule.prototype
      * @method downloadOffline
      * @param {string} location A file location or the id of a file stored in Backend Services.
@@ -17671,7 +17658,7 @@ OfflineFilesModule.prototype = {
      * @returns {Promise} The promise for the request
      */
     /**
-     * Updates a file's content
+     * Updates a file's content.
      * @memberof OfflineFilesModule.prototype
      * @method downloadOffline
      * @param {string} location A file location or the id of a file stored in Backend Services.
@@ -17723,9 +17710,8 @@ OfflineFilesModule.prototype = {
     _saveFile: function (location, filename) {
         var self = this;
         var actualLocation;
-        location = self._sanitizeUrl(location);
 
-        return self._downloadFile(location, filename)
+        return self._downloadFile(location , filename)
             .then(function (_actualLocation) {
                 actualLocation = _actualLocation;
                 return self._offlineFilesProcessor.getOfflineFilesData();
@@ -17744,13 +17730,13 @@ OfflineFilesModule.prototype = {
     },
 
     /**
-     * Remove all files stored offline.
+     * Physically deletes the offline copies of all files.
      * @memberof OfflineFilesModule.prototype
      * @method purgeAll
-     * @returns {Promise} The promise for the request
+     * @returns {Promise} The promise for the request.
      */
     /**
-     * Remove all files stored offline.
+     * Physically deletes the offline copies of all files.
      * @memberof OfflineFilesModule.prototype
      * @method purgeAll
      * @param {Function} [success] A success callback.
@@ -17803,7 +17789,10 @@ OfflineFilesModule.prototype = {
             var sanitizedUrl = self._sanitizeUrl(url);
             var fileId = path.basename(sanitizedUrl);
             var extension = path.extname(name);
-            var filename = fileId + extension;
+            var filename = fileId;
+            if (path.extname(sanitizedUrl) !== extension) {
+                 filename += extension;
+            }
 
             var fileParentDirectory = '';
             if (!utils.isGuid(url)) {
@@ -17820,7 +17809,7 @@ OfflineFilesModule.prototype = {
                 .then(function (location) {
                     fileTransfer.download(url, location, function () {
                         resolve(location);
-                    }, reject, {
+                    }, reject, true, {
                         headers: self._everlive.buildAuthHeader()
                     });
                 })
@@ -17853,14 +17842,14 @@ OfflineFilesModule.prototype = {
     },
 
     /**
-     * Check if a file exists offline.
+     * Checks if a file exists offline.
      * @memberof OfflineFilesModule.prototype
      * @method exists
      * @param {String} location The location or file id to check.
      * @returns {Promise} The promise for the request
      */
     /**
-     * Check if a file exists offline.
+     * Checks if a file exists offline.
      * @memberof OfflineFilesModule.prototype
      * @method exists
      * @param {String} location The location or file id to check.
@@ -17896,14 +17885,14 @@ OfflineFilesModule.prototype = {
 
 
     /**
-     * Remove a file from the offline storage.
+     * Physically deletes the offline copy of a file.
      * @memberof OfflineFilesModule.prototype
      * @method purge
      * @param {String} location The location or file id to remove.
-     * @returns {Promise} The promise for the request
+     * @returns {Promise} The promise for the request.
      */
     /**
-     * Check if a file exists offline.
+     * Physically deletes the offline copy of a file.
      * @memberof OfflineFilesModule.prototype
      * @method purge
      * @param {String} location The location or file id to check.
@@ -17929,14 +17918,14 @@ OfflineFilesModule.prototype = {
     },
 
     /**
-     * Get the native URL for a file which is stored offline.
+     * Gets the native URL for a file that is stored offline.
      * @memberof OfflineFilesModule.prototype
      * @method getOfflineLocation
      * @param {String} location The location or file id to process.
      * @returns {Promise} The promise for the request
      */
     /**
-     * Get the native URL for a file which is stored offline.
+     * Gets the native URL for a file that is stored offline.
      * @memberof OfflineFilesModule.prototype
      * @method getOfflineLocation
      * @param {String} location The location or file id to process.
@@ -17966,7 +17955,7 @@ OfflineFilesModule.prototype = {
                 .then(function (response) {
                     var file = response.result;
                     resolve({
-                        location: self._sanitizeUrl(file.Uri),
+                        location: file.Uri,
                         filename: file.Filename,
                         Id: sanitizedUrl
                     });
@@ -17974,7 +17963,7 @@ OfflineFilesModule.prototype = {
                 .catch(function (err) {
                     if (err && err.code === EverliveErrors.itemNotFound.code) {
                         resolve({
-                            location: sanitizedUrl
+                            location: location
                         });
                     } else {
                         reject(err);
@@ -18297,12 +18286,17 @@ unsupportedUsersOperations[DataQuery.operations.userUnlinkFromProvider] = true;
 unsupportedUsersOperations[DataQuery.operations.userLogin] = true;
 unsupportedUsersOperations[DataQuery.operations.userLogout] = true;
 unsupportedUsersOperations[DataQuery.operations.userChangePassword] = true;
+unsupportedUsersOperations[DataQuery.operations.userResetPassword] = true;
 
 function buildUsersErrorMessage(dataQuery) {
+    var unsupportedUserSocialProviderOperations = [
+        DataQuery.operations.userLoginWithProvider,
+        DataQuery.operations.userLinkWithProvider,
+        DataQuery.operations.userUnlinkFromProvider
+    ];
+
     var operation = dataQuery.operation;
-    if (operation === DataQuery.operations.userLoginWithProvider ||
-        operation === DataQuery.operations.userLinkWithProvider ||
-        operation === DataQuery.operations.userUnlinkFromProvider) {
+    if (unsupportedUserSocialProviderOperations.indexOf(operation) !== -1) {
         operation += dataQuery.data.Provider || dataQuery.data.Identity.Provider;
     }
 
@@ -19158,7 +19152,7 @@ module.exports = (function () {
 
 
             /**
-             * @memberOf OfflineModule
+             * @memberOf Everlive.prototype
              * @instance
              * @description An instance of the [OfflineFilesModule]{@link OfflineFilesModule} class for working with files in offline mode.
              * @member {OfflineFilesModule} files
@@ -20456,6 +20450,7 @@ module.exports = (function () {
 
     return OfflineModule;
 })();
+
 },{"../EverliveError":44,"../Request":49,"../common":53,"../constants":54,"../query/DataQuery":73,"../query/RequestOptionsBuilder":76,"../utils":87,"./OfflineFilesModule":63,"./OfflineFilesProcessor":64,"./OfflineQueryProcessor":65,"./offlineTransformations":69,"path":4}],67:[function(require,module,exports){
 var constants = require('../constants');
 var persistersModule = require('./offlinePersisters');
@@ -21116,6 +21111,7 @@ module.exports = (function () {
         userLoginWithProvider: 'loginWith',
         userLinkWithProvider: 'linkWith',
         userUnlinkFromProvider: 'unlinkFrom',
+        userResetPassword: 'resetPassword',
         filesUpdateContent: 'updateContent',
         filesGetDownloadUrlById: 'downloadUrlById'
     };
@@ -21783,6 +21779,13 @@ module.exports = (function () {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/unlink'
+        });
+    };
+
+    RequestOptionsBuilder[DataQuery.operations.userResetPassword] = function (dataQuery) {
+        return RequestOptionsBuilder._build(dataQuery, {
+            method: 'POST',
+            endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/resetpassword'
         });
     };
 
@@ -22468,7 +22471,7 @@ function WebFileStore(storagePath, options) {
 WebFileStore.prototype = {
     getErrorHandler: function getErrorHandler(callback) {
         var errorsMap = {
-            1000: 'NOT_FOUND'
+            '1000': 'NOT_FOUND'
         };
 
         _.each(Object.keys(FileError), function (error) {
@@ -24200,6 +24203,42 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
         everlive.authentication.setAuthorization(null, null, null);
     };
 
+    /**
+     *
+     * Sends a password reset email to the user with the specified email address.
+     * @memberOf Users.prototype
+     * @method resetPassword
+     * @name resetPassword
+     * @param {string} email The user's username.
+     * @returns {Promise} The promise for the request.
+     */
+    /**
+     * Sends a password reset email to the user with the specified email address.
+     * @memberOf Users.prototype
+     * @method resetPassword
+     * @name resetPassword
+     * @param {string} email The user's username.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+    ns.resetPassword = function (email, success, error) {
+        var self = this;
+
+        return buildPromise(function (successCb, errorCb) {
+            var dataQuery = new DataQuery({
+                operation: DataQuery.operations.userResetPassword,
+                collectionName: self.collectionName,
+                data: {
+                    Email: email
+                },
+                onSuccess: successCb,
+                onError: errorCb
+            });
+
+            return self.processDataQuery(dataQuery);
+        }, success, error);
+    };
+
     ns._linkWithProvider = function (identity, userId, success, error) {
         var self = this;
         return buildPromise(function (success, error) {
@@ -24605,7 +24644,7 @@ utils.transformPlatformPath = function transformPlatformPath(platformPath) {
         if (platformPath.charAt(0) === '/' && platformPath.charAt(1) !== '/') {
             platformPath = '/' + platformPath;
         }
-    } else if (platform.isAndroid) { //TODO: probably desktop too
+    } else { //TODO: probably desktop too
         if (platformPath.indexOf('file:/') !== -1 && platformPath.indexOf('file:///') === -1) {
             platformPath = platformPath.replace('file:/', 'file:///');
         }
