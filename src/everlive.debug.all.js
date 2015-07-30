@@ -617,6 +617,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
+
 },{"_process":5}],5:[function(require,module,exports){
 // shim for using process in browser
 
@@ -1306,6 +1307,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"./support/isBuffer":6,"_process":5,"inherits":3}],8:[function(require,module,exports){
 var json = typeof JSON !== 'undefined' ? JSON : require('jsonify');
 
@@ -10509,6 +10511,7 @@ code.google.com/p/crypto-js/wiki/License
 
 
 }).call(this,require('_process'))
+
 },{"_process":5}],36:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
@@ -14265,6 +14268,7 @@ module.exports = RelationTreeBuilder;
 }());
 
 }).call(this,require('_process'))
+
 },{"_process":5}],44:[function(require,module,exports){
 //     Underscore.js 1.8.2
 //     http://underscorejs.org
@@ -17959,6 +17963,7 @@ module.exports = (function () {
     return common;
 }());
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"../scripts/bs-expand-processor":40,"./everlive.platform":62,"./reqwest.nativescript":91,"./reqwest.nodejs":92,"Base64":1,"json-stable-stringify":8,"jstimezonedetect":12,"mingo":13,"mongo-query":15,"reqwest":34,"rsvp":35,"underscore":36}],60:[function(require,module,exports){
 /**
  * Constants used by the SDK
@@ -18241,6 +18246,7 @@ module.exports = {
     platform: platform
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{}],63:[function(require,module,exports){
 'use strict';
 
@@ -25678,6 +25684,7 @@ module.exports = (function () {
     return reqwest;
 }());
 }).call(this,require("buffer").Buffer)
+
 },{"buffer":"buffer","http":"http","https":"https","rsvp":35,"underscore":36,"url":"url","zlib":"zlib"}],93:[function(require,module,exports){
 var platform = require('../everlive.platform');
 var WebFileStore = require('./WebFileStore');
@@ -28354,5 +28361,6 @@ utils.getId = function (obj) {
 
 module.exports = utils;
 
-},{"./Everlive":47,"./EverliveError":48,"./common":59,"./everlive.platform":62,"path":4}]},{},[67]);
+},{"./Everlive":47,"./EverliveError":48,"./common":59,"./everlive.platform":62,"path":4}]},{},[67])
+//# sourceMappingURL=everlive.map
 }())
