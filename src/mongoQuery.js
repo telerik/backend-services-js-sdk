@@ -925,10 +925,17 @@ exports.formatArgs = formatArgs;
 exports.save = save;
 exports.load = load;
 exports.useColors = useColors;
-exports.storage = 'undefined' != typeof chrome
-               && 'undefined' != typeof chrome.storage
-                  ? chrome.storage.local
-                  : localstorage();
+
+/**
+ * Use chrome.storage.local if we are in an app
+ */
+
+var storage;
+
+if (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined')
+  storage = chrome.storage.local;
+else
+  storage = localstorage();
 
 /**
  * Colors.
@@ -1036,9 +1043,9 @@ function log() {
 function save(namespaces) {
   try {
     if (null == namespaces) {
-      exports.storage.removeItem('debug');
+      storage.removeItem('debug');
     } else {
-      exports.storage.debug = namespaces;
+      storage.debug = namespaces;
     }
   } catch(e) {}
 }
@@ -1053,7 +1060,7 @@ function save(namespaces) {
 function load() {
   var r;
   try {
-    r = exports.storage.debug;
+    r = storage.debug;
   } catch(e) {}
   return r;
 }
@@ -1321,8 +1328,6 @@ module.exports = function(val, options){
  */
 
 function parse(str) {
-  str = '' + str;
-  if (str.length > 10000) return;
   var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
   if (!match) return;
   var n = parseFloat(match[1]);
