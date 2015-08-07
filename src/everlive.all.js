@@ -1,4 +1,4 @@
-(function () { if (typeof module === "object") { var everliveModule = module; } if (typeof define !== "undefined" && define.amd) { define(function() { return Everlive; }); } (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Everlive = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -554,38 +554,71 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
+
 },{"_process":4}],4:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
 var queue = [];
 var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
 
 function drainQueue() {
     if (draining) {
         return;
     }
+    var timeout = setTimeout(cleanUpNextTick);
     draining = true;
-    var currentQueue;
+
     var len = queue.length;
     while(len) {
         currentQueue = queue;
         queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
+        while (++queueIndex < len) {
+            currentQueue[queueIndex].run();
         }
+        queueIndex = -1;
         len = queue.length;
     }
+    currentQueue = null;
     draining = false;
+    clearTimeout(timeout);
 }
+
 process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
         setTimeout(drainQueue, 0);
     }
 };
 
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
 process.title = 'browser';
 process.browser = true;
 process.env = {};
@@ -1211,6 +1244,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"./support/isBuffer":5,"_process":4,"inherits":2}],7:[function(require,module,exports){
 var json = typeof JSON !== 'undefined' ? JSON : require('jsonify');
 
@@ -2375,9 +2409,9 @@ module.exports = function (value, replacer, space) {
         _.extend(this._operators, {"$project": this._projection});
       }
 
-      if (!_.isArray(this._collection) && !_.isObject(this._collection)) {
-        throw new Error("Input collection is not of valid type. Must be an Array.");
-      }
+      // if (!_.isArray(this._collection) && !_.isObject(this._collection)) {
+      //   throw new Error("Input collection is not of valid type. Must be an Array.");
+      // }
 
       // filter collection
       this._result = _.filter(this._collection, this._query.test, this._query);
@@ -2728,6 +2762,15 @@ module.exports = function (value, replacer, space) {
       if (_.isEmpty(expr)) {
         return collection;
       }
+      var usesExclusion = false;
+      _.each(expr, function(val, key) {
+        if(val === 0 && key !== settings.key) {
+           usesExclusion = true;
+        }
+        if(val !== 0 && usesExclusion) {
+            throw new Error("You cannot mix including and excluding fields."); 
+        }
+      });
 
       // result collection
       var projected = [];
@@ -3981,6 +4024,7 @@ module.exports = function (value, replacer, space) {
   }
 
 }(this));
+
 },{"stream":"stream","underscore":35,"util":6}],13:[function(require,module,exports){
 
 /**
@@ -4908,17 +4952,10 @@ exports.formatArgs = formatArgs;
 exports.save = save;
 exports.load = load;
 exports.useColors = useColors;
-
-/**
- * Use chrome.storage.local if we are in an app
- */
-
-var storage;
-
-if (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined')
-  storage = chrome.storage.local;
-else
-  storage = localstorage();
+exports.storage = 'undefined' != typeof chrome
+               && 'undefined' != typeof chrome.storage
+                  ? chrome.storage.local
+                  : localstorage();
 
 /**
  * Colors.
@@ -5026,9 +5063,9 @@ function log() {
 function save(namespaces) {
   try {
     if (null == namespaces) {
-      storage.removeItem('debug');
+      exports.storage.removeItem('debug');
     } else {
-      storage.debug = namespaces;
+      exports.storage.debug = namespaces;
     }
   } catch(e) {}
 }
@@ -5043,7 +5080,7 @@ function save(namespaces) {
 function load() {
   var r;
   try {
-    r = storage.debug;
+    r = exports.storage.debug;
   } catch(e) {}
   return r;
 }
@@ -5311,6 +5348,8 @@ module.exports = function(val, options){
  */
 
 function parse(str) {
+  str = '' + str;
+  if (str.length > 10000) return;
   var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
   if (!match) return;
   var n = parseFloat(match[1]);
@@ -8735,13 +8774,13 @@ code.google.com/p/crypto-js/wiki/License
 });
 
 },{}],34:[function(require,module,exports){
-(function (process){
+(function (process,global){
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
- * @version   3.0.18
+ * @version   3.0.20
  */
 
 (function() {
@@ -8871,6 +8910,10 @@ code.google.com/p/crypto-js/wiki/License
         @param {Function} callback function to be called when the event is triggered.
       */
       'on': function(eventName, callback) {
+        if (typeof callback !== 'function') {
+          throw new TypeError('Callback must be a function');
+        }
+
         var allCallbacks = lib$rsvp$events$$callbacksFor(this), callbacks;
 
         callbacks = allCallbacks[eventName];
@@ -8965,7 +9008,7 @@ code.google.com/p/crypto-js/wiki/License
         @for RSVP.EventTarget
         @private
         @param {String} eventName name of the event to be triggered
-        @param {Any} options optional value to be passed to any event handlers for
+        @param {*} options optional value to be passed to any event handlers for
         the given `eventName`
       */
       'trigger': function(eventName, options) {
@@ -9028,19 +9071,19 @@ code.google.com/p/crypto-js/wiki/License
 
     function lib$rsvp$instrument$$instrument(eventName, promise, child) {
       if (1 === lib$rsvp$instrument$$queue.push({
-          name: eventName,
-          payload: {
-            key: promise._guidKey,
-            id:  promise._id,
-            eventName: eventName,
-            detail: promise._result,
-            childId: child && child._id,
-            label: promise._label,
-            timeStamp: lib$rsvp$utils$$now(),
-            error: lib$rsvp$config$$config["instrument-with-stack"] ? new Error(promise._label) : null
-          }})) {
-            lib$rsvp$instrument$$scheduleFlush();
-          }
+        name: eventName,
+        payload: {
+          key: promise._guidKey,
+          id:  promise._id,
+          eventName: eventName,
+          detail: promise._result,
+          childId: child && child._id,
+          label: promise._label,
+          timeStamp: lib$rsvp$utils$$now(),
+          error: lib$rsvp$config$$config["instrument-with-stack"] ? new Error(promise._label) : null
+        }})) {
+          lib$rsvp$instrument$$scheduleFlush();
+        }
       }
     var lib$rsvp$instrument$$default = lib$rsvp$instrument$$instrument;
 
@@ -9293,7 +9336,7 @@ code.google.com/p/crypto-js/wiki/License
           value: value
         };
       } else {
-        return {
+         return {
           state: 'rejected',
           reason: value
         };
@@ -9301,28 +9344,30 @@ code.google.com/p/crypto-js/wiki/License
     }
 
     function lib$rsvp$enumerator$$Enumerator(Constructor, input, abortOnReject, label) {
-      this._instanceConstructor = Constructor;
-      this.promise = new Constructor(lib$rsvp$$internal$$noop, label);
-      this._abortOnReject = abortOnReject;
+      var enumerator = this;
 
-      if (this._validateInput(input)) {
-        this._input     = input;
-        this.length     = input.length;
-        this._remaining = input.length;
+      enumerator._instanceConstructor = Constructor;
+      enumerator.promise = new Constructor(lib$rsvp$$internal$$noop, label);
+      enumerator._abortOnReject = abortOnReject;
 
-        this._init();
+      if (enumerator._validateInput(input)) {
+        enumerator._input     = input;
+        enumerator.length     = input.length;
+        enumerator._remaining = input.length;
 
-        if (this.length === 0) {
-          lib$rsvp$$internal$$fulfill(this.promise, this._result);
+        enumerator._init();
+
+        if (enumerator.length === 0) {
+          lib$rsvp$$internal$$fulfill(enumerator.promise, enumerator._result);
         } else {
-          this.length = this.length || 0;
-          this._enumerate();
-          if (this._remaining === 0) {
-            lib$rsvp$$internal$$fulfill(this.promise, this._result);
+          enumerator.length = enumerator.length || 0;
+          enumerator._enumerate();
+          if (enumerator._remaining === 0) {
+            lib$rsvp$$internal$$fulfill(enumerator.promise, enumerator._result);
           }
         }
       } else {
-        lib$rsvp$$internal$$reject(this.promise, this._validationError());
+        lib$rsvp$$internal$$reject(enumerator.promise, enumerator._validationError());
       }
     }
 
@@ -9341,45 +9386,48 @@ code.google.com/p/crypto-js/wiki/License
     };
 
     lib$rsvp$enumerator$$Enumerator.prototype._enumerate = function() {
-      var length  = this.length;
-      var promise = this.promise;
-      var input   = this._input;
+      var enumerator = this;
+      var length     = enumerator.length;
+      var promise    = enumerator.promise;
+      var input      = enumerator._input;
 
       for (var i = 0; promise._state === lib$rsvp$$internal$$PENDING && i < length; i++) {
-        this._eachEntry(input[i], i);
+        enumerator._eachEntry(input[i], i);
       }
     };
 
     lib$rsvp$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
-      var c = this._instanceConstructor;
+      var enumerator = this;
+      var c = enumerator._instanceConstructor;
       if (lib$rsvp$utils$$isMaybeThenable(entry)) {
         if (entry.constructor === c && entry._state !== lib$rsvp$$internal$$PENDING) {
           entry._onError = null;
-          this._settledAt(entry._state, i, entry._result);
+          enumerator._settledAt(entry._state, i, entry._result);
         } else {
-          this._willSettleAt(c.resolve(entry), i);
+          enumerator._willSettleAt(c.resolve(entry), i);
         }
       } else {
-        this._remaining--;
-        this._result[i] = this._makeResult(lib$rsvp$$internal$$FULFILLED, i, entry);
+        enumerator._remaining--;
+        enumerator._result[i] = enumerator._makeResult(lib$rsvp$$internal$$FULFILLED, i, entry);
       }
     };
 
     lib$rsvp$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
-      var promise = this.promise;
+      var enumerator = this;
+      var promise = enumerator.promise;
 
       if (promise._state === lib$rsvp$$internal$$PENDING) {
-        this._remaining--;
+        enumerator._remaining--;
 
-        if (this._abortOnReject && state === lib$rsvp$$internal$$REJECTED) {
+        if (enumerator._abortOnReject && state === lib$rsvp$$internal$$REJECTED) {
           lib$rsvp$$internal$$reject(promise, value);
         } else {
-          this._result[i] = this._makeResult(state, i, value);
+          enumerator._result[i] = enumerator._makeResult(state, i, value);
         }
       }
 
-      if (this._remaining === 0) {
-        lib$rsvp$$internal$$fulfill(promise, this._result);
+      if (enumerator._remaining === 0) {
+        lib$rsvp$$internal$$fulfill(promise, enumerator._result);
       }
     };
 
@@ -9461,119 +9509,17 @@ code.google.com/p/crypto-js/wiki/License
       throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
     }
 
-    /**
-      Promise objects represent the eventual result of an asynchronous operation. The
-      primary way of interacting with a promise is through its `then` method, which
-      registers callbacks to receive either a promise’s eventual value or the reason
-      why the promise cannot be fulfilled.
-
-      Terminology
-      -----------
-
-      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-      - `thenable` is an object or function that defines a `then` method.
-      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-      - `exception` is a value that is thrown using the throw statement.
-      - `reason` is a value that indicates why a promise was rejected.
-      - `settled` the final resting state of a promise, fulfilled or rejected.
-
-      A promise can be in one of three states: pending, fulfilled, or rejected.
-
-      Promises that are fulfilled have a fulfillment value and are in the fulfilled
-      state.  Promises that are rejected have a rejection reason and are in the
-      rejected state.  A fulfillment value is never a thenable.
-
-      Promises can also be said to *resolve* a value.  If this value is also a
-      promise, then the original promise's settled state will match the value's
-      settled state.  So a promise that *resolves* a promise that rejects will
-      itself reject, and a promise that *resolves* a promise that fulfills will
-      itself fulfill.
-
-
-      Basic Usage:
-      ------------
-
-      ```js
-      var promise = new Promise(function(resolve, reject) {
-        // on success
-        resolve(value);
-
-        // on failure
-        reject(reason);
-      });
-
-      promise.then(function(value) {
-        // on fulfillment
-      }, function(reason) {
-        // on rejection
-      });
-      ```
-
-      Advanced Usage:
-      ---------------
-
-      Promises shine when abstracting away asynchronous interactions such as
-      `XMLHttpRequest`s.
-
-      ```js
-      function getJSON(url) {
-        return new Promise(function(resolve, reject){
-          var xhr = new XMLHttpRequest();
-
-          xhr.open('GET', url);
-          xhr.onreadystatechange = handler;
-          xhr.responseType = 'json';
-          xhr.setRequestHeader('Accept', 'application/json');
-          xhr.send();
-
-          function handler() {
-            if (this.readyState === this.DONE) {
-              if (this.status === 200) {
-                resolve(this.response);
-              } else {
-                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-              }
-            }
-          };
-        });
-      }
-
-      getJSON('/posts.json').then(function(json) {
-        // on fulfillment
-      }, function(reason) {
-        // on rejection
-      });
-      ```
-
-      Unlike callbacks, promises are great composable primitives.
-
-      ```js
-      Promise.all([
-        getJSON('/posts'),
-        getJSON('/comments')
-      ]).then(function(values){
-        values[0] // => postsJSON
-        values[1] // => commentsJSON
-
-        return values;
-      });
-      ```
-
-      @class RSVP.Promise
-      @param {function} resolver
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @constructor
-    */
     function lib$rsvp$promise$$Promise(resolver, label) {
-      this._id = lib$rsvp$promise$$counter++;
-      this._label = label;
-      this._state = undefined;
-      this._result = undefined;
-      this._subscribers = [];
+      var promise = this;
+
+      promise._id = lib$rsvp$promise$$counter++;
+      promise._label = label;
+      promise._state = undefined;
+      promise._result = undefined;
+      promise._subscribers = [];
 
       if (lib$rsvp$config$$config.instrument) {
-        lib$rsvp$instrument$$default('created', this);
+        lib$rsvp$instrument$$default('created', promise);
       }
 
       if (lib$rsvp$$internal$$noop !== resolver) {
@@ -9581,11 +9527,11 @@ code.google.com/p/crypto-js/wiki/License
           lib$rsvp$promise$$needsResolver();
         }
 
-        if (!(this instanceof lib$rsvp$promise$$Promise)) {
+        if (!(promise instanceof lib$rsvp$promise$$Promise)) {
           lib$rsvp$promise$$needsNew();
         }
 
-        lib$rsvp$$internal$$initializePromise(this, resolver);
+        lib$rsvp$$internal$$initializePromise(promise, resolver);
       }
     }
 
@@ -9604,13 +9550,12 @@ code.google.com/p/crypto-js/wiki/License
       _guidKey: lib$rsvp$promise$$guidKey,
 
       _onError: function (reason) {
-        lib$rsvp$config$$config.async(function(promise) {
-          setTimeout(function() {
-            if (promise._onError) {
-              lib$rsvp$config$$config['trigger']('error', reason);
-            }
-          }, 0);
-        }, this);
+        var promise = this;
+        lib$rsvp$config$$config.after(function() {
+          if (promise._onError) {
+            lib$rsvp$config$$config['trigger']('error', reason);
+          }
+        });
       },
 
     /**
@@ -9801,8 +9746,8 @@ code.google.com/p/crypto-js/wiki/License
       ```
 
       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
+      @param {Function} onFulfillment
+      @param {Function} onRejection
       @param {String} label optional string for labeling the promise.
       Useful for tooling.
       @return {Promise}
@@ -9813,14 +9758,14 @@ code.google.com/p/crypto-js/wiki/License
 
         if (state === lib$rsvp$$internal$$FULFILLED && !onFulfillment || state === lib$rsvp$$internal$$REJECTED && !onRejection) {
           if (lib$rsvp$config$$config.instrument) {
-            lib$rsvp$instrument$$default('chained', this, this);
+            lib$rsvp$instrument$$default('chained', parent, parent);
           }
-          return this;
+          return parent;
         }
 
         parent._onError = null;
 
-        var child = new this.constructor(lib$rsvp$$internal$$noop, label);
+        var child = new parent.constructor(lib$rsvp$$internal$$noop, label);
         var result = parent._result;
 
         if (lib$rsvp$config$$config.instrument) {
@@ -9868,7 +9813,7 @@ code.google.com/p/crypto-js/wiki/License
       @return {Promise}
     */
       'catch': function(onRejection, label) {
-        return this.then(null, onRejection, label);
+        return this.then(undefined, onRejection, label);
       },
 
     /**
@@ -9912,9 +9857,10 @@ code.google.com/p/crypto-js/wiki/License
       @return {Promise}
     */
       'finally': function(callback, label) {
-        var constructor = this.constructor;
+        var promise = this;
+        var constructor = promise.constructor;
 
-        return this.then(function(value) {
+        return promise.then(function(value) {
           return constructor.resolve(callback()).then(function(){
             return value;
           });
@@ -9965,7 +9911,8 @@ code.google.com/p/crypto-js/wiki/License
     var lib$rsvp$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
     var lib$rsvp$asap$$browserGlobal = lib$rsvp$asap$$browserWindow || {};
     var lib$rsvp$asap$$BrowserMutationObserver = lib$rsvp$asap$$browserGlobal.MutationObserver || lib$rsvp$asap$$browserGlobal.WebKitMutationObserver;
-    var lib$rsvp$asap$$isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+    var lib$rsvp$asap$$isNode = typeof window === 'undefined' &&
+      typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
     // test for web worker but not in IE10
     var lib$rsvp$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
@@ -10059,7 +10006,7 @@ code.google.com/p/crypto-js/wiki/License
       lib$rsvp$asap$$scheduleFlush = lib$rsvp$asap$$useSetTimeout();
     }
     function lib$rsvp$defer$$defer(label) {
-      var deferred = { };
+      var deferred = {};
 
       deferred['promise'] = new lib$rsvp$promise$$default(function(resolve, reject) {
         deferred['resolve'] = resolve;
@@ -10122,9 +10069,10 @@ code.google.com/p/crypto-js/wiki/License
     };
 
     lib$rsvp$promise$hash$$PromiseHash.prototype._enumerate = function() {
-      var promise = this.promise;
-      var input   = this._input;
-      var results = [];
+      var enumerator = this;
+      var promise    = enumerator.promise;
+      var input      = enumerator._input;
+      var results    = [];
 
       for (var key in input) {
         if (promise._state === lib$rsvp$$internal$$PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
@@ -10136,12 +10084,12 @@ code.google.com/p/crypto-js/wiki/License
       }
 
       var length = results.length;
-      this._remaining = length;
+      enumerator._remaining = length;
       var result;
 
       for (var i = 0; promise._state === lib$rsvp$$internal$$PENDING && i < length; i++) {
         result = results[i];
-        this._eachEntry(result.entry, result.position);
+        enumerator._eachEntry(result.entry, result.position);
       }
     };
 
@@ -10330,6 +10278,20 @@ code.google.com/p/crypto-js/wiki/License
         return false;
       }
     }
+    var lib$rsvp$platform$$platform;
+
+    /* global self */
+    if (typeof self === 'object') {
+      lib$rsvp$platform$$platform = self;
+
+    /* global global */
+    } else if (typeof global === 'object') {
+      lib$rsvp$platform$$platform = global;
+    } else {
+      throw new Error('no global: `self` or `global` found');
+    }
+
+    var lib$rsvp$platform$$default = lib$rsvp$platform$$platform;
     function lib$rsvp$race$$race(array, label) {
       return lib$rsvp$promise$$default.race(array, label);
     }
@@ -10350,8 +10312,11 @@ code.google.com/p/crypto-js/wiki/License
     }
     var lib$rsvp$rethrow$$default = lib$rsvp$rethrow$$rethrow;
 
-    // default async is asap;
+    // defaults
     lib$rsvp$config$$config.async = lib$rsvp$asap$$default;
+    lib$rsvp$config$$config.after = function(cb) {
+      setTimeout(cb, 0);
+    };
     var lib$rsvp$$cast = lib$rsvp$resolve$$default;
     function lib$rsvp$$async(callback, arg) {
       lib$rsvp$config$$config.async(callback, arg);
@@ -10402,13 +10367,14 @@ code.google.com/p/crypto-js/wiki/License
       define(function() { return lib$rsvp$umd$$RSVP; });
     } else if (typeof module !== 'undefined' && module['exports']) {
       module['exports'] = lib$rsvp$umd$$RSVP;
-    } else if (typeof this !== 'undefined') {
-      this['RSVP'] = lib$rsvp$umd$$RSVP;
+    } else if (typeof lib$rsvp$platform$$default !== 'undefined') {
+      lib$rsvp$platform$$default['RSVP'] = lib$rsvp$umd$$RSVP;
     }
 }).call(this);
 
 
-}).call(this,require('_process'))
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"_process":4}],35:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
@@ -14165,6 +14131,7 @@ module.exports = RelationTreeBuilder;
 }());
 
 }).call(this,require('_process'))
+
 },{"_process":4}],43:[function(require,module,exports){
 //     Underscore.js 1.8.2
 //     http://underscorejs.org
@@ -16297,6 +16264,10 @@ var EverliveErrors = {
     cannotForceCacheWhenDisabled: {
         code: 705,
         message: 'Cannot use forceCache while the caching is disabled.'
+    },
+    filesNotSupportedInBrowser: {
+        code: 706,
+        message: 'Offline files are not supported in web browsers.'
     }
 };
 
@@ -17845,9 +17816,6 @@ module.exports = (function () {
     dependencyStore.Processor = require('../scripts/bs-expand-processor');
     exportDependency('Processor');
 
-    //dependencyStore.Base64 = require('Base64');
-    //exportDependency('Base64');
-
     dependencyStore.rsvp = require('rsvp');
     exportDependency('RSVP', 'rsvp');
 
@@ -17859,6 +17827,7 @@ module.exports = (function () {
     return common;
 }());
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"../scripts/bs-expand-processor":39,"./everlive.platform":61,"./reqwest.nativescript":90,"./reqwest.nodejs":91,"json-stable-stringify":7,"jstimezonedetect":11,"mingo":12,"mongo-query":14,"reqwest":33,"rsvp":34,"underscore":35}],59:[function(require,module,exports){
 /**
  * Constants used by the SDK
@@ -18141,6 +18110,7 @@ module.exports = {
     platform: platform
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{}],62:[function(require,module,exports){
 'use strict';
 
@@ -18821,7 +18791,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.5.1
+ Version 1.5.3
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -18854,20 +18824,7 @@ module.exports = (function () {
         FileSystem: persistersModule.FileSystemPersister
     };
 
-    //everliveModule is provided by a closure generated during build
-    if (platform.isNodejs || platform.isNativeScript) {
-        if (typeof everliveModule !== 'undefined') {
-            everliveModule.exports = Everlive;
-        }
-
-        if (typeof module !== 'undefined') {
-            module.exports = Everlive;
-        }
-    } else {
-        //in requirejs Everlive is defined in the same closure
-        //browser
-        common.root.Everlive = Everlive;
-    }
+    module.exports = Everlive;
 }());
 },{"./Everlive":46,"./GeoPoint":50,"./Request":52,"./common":58,"./constants":59,"./everlive.platform":61,"./kendo/kendo.everlive":67,"./offline/offlinePersisters":77,"./query/Query":86,"./query/QueryBuilder":87,"./types/Data":96,"./utils":99}],67:[function(require,module,exports){
 var QueryBuilder = require('../query/QueryBuilder');
@@ -20230,6 +20187,7 @@ var DataQuery = require('../query/DataQuery');
 var utils = require('../utils');
 var offlineTransformations = require('./offlineTransformations');
 var expandProcessor = require('../ExpandProcessor');
+var platform = require('../everlive.platform');
 
 var everliveErrorModule = require('../EverliveError');
 var EverliveError = everliveErrorModule.EverliveError;
@@ -20297,6 +20255,14 @@ function OfflineQueryProcessor(persister, encryptionProvider, offlineFilesProces
 
 OfflineQueryProcessor.prototype = {
     processQuery: function (dataQuery) {
+        if (utils.isContentType.files(dataQuery.collectionName) && platform.isDesktop) {
+            if (this.everlive.isOnline()) {
+                return utils.successfulPromise();
+            } else {
+                return utils.rejectedPromise(new EverliveError(EverliveErrors.filesNotSupportedInBrowser));
+            }
+        }
+
         var unsupportedClientOpMessage = this.getUnsupportedClientOpMessage(dataQuery);
         if (unsupportedClientOpMessage && !dataQuery.isSync) {
             return new rsvp.Promise(function (resolve, reject) {
@@ -21069,7 +21035,7 @@ OfflineQueryProcessor.prototype = {
 };
 
 module.exports = OfflineQueryProcessor;
-},{"../EverliveError":47,"../ExpandProcessor":48,"../common":58,"../constants":59,"../query/DataQuery":85,"../query/Query":86,"../utils":99,"./offlineTransformations":78,"path":3}],75:[function(require,module,exports){
+},{"../EverliveError":47,"../ExpandProcessor":48,"../common":58,"../constants":59,"../everlive.platform":61,"../query/DataQuery":85,"../query/Query":86,"../utils":99,"./offlineTransformations":78,"path":3}],75:[function(require,module,exports){
 var DataQuery = require('../query/DataQuery');
 var everliveErrorModule = require('../EverliveError');
 var EverliveError = everliveErrorModule.EverliveError;
@@ -23793,9 +23759,10 @@ var buildPromise = require('../utils').buildPromise;
 var EverliveError = require('../EverliveError').EverliveError;
 var Platform = require('../constants').Platform;
 var common = require('../common');
+var utils = require('../utils');
 var jstz = common.jstz;
 var _ = common._;
-var tnsPushPlugin = require('nativescript-push-notifications');
+var tnsPushPluginLazy = utils.lazyRequire('nativescript-push-notifications', 'tnsPushPlugin');
 var tnsPlatform = require('platform');
 
 module.exports = (function () {
@@ -23881,10 +23848,10 @@ module.exports = (function () {
 
                             var platformType = self._getPlatformType();
                             if(platformType === Platform.Android) {
-                                return tnsPushPlugin.unregister(successCallback, error, self.pushSettings.android);
+                                return tnsPushPluginLazy.tnsPushPlugin.unregister(successCallback, error, self.pushSettings.android);
                             }
 
-                            tnsPushPlugin.unregister(successCallback, error);
+                            tnsPushPluginLazy.tnsPushPlugin.unregister(successCallback, error);
                         },
                         successCb,
                         errorCb
@@ -24028,12 +23995,12 @@ module.exports = (function () {
             options = options || {};
             
             return buildPromise(function (successCb, errorCb) {
-                tnsPushPlugin.areNotificationsEnabled(successCb, errorCb, options);
+                tnsPushPluginLazy.tnsPushPlugin.areNotificationsEnabled(successCb, errorCb, options);
             }, onSuccess, onError);
         },
 
         _initializeInteractivePush: function (iOSSettings, success, error) {
-            tnsPushPlugin.registerUserNotificationSettings(
+            tnsPushPluginLazy.tnsPushPlugin.registerUserNotificationSettings(
                 // the success callback which will immediately return (APNs is not contacted for this)
                 success,
                 // called in case the configuration is incorrect
@@ -24071,7 +24038,7 @@ module.exports = (function () {
 
                 apnRegistrationOptions.notificationCallbackIOS = this.pushSettings.notificationCallbackIOS;
                 //Register for APN
-                tnsPushPlugin.register(
+                tnsPushPluginLazy.tnsPushPlugin.register(
                     apnRegistrationOptions,
                     _.bind(this._successfulRegistrationAPN, this),
                     _.bind(this._failedRegistrationAPN, this)                    
@@ -24084,7 +24051,7 @@ module.exports = (function () {
                 gcmRegistrationOptions.notificationCallbackAndroid = this.pushSettings.notificationCallbackAndroid;
 
                 //Register for GCM
-                tnsPushPlugin.register(
+                tnsPushPluginLazy.tnsPushPlugin.register(
                     gcmRegistrationOptions,
                     _.bind(this._successSentRegistrationGCM, this),
                     _.bind(this._errorSentRegistrationGCM, this)
@@ -24264,7 +24231,7 @@ module.exports = (function () {
             //console.log("Successfully sent request for registering with GCM.");
 
             // set on message received.
-            tnsPushPlugin.onMessageReceived(this.pushSettings.notificationCallbackAndroid);
+            tnsPushPluginLazy.tnsPushPlugin.onMessageReceived(this.pushSettings.notificationCallbackAndroid);
 
             this._deviceRegistrationSuccess(token);
         },
@@ -24318,7 +24285,7 @@ module.exports = (function () {
     return CurrentDevice;
 }());
 
-},{"../EverliveError":47,"../common":58,"../constants":59,"../utils":99,"nativescript-push-notifications":"nativescript-push-notifications","platform":"platform"}],85:[function(require,module,exports){
+},{"../EverliveError":47,"../common":58,"../constants":59,"../utils":99,"platform":"platform"}],85:[function(require,module,exports){
 var _ = require('../common')._;
 var constants = require('../constants');
 var Query = require('../query/Query');
@@ -25579,6 +25546,7 @@ module.exports = (function () {
     return reqwest;
 }());
 }).call(this,require("buffer").Buffer)
+
 },{"buffer":"buffer","http":"http","https":"https","rsvp":34,"underscore":35,"url":"url","zlib":"zlib"}],92:[function(require,module,exports){
 var platform = require('../everlive.platform');
 var WebFileStore = require('./WebFileStore');
@@ -28253,7 +28221,21 @@ utils.getId = function (obj) {
     return obj.Id || obj._id || obj.id;
 };
 
+utils.lazyRequire = function (moduleName, exportName) {
+    exportName = exportName || moduleName;
+    var obj = {};
+
+    Object.defineProperty(obj, exportName, {
+        get: function () {
+            return require(moduleName);
+        }
+    });
+
+    return obj;
+};
+
 module.exports = utils;
 
-},{"./Everlive":46,"./EverliveError":47,"./common":58,"./everlive.platform":61,"path":3}]},{},[66]);
-}())
+},{"./Everlive":46,"./EverliveError":47,"./common":58,"./everlive.platform":61,"path":3}]},{},[66])(66)
+});
+//# sourceMappingURL=everlive.map
