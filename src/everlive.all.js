@@ -8780,7 +8780,7 @@ code.google.com/p/crypto-js/wiki/License
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
- * @version   3.0.20
+ * @version   3.0.21
  */
 
 (function() {
@@ -9911,7 +9911,7 @@ code.google.com/p/crypto-js/wiki/License
     var lib$rsvp$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
     var lib$rsvp$asap$$browserGlobal = lib$rsvp$asap$$browserWindow || {};
     var lib$rsvp$asap$$BrowserMutationObserver = lib$rsvp$asap$$browserGlobal.MutationObserver || lib$rsvp$asap$$browserGlobal.WebKitMutationObserver;
-    var lib$rsvp$asap$$isNode = typeof window === 'undefined' &&
+    var lib$rsvp$asap$$isNode = typeof self === 'undefined' &&
       typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
     // test for web worker but not in IE10
@@ -16177,7 +16177,13 @@ module.exports = (function () {
          * @description An instance of the [Authentication]{@link Authentication} class for working with the authentication of the SDK.
          * @member {Authentication} authentication
          */
-        this.authentication = new Authentication(this, this.setup.authentication);
+        /**
+         * @memberOf Everlive
+         * @instance
+         * @description An instance of the [Authentication]{@link Authentication} class for working with the authentication of the SDK.
+         * @member {authentication} authentication
+         */
+        this.authentication = this.Authentication = new Authentication(this, this.setup.authentication);
     };
 
     var initializeHelpers = function initializeHelpers(options) {
@@ -18791,7 +18797,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.5.3
+ Version 1.5.4
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -21010,6 +21016,8 @@ OfflineQueryProcessor.prototype = {
         var self = this;
         this._collectionCache = {};
         return buildPromise(function (success, error) {
+            self._collectionCache = {};
+
             self._persister.purgeAll(function () {
                 if (self.everlive.setup.caching) {
                     self.everlive.cache.clearAll(success, error);
@@ -21023,6 +21031,8 @@ OfflineQueryProcessor.prototype = {
     purge: function (contentType, success, error) {
         var self = this;
         return buildPromise(function (success, error) {
+            delete self._collectionCache[contentType];
+
             self._persister.purge(contentType, function () {
                 if (self.everlive.setup.caching) {
                     self.everlive.cache.clear(contentType, success, error);
@@ -25646,12 +25656,13 @@ module.exports = (function () {
 
 var common = require('../common');
 var rsvp = common.rsvp;
+var utils = require('../utils');
 
 function NativeScriptFileStore(storagePath, options) {
     this.options = options;
     this.fs = require('file-system');
     this.dataDirectoryPath = this.fs.knownFolders.documents().path;
-    this.filesDirectoryPath = storagePath;
+    this.filesDirectoryPath = this.fs.path.join(this.dataDirectoryPath, storagePath);
 }
 
 NativeScriptFileStore.prototype = {
@@ -25661,10 +25672,13 @@ NativeScriptFileStore.prototype = {
         }
     },
 
-    removeFilesDirectory: function (directoryEntry) {
-        var filesDirectoryPath = this.fs.path.join(directoryEntry.path, this.filesDirectoryPath);
-        var filesDirectory = this.fs.Folder.fromPath(filesDirectoryPath);
-        return filesDirectory.remove();
+    removeFilesDirectory: function () {
+        var self = this;
+
+        return self.getFilesDirectory()
+            .then(function (filesDirectory) {
+                return filesDirectory.remove();
+            });
     },
 
     removeFile: function (fileEntry) {
@@ -25682,11 +25696,22 @@ NativeScriptFileStore.prototype = {
     getFile: function (path) {
         var self = this;
         return new rsvp.Promise(function (resolve, reject) {
-            self.resolveDataDirectory(function (directoryEntry) {
-                var fullFilePath = self.fs.path.join(directoryEntry.path, path);
-                var file = self.fs.File.fromPath(fullFilePath);
-                resolve(file);
-            }, reject);
+            self.resolveDataDirectory()
+                .then(function (directoryEntry) {
+                    var fullFilePath = self.fs.path.join(directoryEntry.path, path);
+                    var file = self.fs.File.fromPath(fullFilePath);
+                    resolve(file);
+                })
+                .catch(reject);
+        });
+    },
+
+    getFilesDirectory: function () {
+        var self = this;
+
+        return new rsvp.Promise(function (resolve) {
+            var filesDirectory = self.fs.Folder.fromPath(self.filesDirectoryPath);
+            resolve(filesDirectory);
         });
     },
 
@@ -25703,11 +25728,13 @@ NativeScriptFileStore.prototype = {
         var self = this;
 
         return new rsvp.Promise(function (resolve, reject) {
-            self.resolveDataDirectory(function (directoryEntry) {
-                var fileDirectoryPath = self.fs.path.join(directoryEntry.path, self.filesDirectoryPath);
-                self.fs.Folder.fromPath(fileDirectoryPath);
-                resolve();
-            });
+            self.resolveDataDirectory()
+                .then(function (directoryEntry) {
+                    var fileDirectoryPath = self.fs.path.join(directoryEntry.path, self.filesDirectoryPath);
+                    self.fs.Folder.fromPath(fileDirectoryPath);
+                    resolve();
+                })
+                .catch(reject);
         });
     },
 
@@ -25745,7 +25772,7 @@ NativeScriptFileStore.prototype = {
 };
 
 module.exports = NativeScriptFileStore;
-},{"../common":58,"file-system":"file-system"}],95:[function(require,module,exports){
+},{"../common":58,"../utils":99,"file-system":"file-system"}],95:[function(require,module,exports){
 'use strict';
 
 var EverliveError = require('../EverliveError').EverliveError;
@@ -28047,7 +28074,7 @@ utils.getDbOperators = function (expression, shallow) {
         return dbOperators;
     }
 
-    var modifierKeys = Object.keys(expression);
+    var modifierKeys = Object.keys(expression || {});
     _.each(modifierKeys, function (key) {
         if (key.indexOf('$') === 0) {
             dbOperators.push(key);

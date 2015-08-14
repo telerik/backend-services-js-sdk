@@ -1,6 +1,6 @@
 {
   "name": "everlive",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "main": "min/everlive.all.min.js",
   "ignore": [
     "bower.json",
