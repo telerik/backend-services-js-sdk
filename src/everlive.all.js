@@ -588,7 +588,9 @@ function drainQueue() {
         currentQueue = queue;
         queue = [];
         while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
         }
         queueIndex = -1;
         len = queue.length;
@@ -640,7 +642,6 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
@@ -16454,7 +16455,12 @@ module.exports = (function () {
          * @memberOf Push.prototype
          */
         ensurePushIsAvailable: function () {
-            CurrentDevice.ensurePushIsAvailable();            
+            var isPushNotificationPluginAvailable = (typeof window !== 'undefined' && window.plugins && window.plugins.pushNotification);
+
+            if (!isPushNotificationPluginAvailable && !this._inAppBuilderSimulator()) {
+                throw new EverliveError("The push notification plugin is not available. Ensure that the pushNotification plugin is included " +
+                "and use after `deviceready` event has been fired.");
+            }
         },
         /**
          * Returns the current device for sending push notifications
@@ -16471,17 +16477,19 @@ module.exports = (function () {
 
             if (arguments.length === 0) {
                 emulatorMode = this._el.setup._emulatorMode;
-            }            
+            }
 
             if (!this._currentDevice) {
                 this._currentDevice = new CurrentDevice(this);
             }
 
-            var inAppBuilderSimulator = typeof window !== undefined && window.navigator && window.navigator.simulator;
-
-            this._currentDevice.emulatorMode = emulatorMode || inAppBuilderSimulator;
+            this._currentDevice.emulatorMode = emulatorMode || this._inAppBuilderSimulator();
 
             return this._currentDevice;
+        },
+
+        _inAppBuilderSimulator: function () {
+            return typeof window !== undefined && window.navigator && window.navigator.simulator;
         },
 
         /**
@@ -16664,6 +16672,8 @@ module.exports = (function () {
          * @param {Function} [onError] Callback to invoke on error.
          */
         setBadgeNumber: function (badge, onSuccess, onError) {
+            var self = this;
+
             this.ensurePushIsAvailable();
 
             badge = parseInt(badge);
@@ -16681,7 +16691,7 @@ module.exports = (function () {
             return buildPromise(function (successCb, errorCb) {
                 currentDevice._pushHandler.devices.updateSingle(deviceRegistration).then(
                     function () {
-                        if (window.plugins && window.plugins.pushNotification) {
+                        if (window.plugins && window.plugins.pushNotification && !self._inAppBuilderSimulator()) {
                             return window.plugins.pushNotification.setApplicationIconBadgeNumber(successCb, errorCb, badge);
                         } else {
                             return successCb();
@@ -17498,7 +17508,7 @@ CacheModule.prototype = {
     _initStore: function (sdkOptions) {
         if (!this.persister) {
             var offlineStorageOptions = buildOfflineStorageOptions(sdkOptions);
-            var storageKey = this.options.storage.storagePath;
+            var storageKey = this.options.storage.storagePath + '_' + sdkOptions.apiKey;
 
             this.persister = persisters.getPersister(storageKey, offlineStorageOptions);
         }
@@ -18850,7 +18860,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.5.5
+ Version 1.5.6
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -25833,6 +25843,7 @@ module.exports = NativeScriptFileStore;
 var EverliveError = require('../EverliveError').EverliveError;
 var common = require('../common');
 var rsvp = common.rsvp;
+var _ = common._;
 var utils = require('../utils');
 var platform = require('../everlive.platform');
 var path = require('path');
@@ -27106,10 +27117,10 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
      * @memberof Files.prototype
      * @method download
      * @param {string} fileToDownload A Backend Services File ID.
-     * @param {string} pathOnDevice The local path on the device where the downloaded file will be saved. Accepts a [cdvfile://](https://github.com/apache/cordova-plugin-file#cdvfile-protocol) or [file:///](https://github.com/apache/cordova-plugin-file#where-to-store-files) format. Maps to the "target" Apache Cordova parameter.
-     * @param {object} options Additional request options. Maps to the "options" Apache Cordova parameter.
-     * @param {object} options.headers A JSON object containing headers to send along with the request.
-     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" Apache Cordova parameter.
+     * @param {string} pathOnDevice An Apache Cordova FileSystem URL representing the local path on the device where the downloaded file will be saved. Maps to the "target" FileTransfer plugin parameter.
+     * @param {object} [options] Additional request options. Maps to the "options" FileTransfer plugin parameter.
+     * @param {object} [options.headers] A JSON object containing headers to send along with the request.
+     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" FileTransfer plugin parameter.
      * @returns {Promise} The promise for the request.
      */
     /**
@@ -27117,12 +27128,12 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
      * @memberof Files.prototype
      * @method download
      * @param {string} fileToDownload A Backend Services File ID.
-     * @param {string} pathOnDevice The local path on the device where the downloaded file will be saved. Accepts a [cdvfile://](https://github.com/apache/cordova-plugin-file#cdvfile-protocol) or [file:///](https://github.com/apache/cordova-plugin-file#where-to-store-files) format. Maps to the "target" Apache Cordova parameter.
-     * @param {object} options Additional request options. Maps to the "options" Apache Cordova parameter.
-     * @param {object} options.headers A JSON object containing headers to send along with the request.
-     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" Apache Cordova parameter.
-     * @param {Function} [success] A success callback. Maps to the "successCallback" Apache Cordova parameter.
-     * @param {Function} [error] An error callback. Maps to the "errorCallback" Apache Cordova parameter.
+     * @param {string} pathOnDevice An Apache Cordova FileSystem URL representing the local path on the device where the downloaded file will be saved. Maps to the "target" FileTransfer plugin parameter.
+     * @param {object} [options] Additional request options. Maps to the "options" FileTransfer plugin parameter.
+     * @param {object} [options.headers] A JSON object containing headers to send along with the request.
+     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" FileTransfer plugin parameter.
+     * @param {Function} [success] A success callback that is passed an Apache Cordova [FileEntry](https://cordova.apache.org/docs/en/3.3.0/cordova_file_file.md.html#FileEntry) object. Maps to the "successCallback" FileTransfer plugin parameter.
+     * @param {Function} [error] An error callback that is passed an Apache Cordova [FileTransferError](https://github.com/apache/cordova-plugin-file-transfer#filetransfererror) object. Maps to the "errorCallback" FileTransfer plugin parameter.
      */
     ns.download = function (url, localPath, options, trustAllHosts, success, error) {
         var self = this;
@@ -27149,34 +27160,34 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
      * Uploads a file from the device's file system to Backend Services. Wraps the Apache Cordova "upload()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
      * @memberof Files.prototype
      * @method upload
-     * @param {string} fileToUpload The full path to the file on the device in [cdvfile://](https://github.com/apache/cordova-plugin-file#cdvfile-protocol) or [file:///](https://github.com/apache/cordova-plugin-file#where-to-store-files) format.
-     * @param {object} options Additional request options. Maps to the "options" Apache Cordova parameter.
-     * @param {string} options.fileKey The name of the form element. Defaults to 'file' in Apache Cordova.
-     * @param {string} options.fileName The file name to use when uploading the file. Defaults to 'image.jpg' in Apache Cordova.
-     * @param {string} options.httpMethod The HTTP method to use, either POST or PUT. Defaults to 'POST' in Apache Cordova.
-     * @param {string} options.mimeType The mime type of the uploaded data. Defaults to 'image/jpeg' in Apache Cordova.
-     * @param {object} options.params A set of optional key/value pairs to pass in the HTTP request.
-     * @param {boolean} options.chunkedMode Whether to upload the data in chunked streaming mode. Defaults to 'true' in Apache Cordova.
-     * @param {object} options.headers A JSON object for the headers to send along with the request.
-     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" Apache Cordova parameter.
+     * @param {string} fileToUpload An Apache Cordova FileSystem URL representing the full path to the file on the device.
+     * @param {object} [options] Additional request options. Maps to the "options" FileTransfer plugin parameter.
+     * @param {string} [options.fileKey] The name of the form element. Defaults to 'file' in the FileTransfer plugin parameter.
+     * @param {string} [options.fileName] The file name to use when uploading the file. Defaults to 'image.jpg' in the FileTransfer plugin.
+     * @param {string} [options.httpMethod] The HTTP method to use, either POST or PUT. Defaults to 'POST' in the FileTransfer plugin parameter.
+     * @param {string} [options.mimeType] The mime type of the uploaded data. Defaults to 'image/jpeg' in the FileTransfer plugin parameter.
+     * @param {object} [options.params] A set of optional key/value pairs to pass in the HTTP request.
+     * @param {boolean} [options.chunkedMode] Whether to upload the data in chunked streaming mode. Defaults to 'true' in the FileTransfer plugin parameter.
+     * @param {object} [options.headers] A JSON object for the headers to send along with the request.
+     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" FileTransfer plugin parameter.
      * @returns {Promise} The promise for the request.
      */
     /**
      * Uploads a file from the device's file system to Backend Services. Wraps the Apache Cordova "upload()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
      * @memberof Files.prototype
      * @method upload
-     * @param {string} fileToUpload The full path to the file on the device in [cdvfile://](https://github.com/apache/cordova-plugin-file#cdvfile-protocol) or [file:///](https://github.com/apache/cordova-plugin-file#where-to-store-files) format.
-     * @param {object} options Additional request options. Maps to the "options" Apache Cordova parameter.
-     * @param {string} options.fileKey The name of the form element. Defaults to 'file' in Apache Cordova.
-     * @param {string} options.fileName The file name to use when uploading the file. Defaults to 'image.jpg' in Apache Cordova.
-     * @param {string} options.httpMethod The HTTP method to use, either POST or PUT. Defaults to 'POST' in Apache Cordova.
-     * @param {string} options.mimeType The mime type of the uploaded data. Defaults to 'image/jpeg' in Apache Cordova.
-     * @param {object} options.params A set of optional key/value pairs to pass in the HTTP request.
-     * @param {boolean} options.chunkedMode Whether to upload the data in chunked streaming mode. Defaults to 'true' in Apache Cordova.
-     * @param {object} options.headers A JSON object for the headers to send along with the request.
-     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" Apache Cordova parameter.
-     * @param {Function} [success] A success callback. Maps to the "successCallback" Apache Cordova parameter.
-     * @param {Function} [error] An error callback. Maps to the "errorCallback" Apache Cordova parameter.
+     * @param {string} fileToUpload An Apache Cordova FileSystem URL representing the full path to the file on the device.
+     * @param {object} [options] Additional request options. Maps to the "options" FileTransfer plugin parameter.
+     * @param {string} [options.fileKey] The name of the form element. Defaults to 'file' in the FileTransfer plugin parameter.
+     * @param {string} [options.fileName] The file name to use when uploading the file. Defaults to 'image.jpg' in the FileTransfer plugin parameter.
+     * @param {string} [options.httpMethod] The HTTP method to use, either POST or PUT. Defaults to 'POST' in the FileTransfer plugin parameter.
+     * @param {string} [options.mimeType] The mime type of the uploaded data. Defaults to 'image/jpeg' in the FileTransfer plugin parameter.
+     * @param {object} [options.params] A set of optional key/value pairs to pass in the HTTP request.
+     * @param {boolean} [options.chunkedMode] Whether to upload the data in chunked streaming mode. Defaults to 'true' in the FileTransfer plugin parameter.
+     * @param {object} [options.headers] A JSON object for the headers to send along with the request.
+     * @param {boolean} [trustAllHosts=false] Whether to accept all security certificates including self-signed certificates. Maps to the "trustAllHosts" FileTransfer plugin parameter.
+     * @param {Function} [success] A success callback that is passed an Apache Cordova [FileUploadResult](https://github.com/apache/cordova-plugin-file-transfer#fileuploadresult) object. Maps to the "successCallback" FileTransfer plugin parameter.
+     * @param {Function} [error] An error callback that is passed an Apache Cordova [FileTransferError](https://github.com/apache/cordova-plugin-file-transfer#filetransfererror) object. Maps to the "errorCallback" FileTransfer plugin parameter.
      */
     ns.upload = function (localPath, options, trustAllHosts, success, error) {
         var url = this.getUploadUrl();
@@ -28184,7 +28195,7 @@ utils.buildUrl = function (setup) {
 utils.getDbOperators = function (expression, shallow) {
     var dbOperators = [];
 
-    if (typeof expression === 'string') {
+    if (typeof expression === 'string' || typeof expression === 'number') {
         return dbOperators;
     }
 
