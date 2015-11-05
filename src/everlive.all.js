@@ -1767,13 +1767,14 @@ module.exports = function (value, replacer, space) {
 };
 
 },{}],11:[function(require,module,exports){
+(function (root) {/*global exports, Intl*/
 /**
  * This script gives you the zone info key representing your device's time zone setting.
  *
  * @name jsTimezoneDetect
- * @version 1.0.5
+ * @version 1.0.6
  * @author Jon Nylander
- * @license MIT License - http://www.opensource.org/licenses/mit-license.php
+ * @license MIT License - https://bitbucket.org/pellepim/jstimezonedetect/src/default/LICENCE.txt
  *
  * For usage and examples, visit:
  * http://pellepim.bitbucket.org/jstz/
@@ -1781,351 +1782,1424 @@ module.exports = function (value, replacer, space) {
  * Copyright (c) Jon Nylander
  */
 
-/*jslint undef: true */
-/*global console, exports*/
 
-(function(root) {
-  /**
-   * Namespace to hold all the code for timezone detection.
-   */
-  var jstz = (function () {
-      'use strict';
-      var HEMISPHERE_SOUTH = 's',
-          
-          /**
-           * Gets the offset in minutes from UTC for a certain date.
-           * @param {Date} date
-           * @returns {Number}
-           */
-          get_date_offset = function (date) {
-              var offset = -date.getTimezoneOffset();
-              return (offset !== null ? offset : 0);
-          },
+/**
+ * Namespace to hold all the code for timezone detection.
+ */
+var jstz = (function () {
+    'use strict';
+    var HEMISPHERE_SOUTH = 's',
 
-          get_date = function (year, month, date) {
-              var d = new Date();
-              if (year !== undefined) {
-                d.setFullYear(year);
-              }
-              d.setMonth(month);
-              d.setDate(date);
-              return d;
-          },
+        consts = {
+            DAY: 86400000,
+            HOUR: 3600000,
+            MINUTE: 60000,
+            SECOND: 1000,
+            BASELINE_YEAR: 2014,
+            MAX_SCORE: 864000000, // 10 days
+            AMBIGUITIES: {
+                'America/Denver':       ['America/Mazatlan'],
+                'Europe/London':        ['Africa/Casablanca'],
+                'America/Chicago':      ['America/Mexico_City'],
+                'America/Asuncion':     ['America/Campo_Grande', 'America/Santiago'],
+                'America/Montevideo':   ['America/Sao_Paulo', 'America/Santiago'],
+                // Europe/Minsk should not be in this list... but Windows.
+                'Asia/Beirut':          ['Asia/Amman', 'Asia/Jerusalem', 'Europe/Helsinki', 'Asia/Damascus', 'Africa/Cairo', 'Asia/Gaza', 'Europe/Minsk'],
+                'Pacific/Auckland':     ['Pacific/Fiji'],
+                'America/Los_Angeles':  ['America/Santa_Isabel'],
+                'America/New_York':     ['America/Havana'],
+                'America/Halifax':      ['America/Goose_Bay'],
+                'America/Godthab':      ['America/Miquelon'],
+                'Asia/Dubai':           ['Asia/Yerevan'],
+                'Asia/Jakarta':         ['Asia/Krasnoyarsk'],
+                'Asia/Shanghai':        ['Asia/Irkutsk', 'Australia/Perth'],
+                'Australia/Sydney':     ['Australia/Lord_Howe'],
+                'Asia/Tokyo':           ['Asia/Yakutsk'],
+                'Asia/Dhaka':           ['Asia/Omsk'],
+                // In the real world Yerevan is not ambigous for Baku... but Windows.
+                'Asia/Baku':            ['Asia/Yerevan'],
+                'Australia/Brisbane':   ['Asia/Vladivostok'],
+                'Pacific/Noumea':       ['Asia/Vladivostok'],
+                'Pacific/Majuro':       ['Asia/Kamchatka', 'Pacific/Fiji'],
+                'Pacific/Tongatapu':    ['Pacific/Apia'],
+                'Asia/Baghdad':         ['Europe/Minsk', 'Europe/Moscow'],
+                'Asia/Karachi':         ['Asia/Yekaterinburg'],
+                'Africa/Johannesburg':  ['Asia/Gaza', 'Africa/Cairo']
+            }
+        },
 
-          get_january_offset = function (year) {
-              return get_date_offset(get_date(year, 0 ,2));
-          },
-
-          get_june_offset = function (year) {
-              return get_date_offset(get_date(year, 5, 2));
-          },
-
-          /**
-           * Private method.
-           * Checks whether a given date is in daylight saving time.
-           * If the date supplied is after august, we assume that we're checking
-           * for southern hemisphere DST.
-           * @param {Date} date
-           * @returns {Boolean}
-           */
-          date_is_dst = function (date) {
-              var is_southern = date.getMonth() > 7,
-                  base_offset = is_southern ? get_june_offset(date.getFullYear()) : 
-                                              get_january_offset(date.getFullYear()),
-                  date_offset = get_date_offset(date),
-                  is_west = base_offset < 0,
-                  dst_offset = base_offset - date_offset;
-                  
-              if (!is_west && !is_southern) {
-                  return dst_offset < 0;
-              }
-
-              return dst_offset !== 0;
-          },
-
-          /**
-           * This function does some basic calculations to create information about
-           * the user's timezone. It uses REFERENCE_YEAR as a solid year for which
-           * the script has been tested rather than depend on the year set by the
-           * client device.
-           *
-           * Returns a key that can be used to do lookups in jstz.olson.timezones.
-           * eg: "720,1,2". 
-           *
-           * @returns {String}
-           */
-
-          lookup_key = function () {
-              var january_offset = get_january_offset(),
-                  june_offset = get_june_offset(),
-                  diff = january_offset - june_offset;
-
-              if (diff < 0) {
-                  return january_offset + ",1";
-              } else if (diff > 0) {
-                  return june_offset + ",1," + HEMISPHERE_SOUTH;
-              }
-
-              return january_offset + ",0";
-          },
-
-          /**
-           * Uses get_timezone_info() to formulate a key to use in the olson.timezones dictionary.
-           *
-           * Returns a primitive object on the format:
-           * {'timezone': TimeZone, 'key' : 'the key used to find the TimeZone object'}
-           *
-           * @returns Object
-           */
-          determine = function () {
-              var key = lookup_key();
-              return new jstz.TimeZone(jstz.olson.timezones[key]);
-          },
-
-          /**
-           * This object contains information on when daylight savings starts for
-           * different timezones.
-           *
-           * The list is short for a reason. Often we do not have to be very specific
-           * to single out the correct timezone. But when we do, this list comes in
-           * handy.
-           *
-           * Each value is a date denoting when daylight savings starts for that timezone.
-           */
-          dst_start_for = function (tz_name) {
-
-            var ru_pre_dst_change = new Date(2010, 6, 15, 1, 0, 0, 0), // In 2010 Russia had DST, this allows us to detect Russia :)
-                dst_starts = {
-                    'America/Denver': new Date(2011, 2, 13, 3, 0, 0, 0),
-                    'America/Mazatlan': new Date(2011, 3, 3, 3, 0, 0, 0),
-                    'America/Chicago': new Date(2011, 2, 13, 3, 0, 0, 0),
-                    'America/Mexico_City': new Date(2011, 3, 3, 3, 0, 0, 0),
-                    'America/Asuncion': new Date(2012, 9, 7, 3, 0, 0, 0),
-                    'America/Santiago': new Date(2012, 9, 3, 3, 0, 0, 0),
-                    'America/Campo_Grande': new Date(2012, 9, 21, 5, 0, 0, 0),
-                    'America/Montevideo': new Date(2011, 9, 2, 3, 0, 0, 0),
-                    'America/Sao_Paulo': new Date(2011, 9, 16, 5, 0, 0, 0),
-                    'America/Los_Angeles': new Date(2011, 2, 13, 8, 0, 0, 0),
-                    'America/Santa_Isabel': new Date(2011, 3, 5, 8, 0, 0, 0),
-                    'America/Havana': new Date(2012, 2, 10, 2, 0, 0, 0),
-                    'America/New_York': new Date(2012, 2, 10, 7, 0, 0, 0),
-                    'Europe/Helsinki': new Date(2013, 2, 31, 5, 0, 0, 0),
-                    'Pacific/Auckland': new Date(2011, 8, 26, 7, 0, 0, 0),
-                    'America/Halifax': new Date(2011, 2, 13, 6, 0, 0, 0),
-                    'America/Goose_Bay': new Date(2011, 2, 13, 2, 1, 0, 0),
-                    'America/Miquelon': new Date(2011, 2, 13, 5, 0, 0, 0),
-                    'America/Godthab': new Date(2011, 2, 27, 1, 0, 0, 0),
-                    'Europe/Moscow': ru_pre_dst_change,
-                    'Asia/Amman': new Date(2013, 2, 29, 1, 0, 0, 0),
-                    'Asia/Beirut': new Date(2013, 2, 31, 2, 0, 0, 0),
-                    'Asia/Damascus': new Date(2013, 3, 6, 2, 0, 0, 0),
-                    'Asia/Jerusalem': new Date(2013, 2, 29, 5, 0, 0, 0),
-                    'Asia/Yekaterinburg': ru_pre_dst_change,
-                    'Asia/Omsk': ru_pre_dst_change,
-                    'Asia/Krasnoyarsk': ru_pre_dst_change,
-                    'Asia/Irkutsk': ru_pre_dst_change,
-                    'Asia/Yakutsk': ru_pre_dst_change,
-                    'Asia/Vladivostok': ru_pre_dst_change,
-                    'Asia/Baku': new Date(2013, 2, 31, 4, 0, 0),
-                    'Asia/Yerevan': new Date(2013, 2, 31, 3, 0, 0),
-                    'Asia/Kamchatka': ru_pre_dst_change,
-                    'Asia/Gaza': new Date(2010, 2, 27, 4, 0, 0),
-                    'Africa/Cairo': new Date(2010, 4, 1, 3, 0, 0),
-                    'Europe/Minsk': ru_pre_dst_change,
-                    'Pacific/Apia': new Date(2010, 10, 1, 1, 0, 0, 0),
-                    'Pacific/Fiji': new Date(2010, 11, 1, 0, 0, 0),
-                    'Australia/Perth': new Date(2008, 10, 1, 1, 0, 0, 0)
-                };
-
-              return dst_starts[tz_name];
-          };
-
-      return {
-          determine: determine,
-          date_is_dst: date_is_dst,
-          dst_start_for: dst_start_for 
-      };
-  }());
-
-  /**
-   * Simple object to perform ambiguity check and to return name of time zone.
-   */
-  jstz.TimeZone = function (tz_name) {
-      'use strict';
         /**
-         * The keys in this object are timezones that we know may be ambiguous after
-         * a preliminary scan through the olson_tz object.
-         *
-         * The array of timezones to compare must be in the order that daylight savings
-         * starts for the regions.
+         * Gets the offset in minutes from UTC for a certain date.
+         * @param {Date} date
+         * @returns {Number}
          */
-      var AMBIGUITIES = {
-              'America/Denver':       ['America/Denver', 'America/Mazatlan'],
-              'America/Chicago':      ['America/Chicago', 'America/Mexico_City'],
-              'America/Santiago':     ['America/Santiago', 'America/Asuncion', 'America/Campo_Grande'],
-              'America/Montevideo':   ['America/Montevideo', 'America/Sao_Paulo'],
-              'Asia/Beirut':          ['Asia/Amman', 'Asia/Jerusalem', 'Asia/Beirut', 'Europe/Helsinki','Asia/Damascus'],
-              'Pacific/Auckland':     ['Pacific/Auckland', 'Pacific/Fiji'],
-              'America/Los_Angeles':  ['America/Los_Angeles', 'America/Santa_Isabel'],
-              'America/New_York':     ['America/Havana', 'America/New_York'],
-              'America/Halifax':      ['America/Goose_Bay', 'America/Halifax'],
-              'America/Godthab':      ['America/Miquelon', 'America/Godthab'],
-              'Asia/Dubai':           ['Europe/Moscow'],
-              'Asia/Dhaka':           ['Asia/Yekaterinburg'],
-              'Asia/Jakarta':         ['Asia/Omsk'],
-              'Asia/Shanghai':        ['Asia/Krasnoyarsk', 'Australia/Perth'],
-              'Asia/Tokyo':           ['Asia/Irkutsk'],
-              'Australia/Brisbane':   ['Asia/Yakutsk'],
-              'Pacific/Noumea':       ['Asia/Vladivostok'],
-              'Pacific/Tarawa':       ['Asia/Kamchatka', 'Pacific/Fiji'],
-              'Pacific/Tongatapu':    ['Pacific/Apia'],
-              'Asia/Baghdad':         ['Europe/Minsk'],
-              'Asia/Baku':            ['Asia/Yerevan','Asia/Baku'],
-              'Africa/Johannesburg':  ['Asia/Gaza', 'Africa/Cairo']
-          },
+        get_date_offset = function get_date_offset(date) {
+            var offset = -date.getTimezoneOffset();
+            return (offset !== null ? offset : 0);
+        },
 
-          timezone_name = tz_name,
-          
-          /**
-           * Checks if a timezone has possible ambiguities. I.e timezones that are similar.
-           *
-           * For example, if the preliminary scan determines that we're in America/Denver.
-           * We double check here that we're really there and not in America/Mazatlan.
-           *
-           * This is done by checking known dates for when daylight savings start for different
-           * timezones during 2010 and 2011.
-           */
-          ambiguity_check = function () {
-              var ambiguity_list = AMBIGUITIES[timezone_name],
-                  length = ambiguity_list.length,
-                  i = 0,
-                  tz = ambiguity_list[0];
+        /**
+         * This function does some basic calculations to create information about
+         * the user's timezone. It uses REFERENCE_YEAR as a solid year for which
+         * the script has been tested rather than depend on the year set by the
+         * client device.
+         *
+         * Returns a key that can be used to do lookups in jstz.olson.timezones.
+         * eg: "720,1,2".
+         *
+         * @returns {String}
+         */
+        lookup_key = function lookup_key() {
+            var january_offset = get_date_offset(new Date(consts.BASELINE_YEAR, 0, 2)),
+                june_offset = get_date_offset(new Date(consts.BASELINE_YEAR, 5, 2)),
+                diff = january_offset - june_offset;
 
-              for (; i < length; i += 1) {
-                  tz = ambiguity_list[i];
+            if (diff < 0) {
+                return january_offset + ",1";
+            } else if (diff > 0) {
+                return june_offset + ",1," + HEMISPHERE_SOUTH;
+            }
 
-                  if (jstz.date_is_dst(jstz.dst_start_for(tz))) {
-                      timezone_name = tz;
-                      return;
-                  }
-              }
-          },
+            return january_offset + ",0";
+        },
 
-          /**
-           * Checks if it is possible that the timezone is ambiguous.
-           */
-          is_ambiguous = function () {
-              return typeof (AMBIGUITIES[timezone_name]) !== 'undefined';
-          };
 
-      if (is_ambiguous()) {
-          ambiguity_check();
-      }
+        /**
+         * Tries to get the time zone key directly from the operating system for those
+         * environments that support the ECMAScript Internationalization API.
+         */
+        get_from_internationalization_api = function get_from_internationalization_api() {
+            var format, timezone;
+            if (typeof Intl === "undefined" || typeof Intl.DateTimeFormat === "undefined") {
+                return;
+            }
 
-      return {
-          name: function () {
-              return timezone_name;
-          }
-      };
-  };
+            format = Intl.DateTimeFormat();
 
-  jstz.olson = {};
+            if (typeof format === "undefined" || typeof format.resolvedOptions === "undefined") {
+                return;
+            }
 
-  /*
-   * The keys in this dictionary are comma separated as such:
-   *
-   * First the offset compared to UTC time in minutes.
-   *
-   * Then a flag which is 0 if the timezone does not take daylight savings into account and 1 if it
-   * does.
-   *
-   * Thirdly an optional 's' signifies that the timezone is in the southern hemisphere,
-   * only interesting for timezones with DST.
-   *
-   * The mapped arrays is used for constructing the jstz.TimeZone object from within
-   * jstz.determine_timezone();
-   */
-  jstz.olson.timezones = {
-      '-720,0'   : 'Pacific/Majuro',
-      '-660,0'   : 'Pacific/Pago_Pago',
-      '-600,1'   : 'America/Adak',
-      '-600,0'   : 'Pacific/Honolulu',
-      '-570,0'   : 'Pacific/Marquesas',
-      '-540,0'   : 'Pacific/Gambier',
-      '-540,1'   : 'America/Anchorage',
-      '-480,1'   : 'America/Los_Angeles',
-      '-480,0'   : 'Pacific/Pitcairn',
-      '-420,0'   : 'America/Phoenix',
-      '-420,1'   : 'America/Denver',
-      '-360,0'   : 'America/Guatemala',
-      '-360,1'   : 'America/Chicago',
-      '-360,1,s' : 'Pacific/Easter',
-      '-300,0'   : 'America/Bogota',
-      '-300,1'   : 'America/New_York',
-      '-270,0'   : 'America/Caracas',
-      '-240,1'   : 'America/Halifax',
-      '-240,0'   : 'America/Santo_Domingo',
-      '-240,1,s' : 'America/Santiago',
-      '-210,1'   : 'America/St_Johns',
-      '-180,1'   : 'America/Godthab',
-      '-180,0'   : 'America/Argentina/Buenos_Aires',
-      '-180,1,s' : 'America/Montevideo',
-      '-120,0'   : 'America/Noronha',
-      '-120,1'   : 'America/Noronha',
-      '-60,1'    : 'Atlantic/Azores',
-      '-60,0'    : 'Atlantic/Cape_Verde',
-      '0,0'      : 'UTC',
-      '0,1'      : 'Europe/London',
-      '60,1'     : 'Europe/Berlin',
-      '60,0'     : 'Africa/Lagos',
-      '60,1,s'   : 'Africa/Windhoek',
-      '120,1'    : 'Asia/Beirut',
-      '120,0'    : 'Africa/Johannesburg',
-      '180,0'    : 'Asia/Baghdad',
-      '180,1'    : 'Europe/Moscow',
-      '210,1'    : 'Asia/Tehran',
-      '240,0'    : 'Asia/Dubai',
-      '240,1'    : 'Asia/Baku',
-      '270,0'    : 'Asia/Kabul',
-      '300,1'    : 'Asia/Yekaterinburg',
-      '300,0'    : 'Asia/Karachi',
-      '330,0'    : 'Asia/Kolkata',
-      '345,0'    : 'Asia/Kathmandu',
-      '360,0'    : 'Asia/Dhaka',
-      '360,1'    : 'Asia/Omsk',
-      '390,0'    : 'Asia/Rangoon',
-      '420,1'    : 'Asia/Krasnoyarsk',
-      '420,0'    : 'Asia/Jakarta',
-      '480,0'    : 'Asia/Shanghai',
-      '480,1'    : 'Asia/Irkutsk',
-      '525,0'    : 'Australia/Eucla',
-      '525,1,s'  : 'Australia/Eucla',
-      '540,1'    : 'Asia/Yakutsk',
-      '540,0'    : 'Asia/Tokyo',
-      '570,0'    : 'Australia/Darwin',
-      '570,1,s'  : 'Australia/Adelaide',
-      '600,0'    : 'Australia/Brisbane',
-      '600,1'    : 'Asia/Vladivostok',
-      '600,1,s'  : 'Australia/Sydney',
-      '630,1,s'  : 'Australia/Lord_Howe',
-      '660,1'    : 'Asia/Kamchatka',
-      '660,0'    : 'Pacific/Noumea',
-      '690,0'    : 'Pacific/Norfolk',
-      '720,1,s'  : 'Pacific/Auckland',
-      '720,0'    : 'Pacific/Tarawa',
-      '765,1,s'  : 'Pacific/Chatham',
-      '780,0'    : 'Pacific/Tongatapu',
-      '780,1,s'  : 'Pacific/Apia',
-      '840,0'    : 'Pacific/Kiritimati'
-  };
+            timezone = format.resolvedOptions().timeZone;
 
-  if (typeof exports !== 'undefined') {
-    exports.jstz = jstz;
-  } else {
-    root.jstz = jstz;
-  }
-})(this);
+            if (timezone && (timezone.indexOf("/") > -1 || timezone === 'UTC')) {
+                return timezone;
+            }
 
+        },
+
+        /**
+         * Starting point for getting all the DST rules for a specific year
+         * for the current timezone (as described by the client system).
+         *
+         * Returns an object with start and end attributes, or false if no
+         * DST rules were found for the year.
+         *
+         * @param year
+         * @returns {Object} || {Boolean}
+         */
+        dst_dates = function dst_dates(year) {
+            var yearstart = new Date(year, 0, 1, 0, 0, 1, 0).getTime();
+            var yearend = new Date(year, 12, 31, 23, 59, 59).getTime();
+            var current = yearstart;
+            var offset = (new Date(current)).getTimezoneOffset();
+            var dst_start = null;
+            var dst_end = null;
+
+            while (current < yearend - 86400000) {
+                var dateToCheck = new Date(current);
+                var dateToCheckOffset = dateToCheck.getTimezoneOffset();
+
+                if (dateToCheckOffset !== offset) {
+                    if (dateToCheckOffset < offset) {
+                        dst_start = dateToCheck;
+                    }
+                    if (dateToCheckOffset > offset) {
+                        dst_end = dateToCheck;
+                    }
+                    offset = dateToCheckOffset;
+                }
+
+                current += 86400000;
+            }
+
+            if (dst_start && dst_end) {
+                return {
+                    s: find_dst_fold(dst_start).getTime(),
+                    e: find_dst_fold(dst_end).getTime()
+                };
+            }
+
+            return false;
+        },
+
+        /**
+         * Probably completely unnecessary function that recursively finds the
+         * exact (to the second) time when a DST rule was changed.
+         *
+         * @param a_date - The candidate Date.
+         * @param padding - integer specifying the padding to allow around the candidate
+         *                  date for finding the fold.
+         * @param iterator - integer specifying how many milliseconds to iterate while
+         *                   searching for the fold.
+         *
+         * @returns {Date}
+         */
+        find_dst_fold = function find_dst_fold(a_date, padding, iterator) {
+            if (typeof padding === 'undefined') {
+                padding = consts.DAY;
+                iterator = consts.HOUR;
+            }
+
+            var date_start = new Date(a_date.getTime() - padding).getTime();
+            var date_end = a_date.getTime() + padding;
+            var offset = new Date(date_start).getTimezoneOffset();
+
+            var current = date_start;
+
+            var dst_change = null;
+            while (current < date_end - iterator) {
+                var dateToCheck = new Date(current);
+                var dateToCheckOffset = dateToCheck.getTimezoneOffset();
+
+                if (dateToCheckOffset !== offset) {
+                    dst_change = dateToCheck;
+                    break;
+                }
+                current += iterator;
+            }
+
+            if (padding === consts.DAY) {
+                return find_dst_fold(dst_change, consts.HOUR, consts.MINUTE);
+            }
+
+            if (padding === consts.HOUR) {
+                return find_dst_fold(dst_change, consts.MINUTE, consts.SECOND);
+            }
+
+            return dst_change;
+        },
+
+        windows7_adaptations = function windows7_adaptions(rule_list, preliminary_timezone, score, sample) {
+            if (score !== 'N/A') {
+                return score;
+            }
+            if (preliminary_timezone === 'Asia/Beirut') {
+                if (sample.name === 'Africa/Cairo') {
+                    if (rule_list[6].s === 1398376800000 && rule_list[6].e === 1411678800000) {
+                        return 0;
+                    }
+                }
+                if (sample.name === 'Asia/Jerusalem') {
+                    if (rule_list[6].s === 1395964800000 && rule_list[6].e === 1411858800000) {
+                        return 0;
+                }
+            }
+            } else if (preliminary_timezone === 'America/Santiago') {
+                if (sample.name === 'America/Asuncion') {
+                    if (rule_list[6].s === 1412481600000 && rule_list[6].e === 1397358000000) {
+                        return 0;
+                    }
+                }
+                if (sample.name === 'America/Campo_Grande') {
+                    if (rule_list[6].s === 1413691200000 && rule_list[6].e === 1392519600000) {
+                        return 0;
+                    }
+                }
+            } else if (preliminary_timezone === 'America/Montevideo') {
+                if (sample.name === 'America/Sao_Paulo') {
+                    if (rule_list[6].s === 1413687600000 && rule_list[6].e === 1392516000000) {
+                        return 0;
+                    }
+                }
+            } else if (preliminary_timezone === 'Pacific/Auckland') {
+                if (sample.name === 'Pacific/Fiji') {
+                    if (rule_list[6].s === 1414245600000 && rule_list[6].e === 1396101600000) {
+                        return 0;
+                    }
+                }
+            }
+
+            return score;
+        },
+
+        /**
+         * Takes the DST rules for the current timezone, and proceeds to find matches
+         * in the jstz.olson.dst_rules.zones array.
+         *
+         * Compares samples to the current timezone on a scoring basis.
+         *
+         * Candidates are ruled immediately if either the candidate or the current zone
+         * has a DST rule where the other does not.
+         *
+         * Candidates are ruled out immediately if the current zone has a rule that is
+         * outside the DST scope of the candidate.
+         *
+         * Candidates are included for scoring if the current zones rules fall within the
+         * span of the samples rules.
+         *
+         * Low score is best, the score is calculated by summing up the differences in DST
+         * rules and if the consts.MAX_SCORE is overreached the candidate is ruled out.
+         *
+         * Yah follow? :)
+         *
+         * @param rule_list
+         * @param preliminary_timezone
+         * @returns {*}
+         */
+        best_dst_match = function best_dst_match(rule_list, preliminary_timezone) {
+            var score_sample = function score_sample(sample) {
+                var score = 0;
+
+                for (var j = 0; j < rule_list.length; j++) {
+
+                    // Both sample and current time zone report DST during the year.
+                    if (!!sample.rules[j] && !!rule_list[j]) {
+
+                        // The current time zone's DST rules are inside the sample's. Include.
+                        if (rule_list[j].s >= sample.rules[j].s && rule_list[j].e <= sample.rules[j].e) {
+                            score = 0;
+                            score += Math.abs(rule_list[j].s - sample.rules[j].s);
+                            score += Math.abs(sample.rules[j].e - rule_list[j].e);
+
+                        // The current time zone's DST rules are outside the sample's. Discard.
+                        } else {
+                            score = 'N/A';
+                            break;
+                        }
+
+                        // The max score has been reached. Discard.
+                        if (score > consts.MAX_SCORE) {
+                            score = 'N/A';
+                            break;
+                        }
+                    }
+                }
+
+                score = windows7_adaptations(rule_list, preliminary_timezone, score, sample);
+
+                return score;
+            };
+            var scoreboard = {};
+            var dst_zones = jstz.olson.dst_rules.zones;
+            var dst_zones_length = dst_zones.length;
+            var ambiguities = consts.AMBIGUITIES[preliminary_timezone];
+
+            for (var i = 0; i < dst_zones_length; i++) {
+                var sample = dst_zones[i];
+                var score = score_sample(dst_zones[i]);
+
+                if (score !== 'N/A') {
+                    scoreboard[sample.name] = score;
+                }
+            }
+
+            for (var tz in scoreboard) {
+                if (scoreboard.hasOwnProperty(tz)) {
+                    for (var j = 0; j < ambiguities.length; j++) {
+                        if (ambiguities[j] === tz) {
+                            return tz;
+                        }
+                    }
+                }
+            }
+
+            return preliminary_timezone;
+        },
+
+        /**
+         * Takes the preliminary_timezone as detected by lookup_key().
+         *
+         * Builds up the current timezones DST rules for the years defined
+         * in the jstz.olson.dst_rules.years array.
+         *
+         * If there are no DST occurences for those years, immediately returns
+         * the preliminary timezone. Otherwise proceeds and tries to solve
+         * ambiguities.
+         *
+         * @param preliminary_timezone
+         * @returns {String} timezone_name
+         */
+        get_by_dst = function get_by_dst(preliminary_timezone) {
+            var get_rules = function get_rules() {
+                var rule_list = [];
+                for (var i = 0; i < jstz.olson.dst_rules.years.length; i++) {
+                    var year_rules = dst_dates(jstz.olson.dst_rules.years[i]);
+                    rule_list.push(year_rules);
+                }
+                return rule_list;
+            };
+            var check_has_dst = function check_has_dst(rules) {
+                for (var i = 0; i < rules.length; i++) {
+                    if (rules[i] !== false) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            var rules = get_rules();
+            var has_dst = check_has_dst(rules);
+
+            if (has_dst) {
+                return best_dst_match(rules, preliminary_timezone);
+            }
+
+            return preliminary_timezone;
+        },
+
+        /**
+         * Uses get_timezone_info() to formulate a key to use in the olson.timezones dictionary.
+         *
+         * Returns an object with one function ".name()"
+         *
+         * @returns Object
+         */
+        determine = function determine() {
+            var preliminary_tz = get_from_internationalization_api();
+
+            if (!preliminary_tz) {
+                preliminary_tz = jstz.olson.timezones[lookup_key()];
+
+                if (typeof consts.AMBIGUITIES[preliminary_tz] !== 'undefined') {
+                    preliminary_tz = get_by_dst(preliminary_tz);
+                }
+            }
+
+            return {
+                name: function () {
+                    return preliminary_tz;
+                }
+            };
+        };
+
+    return {
+        determine: determine
+    };
+}());
+
+
+jstz.olson = jstz.olson || {};
+
+/**
+ * The keys in this dictionary are comma separated as such:
+ *
+ * First the offset compared to UTC time in minutes.
+ *
+ * Then a flag which is 0 if the timezone does not take daylight savings into account and 1 if it
+ * does.
+ *
+ * Thirdly an optional 's' signifies that the timezone is in the southern hemisphere,
+ * only interesting for timezones with DST.
+ *
+ * The mapped arrays is used for constructing the jstz.TimeZone object from within
+ * jstz.determine();
+ */
+jstz.olson.timezones = {
+    '-720,0': 'Etc/GMT+12',
+    '-660,0': 'Pacific/Pago_Pago',
+    '-660,1,s': 'Pacific/Apia', // Why? Because windows... cry!
+    '-600,1': 'America/Adak',
+    '-600,0': 'Pacific/Honolulu',
+    '-570,0': 'Pacific/Marquesas',
+    '-540,0': 'Pacific/Gambier',
+    '-540,1': 'America/Anchorage',
+    '-480,1': 'America/Los_Angeles',
+    '-480,0': 'Pacific/Pitcairn',
+    '-420,0': 'America/Phoenix',
+    '-420,1': 'America/Denver',
+    '-360,0': 'America/Guatemala',
+    '-360,1': 'America/Chicago',
+    '-360,1,s': 'Pacific/Easter',
+    '-300,0': 'America/Bogota',
+    '-300,1': 'America/New_York',
+    '-270,0': 'America/Caracas',
+    '-240,1': 'America/Halifax',
+    '-240,0': 'America/Santo_Domingo',
+    '-240,1,s': 'America/Asuncion',
+    '-210,1': 'America/St_Johns',
+    '-180,1': 'America/Godthab',
+    '-180,0': 'America/Argentina/Buenos_Aires',
+    '-180,1,s': 'America/Montevideo',
+    '-120,0': 'America/Noronha',
+    '-120,1': 'America/Noronha',
+    '-60,1': 'Atlantic/Azores',
+    '-60,0': 'Atlantic/Cape_Verde',
+    '0,0': 'UTC',
+    '0,1': 'Europe/London',
+    '60,1': 'Europe/Berlin',
+    '60,0': 'Africa/Lagos',
+    '60,1,s': 'Africa/Windhoek',
+    '120,1': 'Asia/Beirut',
+    '120,0': 'Africa/Johannesburg',
+    '180,0': 'Asia/Baghdad',
+    '180,1': 'Europe/Moscow',
+    '210,1': 'Asia/Tehran',
+    '240,0': 'Asia/Dubai',
+    '240,1': 'Asia/Baku',
+    '270,0': 'Asia/Kabul',
+    '300,1': 'Asia/Yekaterinburg',
+    '300,0': 'Asia/Karachi',
+    '330,0': 'Asia/Kolkata',
+    '345,0': 'Asia/Kathmandu',
+    '360,0': 'Asia/Dhaka',
+    '360,1': 'Asia/Omsk',
+    '390,0': 'Asia/Rangoon',
+    '420,1': 'Asia/Krasnoyarsk',
+    '420,0': 'Asia/Jakarta',
+    '480,0': 'Asia/Shanghai',
+    '480,1': 'Asia/Irkutsk',
+    '525,0': 'Australia/Eucla',
+    '525,1,s': 'Australia/Eucla',
+    '540,1': 'Asia/Yakutsk',
+    '540,0': 'Asia/Tokyo',
+    '570,0': 'Australia/Darwin',
+    '570,1,s': 'Australia/Adelaide',
+    '600,0': 'Australia/Brisbane',
+    '600,1': 'Asia/Vladivostok',
+    '600,1,s': 'Australia/Sydney',
+    '630,1,s': 'Australia/Lord_Howe',
+    '660,1': 'Asia/Kamchatka',
+    '660,0': 'Pacific/Noumea',
+    '690,0': 'Pacific/Norfolk',
+    '720,1,s': 'Pacific/Auckland',
+    '720,0': 'Pacific/Majuro',
+    '765,1,s': 'Pacific/Chatham',
+    '780,0': 'Pacific/Tongatapu',
+    '780,1,s': 'Pacific/Apia',
+    '840,0': 'Pacific/Kiritimati'
+};
+
+/* Build time: 2015-11-02 13:01:00Z Build by invoking python utilities/dst.py generate */
+jstz.olson.dst_rules = {
+    "years": [
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014
+    ],
+    "zones": [
+        {
+            "name": "Africa/Cairo",
+            "rules": [
+                {
+                    "e": 1219957200000,
+                    "s": 1209074400000
+                },
+                {
+                    "e": 1250802000000,
+                    "s": 1240524000000
+                },
+                {
+                    "e": 1285880400000,
+                    "s": 1284069600000
+                },
+                false,
+                false,
+                false,
+                {
+                    "e": 1411678800000,
+                    "s": 1406844000000
+                }
+            ]
+        },
+        {
+            "name": "Africa/Casablanca",
+            "rules": [
+                {
+                    "e": 1220223600000,
+                    "s": 1212278400000
+                },
+                {
+                    "e": 1250809200000,
+                    "s": 1243814400000
+                },
+                {
+                    "e": 1281222000000,
+                    "s": 1272758400000
+                },
+                {
+                    "e": 1312066800000,
+                    "s": 1301788800000
+                },
+                {
+                    "e": 1348970400000,
+                    "s": 1345428000000
+                },
+                {
+                    "e": 1382839200000,
+                    "s": 1376100000000
+                },
+                {
+                    "e": 1414288800000,
+                    "s": 1406944800000
+                }
+            ]
+        },
+        {
+            "name": "America/Asuncion",
+            "rules": [
+                {
+                    "e": 1205031600000,
+                    "s": 1224388800000
+                },
+                {
+                    "e": 1236481200000,
+                    "s": 1255838400000
+                },
+                {
+                    "e": 1270954800000,
+                    "s": 1286078400000
+                },
+                {
+                    "e": 1302404400000,
+                    "s": 1317528000000
+                },
+                {
+                    "e": 1333854000000,
+                    "s": 1349582400000
+                },
+                {
+                    "e": 1364094000000,
+                    "s": 1381032000000
+                },
+                {
+                    "e": 1395543600000,
+                    "s": 1412481600000
+                }
+            ]
+        },
+        {
+            "name": "America/Campo_Grande",
+            "rules": [
+                {
+                    "e": 1203217200000,
+                    "s": 1224388800000
+                },
+                {
+                    "e": 1234666800000,
+                    "s": 1255838400000
+                },
+                {
+                    "e": 1266721200000,
+                    "s": 1287288000000
+                },
+                {
+                    "e": 1298170800000,
+                    "s": 1318737600000
+                },
+                {
+                    "e": 1330225200000,
+                    "s": 1350792000000
+                },
+                {
+                    "e": 1361070000000,
+                    "s": 1382241600000
+                },
+                {
+                    "e": 1392519600000,
+                    "s": 1413691200000
+                }
+            ]
+        },
+        {
+            "name": "America/Goose_Bay",
+            "rules": [
+                {
+                    "e": 1225594860000,
+                    "s": 1205035260000
+                },
+                {
+                    "e": 1257044460000,
+                    "s": 1236484860000
+                },
+                {
+                    "e": 1289098860000,
+                    "s": 1268539260000
+                },
+                {
+                    "e": 1320555600000,
+                    "s": 1299988860000
+                },
+                {
+                    "e": 1352005200000,
+                    "s": 1331445600000
+                },
+                {
+                    "e": 1383454800000,
+                    "s": 1362895200000
+                },
+                {
+                    "e": 1414904400000,
+                    "s": 1394344800000
+                }
+            ]
+        },
+        {
+            "name": "America/Havana",
+            "rules": [
+                {
+                    "e": 1224997200000,
+                    "s": 1205643600000
+                },
+                {
+                    "e": 1256446800000,
+                    "s": 1236488400000
+                },
+                {
+                    "e": 1288501200000,
+                    "s": 1268542800000
+                },
+                {
+                    "e": 1321160400000,
+                    "s": 1300597200000
+                },
+                {
+                    "e": 1352005200000,
+                    "s": 1333256400000
+                },
+                {
+                    "e": 1383454800000,
+                    "s": 1362891600000
+                },
+                {
+                    "e": 1414904400000,
+                    "s": 1394341200000
+                }
+            ]
+        },
+        {
+            "name": "America/Mazatlan",
+            "rules": [
+                {
+                    "e": 1225008000000,
+                    "s": 1207472400000
+                },
+                {
+                    "e": 1256457600000,
+                    "s": 1238922000000
+                },
+                {
+                    "e": 1288512000000,
+                    "s": 1270371600000
+                },
+                {
+                    "e": 1319961600000,
+                    "s": 1301821200000
+                },
+                {
+                    "e": 1351411200000,
+                    "s": 1333270800000
+                },
+                {
+                    "e": 1382860800000,
+                    "s": 1365325200000
+                },
+                {
+                    "e": 1414310400000,
+                    "s": 1396774800000
+                }
+            ]
+        },
+        {
+            "name": "America/Mexico_City",
+            "rules": [
+                {
+                    "e": 1225004400000,
+                    "s": 1207468800000
+                },
+                {
+                    "e": 1256454000000,
+                    "s": 1238918400000
+                },
+                {
+                    "e": 1288508400000,
+                    "s": 1270368000000
+                },
+                {
+                    "e": 1319958000000,
+                    "s": 1301817600000
+                },
+                {
+                    "e": 1351407600000,
+                    "s": 1333267200000
+                },
+                {
+                    "e": 1382857200000,
+                    "s": 1365321600000
+                },
+                {
+                    "e": 1414306800000,
+                    "s": 1396771200000
+                }
+            ]
+        },
+        {
+            "name": "America/Miquelon",
+            "rules": [
+                {
+                    "e": 1225598400000,
+                    "s": 1205038800000
+                },
+                {
+                    "e": 1257048000000,
+                    "s": 1236488400000
+                },
+                {
+                    "e": 1289102400000,
+                    "s": 1268542800000
+                },
+                {
+                    "e": 1320552000000,
+                    "s": 1299992400000
+                },
+                {
+                    "e": 1352001600000,
+                    "s": 1331442000000
+                },
+                {
+                    "e": 1383451200000,
+                    "s": 1362891600000
+                },
+                {
+                    "e": 1414900800000,
+                    "s": 1394341200000
+                }
+            ]
+        },
+        {
+            "name": "America/Santa_Isabel",
+            "rules": [
+                {
+                    "e": 1225011600000,
+                    "s": 1207476000000
+                },
+                {
+                    "e": 1256461200000,
+                    "s": 1238925600000
+                },
+                {
+                    "e": 1288515600000,
+                    "s": 1270375200000
+                },
+                {
+                    "e": 1319965200000,
+                    "s": 1301824800000
+                },
+                {
+                    "e": 1351414800000,
+                    "s": 1333274400000
+                },
+                {
+                    "e": 1382864400000,
+                    "s": 1365328800000
+                },
+                {
+                    "e": 1414314000000,
+                    "s": 1396778400000
+                }
+            ]
+        },
+        {
+            "name": "America/Santiago",
+            "rules": [
+                {
+                    "e": 1206846000000,
+                    "s": 1223784000000
+                },
+                {
+                    "e": 1237086000000,
+                    "s": 1255233600000
+                },
+                {
+                    "e": 1270350000000,
+                    "s": 1286683200000
+                },
+                {
+                    "e": 1304823600000,
+                    "s": 1313899200000
+                },
+                {
+                    "e": 1335668400000,
+                    "s": 1346558400000
+                },
+                {
+                    "e": 1367118000000,
+                    "s": 1378612800000
+                },
+                {
+                    "e": 1398567600000,
+                    "s": 1410062400000
+                }
+            ]
+        },
+        {
+            "name": "America/Sao_Paulo",
+            "rules": [
+                {
+                    "e": 1203213600000,
+                    "s": 1224385200000
+                },
+                {
+                    "e": 1234663200000,
+                    "s": 1255834800000
+                },
+                {
+                    "e": 1266717600000,
+                    "s": 1287284400000
+                },
+                {
+                    "e": 1298167200000,
+                    "s": 1318734000000
+                },
+                {
+                    "e": 1330221600000,
+                    "s": 1350788400000
+                },
+                {
+                    "e": 1361066400000,
+                    "s": 1382238000000
+                },
+                {
+                    "e": 1392516000000,
+                    "s": 1413687600000
+                }
+            ]
+        },
+        {
+            "name": "Asia/Amman",
+            "rules": [
+                {
+                    "e": 1225404000000,
+                    "s": 1206655200000
+                },
+                {
+                    "e": 1256853600000,
+                    "s": 1238104800000
+                },
+                {
+                    "e": 1288303200000,
+                    "s": 1269554400000
+                },
+                {
+                    "e": 1319752800000,
+                    "s": 1301608800000
+                },
+                false,
+                false,
+                {
+                    "e": 1414706400000,
+                    "s": 1395957600000
+                }
+            ]
+        },
+        {
+            "name": "Asia/Damascus",
+            "rules": [
+                {
+                    "e": 1225486800000,
+                    "s": 1207260000000
+                },
+                {
+                    "e": 1256850000000,
+                    "s": 1238104800000
+                },
+                {
+                    "e": 1288299600000,
+                    "s": 1270159200000
+                },
+                {
+                    "e": 1319749200000,
+                    "s": 1301608800000
+                },
+                {
+                    "e": 1351198800000,
+                    "s": 1333058400000
+                },
+                {
+                    "e": 1382648400000,
+                    "s": 1364508000000
+                },
+                {
+                    "e": 1414702800000,
+                    "s": 1395957600000
+                }
+            ]
+        },
+        {
+            "name": "Asia/Dubai",
+            "rules": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Gaza",
+            "rules": [
+                {
+                    "e": 1219957200000,
+                    "s": 1206655200000
+                },
+                {
+                    "e": 1252015200000,
+                    "s": 1238104800000
+                },
+                {
+                    "e": 1281474000000,
+                    "s": 1269640860000
+                },
+                {
+                    "e": 1312146000000,
+                    "s": 1301608860000
+                },
+                {
+                    "e": 1348178400000,
+                    "s": 1333058400000
+                },
+                {
+                    "e": 1380229200000,
+                    "s": 1364508000000
+                },
+                {
+                    "e": 1414098000000,
+                    "s": 1395957600000
+                }
+            ]
+        },
+        {
+            "name": "Asia/Irkutsk",
+            "rules": [
+                {
+                    "e": 1224957600000,
+                    "s": 1206813600000
+                },
+                {
+                    "e": 1256407200000,
+                    "s": 1238263200000
+                },
+                {
+                    "e": 1288461600000,
+                    "s": 1269712800000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Jerusalem",
+            "rules": [
+                {
+                    "e": 1223161200000,
+                    "s": 1206662400000
+                },
+                {
+                    "e": 1254006000000,
+                    "s": 1238112000000
+                },
+                {
+                    "e": 1284246000000,
+                    "s": 1269561600000
+                },
+                {
+                    "e": 1317510000000,
+                    "s": 1301616000000
+                },
+                {
+                    "e": 1348354800000,
+                    "s": 1333065600000
+                },
+                {
+                    "e": 1382828400000,
+                    "s": 1364515200000
+                },
+                {
+                    "e": 1414278000000,
+                    "s": 1395964800000
+                }
+            ]
+        },
+        {
+            "name": "Asia/Kamchatka",
+            "rules": [
+                {
+                    "e": 1224943200000,
+                    "s": 1206799200000
+                },
+                {
+                    "e": 1256392800000,
+                    "s": 1238248800000
+                },
+                {
+                    "e": 1288450800000,
+                    "s": 1269698400000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Krasnoyarsk",
+            "rules": [
+                {
+                    "e": 1224961200000,
+                    "s": 1206817200000
+                },
+                {
+                    "e": 1256410800000,
+                    "s": 1238266800000
+                },
+                {
+                    "e": 1288465200000,
+                    "s": 1269716400000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Omsk",
+            "rules": [
+                {
+                    "e": 1224964800000,
+                    "s": 1206820800000
+                },
+                {
+                    "e": 1256414400000,
+                    "s": 1238270400000
+                },
+                {
+                    "e": 1288468800000,
+                    "s": 1269720000000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Vladivostok",
+            "rules": [
+                {
+                    "e": 1224950400000,
+                    "s": 1206806400000
+                },
+                {
+                    "e": 1256400000000,
+                    "s": 1238256000000
+                },
+                {
+                    "e": 1288454400000,
+                    "s": 1269705600000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Yakutsk",
+            "rules": [
+                {
+                    "e": 1224954000000,
+                    "s": 1206810000000
+                },
+                {
+                    "e": 1256403600000,
+                    "s": 1238259600000
+                },
+                {
+                    "e": 1288458000000,
+                    "s": 1269709200000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Yekaterinburg",
+            "rules": [
+                {
+                    "e": 1224968400000,
+                    "s": 1206824400000
+                },
+                {
+                    "e": 1256418000000,
+                    "s": 1238274000000
+                },
+                {
+                    "e": 1288472400000,
+                    "s": 1269723600000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Asia/Yerevan",
+            "rules": [
+                {
+                    "e": 1224972000000,
+                    "s": 1206828000000
+                },
+                {
+                    "e": 1256421600000,
+                    "s": 1238277600000
+                },
+                {
+                    "e": 1288476000000,
+                    "s": 1269727200000
+                },
+                {
+                    "e": 1319925600000,
+                    "s": 1301176800000
+                },
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Australia/Lord_Howe",
+            "rules": [
+                {
+                    "e": 1207407600000,
+                    "s": 1223134200000
+                },
+                {
+                    "e": 1238857200000,
+                    "s": 1254583800000
+                },
+                {
+                    "e": 1270306800000,
+                    "s": 1286033400000
+                },
+                {
+                    "e": 1301756400000,
+                    "s": 1317483000000
+                },
+                {
+                    "e": 1333206000000,
+                    "s": 1349537400000
+                },
+                {
+                    "e": 1365260400000,
+                    "s": 1380987000000
+                },
+                {
+                    "e": 1396710000000,
+                    "s": 1412436600000
+                }
+            ]
+        },
+        {
+            "name": "Australia/Perth",
+            "rules": [
+                {
+                    "e": 1206813600000,
+                    "s": 1224957600000
+                },
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Europe/Helsinki",
+            "rules": [
+                {
+                    "e": 1224982800000,
+                    "s": 1206838800000
+                },
+                {
+                    "e": 1256432400000,
+                    "s": 1238288400000
+                },
+                {
+                    "e": 1288486800000,
+                    "s": 1269738000000
+                },
+                {
+                    "e": 1319936400000,
+                    "s": 1301187600000
+                },
+                {
+                    "e": 1351386000000,
+                    "s": 1332637200000
+                },
+                {
+                    "e": 1382835600000,
+                    "s": 1364691600000
+                },
+                {
+                    "e": 1414285200000,
+                    "s": 1396141200000
+                }
+            ]
+        },
+        {
+            "name": "Europe/Minsk",
+            "rules": [
+                {
+                    "e": 1224979200000,
+                    "s": 1206835200000
+                },
+                {
+                    "e": 1256428800000,
+                    "s": 1238284800000
+                },
+                {
+                    "e": 1288483200000,
+                    "s": 1269734400000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Europe/Moscow",
+            "rules": [
+                {
+                    "e": 1224975600000,
+                    "s": 1206831600000
+                },
+                {
+                    "e": 1256425200000,
+                    "s": 1238281200000
+                },
+                {
+                    "e": 1288479600000,
+                    "s": 1269730800000
+                },
+                false,
+                false,
+                false,
+                false
+            ]
+        },
+        {
+            "name": "Pacific/Apia",
+            "rules": [
+                false,
+                false,
+                false,
+                {
+                    "e": 1301752800000,
+                    "s": 1316872800000
+                },
+                {
+                    "e": 1333202400000,
+                    "s": 1348927200000
+                },
+                {
+                    "e": 1365256800000,
+                    "s": 1380376800000
+                },
+                {
+                    "e": 1396706400000,
+                    "s": 1411826400000
+                }
+            ]
+        },
+        {
+            "name": "Pacific/Fiji",
+            "rules": [
+                false,
+                false,
+                {
+                    "e": 1269698400000,
+                    "s": 1287842400000
+                },
+                {
+                    "e": 1327154400000,
+                    "s": 1319292000000
+                },
+                {
+                    "e": 1358604000000,
+                    "s": 1350741600000
+                },
+                {
+                    "e": 1390050000000,
+                    "s": 1382796000000
+                },
+                {
+                    "e": 1421503200000,
+                    "s": 1414850400000
+                }
+            ]
+        },
+        {
+            "name": "Europe/London",
+            "rules": [
+                {
+                    "e": 1224982800000,
+                    "s": 1206838800000
+                },
+                {
+                    "e": 1256432400000,
+                    "s": 1238288400000
+                },
+                {
+                    "e": 1288486800000,
+                    "s": 1269738000000
+                },
+                {
+                    "e": 1319936400000,
+                    "s": 1301187600000
+                },
+                {
+                    "e": 1351386000000,
+                    "s": 1332637200000
+                },
+                {
+                    "e": 1382835600000,
+                    "s": 1364691600000
+                },
+                {
+                    "e": 1414285200000,
+                    "s": 1396141200000
+                }
+            ]
+        }
+    ]
+};
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = jstz;
+} else if ((typeof define !== 'undefined' && define !== null) && (define.amd != null)) {
+    define([], function() {
+        return jstz;
+    });
+} else {
+    if (typeof root === 'undefined') {
+        window.jstz = jstz;
+    } else {
+        root.jstz = jstz;
+    }
+}
+}());
 
 },{}],12:[function(require,module,exports){
 // Mingo.js 0.4.0
@@ -16213,7 +17287,7 @@ module.exports = (function () {
     return Everlive;
 }());
 
-},{"./EventEmitterProxy":45,"./EverliveError":47,"./Push":51,"./Request":52,"./Setup":53,"./auth/Authentication":54,"./caching/caching":57,"./common":58,"./constants":59,"./helpers/helpers":62,"./mixins/mixins":68,"./offline/offline":76,"./types/Data":96,"./types/Files":97,"./types/Users":98,"./utils":99}],47:[function(require,module,exports){
+},{"./EventEmitterProxy":45,"./EverliveError":47,"./Push":51,"./Request":52,"./Setup":53,"./auth/Authentication":54,"./caching/caching":57,"./common":58,"./constants":59,"./helpers/helpers":62,"./mixins/mixins":68,"./offline/offline":76,"./types/Data":97,"./types/Files":98,"./types/Users":99,"./utils":100}],47:[function(require,module,exports){
 var EverliveErrors = {
     itemNotFound: {
         code: 801,
@@ -16237,6 +17311,10 @@ var EverliveErrors = {
     },
     operationNotSupportedOffline: {
         code: 20000 // the error message is created dynamically based on the query filter for offline storage
+    },
+    invalidId: {
+        code: 20001,
+        message: 'Invalid or missing Id in model.'
     },
     generalDatabaseError: {
         code: 107,
@@ -16380,7 +17458,7 @@ module.exports = (function () {
             var targetTypeName = node.targetTypeName.toLowerCase() === constants.FilesTypeNameLegacy ? constants.FilesTypeName : node.targetTypeName;
 
             var query = new DataQuery({
-                operation: DataQuery.operations.read,
+                operation: DataQuery.operations.Read,
                 collectionName: targetTypeName,
                 filter: new Query(node.filter, node.select, node.sort, node.skip, node.take)
             });
@@ -16392,7 +17470,7 @@ module.exports = (function () {
     });
 }());
 
-},{"./EverliveError":47,"./common":58,"./constants":59,"./query/DataQuery":85,"./query/Query":86}],49:[function(require,module,exports){
+},{"./EverliveError":47,"./common":58,"./constants":59,"./query/DataQuery":85,"./query/Query":87}],49:[function(require,module,exports){
 module.exports = (function () {
     function Expression(operator, operands) {
         this.operator = operator;
@@ -16455,12 +17533,7 @@ module.exports = (function () {
          * @memberOf Push.prototype
          */
         ensurePushIsAvailable: function () {
-            var isPushNotificationPluginAvailable = (typeof window !== 'undefined' && window.plugins && window.plugins.pushNotification);
-
-            if (!isPushNotificationPluginAvailable && !this._inAppBuilderSimulator()) {
-                throw new EverliveError("The push notification plugin is not available. Ensure that the pushNotification plugin is included " +
-                "and use after `deviceready` event has been fired.");
-            }
+            CurrentDevice.ensurePushIsAvailable();
         },
         /**
          * Returns the current device for sending push notifications
@@ -16483,13 +17556,9 @@ module.exports = (function () {
                 this._currentDevice = new CurrentDevice(this);
             }
 
-            this._currentDevice.emulatorMode = emulatorMode || this._inAppBuilderSimulator();
+            this._currentDevice.emulatorMode = emulatorMode || utils._inAppBuilderSimulator();
 
             return this._currentDevice;
-        },
-
-        _inAppBuilderSimulator: function () {
-            return typeof window !== undefined && window.navigator && window.navigator.simulator;
         },
 
         /**
@@ -16691,7 +17760,7 @@ module.exports = (function () {
             return buildPromise(function (successCb, errorCb) {
                 currentDevice._pushHandler.devices.updateSingle(deviceRegistration).then(
                     function () {
-                        if (window.plugins && window.plugins.pushNotification && !self._inAppBuilderSimulator()) {
+                        if (window.plugins && window.plugins.pushNotification && !utils._inAppBuilderSimulator()) {
                             return window.plugins.pushNotification.setApplicationIconBadgeNumber(successCb, errorCb, badge);
                         } else {
                             return successCb();
@@ -16799,7 +17868,7 @@ module.exports = (function () {
 
     return Push;
 }());
-},{"./EverliveError":47,"./constants":59,"./push/CurrentDevice":83,"./utils":99}],52:[function(require,module,exports){
+},{"./EverliveError":47,"./constants":59,"./push/CurrentDevice":83,"./utils":100}],52:[function(require,module,exports){
 var utils = require('./utils');
 var rsvp = require('./common').rsvp;
 var buildAuthHeader = utils.buildAuthHeader;
@@ -16825,11 +17894,23 @@ module.exports = (function () {
         this.method = null;
         this.endpoint = null;
         this.data = null;
-        this.headers = {};
         // TODO success and error callbacks should be uniformed for all ajax libs
         this.success = null;
         this.error = null;
         this.parse = Request.parsers.simple;
+
+        var _headers = {};
+        //make sure that the headers are always normalized
+        Object.defineProperty(this, 'headers', {
+            get: function () {
+                return _headers;
+            },
+            set: function (val) {
+                // If we let two identical headers with different casing slip into a request
+                // the browser concatenates them which brings chaos to earth
+                _headers = utils.normalizeKeys(val);
+            }
+        });
 
         _.extend(this, options);
         _self = this;
@@ -16917,7 +17998,6 @@ module.exports = (function () {
         }
     };
 
-    // TODO built for request
     if (typeof Request.sendRequest === 'undefined') {
         Request.sendRequest = function (request) {
             var url = request.buildUrl(request.setup) + request.endpoint;
@@ -16961,7 +18041,7 @@ module.exports = (function () {
 
     return Request;
 }());
-},{"./common":58,"./constants":59,"./everlive.platform":61,"./query/Query":86,"./utils":99}],53:[function(require,module,exports){
+},{"./common":58,"./constants":59,"./everlive.platform":61,"./query/Query":87,"./utils":100}],53:[function(require,module,exports){
 var _ = require('./common')._;
 var constants = require('./constants');
 var AuthenticationSetup = require('./auth/AuthenticationSetup');
@@ -17073,7 +18153,7 @@ module.exports = (function () {
             };
 
             var query = new DataQuery({
-                operation: DataQuery.operations.userLogin,
+                operation: DataQuery.operations.UserLogin,
                 collectionName: usersCollectionName,
                 data: {
                     username: username,
@@ -17121,7 +18201,7 @@ module.exports = (function () {
             };
 
             var query = new DataQuery({
-                operation: DataQuery.operations.userLogout,
+                operation: DataQuery.operations.UserLogout,
                 collectionName: usersCollectionName,
                 skipAuth: true,
                 onSuccess: successFunc,
@@ -17431,7 +18511,7 @@ module.exports = (function () {
             };
 
             var query = new DataQuery({
-                operation: DataQuery.operations.userLoginWithProvider,
+                operation: DataQuery.operations.UserLoginWithProvider,
                 collectionName: usersCollectionName,
                 data: user,
                 authHeaders: false,
@@ -17448,7 +18528,7 @@ module.exports = (function () {
     return Authentication;
 }());
 
-},{"../Everlive":46,"../EverliveError":47,"../Request":52,"../constants":59,"../query/DataQuery":85,"../storages/LocalStore":93,"../utils":99}],55:[function(require,module,exports){
+},{"../Everlive":46,"../EverliveError":47,"../Request":52,"../constants":59,"../query/DataQuery":85,"../storages/LocalStore":94,"../utils":100}],55:[function(require,module,exports){
 'use strict';
 module.exports = (function () {
     var AuthenticationSetup = function (everlive, options) {
@@ -17484,9 +18564,9 @@ var CacheModule = function (options, everlive) {
 };
 
 var cacheableOperations = [
-    DataQuery.operations.read,
-    DataQuery.operations.readById,
-    DataQuery.operations.count
+    DataQuery.operations.Read,
+    DataQuery.operations.ReadById,
+    DataQuery.operations.Count
 ];
 
 /**
@@ -17619,7 +18699,7 @@ CacheModule.prototype = {
                                     });
                             } else {
                                 //If cache is used, change 'me' to the ID of the logged in user (only for currentUser() requests).
-                                if (dataQuery.operation === DataQuery.operations.readById && dataQuery.additionalOptions.id === 'me') {
+                                if (dataQuery.operation === DataQuery.operations.ReadById && dataQuery.additionalOptions.id === 'me') {
                                     dataQuery.additionalOptions.id = self._everlive.setup.principalId;
                                 }
 
@@ -17654,7 +18734,7 @@ CacheModule.prototype = {
                     var cacheForItems = [];
                     var result = response.result;
 
-                    if (dataQuery.operation !== DataQuery.operations.count) {
+                    if (dataQuery.operation !== DataQuery.operations.Count) {
                         if (Array.isArray(result)) {
                             _.each(result, function (singleResult) {
                                 var cacheItemPromise = self._addObjectToCache(singleResult, dataQuery.collectionName);
@@ -17668,7 +18748,7 @@ CacheModule.prototype = {
 
                     return rsvp.all(cacheForItems)
                         .then(function () {
-                            if (dataQuery.operation !== DataQuery.operations.count) {
+                            if (dataQuery.operation !== DataQuery.operations.Count) {
                                 return self._cacheResultFromDataQuery(contentType, hash);
                             }
                         })
@@ -17716,7 +18796,7 @@ CacheModule.prototype = {
     },
 
     _getHashForQuery: function (dataQuery) {
-        if (dataQuery.operation === DataQuery.operations.readById) {
+        if (dataQuery.operation === DataQuery.operations.ReadById) {
             return dataQuery.additionalOptions.id;
         }
 
@@ -17788,7 +18868,7 @@ CacheModule.prototype = {
 };
 
 module.exports = CacheModule;
-},{"../EverliveError":47,"../common":58,"../constants":59,"../offline/offline":76,"../offline/offlinePersisters":77,"../query/DataQuery":85,"../query/Query":86,"../utils":99,"underscore":35}],57:[function(require,module,exports){
+},{"../EverliveError":47,"../common":58,"../constants":59,"../offline/offline":76,"../offline/offlinePersisters":77,"../query/DataQuery":85,"../query/Query":87,"../utils":100,"underscore":35}],57:[function(require,module,exports){
 'use strict';
 
 var CacheModule = require('./CacheModule');
@@ -17897,10 +18977,9 @@ module.exports = (function () {
 }());
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../scripts/bs-expand-processor":39,"./everlive.platform":61,"./reqwest.nativescript":90,"./reqwest.nodejs":91,"json-stable-stringify":7,"jstimezonedetect":11,"mingo":12,"mongo-query":14,"reqwest":33,"rsvp":34,"underscore":35}],59:[function(require,module,exports){
+},{"../scripts/bs-expand-processor":39,"./everlive.platform":61,"./reqwest.nativescript":91,"./reqwest.nodejs":92,"json-stable-stringify":7,"jstimezonedetect":11,"mingo":12,"mongo-query":14,"reqwest":33,"rsvp":34,"underscore":35}],59:[function(require,module,exports){
 /**
- * Constants used by the SDK
- * @typedef {Object} Everlive.Constants
+ * Constants used by the SDK* @typedef {Object} Everlive.Constants
  */
 
 var constants = {
@@ -17953,19 +19032,19 @@ var constants = {
 
     // The headers used by the Everlive services
     Headers: {
-        filter: 'X-Everlive-Filter',
-        select: 'X-Everlive-Fields',
-        sort: 'X-Everlive-Sort',
-        skip: 'X-Everlive-Skip',
-        take: 'X-Everlive-Take',
-        expand: 'X-Everlive-Expand',
-        singleField: 'X-Everlive-Single-Field',
-        includeCount: 'X-Everlive-Include-Count',
-        powerFields: 'X-Everlive-Power-Fields',
-        debug: 'X-Everlive-Debug',
-        overrideSystemFields: 'X-Everlive-Override-System-Fields',
-        sdk: 'X-Everlive-Sdk',
-        sync: 'X-Everlive-Sync'
+        filter: 'x-everlive-filter',
+        select: 'x-everlive-fields',
+        sort: 'x-everlive-sort',
+        skip: 'x-everlive-skip',
+        take: 'x-everlive-take',
+        expand: 'x-everlive-expand',
+        singleField: 'x-everlive-single-field',
+        includeCount: 'x-everlive-include-count',
+        powerFields: 'x-everlive-power-fields',
+        debug: 'x-everlive-debug',
+        overrideSystemFields: 'x-everlive-override-system-fields',
+        sdk: 'x-everlive-sdk',
+        sync: 'x-everlive-sync'
     },
     //Constants for different platforms in Everlive
     Platform: {
@@ -18089,6 +19168,38 @@ constants.FilesTypeNameLegacy = 'system.files';
 constants.FilesTypeName = 'Files';
 
 constants.MaxConcurrentDownloadTasks = 3;
+
+constants.Events = {
+    SyncStart: 'syncStart',
+    SyncEnd: 'syncEnd',
+    Processed: 'processed',
+    ItemProcessed: 'itemProcessed',
+    BeforeExecute: 'beforeExecute'
+};
+
+constants.DataQueryOperations = {
+    Read: 'read',
+    Create: 'create',
+    Update: 'update',
+    Delete: 'destroy',
+    DeleteById: 'destroySingle',
+    ReadById: 'readById',
+    Count: 'count',
+    RawUpdate: 'rawUpdate',
+    SetAcl: 'setAcl',
+    SetOwner: 'setOwner',
+    UpdateById: 'updateSingle', // used only by the event query
+    UserLogin: 'login',
+    UserLogout: 'logout',
+    UserChangePassword: 'changePassword',
+    UserLoginWithProvider: 'loginWith',
+    UserLinkWithProvider: 'linkWith',
+    UserUnlinkFromProvider: 'unlinkFrom',
+    UserResetPassword: 'resetPassword',
+    UserSetPassword: 'setPassword',
+    FilesUpdateContent: 'updateContent',
+    FilesGetDownloadUrlById: 'downloadUrlById'
+};
 
 module.exports = constants;
 
@@ -18271,7 +19382,7 @@ module.exports = (function () {
         },
 
         _triggerOnProcessed: function _triggerOnProcessed(args) {
-            this._emitter.emit('processed', args);
+            this._emitter.emit(constants.Events.Processed, args);
         },
 
         _defaultProcessSettings: function _defaultProcessSettings(settings) {
@@ -18588,7 +19699,7 @@ module.exports = (function () {
     return HtmlHelper;
 }());
 
-},{"../../EventEmitterProxy":45,"../../EverliveError":47,"../../common":58,"../../constants":59,"../../everlive.platform":61,"../../utils":99,"./htmlHelperOfflineModule":64,"./htmlHelperResponsiveModule":65}],64:[function(require,module,exports){
+},{"../../EventEmitterProxy":45,"../../EverliveError":47,"../../common":58,"../../constants":59,"../../everlive.platform":61,"../../utils":100,"./htmlHelperOfflineModule":64,"./htmlHelperResponsiveModule":65}],64:[function(require,module,exports){
 'use strict';
 
 var utils = require('../../utils');
@@ -18646,7 +19757,7 @@ module.exports = (function () {
 
     return HtmlHelperOfflineModule;
 }());
-},{"../../EverliveError":47,"../../common":58,"../../constants":59,"../../utils":99,"path":3}],65:[function(require,module,exports){
+},{"../../EverliveError":47,"../../common":58,"../../constants":59,"../../utils":100,"path":3}],65:[function(require,module,exports){
 'use strict';
 
 var common = require('../../common');
@@ -18838,7 +19949,7 @@ module.exports = (function () {
 
     return HtmlHelperResponsiveModule;
 }());
-},{"../../EverliveError":47,"../../common":58,"../../constants":59,"../../utils":99}],66:[function(require,module,exports){
+},{"../../EverliveError":47,"../../common":58,"../../constants":59,"../../utils":100}],66:[function(require,module,exports){
 /*!
  The MIT License (MIT)
  Copyright (c) 2013 Telerik AD
@@ -18860,7 +19971,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.5.6
+ Version 1.5.7
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -18895,7 +20006,7 @@ module.exports = (function () {
 
     module.exports = Everlive;
 }());
-},{"./Everlive":46,"./GeoPoint":50,"./Request":52,"./common":58,"./constants":59,"./everlive.platform":61,"./kendo/kendo.everlive":67,"./offline/offlinePersisters":77,"./query/Query":86,"./query/QueryBuilder":87,"./types/Data":96,"./utils":99}],67:[function(require,module,exports){
+},{"./Everlive":46,"./GeoPoint":50,"./Request":52,"./common":58,"./constants":59,"./everlive.platform":61,"./kendo/kendo.everlive":67,"./offline/offlinePersisters":77,"./query/Query":87,"./query/QueryBuilder":88,"./types/Data":97,"./utils":100}],67:[function(require,module,exports){
 var QueryBuilder = require('../query/QueryBuilder');
 var Query = require('../query/Query');
 var Request = require('../Request');
@@ -18903,6 +20014,13 @@ var constants = require('../constants');
 var _ = require('../common')._;
 var Everlive = require('../Everlive');
 var EverliveError = require('../EverliveError').EverliveError;
+
+var operations = {
+    read: 'read',
+    update: 'update',
+    destroy: 'destroy',
+    create: 'create'
+};
 
 (function () {
     'use strict';
@@ -18919,6 +20037,8 @@ var EverliveError = require('../EverliveError').EverliveError;
     var everliveTransport = kendo.data.RemoteTransport.extend({
         init: function (options) {
             this.everlive$ = options.dataProvider || Everlive.$;
+
+            this._subscribeToSdkEvents(options);
             if (!this.everlive$) {
                 throw new Error('An instance of the Backend services sdk must be provided.');
             }
@@ -19001,8 +20121,24 @@ var EverliveError = require('../EverliveError').EverliveError;
             if (isMultiple) {
                 throw new Error('Batch destroy is not supported.');
             }
-            return this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).destroy(options.data)
+
+            var removeFilter = {
+                Id: options.data.Id
+            };
+
+            return this.dataCollection.withHeaders(this.headers).withHeaders(methodHeaders).destroySingle(removeFilter)
                 .then(options.success, options.error).catch(options.error);
+        },
+
+        _subscribeToSdkEvents: function (options) {
+            var self = this;
+
+            _.map(operations, function (op) {
+                if (options && options[op] && typeof options[op].beforeSend === 'function') {
+                    var listener = options[op].beforeSend;
+                    self.everlive$.on(Everlive.Constants.Events.BeforeExecute, listener);
+                }
+            });
         }
     });
 
@@ -19434,17 +20570,17 @@ var EverliveError = require('../EverliveError').EverliveError;
         createHierarchicalDataSource: createHierarchicalDataSource
     };
 }());
-},{"../Everlive":46,"../EverliveError":47,"../Request":52,"../common":58,"../constants":59,"../query/Query":86,"../query/QueryBuilder":87}],68:[function(require,module,exports){
+},{"../Everlive":46,"../EverliveError":47,"../Request":52,"../common":58,"../constants":59,"../query/Query":87,"../query/QueryBuilder":88}],68:[function(require,module,exports){
 var _ = require('../common')._;
 
-var deepExtend = require('./underscoreDeepExtends');
+var deepExtend = require('./underscoreDeepExtend');
 var compactObject = require('./underscoreCompactObject');
 var isObjectEmpty = require('./underscoreIsObjectEmpty');
 
 _.mixin({'deepExtend': deepExtend});
 _.mixin({'compactObject': compactObject});
 _.mixin({'isEmptyObject': isObjectEmpty});
-},{"../common":58,"./underscoreCompactObject":69,"./underscoreDeepExtends":70,"./underscoreIsObjectEmpty":71}],69:[function(require,module,exports){
+},{"../common":58,"./underscoreCompactObject":69,"./underscoreDeepExtend":70,"./underscoreIsObjectEmpty":71}],69:[function(require,module,exports){
 var _ = require('underscore');
 
 //http://stackoverflow.com/questions/14058193/remove-empty-properties-falsy-values-from-object-with-underscore-js
@@ -20038,7 +21174,7 @@ OfflineFilesModule.prototype = {
 };
 
 module.exports = OfflineFilesModule;
-},{"../AutoQueue":44,"../EverliveError":47,"../Request":52,"../common":58,"../utils":99,"node-cryptojs-aes":25,"path":3}],73:[function(require,module,exports){
+},{"../AutoQueue":44,"../EverliveError":47,"../Request":52,"../common":58,"../utils":100,"node-cryptojs-aes":25,"path":3}],73:[function(require,module,exports){
 'use strict';
 
 var EverliveErrorModule = require('../EverliveError');
@@ -20249,7 +21385,7 @@ OfflineFilesProcessor.prototype = {
 };
 
 module.exports = OfflineFilesProcessor;
-},{"../EverliveError":47,"../common":58,"../constants":59,"../everlive.platform":61,"../storages/FileStore":92,"../utils":99,"path":3}],74:[function(require,module,exports){
+},{"../EverliveError":47,"../common":58,"../constants":59,"../everlive.platform":61,"../storages/FileStore":93,"../utils":100,"path":3}],74:[function(require,module,exports){
 'use strict';
 
 var DataQuery = require('../query/DataQuery');
@@ -20279,26 +21415,26 @@ var offlineItemStates = constants.offlineItemStates;
 var unsupportedOfflineHeaders = [Headers.powerFields];
 
 var unsupportedUsersOperations = {};
-unsupportedUsersOperations[DataQuery.operations.create] = true;
-unsupportedUsersOperations[DataQuery.operations.update] = true;
-unsupportedUsersOperations[DataQuery.operations.remove] = true;
-unsupportedUsersOperations[DataQuery.operations.removeSingle] = true;
-unsupportedUsersOperations[DataQuery.operations.rawUpdate] = true;
-unsupportedUsersOperations[DataQuery.operations.setAcl] = true;
-unsupportedUsersOperations[DataQuery.operations.setOwner] = true;
-unsupportedUsersOperations[DataQuery.operations.userLoginWithProvider] = true;
-unsupportedUsersOperations[DataQuery.operations.userLinkWithProvider] = true;
-unsupportedUsersOperations[DataQuery.operations.userUnlinkFromProvider] = true;
-unsupportedUsersOperations[DataQuery.operations.userLogin] = true;
-unsupportedUsersOperations[DataQuery.operations.userLogout] = true;
-unsupportedUsersOperations[DataQuery.operations.userChangePassword] = true;
-unsupportedUsersOperations[DataQuery.operations.userResetPassword] = true;
+unsupportedUsersOperations[DataQuery.operations.Create] = true;
+unsupportedUsersOperations[DataQuery.operations.Update] = true;
+unsupportedUsersOperations[DataQuery.operations.Delete] = true;
+unsupportedUsersOperations[DataQuery.operations.DeleteById] = true;
+unsupportedUsersOperations[DataQuery.operations.RawUpdate] = true;
+unsupportedUsersOperations[DataQuery.operations.SetAcl] = true;
+unsupportedUsersOperations[DataQuery.operations.SetOwner] = true;
+unsupportedUsersOperations[DataQuery.operations.UserLoginWithProvider] = true;
+unsupportedUsersOperations[DataQuery.operations.UserLinkWithProvider] = true;
+unsupportedUsersOperations[DataQuery.operations.UserUnlinkFromProvider] = true;
+unsupportedUsersOperations[DataQuery.operations.UserLogin] = true;
+unsupportedUsersOperations[DataQuery.operations.UserLogout] = true;
+unsupportedUsersOperations[DataQuery.operations.UserChangePassword] = true;
+unsupportedUsersOperations[DataQuery.operations.UserResetPassword] = true;
 
 function buildUsersErrorMessage(dataQuery) {
     var unsupportedUserSocialProviderOperations = [
-        DataQuery.operations.userLoginWithProvider,
-        DataQuery.operations.userLinkWithProvider,
-        DataQuery.operations.userUnlinkFromProvider
+        DataQuery.operations.UserLoginWithProvider,
+        DataQuery.operations.UserLinkWithProvider,
+        DataQuery.operations.UserUnlinkFromProvider
     ];
 
     var operation = dataQuery.operation;
@@ -20358,24 +21494,24 @@ OfflineQueryProcessor.prototype = {
         offlineTransformations.traverseAndTransformFilterId(queryParams.filter);
 
         switch (dataQuery.operation) {
-            case DataQuery.operations.read:
+            case DataQuery.operations.Read:
                 return this.read(dataQuery, queryParams.filter, queryParams.sort, queryParams.skip, queryParams.limit, queryParams.select, queryParams.expand);
-            case DataQuery.operations.readById:
+            case DataQuery.operations.ReadById:
                 return this.readById(dataQuery, queryParams.expand);
-            case DataQuery.operations.filesGetDownloadUrlById:
+            case DataQuery.operations.FilesGetDownloadUrlById:
                 return this.getDownloadUrlById(dataQuery);
-            case DataQuery.operations.count:
+            case DataQuery.operations.Count:
                 return this.count(dataQuery, queryParams.filter);
-            case DataQuery.operations.create:
+            case DataQuery.operations.Create:
                 return this.create(dataQuery);
-            case DataQuery.operations.rawUpdate:
-            case DataQuery.operations.update:
+            case DataQuery.operations.RawUpdate:
+            case DataQuery.operations.Update:
                 return this.update(dataQuery, queryParams.filter);
-            case DataQuery.operations.filesUpdateContent:
+            case DataQuery.operations.FilesUpdateContent:
                 return this.updateFileContent(dataQuery, queryParams.filter);
-            case DataQuery.operations.remove:
+            case DataQuery.operations.Delete:
                 return this.remove(dataQuery, queryParams.filter);
-            case DataQuery.operations.removeSingle:
+            case DataQuery.operations.DeleteById:
                 queryParams.filter._id = dataQuery.additionalOptions.id;
                 return this.remove(dataQuery, queryParams.filter);
             default:
@@ -20435,8 +21571,8 @@ OfflineQueryProcessor.prototype = {
         }
 
         var isSingle = dataQuery.additionalOptions && dataQuery.additionalOptions.id;
-        var isUpdateByFilter = dataQuery.operation === DataQuery.operations.update && !isSingle;
-        var isRawUpdate = dataQuery.operation === DataQuery.operations.rawUpdate;
+        var isUpdateByFilter = dataQuery.operation === DataQuery.operations.Update && !isSingle;
+        var isRawUpdate = dataQuery.operation === DataQuery.operations.RawUpdate;
         if (utils.isContentType.files(dataQuery.collectionName) && (isRawUpdate || isUpdateByFilter)) {
             return buildFilesErrorMessage(dataQuery);
         }
@@ -21108,7 +22244,7 @@ OfflineQueryProcessor.prototype = {
 };
 
 module.exports = OfflineQueryProcessor;
-},{"../EverliveError":47,"../ExpandProcessor":48,"../common":58,"../constants":59,"../everlive.platform":61,"../query/DataQuery":85,"../query/Query":86,"../utils":99,"./offlineTransformations":78,"path":3}],75:[function(require,module,exports){
+},{"../EverliveError":47,"../ExpandProcessor":48,"../common":58,"../constants":59,"../everlive.platform":61,"../query/DataQuery":85,"../query/Query":87,"../utils":100,"./offlineTransformations":78,"path":3}],75:[function(require,module,exports){
 var DataQuery = require('../query/DataQuery');
 var everliveErrorModule = require('../EverliveError');
 var EverliveError = everliveErrorModule.EverliveError;
@@ -21272,7 +22408,7 @@ module.exports = (function () {
             return new rsvp.Promise(function (resolve) {
                 if (!self._isSynchronizing) {
                     self._isSynchronizing = true;
-                    self._everlive._emitter.emit('syncStart');
+                    self._everlive._emitter.emit(constants.Events.SyncStart);
                     resolve();
                 } else {
                     resolve();
@@ -21282,7 +22418,7 @@ module.exports = (function () {
 
         _fireSyncEnd: function () {
             this._isSynchronizing = false;
-            this._everlive._emitter.emit('syncEnd', this._syncResultInfo);
+            this._everlive._emitter.emit(constants.Events.SyncEnd, this._syncResultInfo);
             delete this._syncResultInfo;
         },
 
@@ -21541,7 +22677,7 @@ module.exports = (function () {
                     }));
                 });
             } else {
-                if (operation === DataQuery.operations.update) {
+                if (operation === DataQuery.operations.Update) {
                     self._onItemProcessed(item, collectionName, syncLocation.server, offlineItemStates.modified);
                     var updatedItem = _.extend({}, item, {
                         ModifiedAt: res.ModifiedAt
@@ -21569,7 +22705,7 @@ module.exports = (function () {
                                 }
                             }
                         });
-                } else if (operation === DataQuery.operations.remove) {
+                } else if (operation === DataQuery.operations.Delete) {
                     self._onItemProcessed(item, collectionName, syncLocation.server, offlineItemStates.deleted);
                     return this._purgeById(collectionName, item.Id)
                         .then(function () {
@@ -21646,7 +22782,7 @@ module.exports = (function () {
                 // update the item offline
                 syncQuery = new DataQuery({
                     collectionName: typeName,
-                    operation: DataQuery.operations.update,
+                    operation: DataQuery.operations.Update,
                     additionalOptions: {
                         id: serverItem.Id
                     },
@@ -21656,14 +22792,14 @@ module.exports = (function () {
                 // create item offline
                 syncQuery = new DataQuery({
                     collectionName: typeName,
-                    operation: DataQuery.operations.create,
+                    operation: DataQuery.operations.Create,
                     data: serverItem
                 });
             } else if (!serverItem && clientItem) {
                 // delete item offline
                 syncQuery = new DataQuery({
                     collectionName: typeName,
-                    operation: DataQuery.operations.removeSingle,
+                    operation: DataQuery.operations.DeleteById,
                     additionalOptions: {
                         id: clientItem.Id
                     }
@@ -21677,7 +22813,7 @@ module.exports = (function () {
                 self.processQuery(syncQuery)
                     .then(function () {
                         switch (syncQuery.operation) {
-                            case DataQuery.operations.update:
+                            case DataQuery.operations.Update:
                                 self._onItemProcessed(serverItem, typeName, syncLocation.client, offlineItemStates.modified);
                                 // the files content type is special and needs to enable the file contents offline, so we cannot only
                                 // update the data
@@ -21689,10 +22825,10 @@ module.exports = (function () {
                                     });
                                 }
                                 break;
-                            case DataQuery.operations.create:
+                            case DataQuery.operations.Create:
                                 self._onItemProcessed(serverItem, typeName, syncLocation.client, offlineItemStates.created);
                                 break;
-                            case DataQuery.operations.removeSingle:
+                            case DataQuery.operations.DeleteById:
                                 self._onItemProcessed(clientItem, typeName, syncLocation.client, offlineItemStates.deleted);
                                 break;
                         }
@@ -21701,15 +22837,15 @@ module.exports = (function () {
                         var itemId;
                         var operation;
                         switch (syncQuery.operation) {
-                            case DataQuery.operations.update:
+                            case DataQuery.operations.Update:
                                 itemId = serverItem.Id;
                                 operation = offlineItemStates.modified;
                                 break;
-                            case DataQuery.operations.create:
+                            case DataQuery.operations.Create:
                                 itemId = serverItem.Id;
                                 operation = offlineItemStates.created;
                                 break;
-                            case DataQuery.operations.removeSingle:
+                            case DataQuery.operations.DeleteById:
                                 itemId = clientItem.Id;
                                 operation = offlineItemStates.deleted;
                                 break;
@@ -21759,7 +22895,7 @@ module.exports = (function () {
             if (serverItem && customItem) {
                 var createItemOfflineQuery = new DataQuery({
                     collectionName: typeName,
-                    operation: DataQuery.operations.create,
+                    operation: DataQuery.operations.Create,
                     data: serverItem // create the server item offline and it will be updated when sync finishes
                 });
 
@@ -21787,7 +22923,7 @@ module.exports = (function () {
             } else if (!serverItem && customItem && clientItem) {
                 var updateItemOfflineQuery = new DataQuery({
                     collectionName: typeName,
-                    operation: DataQuery.operations.update,
+                    operation: DataQuery.operations.Update,
                     data: customItem,
                     additionalOptions: {
                         id: clientItem.Id
@@ -21994,7 +23130,7 @@ module.exports = (function () {
                             '$in': batchIds
                         }
                     },
-                    operation: DataQuery.operations.read,
+                    operation: DataQuery.operations.Read,
                     onSuccess: function (res) {
                         resolve(res.result);
                     },
@@ -22105,7 +23241,7 @@ module.exports = (function () {
         },
 
         _fireItemProcessed: function (syncInfo) {
-            this._everlive._emitter.emit('itemProcessed', syncInfo);
+            this._everlive._emitter.emit(constants.Events.ItemProcessed, syncInfo);
         },
 
         _getClientWinsSyncData: function (collections) {
@@ -22240,7 +23376,7 @@ module.exports = (function () {
                         });
 
                         var updateQuery = new DataQuery({
-                            operation: DataQuery.operations.update,
+                            operation: DataQuery.operations.Update,
                             data: updatedItem,
                             additionalOptions: {
                                 id: item.Id
@@ -22411,7 +23547,7 @@ module.exports = (function () {
                 .applyOffline(false)
                 .update(item, itemFilter)
                 .then(function (res) {
-                    return self._onSyncResponse(res, item, collectionName, DataQuery.operations.update, isCustom);
+                    return self._onSyncResponse(res, item, collectionName, DataQuery.operations.Update, isCustom);
                 }, function (err) {
                     return new rsvp.Promise(function (resolve, reject) {
                         reject({
@@ -22467,7 +23603,7 @@ module.exports = (function () {
                                     .applyOffline(false)
                                     .destroy(itemFilter)
                                     .then(function (res) {
-                                        return self._onSyncResponse(res, item, collectionName, DataQuery.operations.remove, isCustom);
+                                        return self._onSyncResponse(res, item, collectionName, DataQuery.operations.Delete, isCustom);
                                     }, function (err) {
                                         return new rsvp.Promise(function (resolve, reject) {
                                             reject({
@@ -22543,7 +23679,7 @@ module.exports = (function () {
     return OfflineModule;
 })();
 
-},{"../EverliveError":47,"../Request":52,"../common":58,"../constants":59,"../query/DataQuery":85,"../query/RequestOptionsBuilder":88,"../utils":99,"./OfflineFilesModule":72,"./OfflineFilesProcessor":73,"./OfflineQueryProcessor":74,"./offlineTransformations":78,"path":3}],76:[function(require,module,exports){
+},{"../EverliveError":47,"../Request":52,"../common":58,"../constants":59,"../query/DataQuery":85,"../query/RequestOptionsBuilder":89,"../utils":100,"./OfflineFilesModule":72,"./OfflineFilesProcessor":73,"./OfflineQueryProcessor":74,"./offlineTransformations":78,"path":3}],76:[function(require,module,exports){
 var constants = require('../constants');
 var persisters = require('./offlinePersisters');
 var LocalStoragePersister = persisters.LocalStoragePersister;
@@ -22899,7 +24035,7 @@ var BasePersister = (function () {
 }());
 
 module.exports = BasePersister;
-},{"../../EverliveError":47,"../../common":58,"../../utils":99}],80:[function(require,module,exports){
+},{"../../EverliveError":47,"../../common":58,"../../utils":100}],80:[function(require,module,exports){
 'use strict';
 
 var FileStore = require('../../storages/FileStore');
@@ -23026,7 +24162,7 @@ var FileSystemPersister = (function () {
 }());
 
 module.exports = FileSystemPersister;
-},{"../../EverliveError":47,"../../common":58,"../../everlive.platform":61,"../../storages/FileStore":92,"../../utils":99,"./BasePersister":79,"path":3,"util":6}],81:[function(require,module,exports){
+},{"../../EverliveError":47,"../../common":58,"../../everlive.platform":61,"../../storages/FileStore":93,"../../utils":100,"./BasePersister":79,"path":3,"util":6}],81:[function(require,module,exports){
 'use strict';
 
 var common = require('../../common');
@@ -23153,13 +24289,14 @@ var LocalStoragePersister = (function () {
 }());
 
 module.exports = LocalStoragePersister;
-},{"../../common":58,"../../storages/LocalStore":93,"./BasePersister":79,"util":6}],82:[function(require,module,exports){
+},{"../../common":58,"../../storages/LocalStore":94,"./BasePersister":79,"util":6}],82:[function(require,module,exports){
 var buildPromise = require('../utils').buildPromise;
 var EverliveError = require('../EverliveError').EverliveError;
 var Platform = require('../constants').Platform;
 var common = require('../common');
 var jstz = common.jstz;
 var _ = common._;
+var utils = require('../utils');
 
 module.exports = (function () {
     /**
@@ -23193,11 +24330,10 @@ module.exports = (function () {
     CurrentDevice.ensurePushIsAvailable = function() {
         var isPushNotificationPluginAvailable = (typeof window !== 'undefined' && window.plugins && window.plugins.pushNotification);
 
-        if (!isPushNotificationPluginAvailable) {
-            throw new EverliveError("The push notification plugin is not available. Ensure that the pushNotification plugin is included " +
-            "and use after `deviceready` event has been fired.");
+        if (!isPushNotificationPluginAvailable && !utils._inAppBuilderSimulator()) {
+            throw new EverliveError('The push notification plugin is not available. Ensure that the pushNotification plugin is included ' +
+            'and use after `deviceready` event has been fired.');
         }
-
     };
 
     CurrentDevice.prototype = {
@@ -23814,7 +24950,7 @@ module.exports = (function () {
     return CurrentDevice;
 }());
 
-},{"../EverliveError":47,"../common":58,"../constants":59,"../utils":99}],83:[function(require,module,exports){
+},{"../EverliveError":47,"../common":58,"../constants":59,"../utils":100}],83:[function(require,module,exports){
 var platform = require('../everlive.platform');
 var _ = require('../common')._;
 
@@ -24360,11 +25496,12 @@ module.exports = (function () {
     return CurrentDevice;
 }());
 
-},{"../EverliveError":47,"../common":58,"../constants":59,"../utils":99,"platform":"platform"}],85:[function(require,module,exports){
+},{"../EverliveError":47,"../common":58,"../constants":59,"../utils":100,"platform":"platform"}],85:[function(require,module,exports){
 var _ = require('../common')._;
 var constants = require('../constants');
 var Query = require('../query/Query');
 var Headers = constants.Headers;
+var utils = require('../utils');
 
 module.exports = (function () {
     // TODO: [offline] Update the structure - filter field can be refactored for example and a skip/limit/sort property can be added
@@ -24388,31 +25525,24 @@ module.exports = (function () {
 
     DataQuery.prototype = {
         _normalizeHeaders: function () {
-            var self = this;
-            var headerKeys = Object.keys(this.headers);
-
-            this._normalizedHeaders = {};
-            _.each(headerKeys, function (headerKey) {
-                var normalizedKey = headerKey.toLowerCase();
-                self._normalizedHeaders[normalizedKey] = self.headers[headerKey];
-            });
+            this._normalizedHeaders = utils.normalizeKeys(this.headers);
         },
 
         getHeader: function (header) {
-            if (!this._normalizedHeaders) {
-                this._normalizeHeaders();
-            }
+            this._normalizeHeaders();
 
             var normalizedHeader = header.toLowerCase();
             return this._normalizedHeaders[normalizedHeader];
         },
 
         getHeaderAsJSON: function (header) {
-            if (!this._normalizedHeaders) {
-                this._normalizeHeaders();
+            this._normalizeHeaders();
+
+            var headerValue;
+            if (header) {
+                headerValue = this._normalizedHeaders[header.toLowerCase()];
             }
 
-            var headerValue = this._normalizedHeaders[header.toLowerCase()];
             if (_.isObject(headerValue)) {
                 return headerValue;
             }
@@ -24427,10 +25557,16 @@ module.exports = (function () {
             }
         },
 
+        getHeaders: function () {
+            this._normalizeHeaders();
+            var headers = _.deepExtend(this._normalizedHeaders);
+            return headers;
+        },
+
         getQueryParameters: function () {
             var queryParams = {};
 
-            if (this.operation === DataQuery.operations.readById) {
+            if (this.operation === DataQuery.operations.ReadById) {
                 queryParams.filter = this.additionalOptions.id;
                 queryParams.expand = this.getHeaderAsJSON(Headers.expand);
             } else {
@@ -24460,35 +25596,133 @@ module.exports = (function () {
             }
 
             return queryParams;
+        },
+
+        applyEventQuery: function (eventQuery) {
+            this._applyCustomHeaders(eventQuery);
+            this._applyEventQueryHeaders(eventQuery);
+            this._applyEventQueryParams(eventQuery);
+            this.additionalOptions = this.additionalOptions || {};
+            this.additionalOptions.id = eventQuery.itemId;
+            this.data = eventQuery.data;
+            this._applyEventQuerySettings(eventQuery);
+        },
+
+        _applyCustomHeaders: function (eventQuery) {
+            this.headers = eventQuery.headers;
+            this._normalizeHeaders();
+        },
+
+        _applyEventQueryHeaders: function (eventQuery) {
+            this._applyEventHeader(Headers.filter, eventQuery.filter);
+            this._applyEventHeader(Headers.select, eventQuery.fields);
+            this._applyEventHeader(Headers.sort, eventQuery.sort);
+            this._applyEventHeader(Headers.skip, eventQuery.skip);
+            this._applyEventHeader(Headers.take, eventQuery.take);
+            this._applyEventHeader(Headers.expand, eventQuery.expand);
+            this._applyEventHeader(Headers.powerFields, eventQuery.powerfields);
+        },
+
+        _applyEventQueryParams: function (eventQuery) {
+            this.filter = eventQuery.filter;
+            this.fields = eventQuery.select;
+            this.sort = eventQuery.sort;
+            this.skip = eventQuery.skip;
+            this.take = eventQuery.take;
+            this.expand = eventQuery.expand;
+        },
+
+        _applyEventQuerySettings: function (eventQuery) {
+            this.useOffline = eventQuery.settings.useOffline;
+            this.forceCache = eventQuery.settings.forceCache;
+            this.ignoreCache = eventQuery.settings.ignoreCache;
+            this.applyOffline = eventQuery.settings.applyOffline;
+        },
+
+        _applyEventHeader: function (header, value) {
+            if (value && typeof value !== 'string') {
+                var headerToLower = header.toLowerCase();
+                this.headers[headerToLower] = JSON.stringify(value);
+            }
         }
     };
 
-    DataQuery.operations = {
-        read: 'read',
-        create: 'create',
-        update: 'update',
-        remove: 'destroy',
-        removeSingle: 'destroySingle',
-        readById: 'readById',
-        count: 'count',
-        rawUpdate: 'rawUpdate',
-        setAcl: 'setAcl',
-        setOwner: 'setOwner',
-        userLogin: 'login',
-        userLogout: 'logout',
-        userChangePassword: 'changePassword',
-        userLoginWithProvider: 'loginWith',
-        userLinkWithProvider: 'linkWith',
-        userUnlinkFromProvider: 'unlinkFrom',
-        userResetPassword: 'resetPassword',
-        userSetPassword: 'setPassword',
-        filesUpdateContent: 'updateContent',
-        filesGetDownloadUrlById: 'downloadUrlById'
-    };
+    DataQuery.operations = constants.DataQueryOperations;
 
     return DataQuery;
 }());
-},{"../common":58,"../constants":59,"../query/Query":86}],86:[function(require,module,exports){
+},{"../common":58,"../constants":59,"../query/Query":87,"../utils":100}],86:[function(require,module,exports){
+'use strict';
+
+var constants = require('../constants');
+
+var EventQuery = function () {
+};
+
+function applyDataQueryParameters(eventQuery, dataQuery) {
+    var queryParameters = dataQuery.getQueryParameters();
+    eventQuery.filter = queryParameters.filter;
+    eventQuery.fields = queryParameters.select;
+    eventQuery.sort = queryParameters.sort;
+    eventQuery.skip = queryParameters.skip;
+    eventQuery.take = queryParameters.limit || queryParameters.take;
+    eventQuery.expand = queryParameters.expand;
+    return queryParameters;
+}
+
+function applyDataQuerySettings(eventQuery, dataQuery) {
+    eventQuery.settings = {
+        useOffline: dataQuery.useOffline,
+        applyOffline: dataQuery.applyOffline,
+        ignoreCache: dataQuery.ignoreCache,
+        forceCache: dataQuery.forceCache
+    };
+}
+
+EventQuery.fromDataQuery = function (dataQuery) {
+    var eventQuery = new EventQuery();
+    eventQuery.contentTypeName = dataQuery.collectionName;
+    if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
+        switch (dataQuery.operation) {
+            case constants.DataQueryOperations.Update:
+                eventQuery.operation = constants.DataQueryOperations.UpdateById;
+                break;
+            case constants.DataQueryOperations.Delete:
+                eventQuery.operation = constants.DataQueryOperations.DeleteById;
+                break;
+            default:
+                eventQuery.operation = dataQuery.operation;
+        }
+    } else {
+        eventQuery.operation = dataQuery.operation;
+    }
+
+    eventQuery.itemId = dataQuery.additionalOptions ? dataQuery.additionalOptions.id : undefined;
+    eventQuery.data = dataQuery.data;
+
+    applyDataQuerySettings(eventQuery, dataQuery);
+    applyDataQueryParameters(eventQuery, dataQuery);
+    eventQuery.headers = dataQuery.getHeaders();
+    var powerFieldsHeader = eventQuery.headers[constants.Headers.powerFields];
+    if (typeof powerFieldsHeader === 'string') {
+        eventQuery.powerfields = JSON.parse(powerFieldsHeader);
+    }
+    eventQuery.isSync = dataQuery.isSync; // readonly
+
+    return eventQuery;
+};
+
+EventQuery.prototype = {
+    cancel: function () {
+        this._cancelled = true;
+    },
+    isCancelled: function () {
+        return this._cancelled;
+    }
+};
+
+module.exports = EventQuery;
+},{"../constants":59}],87:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 var WhereQuery = require('./WhereQuery');
@@ -24614,7 +25848,7 @@ module.exports = (function () {
 
     return Query;
 }());
-},{"../Expression":49,"../constants":59,"./QueryBuilder":87,"./WhereQuery":89}],87:[function(require,module,exports){
+},{"../Expression":49,"../constants":59,"./QueryBuilder":88,"./WhereQuery":90}],88:[function(require,module,exports){
 var constants = require('../constants');
 var OperatorType = constants.OperatorType;
 var _ = require('../common')._;
@@ -24964,10 +26198,11 @@ module.exports = (function () {
 
     return QueryBuilder;
 }());
-},{"../EverliveError":47,"../Expression":49,"../GeoPoint":50,"../common":58,"../constants":59}],88:[function(require,module,exports){
+},{"../EverliveError":47,"../Expression":49,"../GeoPoint":50,"../common":58,"../constants":59}],89:[function(require,module,exports){
 var DataQuery = require('./DataQuery');
 var Request = require('../Request');
 var _ = require('../common')._;
+var constants = require('../constants');
 
 module.exports = (function () {
     var RequestOptionsBuilder = {};
@@ -25002,32 +26237,32 @@ module.exports = (function () {
         return _.extend(RequestOptionsBuilder._buildBaseObject(dataQuery), additionalOptions);
     };
 
-    RequestOptionsBuilder[DataQuery.operations.read] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.Read] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'GET'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.readById] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.ReadById] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'GET'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.count] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.Count] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'GET',
             endpoint: dataQuery.collectionName + '/_count'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.create] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.Create] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.rawUpdate] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.RawUpdate] = function (dataQuery) {
         var endpoint = dataQuery.collectionName;
         var filter = dataQuery.filter;
         var ofilter = null; // request options filter
@@ -25045,28 +26280,28 @@ module.exports = (function () {
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.update] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.Update] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'PUT'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.remove] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.Delete] = function (dataQuery) {
         return _.extend(RequestOptionsBuilder._buildBaseObject(dataQuery), {
             method: 'DELETE'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.removeSingle] = RequestOptionsBuilder[DataQuery.operations.remove];
+    RequestOptionsBuilder[DataQuery.operations.DeleteById] = RequestOptionsBuilder[DataQuery.operations.Delete];
 
-    RequestOptionsBuilder[DataQuery.operations.setAcl] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.SetAcl] = function (dataQuery) {
         var endpoint = dataQuery.collectionName;
         var filter = dataQuery.filter;
 
         if (typeof filter === 'string') { // if filter is string than will update a single item using the filter as an identifier
             endpoint += '/' + filter;
         } else if (typeof filter === 'object') { // else if it is an object than we will use it's id property
-            endpoint += '/' + filter[idField];
+            endpoint += '/' + filter[constants.idField];
         }
         endpoint += '/_acl';
         var method, data;
@@ -25084,13 +26319,13 @@ module.exports = (function () {
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.setOwner] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.SetOwner] = function (dataQuery) {
         var endpoint = dataQuery.collectionName;
         var filter = dataQuery.filter;
         if (typeof filter === 'string') { // if filter is string than will update a single item using the filter as an identifier
             endpoint += '/' + filter;
         } else if (typeof filter === 'object') { // else if it is an object than we will use it's id property
-            endpoint += '/' + filter[idField];
+            endpoint += '/' + filter[constants.idField];
         }
         endpoint += '/_owner';
 
@@ -25100,7 +26335,7 @@ module.exports = (function () {
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userLogin] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserLogin] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: 'oauth/token',
@@ -25109,14 +26344,14 @@ module.exports = (function () {
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userLogout] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserLogout] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'GET',
             endpoint: 'oauth/logout'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userChangePassword] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserChangePassword] = function (dataQuery) {
         var keepTokens = dataQuery.additionalOptions.keepTokens;
         var endpoint = 'Users/changepassword';
         if (keepTokens) {
@@ -25131,49 +26366,49 @@ module.exports = (function () {
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userLoginWithProvider] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserLoginWithProvider] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             authHeaders: false
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userLinkWithProvider] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserLinkWithProvider] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/link'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userUnlinkFromProvider] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserUnlinkFromProvider] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/unlink'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userResetPassword] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserResetPassword] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/resetpassword'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.userSetPassword] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.UserSetPassword] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/setpassword'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.filesUpdateContent] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.FilesUpdateContent] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'PUT',
             endpoint: RequestOptionsBuilder._buildEndpointUrl(dataQuery) + '/Content'
         });
     };
 
-    RequestOptionsBuilder[DataQuery.operations.filesGetDownloadUrlById] = function (dataQuery) {
+    RequestOptionsBuilder[DataQuery.operations.FilesGetDownloadUrlById] = function (dataQuery) {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'GET'
         });
@@ -25181,7 +26416,7 @@ module.exports = (function () {
 
     return RequestOptionsBuilder;
 }());
-},{"../Request":52,"../common":58,"./DataQuery":85}],89:[function(require,module,exports){
+},{"../Request":52,"../common":58,"../constants":59,"./DataQuery":85}],90:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 
@@ -25477,7 +26712,7 @@ module.exports = (function () {
 
     return WhereQuery;
 }());
-},{"../Expression":49,"../constants":59}],90:[function(require,module,exports){
+},{"../Expression":49,"../constants":59}],91:[function(require,module,exports){
 var http = require('http');
 module.exports = (function () {
     'use strict';
@@ -25527,7 +26762,7 @@ module.exports = (function () {
 
     return reqwest;
 }());
-},{"http":"http"}],91:[function(require,module,exports){
+},{"http":"http"}],92:[function(require,module,exports){
 (function (Buffer){
 var url = require('url');
 var http = require('http');
@@ -25622,7 +26857,7 @@ module.exports = (function () {
 }());
 }).call(this,require("buffer").Buffer)
 
-},{"buffer":"buffer","http":"http","https":"https","rsvp":34,"underscore":35,"url":"url","zlib":"zlib"}],92:[function(require,module,exports){
+},{"buffer":"buffer","http":"http","https":"https","rsvp":34,"underscore":35,"url":"url","zlib":"zlib"}],93:[function(require,module,exports){
 var platform = require('../everlive.platform');
 var WebFileStore = require('./WebFileStore');
 var NativeScriptFileStore = require('./NativeScriptFileStore');
@@ -25637,7 +26872,7 @@ if (platform.isNativeScript) {
 } else {
     module.exports = _.noop;
 }
-},{"../common":58,"../everlive.platform":61,"./NativeScriptFileStore":94,"./WebFileStore":95}],93:[function(require,module,exports){
+},{"../common":58,"../everlive.platform":61,"./NativeScriptFileStore":95,"./WebFileStore":96}],94:[function(require,module,exports){
 var platform = require('./../everlive.platform.js');
 var isNativeScript = platform.isNativeScript;
 var isNodejs = platform.isNodejs;
@@ -25716,7 +26951,7 @@ module.exports = (function () {
 
     return LocalStore;
 }());
-},{"./../constants":59,"./../everlive.platform.js":61,"application-settings":"application-settings","local-settings":"local-settings","node-localstorage":"node-localstorage"}],94:[function(require,module,exports){
+},{"./../constants":59,"./../everlive.platform.js":61,"application-settings":"application-settings","local-settings":"local-settings","node-localstorage":"node-localstorage"}],95:[function(require,module,exports){
 'use strict';
 
 var common = require('../common');
@@ -25837,7 +27072,7 @@ NativeScriptFileStore.prototype = {
 };
 
 module.exports = NativeScriptFileStore;
-},{"../common":58,"../utils":99,"file-system":"file-system"}],95:[function(require,module,exports){
+},{"../common":58,"../utils":100,"file-system":"file-system"}],96:[function(require,module,exports){
 'use strict';
 
 var EverliveError = require('../EverliveError').EverliveError;
@@ -26138,7 +27373,7 @@ WebFileStore.prototype = {
 };
 
 module.exports = WebFileStore;
-},{"../EverliveError":47,"../common":58,"../everlive.platform":61,"../utils":99,"path":3}],96:[function(require,module,exports){
+},{"../EverliveError":47,"../common":58,"../everlive.platform":61,"../utils":100,"path":3}],97:[function(require,module,exports){
 var buildPromise = require('../utils').buildPromise;
 var constants = require('../constants');
 var idField = constants.idField;
@@ -26149,9 +27384,22 @@ var Request = require('../Request');
 var Everlive = require('../Everlive');
 var EverliveError = require('../EverliveError').EverliveError;
 var EverliveErrors = require('../EverliveError').EverliveErrors;
+var EventQuery = require('../query/EventQuery');
 var everlivePlatform = require('../everlive.platform').platform;
 var _ = require('../common')._;
 var utils = require('../utils');
+
+var beforeExecuteAllowedOperations = [
+    constants.DataQueryOperations.Count,
+    constants.DataQueryOperations.Read,
+    constants.DataQueryOperations.Create,
+    constants.DataQueryOperations.Update,
+    constants.DataQueryOperations.UpdateById,
+    constants.DataQueryOperations.Delete,
+    constants.DataQueryOperations.DeleteById,
+    constants.DataQueryOperations.ReadById,
+    constants.DataQueryOperations.RawUpdate
+];
 
 module.exports = (function () {
     function mergeResultData(data, success) {
@@ -26162,8 +27410,7 @@ module.exports = (function () {
                 _.each(data, function (item, index) {
                     _.extend(item, attrs[index]);
                 });
-            }
-            else {
+            } else {
                 _.extend(data, attrs);
             }
 
@@ -26217,23 +27464,23 @@ module.exports = (function () {
             var autoSyncEnabled = this.offlineStorage && this.offlineStorage.setup.autoSync;
             if (autoSyncEnabled) {
                 switch (query.operation) {
-                    case DataQuery.operations.read:
-                    case DataQuery.operations.readById:
+                    case DataQuery.operations.Read:
+                    case DataQuery.operations.ReadById:
                         var syncReadQuery = new DataQuery(_.defaults({
                             data: requestResponse.result,
                             isSync: true,
-                            operation: DataQuery.operations.create
+                            operation: DataQuery.operations.Create
                         }, query));
                         return this.offlineStorage.processQuery(syncReadQuery);
-                    case DataQuery.operations.create:
+                    case DataQuery.operations.Create:
                         var createData = this._getOfflineCreateData(query, requestResponse);
                         var createQuery = new DataQuery(_.defaults({
                             data: createData,
                             isSync: true
                         }, query));
                         return this.offlineStorage.processQuery(createQuery);
-                    case DataQuery.operations.update:
-                    case DataQuery.operations.rawUpdate:
+                    case DataQuery.operations.Update:
+                    case DataQuery.operations.RawUpdate:
                         query.isSync = true;
                         query.ModifiedAt = requestResponse.ModifiedAt;
                         return this.offlineStorage.processQuery(query);
@@ -26319,7 +27566,7 @@ module.exports = (function () {
         },
 
         /**
-         * Modifies whether the query should invoke the {{@link Authentication.prototype.hasAuthenticationRequirement}}.
+         * Modifies whether the query should try to authenticate if the security token has expired.
          * Default is false.
          * Only valid when the authentication module has an onAuthenticationRequired function.
          * @memberOf Data.prototype
@@ -26460,7 +27707,7 @@ module.exports = (function () {
             query.applyOffline = query.applyOffline !== undefined ? query.applyOffline : offlineStorageEnabled || query.useCache;
 
             if (!query.useCache && query.forceCache) {
-                query.onError.call(this, new EverliveError(EverliveErrors.cannotForceCacheWhenDisabled));
+                return query.onError.call(this, new EverliveError(EverliveErrors.cannotForceCacheWhenDisabled));
             }
 
             this.options = null;
@@ -26470,6 +27717,13 @@ module.exports = (function () {
                         var whenAuthenticatedPromise = self.everlive.authentication._ensureAuthentication();
                         if (!query.noRetry) {
                             whenAuthenticatedPromise.then(function () {
+                                if (query.headers && query.headers.authorization) {
+                                    //at this stage if a token is used for authentication it is already invalidated
+                                    //we need to set the new one to the query
+                                    var authHeader = utils.buildAuthHeader(self.everlive.setup);
+                                    _.extend(query.headers, authHeader);
+                                }
+
                                 return self.processDataQuery(query);
                             });
                         }
@@ -26489,6 +27743,17 @@ module.exports = (function () {
 
                     return whenAuthenticatedPromise;
                 }
+            }
+
+
+            if (_.contains(beforeExecuteAllowedOperations, query.operation)) {
+                var eventQuery = EventQuery.fromDataQuery(query);
+                this.everlive._emitter.emit(constants.Events.BeforeExecute, eventQuery);
+                if (eventQuery.isCancelled()) {
+                    return;
+                }
+
+                query.applyEventQuery(eventQuery);
             }
 
             if ((!query.isSync && this.offlineStorage && this.offlineStorage.isSynchronizing())) {
@@ -26522,7 +27787,7 @@ module.exports = (function () {
 
             return buildPromise(function (successCb, errorCb) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.read,
+                    operation: DataQuery.operations.Read,
                     collectionName: self.collectionName,
                     filter: filter,
                     onSuccess: successCb,
@@ -26557,7 +27822,7 @@ module.exports = (function () {
 
             return buildPromise(function (successCb, errorCb) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.readById,
+                    operation: DataQuery.operations.ReadById,
                     collectionName: self.collectionName,
                     parse: Request.parsers.single,
                     additionalOptions: {
@@ -26594,7 +27859,7 @@ module.exports = (function () {
 
             return buildPromise(function (sucessCb, errorCb) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.count,
+                    operation: DataQuery.operations.Count,
                     collectionName: self.collectionName,
                     filter: filter,
                     parse: Request.parsers.single,
@@ -26627,7 +27892,7 @@ module.exports = (function () {
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.create,
+                    operation: DataQuery.operations.Create,
                     collectionName: self.collectionName,
                     data: data,
                     parse: Request.parsers.single,
@@ -26682,7 +27947,7 @@ module.exports = (function () {
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.rawUpdate,
+                    operation: DataQuery.operations.RawUpdate,
                     collectionName: self.collectionName,
                     filter: filter,
                     data: attrs,
@@ -26704,7 +27969,7 @@ module.exports = (function () {
                 var onSuccess = single ? mergeUpdateResultData(attrs, success) : success;
 
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.update,
+                    operation: DataQuery.operations.Update,
                     collectionName: self.collectionName,
                     parse: Request.parsers.update,
                     filter: filter,
@@ -26737,7 +28002,24 @@ module.exports = (function () {
          * @param {Function} [error] An error callback.
          */
         updateSingle: function (model, success, error) {
+            var err = this._validateIdForModel(model);
+            if (err) {
+                return buildPromise(function (success, error) {
+                    return error(err);
+                }, success, error);
+            }
             return this._update(model, null, true, false, success, error);
+        },
+
+        _validateIdForModel: function (model, isDestroy) {
+            // validation for destroySingle('id-as-string') scenario
+            if ((typeof model === 'string' || typeof model === 'number') && isDestroy) {
+                return;
+            }
+
+            if (!model || model.Id === undefined || model.Id === null) {
+                return new EverliveError(EverliveErrors.invalidId)
+            }
         },
 
         /**
@@ -26766,14 +28048,17 @@ module.exports = (function () {
             var self = this;
 
             return buildPromise(function (success, error) {
+                // for support of destroySingle using string id
+                var idField = (attrs && typeof attrs === 'object') ? attrs[constants.idField] : attrs;
+
                 var dataQuery = new DataQuery({
-                    operation: single ? DataQuery.operations.removeSingle : DataQuery.operations.remove,
+                    operation: single ? DataQuery.operations.DeleteById : DataQuery.operations.Delete,
                     collectionName: self.collectionName,
                     filter: filter,
                     onSuccess: success,
                     onError: error,
                     additionalOptions: {
-                        id: single ? attrs[idField] : undefined
+                        id: single ? idField : undefined
                     }
                 });
                 return self.processDataQuery(dataQuery);
@@ -26798,6 +28083,13 @@ module.exports = (function () {
          * @param {Function} [error] An error callback.
          */
         destroySingle: function (model, success, error) {
+            var err = this._validateIdForModel(model, true);
+            if (err) {
+                return buildPromise(function (success, error) {
+                    return error(err);
+                }, success, error);
+            }
+
             return this._destroy(model, null, true, success, error);
         },
 
@@ -26866,7 +28158,7 @@ module.exports = (function () {
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.setAcl,
+                    operation: DataQuery.operations.SetAcl,
                     collectionName: self.collectionName,
                     parse: Request.parsers.single,
                     filter: filter,
@@ -26927,7 +28219,7 @@ module.exports = (function () {
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
-                    operation: DataQuery.operations.setOwner,
+                    operation: DataQuery.operations.SetOwner,
                     collectionName: self.collectionName,
                     filter: filter,
                     data: {
@@ -26993,7 +28285,7 @@ module.exports = (function () {
     return Data;
 }());
 
-},{"../Everlive":46,"../EverliveError":47,"../Request":52,"../common":58,"../constants":59,"../everlive.platform":61,"../query/DataQuery":85,"../query/RequestOptionsBuilder":88,"../utils":99}],97:[function(require,module,exports){
+},{"../Everlive":46,"../EverliveError":47,"../Request":52,"../common":58,"../constants":59,"../everlive.platform":61,"../query/DataQuery":85,"../query/EventQuery":86,"../query/RequestOptionsBuilder":89,"../utils":100}],98:[function(require,module,exports){
 /**
  * @class Files
  * @protected
@@ -27059,7 +28351,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
 
         return buildPromise(function (success, error) {
             var dataQuery = new DataQuery({
-                operation: DataQuery.operations.filesUpdateContent,
+                operation: DataQuery.operations.FilesUpdateContent,
                 // the passed file content is base64 encoded
                 data: file,
                 collectionName: self.collectionName,
@@ -27095,7 +28387,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
 
         return buildPromise(function (success, error) {
             var dataQuery = new DataQuery({
-                operation: DataQuery.operations.filesGetDownloadUrlById,
+                operation: DataQuery.operations.FilesGetDownloadUrlById,
                 collectionName: self.collectionName,
                 additionalOptions: {
                     id: fileId
@@ -27201,7 +28493,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
         }, success, error);
     }
 };
-},{"../Request":52,"../query/DataQuery":85,"../utils":99}],98:[function(require,module,exports){
+},{"../Request":52,"../query/DataQuery":85,"../utils":100}],99:[function(require,module,exports){
 /**
  * @class Users
  * @extends Data
@@ -27252,14 +28544,14 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
     };
 
     /**
-     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK. The success function is called with {@link Users.ResultTypes.curentUserResult}.
+     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK. The success function is called with {@link Users.ResultTypes.currentUserResult}.
      * @memberOf Users.prototype
      * @method currentUser
      * @name currentUser
      * @returns {Promise} The promise for the request.
      */
     /**
-     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK. The success function is called with {@link Users.ResultTypes.curentUserResult}.
+     * Gets information about the user that is currently authenticated to the {{site.bs}} JavaScript SDK. The success function is called with {@link Users.ResultTypes.currentUserResult}.
      * @memberOf Users.prototype
      * @method currentUser
      * @name currentUser
@@ -27332,7 +28624,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
             });
 
             var dataQuery = new DataQuery({
-                operation: DataQuery.operations.userChangePassword,
+                operation: DataQuery.operations.UserChangePassword,
                 collectionName: self.collectionName,
                 data: {
                     Username: username,
@@ -27819,7 +29111,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
 
         return buildPromise(function (successCb, errorCb) {
             var dataQuery = new DataQuery({
-                operation: DataQuery.operations.userResetPassword,
+                operation: DataQuery.operations.UserResetPassword,
                 collectionName: self.collectionName,
                 data: user,
                 onSuccess: successCb,
@@ -27881,7 +29173,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
 
         return buildPromise(function (successCb, errorCb) {
             var dataQuery = new DataQuery({
-                operation: DataQuery.operations.userSetPassword,
+                operation: DataQuery.operations.UserSetPassword,
                 collectionName: self.collectionName,
                 data: setPasswordObject,
                 onSuccess: successCb,
@@ -27899,7 +29191,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
                 additionalOptions: {
                     id: userId
                 },
-                operation: DataQuery.operations.userLinkWithProvider,
+                operation: DataQuery.operations.UserLinkWithProvider,
                 collectionName: self.collectionName,
                 data: identity,
                 parse: Request.parsers.single,
@@ -27922,7 +29214,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
                 additionalOptions: {
                     userId: userId
                 },
-                operation: DataQuery.operations.userUnlinkFromProvider,
+                operation: DataQuery.operations.UserUnlinkFromProvider,
                 collectionName: self.collectionName,
                 data: identity,
                 parse: Request.parsers.single,
@@ -27935,7 +29227,7 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
         }, success, error);
     };
 };
-},{"../EverliveError":47,"../Request":52,"../common":58,"../query/DataQuery":85,"../utils":99}],99:[function(require,module,exports){
+},{"../EverliveError":47,"../Request":52,"../common":58,"../query/DataQuery":85,"../utils":100}],100:[function(require,module,exports){
 var EverliveError = require('./EverliveError').EverliveError;
 var common = require('./common');
 var _ = common._;
@@ -27953,6 +29245,21 @@ utils.guardUnset = function guardUnset(value, name, message) {
     if (typeof value === 'undefined' || value === null) {
         throw new EverliveError(message);
     }
+};
+
+//brings down all keys to the same level (lowerCase)
+utils.normalizeKeys = function normalizeKeys(obj) {
+    var normalizedKeys = {};
+
+    _.each(obj, function (val, key) {
+        var lowerKey = key.toLowerCase();
+
+        if (!normalizedKeys.hasOwnProperty(lowerKey)) {
+            normalizedKeys[lowerKey] = val;
+        }
+    });
+
+    return normalizedKeys;
 };
 
 utils.parseUtilities = {
@@ -28166,7 +29473,7 @@ utils.buildAuthHeader = function buildAuthHeader(setup, options) {
         authHeaderValue = 'masterkey ' + setup.masterKey;
     }
     if (authHeaderValue) {
-        return {Authorization: authHeaderValue};
+        return {authorization: authHeaderValue};
     } else {
         return null;
     }
@@ -28384,6 +29691,10 @@ utils.lazyRequire = function (moduleName, exportName) {
     });
 
     return obj;
+};
+
+utils._inAppBuilderSimulator = function () {
+    return typeof window !== undefined && window.navigator && window.navigator.simulator;
 };
 
 module.exports = utils;
