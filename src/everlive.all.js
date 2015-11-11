@@ -1767,14 +1767,13 @@ module.exports = function (value, replacer, space) {
 };
 
 },{}],11:[function(require,module,exports){
-(function (root) {/*global exports, Intl*/
 /**
  * This script gives you the zone info key representing your device's time zone setting.
  *
  * @name jsTimezoneDetect
- * @version 1.0.6
+ * @version 1.0.5
  * @author Jon Nylander
- * @license MIT License - https://bitbucket.org/pellepim/jstimezonedetect/src/default/LICENCE.txt
+ * @license MIT License - http://www.opensource.org/licenses/mit-license.php
  *
  * For usage and examples, visit:
  * http://pellepim.bitbucket.org/jstz/
@@ -1782,1424 +1781,351 @@ module.exports = function (value, replacer, space) {
  * Copyright (c) Jon Nylander
  */
 
+/*jslint undef: true */
+/*global console, exports*/
 
-/**
- * Namespace to hold all the code for timezone detection.
- */
-var jstz = (function () {
-    'use strict';
-    var HEMISPHERE_SOUTH = 's',
+(function(root) {
+  /**
+   * Namespace to hold all the code for timezone detection.
+   */
+  var jstz = (function () {
+      'use strict';
+      var HEMISPHERE_SOUTH = 's',
+          
+          /**
+           * Gets the offset in minutes from UTC for a certain date.
+           * @param {Date} date
+           * @returns {Number}
+           */
+          get_date_offset = function (date) {
+              var offset = -date.getTimezoneOffset();
+              return (offset !== null ? offset : 0);
+          },
 
-        consts = {
-            DAY: 86400000,
-            HOUR: 3600000,
-            MINUTE: 60000,
-            SECOND: 1000,
-            BASELINE_YEAR: 2014,
-            MAX_SCORE: 864000000, // 10 days
-            AMBIGUITIES: {
-                'America/Denver':       ['America/Mazatlan'],
-                'Europe/London':        ['Africa/Casablanca'],
-                'America/Chicago':      ['America/Mexico_City'],
-                'America/Asuncion':     ['America/Campo_Grande', 'America/Santiago'],
-                'America/Montevideo':   ['America/Sao_Paulo', 'America/Santiago'],
-                // Europe/Minsk should not be in this list... but Windows.
-                'Asia/Beirut':          ['Asia/Amman', 'Asia/Jerusalem', 'Europe/Helsinki', 'Asia/Damascus', 'Africa/Cairo', 'Asia/Gaza', 'Europe/Minsk'],
-                'Pacific/Auckland':     ['Pacific/Fiji'],
-                'America/Los_Angeles':  ['America/Santa_Isabel'],
-                'America/New_York':     ['America/Havana'],
-                'America/Halifax':      ['America/Goose_Bay'],
-                'America/Godthab':      ['America/Miquelon'],
-                'Asia/Dubai':           ['Asia/Yerevan'],
-                'Asia/Jakarta':         ['Asia/Krasnoyarsk'],
-                'Asia/Shanghai':        ['Asia/Irkutsk', 'Australia/Perth'],
-                'Australia/Sydney':     ['Australia/Lord_Howe'],
-                'Asia/Tokyo':           ['Asia/Yakutsk'],
-                'Asia/Dhaka':           ['Asia/Omsk'],
-                // In the real world Yerevan is not ambigous for Baku... but Windows.
-                'Asia/Baku':            ['Asia/Yerevan'],
-                'Australia/Brisbane':   ['Asia/Vladivostok'],
-                'Pacific/Noumea':       ['Asia/Vladivostok'],
-                'Pacific/Majuro':       ['Asia/Kamchatka', 'Pacific/Fiji'],
-                'Pacific/Tongatapu':    ['Pacific/Apia'],
-                'Asia/Baghdad':         ['Europe/Minsk', 'Europe/Moscow'],
-                'Asia/Karachi':         ['Asia/Yekaterinburg'],
-                'Africa/Johannesburg':  ['Asia/Gaza', 'Africa/Cairo']
-            }
-        },
+          get_date = function (year, month, date) {
+              var d = new Date();
+              if (year !== undefined) {
+                d.setFullYear(year);
+              }
+              d.setMonth(month);
+              d.setDate(date);
+              return d;
+          },
 
-        /**
-         * Gets the offset in minutes from UTC for a certain date.
-         * @param {Date} date
-         * @returns {Number}
-         */
-        get_date_offset = function get_date_offset(date) {
-            var offset = -date.getTimezoneOffset();
-            return (offset !== null ? offset : 0);
-        },
+          get_january_offset = function (year) {
+              return get_date_offset(get_date(year, 0 ,2));
+          },
 
-        /**
-         * This function does some basic calculations to create information about
-         * the user's timezone. It uses REFERENCE_YEAR as a solid year for which
-         * the script has been tested rather than depend on the year set by the
-         * client device.
-         *
-         * Returns a key that can be used to do lookups in jstz.olson.timezones.
-         * eg: "720,1,2".
-         *
-         * @returns {String}
-         */
-        lookup_key = function lookup_key() {
-            var january_offset = get_date_offset(new Date(consts.BASELINE_YEAR, 0, 2)),
-                june_offset = get_date_offset(new Date(consts.BASELINE_YEAR, 5, 2)),
-                diff = january_offset - june_offset;
+          get_june_offset = function (year) {
+              return get_date_offset(get_date(year, 5, 2));
+          },
 
-            if (diff < 0) {
-                return january_offset + ",1";
-            } else if (diff > 0) {
-                return june_offset + ",1," + HEMISPHERE_SOUTH;
-            }
+          /**
+           * Private method.
+           * Checks whether a given date is in daylight saving time.
+           * If the date supplied is after august, we assume that we're checking
+           * for southern hemisphere DST.
+           * @param {Date} date
+           * @returns {Boolean}
+           */
+          date_is_dst = function (date) {
+              var is_southern = date.getMonth() > 7,
+                  base_offset = is_southern ? get_june_offset(date.getFullYear()) : 
+                                              get_january_offset(date.getFullYear()),
+                  date_offset = get_date_offset(date),
+                  is_west = base_offset < 0,
+                  dst_offset = base_offset - date_offset;
+                  
+              if (!is_west && !is_southern) {
+                  return dst_offset < 0;
+              }
 
-            return january_offset + ",0";
-        },
+              return dst_offset !== 0;
+          },
 
+          /**
+           * This function does some basic calculations to create information about
+           * the user's timezone. It uses REFERENCE_YEAR as a solid year for which
+           * the script has been tested rather than depend on the year set by the
+           * client device.
+           *
+           * Returns a key that can be used to do lookups in jstz.olson.timezones.
+           * eg: "720,1,2". 
+           *
+           * @returns {String}
+           */
 
-        /**
-         * Tries to get the time zone key directly from the operating system for those
-         * environments that support the ECMAScript Internationalization API.
-         */
-        get_from_internationalization_api = function get_from_internationalization_api() {
-            var format, timezone;
-            if (typeof Intl === "undefined" || typeof Intl.DateTimeFormat === "undefined") {
-                return;
-            }
+          lookup_key = function () {
+              var january_offset = get_january_offset(),
+                  june_offset = get_june_offset(),
+                  diff = january_offset - june_offset;
 
-            format = Intl.DateTimeFormat();
+              if (diff < 0) {
+                  return january_offset + ",1";
+              } else if (diff > 0) {
+                  return june_offset + ",1," + HEMISPHERE_SOUTH;
+              }
 
-            if (typeof format === "undefined" || typeof format.resolvedOptions === "undefined") {
-                return;
-            }
+              return january_offset + ",0";
+          },
 
-            timezone = format.resolvedOptions().timeZone;
+          /**
+           * Uses get_timezone_info() to formulate a key to use in the olson.timezones dictionary.
+           *
+           * Returns a primitive object on the format:
+           * {'timezone': TimeZone, 'key' : 'the key used to find the TimeZone object'}
+           *
+           * @returns Object
+           */
+          determine = function () {
+              var key = lookup_key();
+              return new jstz.TimeZone(jstz.olson.timezones[key]);
+          },
 
-            if (timezone && (timezone.indexOf("/") > -1 || timezone === 'UTC')) {
-                return timezone;
-            }
+          /**
+           * This object contains information on when daylight savings starts for
+           * different timezones.
+           *
+           * The list is short for a reason. Often we do not have to be very specific
+           * to single out the correct timezone. But when we do, this list comes in
+           * handy.
+           *
+           * Each value is a date denoting when daylight savings starts for that timezone.
+           */
+          dst_start_for = function (tz_name) {
 
-        },
-
-        /**
-         * Starting point for getting all the DST rules for a specific year
-         * for the current timezone (as described by the client system).
-         *
-         * Returns an object with start and end attributes, or false if no
-         * DST rules were found for the year.
-         *
-         * @param year
-         * @returns {Object} || {Boolean}
-         */
-        dst_dates = function dst_dates(year) {
-            var yearstart = new Date(year, 0, 1, 0, 0, 1, 0).getTime();
-            var yearend = new Date(year, 12, 31, 23, 59, 59).getTime();
-            var current = yearstart;
-            var offset = (new Date(current)).getTimezoneOffset();
-            var dst_start = null;
-            var dst_end = null;
-
-            while (current < yearend - 86400000) {
-                var dateToCheck = new Date(current);
-                var dateToCheckOffset = dateToCheck.getTimezoneOffset();
-
-                if (dateToCheckOffset !== offset) {
-                    if (dateToCheckOffset < offset) {
-                        dst_start = dateToCheck;
-                    }
-                    if (dateToCheckOffset > offset) {
-                        dst_end = dateToCheck;
-                    }
-                    offset = dateToCheckOffset;
-                }
-
-                current += 86400000;
-            }
-
-            if (dst_start && dst_end) {
-                return {
-                    s: find_dst_fold(dst_start).getTime(),
-                    e: find_dst_fold(dst_end).getTime()
+            var ru_pre_dst_change = new Date(2010, 6, 15, 1, 0, 0, 0), // In 2010 Russia had DST, this allows us to detect Russia :)
+                dst_starts = {
+                    'America/Denver': new Date(2011, 2, 13, 3, 0, 0, 0),
+                    'America/Mazatlan': new Date(2011, 3, 3, 3, 0, 0, 0),
+                    'America/Chicago': new Date(2011, 2, 13, 3, 0, 0, 0),
+                    'America/Mexico_City': new Date(2011, 3, 3, 3, 0, 0, 0),
+                    'America/Asuncion': new Date(2012, 9, 7, 3, 0, 0, 0),
+                    'America/Santiago': new Date(2012, 9, 3, 3, 0, 0, 0),
+                    'America/Campo_Grande': new Date(2012, 9, 21, 5, 0, 0, 0),
+                    'America/Montevideo': new Date(2011, 9, 2, 3, 0, 0, 0),
+                    'America/Sao_Paulo': new Date(2011, 9, 16, 5, 0, 0, 0),
+                    'America/Los_Angeles': new Date(2011, 2, 13, 8, 0, 0, 0),
+                    'America/Santa_Isabel': new Date(2011, 3, 5, 8, 0, 0, 0),
+                    'America/Havana': new Date(2012, 2, 10, 2, 0, 0, 0),
+                    'America/New_York': new Date(2012, 2, 10, 7, 0, 0, 0),
+                    'Europe/Helsinki': new Date(2013, 2, 31, 5, 0, 0, 0),
+                    'Pacific/Auckland': new Date(2011, 8, 26, 7, 0, 0, 0),
+                    'America/Halifax': new Date(2011, 2, 13, 6, 0, 0, 0),
+                    'America/Goose_Bay': new Date(2011, 2, 13, 2, 1, 0, 0),
+                    'America/Miquelon': new Date(2011, 2, 13, 5, 0, 0, 0),
+                    'America/Godthab': new Date(2011, 2, 27, 1, 0, 0, 0),
+                    'Europe/Moscow': ru_pre_dst_change,
+                    'Asia/Amman': new Date(2013, 2, 29, 1, 0, 0, 0),
+                    'Asia/Beirut': new Date(2013, 2, 31, 2, 0, 0, 0),
+                    'Asia/Damascus': new Date(2013, 3, 6, 2, 0, 0, 0),
+                    'Asia/Jerusalem': new Date(2013, 2, 29, 5, 0, 0, 0),
+                    'Asia/Yekaterinburg': ru_pre_dst_change,
+                    'Asia/Omsk': ru_pre_dst_change,
+                    'Asia/Krasnoyarsk': ru_pre_dst_change,
+                    'Asia/Irkutsk': ru_pre_dst_change,
+                    'Asia/Yakutsk': ru_pre_dst_change,
+                    'Asia/Vladivostok': ru_pre_dst_change,
+                    'Asia/Baku': new Date(2013, 2, 31, 4, 0, 0),
+                    'Asia/Yerevan': new Date(2013, 2, 31, 3, 0, 0),
+                    'Asia/Kamchatka': ru_pre_dst_change,
+                    'Asia/Gaza': new Date(2010, 2, 27, 4, 0, 0),
+                    'Africa/Cairo': new Date(2010, 4, 1, 3, 0, 0),
+                    'Europe/Minsk': ru_pre_dst_change,
+                    'Pacific/Apia': new Date(2010, 10, 1, 1, 0, 0, 0),
+                    'Pacific/Fiji': new Date(2010, 11, 1, 0, 0, 0),
+                    'Australia/Perth': new Date(2008, 10, 1, 1, 0, 0, 0)
                 };
-            }
 
-            return false;
-        },
+              return dst_starts[tz_name];
+          };
 
+      return {
+          determine: determine,
+          date_is_dst: date_is_dst,
+          dst_start_for: dst_start_for 
+      };
+  }());
+
+  /**
+   * Simple object to perform ambiguity check and to return name of time zone.
+   */
+  jstz.TimeZone = function (tz_name) {
+      'use strict';
         /**
-         * Probably completely unnecessary function that recursively finds the
-         * exact (to the second) time when a DST rule was changed.
+         * The keys in this object are timezones that we know may be ambiguous after
+         * a preliminary scan through the olson_tz object.
          *
-         * @param a_date - The candidate Date.
-         * @param padding - integer specifying the padding to allow around the candidate
-         *                  date for finding the fold.
-         * @param iterator - integer specifying how many milliseconds to iterate while
-         *                   searching for the fold.
-         *
-         * @returns {Date}
+         * The array of timezones to compare must be in the order that daylight savings
+         * starts for the regions.
          */
-        find_dst_fold = function find_dst_fold(a_date, padding, iterator) {
-            if (typeof padding === 'undefined') {
-                padding = consts.DAY;
-                iterator = consts.HOUR;
-            }
+      var AMBIGUITIES = {
+              'America/Denver':       ['America/Denver', 'America/Mazatlan'],
+              'America/Chicago':      ['America/Chicago', 'America/Mexico_City'],
+              'America/Santiago':     ['America/Santiago', 'America/Asuncion', 'America/Campo_Grande'],
+              'America/Montevideo':   ['America/Montevideo', 'America/Sao_Paulo'],
+              'Asia/Beirut':          ['Asia/Amman', 'Asia/Jerusalem', 'Asia/Beirut', 'Europe/Helsinki','Asia/Damascus'],
+              'Pacific/Auckland':     ['Pacific/Auckland', 'Pacific/Fiji'],
+              'America/Los_Angeles':  ['America/Los_Angeles', 'America/Santa_Isabel'],
+              'America/New_York':     ['America/Havana', 'America/New_York'],
+              'America/Halifax':      ['America/Goose_Bay', 'America/Halifax'],
+              'America/Godthab':      ['America/Miquelon', 'America/Godthab'],
+              'Asia/Dubai':           ['Europe/Moscow'],
+              'Asia/Dhaka':           ['Asia/Yekaterinburg'],
+              'Asia/Jakarta':         ['Asia/Omsk'],
+              'Asia/Shanghai':        ['Asia/Krasnoyarsk', 'Australia/Perth'],
+              'Asia/Tokyo':           ['Asia/Irkutsk'],
+              'Australia/Brisbane':   ['Asia/Yakutsk'],
+              'Pacific/Noumea':       ['Asia/Vladivostok'],
+              'Pacific/Tarawa':       ['Asia/Kamchatka', 'Pacific/Fiji'],
+              'Pacific/Tongatapu':    ['Pacific/Apia'],
+              'Asia/Baghdad':         ['Europe/Minsk'],
+              'Asia/Baku':            ['Asia/Yerevan','Asia/Baku'],
+              'Africa/Johannesburg':  ['Asia/Gaza', 'Africa/Cairo']
+          },
 
-            var date_start = new Date(a_date.getTime() - padding).getTime();
-            var date_end = a_date.getTime() + padding;
-            var offset = new Date(date_start).getTimezoneOffset();
+          timezone_name = tz_name,
+          
+          /**
+           * Checks if a timezone has possible ambiguities. I.e timezones that are similar.
+           *
+           * For example, if the preliminary scan determines that we're in America/Denver.
+           * We double check here that we're really there and not in America/Mazatlan.
+           *
+           * This is done by checking known dates for when daylight savings start for different
+           * timezones during 2010 and 2011.
+           */
+          ambiguity_check = function () {
+              var ambiguity_list = AMBIGUITIES[timezone_name],
+                  length = ambiguity_list.length,
+                  i = 0,
+                  tz = ambiguity_list[0];
 
-            var current = date_start;
+              for (; i < length; i += 1) {
+                  tz = ambiguity_list[i];
 
-            var dst_change = null;
-            while (current < date_end - iterator) {
-                var dateToCheck = new Date(current);
-                var dateToCheckOffset = dateToCheck.getTimezoneOffset();
+                  if (jstz.date_is_dst(jstz.dst_start_for(tz))) {
+                      timezone_name = tz;
+                      return;
+                  }
+              }
+          },
 
-                if (dateToCheckOffset !== offset) {
-                    dst_change = dateToCheck;
-                    break;
-                }
-                current += iterator;
-            }
+          /**
+           * Checks if it is possible that the timezone is ambiguous.
+           */
+          is_ambiguous = function () {
+              return typeof (AMBIGUITIES[timezone_name]) !== 'undefined';
+          };
 
-            if (padding === consts.DAY) {
-                return find_dst_fold(dst_change, consts.HOUR, consts.MINUTE);
-            }
+      if (is_ambiguous()) {
+          ambiguity_check();
+      }
 
-            if (padding === consts.HOUR) {
-                return find_dst_fold(dst_change, consts.MINUTE, consts.SECOND);
-            }
+      return {
+          name: function () {
+              return timezone_name;
+          }
+      };
+  };
 
-            return dst_change;
-        },
+  jstz.olson = {};
 
-        windows7_adaptations = function windows7_adaptions(rule_list, preliminary_timezone, score, sample) {
-            if (score !== 'N/A') {
-                return score;
-            }
-            if (preliminary_timezone === 'Asia/Beirut') {
-                if (sample.name === 'Africa/Cairo') {
-                    if (rule_list[6].s === 1398376800000 && rule_list[6].e === 1411678800000) {
-                        return 0;
-                    }
-                }
-                if (sample.name === 'Asia/Jerusalem') {
-                    if (rule_list[6].s === 1395964800000 && rule_list[6].e === 1411858800000) {
-                        return 0;
-                }
-            }
-            } else if (preliminary_timezone === 'America/Santiago') {
-                if (sample.name === 'America/Asuncion') {
-                    if (rule_list[6].s === 1412481600000 && rule_list[6].e === 1397358000000) {
-                        return 0;
-                    }
-                }
-                if (sample.name === 'America/Campo_Grande') {
-                    if (rule_list[6].s === 1413691200000 && rule_list[6].e === 1392519600000) {
-                        return 0;
-                    }
-                }
-            } else if (preliminary_timezone === 'America/Montevideo') {
-                if (sample.name === 'America/Sao_Paulo') {
-                    if (rule_list[6].s === 1413687600000 && rule_list[6].e === 1392516000000) {
-                        return 0;
-                    }
-                }
-            } else if (preliminary_timezone === 'Pacific/Auckland') {
-                if (sample.name === 'Pacific/Fiji') {
-                    if (rule_list[6].s === 1414245600000 && rule_list[6].e === 1396101600000) {
-                        return 0;
-                    }
-                }
-            }
+  /*
+   * The keys in this dictionary are comma separated as such:
+   *
+   * First the offset compared to UTC time in minutes.
+   *
+   * Then a flag which is 0 if the timezone does not take daylight savings into account and 1 if it
+   * does.
+   *
+   * Thirdly an optional 's' signifies that the timezone is in the southern hemisphere,
+   * only interesting for timezones with DST.
+   *
+   * The mapped arrays is used for constructing the jstz.TimeZone object from within
+   * jstz.determine_timezone();
+   */
+  jstz.olson.timezones = {
+      '-720,0'   : 'Pacific/Majuro',
+      '-660,0'   : 'Pacific/Pago_Pago',
+      '-600,1'   : 'America/Adak',
+      '-600,0'   : 'Pacific/Honolulu',
+      '-570,0'   : 'Pacific/Marquesas',
+      '-540,0'   : 'Pacific/Gambier',
+      '-540,1'   : 'America/Anchorage',
+      '-480,1'   : 'America/Los_Angeles',
+      '-480,0'   : 'Pacific/Pitcairn',
+      '-420,0'   : 'America/Phoenix',
+      '-420,1'   : 'America/Denver',
+      '-360,0'   : 'America/Guatemala',
+      '-360,1'   : 'America/Chicago',
+      '-360,1,s' : 'Pacific/Easter',
+      '-300,0'   : 'America/Bogota',
+      '-300,1'   : 'America/New_York',
+      '-270,0'   : 'America/Caracas',
+      '-240,1'   : 'America/Halifax',
+      '-240,0'   : 'America/Santo_Domingo',
+      '-240,1,s' : 'America/Santiago',
+      '-210,1'   : 'America/St_Johns',
+      '-180,1'   : 'America/Godthab',
+      '-180,0'   : 'America/Argentina/Buenos_Aires',
+      '-180,1,s' : 'America/Montevideo',
+      '-120,0'   : 'America/Noronha',
+      '-120,1'   : 'America/Noronha',
+      '-60,1'    : 'Atlantic/Azores',
+      '-60,0'    : 'Atlantic/Cape_Verde',
+      '0,0'      : 'UTC',
+      '0,1'      : 'Europe/London',
+      '60,1'     : 'Europe/Berlin',
+      '60,0'     : 'Africa/Lagos',
+      '60,1,s'   : 'Africa/Windhoek',
+      '120,1'    : 'Asia/Beirut',
+      '120,0'    : 'Africa/Johannesburg',
+      '180,0'    : 'Asia/Baghdad',
+      '180,1'    : 'Europe/Moscow',
+      '210,1'    : 'Asia/Tehran',
+      '240,0'    : 'Asia/Dubai',
+      '240,1'    : 'Asia/Baku',
+      '270,0'    : 'Asia/Kabul',
+      '300,1'    : 'Asia/Yekaterinburg',
+      '300,0'    : 'Asia/Karachi',
+      '330,0'    : 'Asia/Kolkata',
+      '345,0'    : 'Asia/Kathmandu',
+      '360,0'    : 'Asia/Dhaka',
+      '360,1'    : 'Asia/Omsk',
+      '390,0'    : 'Asia/Rangoon',
+      '420,1'    : 'Asia/Krasnoyarsk',
+      '420,0'    : 'Asia/Jakarta',
+      '480,0'    : 'Asia/Shanghai',
+      '480,1'    : 'Asia/Irkutsk',
+      '525,0'    : 'Australia/Eucla',
+      '525,1,s'  : 'Australia/Eucla',
+      '540,1'    : 'Asia/Yakutsk',
+      '540,0'    : 'Asia/Tokyo',
+      '570,0'    : 'Australia/Darwin',
+      '570,1,s'  : 'Australia/Adelaide',
+      '600,0'    : 'Australia/Brisbane',
+      '600,1'    : 'Asia/Vladivostok',
+      '600,1,s'  : 'Australia/Sydney',
+      '630,1,s'  : 'Australia/Lord_Howe',
+      '660,1'    : 'Asia/Kamchatka',
+      '660,0'    : 'Pacific/Noumea',
+      '690,0'    : 'Pacific/Norfolk',
+      '720,1,s'  : 'Pacific/Auckland',
+      '720,0'    : 'Pacific/Tarawa',
+      '765,1,s'  : 'Pacific/Chatham',
+      '780,0'    : 'Pacific/Tongatapu',
+      '780,1,s'  : 'Pacific/Apia',
+      '840,0'    : 'Pacific/Kiritimati'
+  };
 
-            return score;
-        },
+  if (typeof exports !== 'undefined') {
+    exports.jstz = jstz;
+  } else {
+    root.jstz = jstz;
+  }
+})(this);
 
-        /**
-         * Takes the DST rules for the current timezone, and proceeds to find matches
-         * in the jstz.olson.dst_rules.zones array.
-         *
-         * Compares samples to the current timezone on a scoring basis.
-         *
-         * Candidates are ruled immediately if either the candidate or the current zone
-         * has a DST rule where the other does not.
-         *
-         * Candidates are ruled out immediately if the current zone has a rule that is
-         * outside the DST scope of the candidate.
-         *
-         * Candidates are included for scoring if the current zones rules fall within the
-         * span of the samples rules.
-         *
-         * Low score is best, the score is calculated by summing up the differences in DST
-         * rules and if the consts.MAX_SCORE is overreached the candidate is ruled out.
-         *
-         * Yah follow? :)
-         *
-         * @param rule_list
-         * @param preliminary_timezone
-         * @returns {*}
-         */
-        best_dst_match = function best_dst_match(rule_list, preliminary_timezone) {
-            var score_sample = function score_sample(sample) {
-                var score = 0;
-
-                for (var j = 0; j < rule_list.length; j++) {
-
-                    // Both sample and current time zone report DST during the year.
-                    if (!!sample.rules[j] && !!rule_list[j]) {
-
-                        // The current time zone's DST rules are inside the sample's. Include.
-                        if (rule_list[j].s >= sample.rules[j].s && rule_list[j].e <= sample.rules[j].e) {
-                            score = 0;
-                            score += Math.abs(rule_list[j].s - sample.rules[j].s);
-                            score += Math.abs(sample.rules[j].e - rule_list[j].e);
-
-                        // The current time zone's DST rules are outside the sample's. Discard.
-                        } else {
-                            score = 'N/A';
-                            break;
-                        }
-
-                        // The max score has been reached. Discard.
-                        if (score > consts.MAX_SCORE) {
-                            score = 'N/A';
-                            break;
-                        }
-                    }
-                }
-
-                score = windows7_adaptations(rule_list, preliminary_timezone, score, sample);
-
-                return score;
-            };
-            var scoreboard = {};
-            var dst_zones = jstz.olson.dst_rules.zones;
-            var dst_zones_length = dst_zones.length;
-            var ambiguities = consts.AMBIGUITIES[preliminary_timezone];
-
-            for (var i = 0; i < dst_zones_length; i++) {
-                var sample = dst_zones[i];
-                var score = score_sample(dst_zones[i]);
-
-                if (score !== 'N/A') {
-                    scoreboard[sample.name] = score;
-                }
-            }
-
-            for (var tz in scoreboard) {
-                if (scoreboard.hasOwnProperty(tz)) {
-                    for (var j = 0; j < ambiguities.length; j++) {
-                        if (ambiguities[j] === tz) {
-                            return tz;
-                        }
-                    }
-                }
-            }
-
-            return preliminary_timezone;
-        },
-
-        /**
-         * Takes the preliminary_timezone as detected by lookup_key().
-         *
-         * Builds up the current timezones DST rules for the years defined
-         * in the jstz.olson.dst_rules.years array.
-         *
-         * If there are no DST occurences for those years, immediately returns
-         * the preliminary timezone. Otherwise proceeds and tries to solve
-         * ambiguities.
-         *
-         * @param preliminary_timezone
-         * @returns {String} timezone_name
-         */
-        get_by_dst = function get_by_dst(preliminary_timezone) {
-            var get_rules = function get_rules() {
-                var rule_list = [];
-                for (var i = 0; i < jstz.olson.dst_rules.years.length; i++) {
-                    var year_rules = dst_dates(jstz.olson.dst_rules.years[i]);
-                    rule_list.push(year_rules);
-                }
-                return rule_list;
-            };
-            var check_has_dst = function check_has_dst(rules) {
-                for (var i = 0; i < rules.length; i++) {
-                    if (rules[i] !== false) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-            var rules = get_rules();
-            var has_dst = check_has_dst(rules);
-
-            if (has_dst) {
-                return best_dst_match(rules, preliminary_timezone);
-            }
-
-            return preliminary_timezone;
-        },
-
-        /**
-         * Uses get_timezone_info() to formulate a key to use in the olson.timezones dictionary.
-         *
-         * Returns an object with one function ".name()"
-         *
-         * @returns Object
-         */
-        determine = function determine() {
-            var preliminary_tz = get_from_internationalization_api();
-
-            if (!preliminary_tz) {
-                preliminary_tz = jstz.olson.timezones[lookup_key()];
-
-                if (typeof consts.AMBIGUITIES[preliminary_tz] !== 'undefined') {
-                    preliminary_tz = get_by_dst(preliminary_tz);
-                }
-            }
-
-            return {
-                name: function () {
-                    return preliminary_tz;
-                }
-            };
-        };
-
-    return {
-        determine: determine
-    };
-}());
-
-
-jstz.olson = jstz.olson || {};
-
-/**
- * The keys in this dictionary are comma separated as such:
- *
- * First the offset compared to UTC time in minutes.
- *
- * Then a flag which is 0 if the timezone does not take daylight savings into account and 1 if it
- * does.
- *
- * Thirdly an optional 's' signifies that the timezone is in the southern hemisphere,
- * only interesting for timezones with DST.
- *
- * The mapped arrays is used for constructing the jstz.TimeZone object from within
- * jstz.determine();
- */
-jstz.olson.timezones = {
-    '-720,0': 'Etc/GMT+12',
-    '-660,0': 'Pacific/Pago_Pago',
-    '-660,1,s': 'Pacific/Apia', // Why? Because windows... cry!
-    '-600,1': 'America/Adak',
-    '-600,0': 'Pacific/Honolulu',
-    '-570,0': 'Pacific/Marquesas',
-    '-540,0': 'Pacific/Gambier',
-    '-540,1': 'America/Anchorage',
-    '-480,1': 'America/Los_Angeles',
-    '-480,0': 'Pacific/Pitcairn',
-    '-420,0': 'America/Phoenix',
-    '-420,1': 'America/Denver',
-    '-360,0': 'America/Guatemala',
-    '-360,1': 'America/Chicago',
-    '-360,1,s': 'Pacific/Easter',
-    '-300,0': 'America/Bogota',
-    '-300,1': 'America/New_York',
-    '-270,0': 'America/Caracas',
-    '-240,1': 'America/Halifax',
-    '-240,0': 'America/Santo_Domingo',
-    '-240,1,s': 'America/Asuncion',
-    '-210,1': 'America/St_Johns',
-    '-180,1': 'America/Godthab',
-    '-180,0': 'America/Argentina/Buenos_Aires',
-    '-180,1,s': 'America/Montevideo',
-    '-120,0': 'America/Noronha',
-    '-120,1': 'America/Noronha',
-    '-60,1': 'Atlantic/Azores',
-    '-60,0': 'Atlantic/Cape_Verde',
-    '0,0': 'UTC',
-    '0,1': 'Europe/London',
-    '60,1': 'Europe/Berlin',
-    '60,0': 'Africa/Lagos',
-    '60,1,s': 'Africa/Windhoek',
-    '120,1': 'Asia/Beirut',
-    '120,0': 'Africa/Johannesburg',
-    '180,0': 'Asia/Baghdad',
-    '180,1': 'Europe/Moscow',
-    '210,1': 'Asia/Tehran',
-    '240,0': 'Asia/Dubai',
-    '240,1': 'Asia/Baku',
-    '270,0': 'Asia/Kabul',
-    '300,1': 'Asia/Yekaterinburg',
-    '300,0': 'Asia/Karachi',
-    '330,0': 'Asia/Kolkata',
-    '345,0': 'Asia/Kathmandu',
-    '360,0': 'Asia/Dhaka',
-    '360,1': 'Asia/Omsk',
-    '390,0': 'Asia/Rangoon',
-    '420,1': 'Asia/Krasnoyarsk',
-    '420,0': 'Asia/Jakarta',
-    '480,0': 'Asia/Shanghai',
-    '480,1': 'Asia/Irkutsk',
-    '525,0': 'Australia/Eucla',
-    '525,1,s': 'Australia/Eucla',
-    '540,1': 'Asia/Yakutsk',
-    '540,0': 'Asia/Tokyo',
-    '570,0': 'Australia/Darwin',
-    '570,1,s': 'Australia/Adelaide',
-    '600,0': 'Australia/Brisbane',
-    '600,1': 'Asia/Vladivostok',
-    '600,1,s': 'Australia/Sydney',
-    '630,1,s': 'Australia/Lord_Howe',
-    '660,1': 'Asia/Kamchatka',
-    '660,0': 'Pacific/Noumea',
-    '690,0': 'Pacific/Norfolk',
-    '720,1,s': 'Pacific/Auckland',
-    '720,0': 'Pacific/Majuro',
-    '765,1,s': 'Pacific/Chatham',
-    '780,0': 'Pacific/Tongatapu',
-    '780,1,s': 'Pacific/Apia',
-    '840,0': 'Pacific/Kiritimati'
-};
-
-/* Build time: 2015-11-02 13:01:00Z Build by invoking python utilities/dst.py generate */
-jstz.olson.dst_rules = {
-    "years": [
-        2008,
-        2009,
-        2010,
-        2011,
-        2012,
-        2013,
-        2014
-    ],
-    "zones": [
-        {
-            "name": "Africa/Cairo",
-            "rules": [
-                {
-                    "e": 1219957200000,
-                    "s": 1209074400000
-                },
-                {
-                    "e": 1250802000000,
-                    "s": 1240524000000
-                },
-                {
-                    "e": 1285880400000,
-                    "s": 1284069600000
-                },
-                false,
-                false,
-                false,
-                {
-                    "e": 1411678800000,
-                    "s": 1406844000000
-                }
-            ]
-        },
-        {
-            "name": "Africa/Casablanca",
-            "rules": [
-                {
-                    "e": 1220223600000,
-                    "s": 1212278400000
-                },
-                {
-                    "e": 1250809200000,
-                    "s": 1243814400000
-                },
-                {
-                    "e": 1281222000000,
-                    "s": 1272758400000
-                },
-                {
-                    "e": 1312066800000,
-                    "s": 1301788800000
-                },
-                {
-                    "e": 1348970400000,
-                    "s": 1345428000000
-                },
-                {
-                    "e": 1382839200000,
-                    "s": 1376100000000
-                },
-                {
-                    "e": 1414288800000,
-                    "s": 1406944800000
-                }
-            ]
-        },
-        {
-            "name": "America/Asuncion",
-            "rules": [
-                {
-                    "e": 1205031600000,
-                    "s": 1224388800000
-                },
-                {
-                    "e": 1236481200000,
-                    "s": 1255838400000
-                },
-                {
-                    "e": 1270954800000,
-                    "s": 1286078400000
-                },
-                {
-                    "e": 1302404400000,
-                    "s": 1317528000000
-                },
-                {
-                    "e": 1333854000000,
-                    "s": 1349582400000
-                },
-                {
-                    "e": 1364094000000,
-                    "s": 1381032000000
-                },
-                {
-                    "e": 1395543600000,
-                    "s": 1412481600000
-                }
-            ]
-        },
-        {
-            "name": "America/Campo_Grande",
-            "rules": [
-                {
-                    "e": 1203217200000,
-                    "s": 1224388800000
-                },
-                {
-                    "e": 1234666800000,
-                    "s": 1255838400000
-                },
-                {
-                    "e": 1266721200000,
-                    "s": 1287288000000
-                },
-                {
-                    "e": 1298170800000,
-                    "s": 1318737600000
-                },
-                {
-                    "e": 1330225200000,
-                    "s": 1350792000000
-                },
-                {
-                    "e": 1361070000000,
-                    "s": 1382241600000
-                },
-                {
-                    "e": 1392519600000,
-                    "s": 1413691200000
-                }
-            ]
-        },
-        {
-            "name": "America/Goose_Bay",
-            "rules": [
-                {
-                    "e": 1225594860000,
-                    "s": 1205035260000
-                },
-                {
-                    "e": 1257044460000,
-                    "s": 1236484860000
-                },
-                {
-                    "e": 1289098860000,
-                    "s": 1268539260000
-                },
-                {
-                    "e": 1320555600000,
-                    "s": 1299988860000
-                },
-                {
-                    "e": 1352005200000,
-                    "s": 1331445600000
-                },
-                {
-                    "e": 1383454800000,
-                    "s": 1362895200000
-                },
-                {
-                    "e": 1414904400000,
-                    "s": 1394344800000
-                }
-            ]
-        },
-        {
-            "name": "America/Havana",
-            "rules": [
-                {
-                    "e": 1224997200000,
-                    "s": 1205643600000
-                },
-                {
-                    "e": 1256446800000,
-                    "s": 1236488400000
-                },
-                {
-                    "e": 1288501200000,
-                    "s": 1268542800000
-                },
-                {
-                    "e": 1321160400000,
-                    "s": 1300597200000
-                },
-                {
-                    "e": 1352005200000,
-                    "s": 1333256400000
-                },
-                {
-                    "e": 1383454800000,
-                    "s": 1362891600000
-                },
-                {
-                    "e": 1414904400000,
-                    "s": 1394341200000
-                }
-            ]
-        },
-        {
-            "name": "America/Mazatlan",
-            "rules": [
-                {
-                    "e": 1225008000000,
-                    "s": 1207472400000
-                },
-                {
-                    "e": 1256457600000,
-                    "s": 1238922000000
-                },
-                {
-                    "e": 1288512000000,
-                    "s": 1270371600000
-                },
-                {
-                    "e": 1319961600000,
-                    "s": 1301821200000
-                },
-                {
-                    "e": 1351411200000,
-                    "s": 1333270800000
-                },
-                {
-                    "e": 1382860800000,
-                    "s": 1365325200000
-                },
-                {
-                    "e": 1414310400000,
-                    "s": 1396774800000
-                }
-            ]
-        },
-        {
-            "name": "America/Mexico_City",
-            "rules": [
-                {
-                    "e": 1225004400000,
-                    "s": 1207468800000
-                },
-                {
-                    "e": 1256454000000,
-                    "s": 1238918400000
-                },
-                {
-                    "e": 1288508400000,
-                    "s": 1270368000000
-                },
-                {
-                    "e": 1319958000000,
-                    "s": 1301817600000
-                },
-                {
-                    "e": 1351407600000,
-                    "s": 1333267200000
-                },
-                {
-                    "e": 1382857200000,
-                    "s": 1365321600000
-                },
-                {
-                    "e": 1414306800000,
-                    "s": 1396771200000
-                }
-            ]
-        },
-        {
-            "name": "America/Miquelon",
-            "rules": [
-                {
-                    "e": 1225598400000,
-                    "s": 1205038800000
-                },
-                {
-                    "e": 1257048000000,
-                    "s": 1236488400000
-                },
-                {
-                    "e": 1289102400000,
-                    "s": 1268542800000
-                },
-                {
-                    "e": 1320552000000,
-                    "s": 1299992400000
-                },
-                {
-                    "e": 1352001600000,
-                    "s": 1331442000000
-                },
-                {
-                    "e": 1383451200000,
-                    "s": 1362891600000
-                },
-                {
-                    "e": 1414900800000,
-                    "s": 1394341200000
-                }
-            ]
-        },
-        {
-            "name": "America/Santa_Isabel",
-            "rules": [
-                {
-                    "e": 1225011600000,
-                    "s": 1207476000000
-                },
-                {
-                    "e": 1256461200000,
-                    "s": 1238925600000
-                },
-                {
-                    "e": 1288515600000,
-                    "s": 1270375200000
-                },
-                {
-                    "e": 1319965200000,
-                    "s": 1301824800000
-                },
-                {
-                    "e": 1351414800000,
-                    "s": 1333274400000
-                },
-                {
-                    "e": 1382864400000,
-                    "s": 1365328800000
-                },
-                {
-                    "e": 1414314000000,
-                    "s": 1396778400000
-                }
-            ]
-        },
-        {
-            "name": "America/Santiago",
-            "rules": [
-                {
-                    "e": 1206846000000,
-                    "s": 1223784000000
-                },
-                {
-                    "e": 1237086000000,
-                    "s": 1255233600000
-                },
-                {
-                    "e": 1270350000000,
-                    "s": 1286683200000
-                },
-                {
-                    "e": 1304823600000,
-                    "s": 1313899200000
-                },
-                {
-                    "e": 1335668400000,
-                    "s": 1346558400000
-                },
-                {
-                    "e": 1367118000000,
-                    "s": 1378612800000
-                },
-                {
-                    "e": 1398567600000,
-                    "s": 1410062400000
-                }
-            ]
-        },
-        {
-            "name": "America/Sao_Paulo",
-            "rules": [
-                {
-                    "e": 1203213600000,
-                    "s": 1224385200000
-                },
-                {
-                    "e": 1234663200000,
-                    "s": 1255834800000
-                },
-                {
-                    "e": 1266717600000,
-                    "s": 1287284400000
-                },
-                {
-                    "e": 1298167200000,
-                    "s": 1318734000000
-                },
-                {
-                    "e": 1330221600000,
-                    "s": 1350788400000
-                },
-                {
-                    "e": 1361066400000,
-                    "s": 1382238000000
-                },
-                {
-                    "e": 1392516000000,
-                    "s": 1413687600000
-                }
-            ]
-        },
-        {
-            "name": "Asia/Amman",
-            "rules": [
-                {
-                    "e": 1225404000000,
-                    "s": 1206655200000
-                },
-                {
-                    "e": 1256853600000,
-                    "s": 1238104800000
-                },
-                {
-                    "e": 1288303200000,
-                    "s": 1269554400000
-                },
-                {
-                    "e": 1319752800000,
-                    "s": 1301608800000
-                },
-                false,
-                false,
-                {
-                    "e": 1414706400000,
-                    "s": 1395957600000
-                }
-            ]
-        },
-        {
-            "name": "Asia/Damascus",
-            "rules": [
-                {
-                    "e": 1225486800000,
-                    "s": 1207260000000
-                },
-                {
-                    "e": 1256850000000,
-                    "s": 1238104800000
-                },
-                {
-                    "e": 1288299600000,
-                    "s": 1270159200000
-                },
-                {
-                    "e": 1319749200000,
-                    "s": 1301608800000
-                },
-                {
-                    "e": 1351198800000,
-                    "s": 1333058400000
-                },
-                {
-                    "e": 1382648400000,
-                    "s": 1364508000000
-                },
-                {
-                    "e": 1414702800000,
-                    "s": 1395957600000
-                }
-            ]
-        },
-        {
-            "name": "Asia/Dubai",
-            "rules": [
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Gaza",
-            "rules": [
-                {
-                    "e": 1219957200000,
-                    "s": 1206655200000
-                },
-                {
-                    "e": 1252015200000,
-                    "s": 1238104800000
-                },
-                {
-                    "e": 1281474000000,
-                    "s": 1269640860000
-                },
-                {
-                    "e": 1312146000000,
-                    "s": 1301608860000
-                },
-                {
-                    "e": 1348178400000,
-                    "s": 1333058400000
-                },
-                {
-                    "e": 1380229200000,
-                    "s": 1364508000000
-                },
-                {
-                    "e": 1414098000000,
-                    "s": 1395957600000
-                }
-            ]
-        },
-        {
-            "name": "Asia/Irkutsk",
-            "rules": [
-                {
-                    "e": 1224957600000,
-                    "s": 1206813600000
-                },
-                {
-                    "e": 1256407200000,
-                    "s": 1238263200000
-                },
-                {
-                    "e": 1288461600000,
-                    "s": 1269712800000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Jerusalem",
-            "rules": [
-                {
-                    "e": 1223161200000,
-                    "s": 1206662400000
-                },
-                {
-                    "e": 1254006000000,
-                    "s": 1238112000000
-                },
-                {
-                    "e": 1284246000000,
-                    "s": 1269561600000
-                },
-                {
-                    "e": 1317510000000,
-                    "s": 1301616000000
-                },
-                {
-                    "e": 1348354800000,
-                    "s": 1333065600000
-                },
-                {
-                    "e": 1382828400000,
-                    "s": 1364515200000
-                },
-                {
-                    "e": 1414278000000,
-                    "s": 1395964800000
-                }
-            ]
-        },
-        {
-            "name": "Asia/Kamchatka",
-            "rules": [
-                {
-                    "e": 1224943200000,
-                    "s": 1206799200000
-                },
-                {
-                    "e": 1256392800000,
-                    "s": 1238248800000
-                },
-                {
-                    "e": 1288450800000,
-                    "s": 1269698400000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Krasnoyarsk",
-            "rules": [
-                {
-                    "e": 1224961200000,
-                    "s": 1206817200000
-                },
-                {
-                    "e": 1256410800000,
-                    "s": 1238266800000
-                },
-                {
-                    "e": 1288465200000,
-                    "s": 1269716400000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Omsk",
-            "rules": [
-                {
-                    "e": 1224964800000,
-                    "s": 1206820800000
-                },
-                {
-                    "e": 1256414400000,
-                    "s": 1238270400000
-                },
-                {
-                    "e": 1288468800000,
-                    "s": 1269720000000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Vladivostok",
-            "rules": [
-                {
-                    "e": 1224950400000,
-                    "s": 1206806400000
-                },
-                {
-                    "e": 1256400000000,
-                    "s": 1238256000000
-                },
-                {
-                    "e": 1288454400000,
-                    "s": 1269705600000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Yakutsk",
-            "rules": [
-                {
-                    "e": 1224954000000,
-                    "s": 1206810000000
-                },
-                {
-                    "e": 1256403600000,
-                    "s": 1238259600000
-                },
-                {
-                    "e": 1288458000000,
-                    "s": 1269709200000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Yekaterinburg",
-            "rules": [
-                {
-                    "e": 1224968400000,
-                    "s": 1206824400000
-                },
-                {
-                    "e": 1256418000000,
-                    "s": 1238274000000
-                },
-                {
-                    "e": 1288472400000,
-                    "s": 1269723600000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Asia/Yerevan",
-            "rules": [
-                {
-                    "e": 1224972000000,
-                    "s": 1206828000000
-                },
-                {
-                    "e": 1256421600000,
-                    "s": 1238277600000
-                },
-                {
-                    "e": 1288476000000,
-                    "s": 1269727200000
-                },
-                {
-                    "e": 1319925600000,
-                    "s": 1301176800000
-                },
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Australia/Lord_Howe",
-            "rules": [
-                {
-                    "e": 1207407600000,
-                    "s": 1223134200000
-                },
-                {
-                    "e": 1238857200000,
-                    "s": 1254583800000
-                },
-                {
-                    "e": 1270306800000,
-                    "s": 1286033400000
-                },
-                {
-                    "e": 1301756400000,
-                    "s": 1317483000000
-                },
-                {
-                    "e": 1333206000000,
-                    "s": 1349537400000
-                },
-                {
-                    "e": 1365260400000,
-                    "s": 1380987000000
-                },
-                {
-                    "e": 1396710000000,
-                    "s": 1412436600000
-                }
-            ]
-        },
-        {
-            "name": "Australia/Perth",
-            "rules": [
-                {
-                    "e": 1206813600000,
-                    "s": 1224957600000
-                },
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Europe/Helsinki",
-            "rules": [
-                {
-                    "e": 1224982800000,
-                    "s": 1206838800000
-                },
-                {
-                    "e": 1256432400000,
-                    "s": 1238288400000
-                },
-                {
-                    "e": 1288486800000,
-                    "s": 1269738000000
-                },
-                {
-                    "e": 1319936400000,
-                    "s": 1301187600000
-                },
-                {
-                    "e": 1351386000000,
-                    "s": 1332637200000
-                },
-                {
-                    "e": 1382835600000,
-                    "s": 1364691600000
-                },
-                {
-                    "e": 1414285200000,
-                    "s": 1396141200000
-                }
-            ]
-        },
-        {
-            "name": "Europe/Minsk",
-            "rules": [
-                {
-                    "e": 1224979200000,
-                    "s": 1206835200000
-                },
-                {
-                    "e": 1256428800000,
-                    "s": 1238284800000
-                },
-                {
-                    "e": 1288483200000,
-                    "s": 1269734400000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Europe/Moscow",
-            "rules": [
-                {
-                    "e": 1224975600000,
-                    "s": 1206831600000
-                },
-                {
-                    "e": 1256425200000,
-                    "s": 1238281200000
-                },
-                {
-                    "e": 1288479600000,
-                    "s": 1269730800000
-                },
-                false,
-                false,
-                false,
-                false
-            ]
-        },
-        {
-            "name": "Pacific/Apia",
-            "rules": [
-                false,
-                false,
-                false,
-                {
-                    "e": 1301752800000,
-                    "s": 1316872800000
-                },
-                {
-                    "e": 1333202400000,
-                    "s": 1348927200000
-                },
-                {
-                    "e": 1365256800000,
-                    "s": 1380376800000
-                },
-                {
-                    "e": 1396706400000,
-                    "s": 1411826400000
-                }
-            ]
-        },
-        {
-            "name": "Pacific/Fiji",
-            "rules": [
-                false,
-                false,
-                {
-                    "e": 1269698400000,
-                    "s": 1287842400000
-                },
-                {
-                    "e": 1327154400000,
-                    "s": 1319292000000
-                },
-                {
-                    "e": 1358604000000,
-                    "s": 1350741600000
-                },
-                {
-                    "e": 1390050000000,
-                    "s": 1382796000000
-                },
-                {
-                    "e": 1421503200000,
-                    "s": 1414850400000
-                }
-            ]
-        },
-        {
-            "name": "Europe/London",
-            "rules": [
-                {
-                    "e": 1224982800000,
-                    "s": 1206838800000
-                },
-                {
-                    "e": 1256432400000,
-                    "s": 1238288400000
-                },
-                {
-                    "e": 1288486800000,
-                    "s": 1269738000000
-                },
-                {
-                    "e": 1319936400000,
-                    "s": 1301187600000
-                },
-                {
-                    "e": 1351386000000,
-                    "s": 1332637200000
-                },
-                {
-                    "e": 1382835600000,
-                    "s": 1364691600000
-                },
-                {
-                    "e": 1414285200000,
-                    "s": 1396141200000
-                }
-            ]
-        }
-    ]
-};
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = jstz;
-} else if ((typeof define !== 'undefined' && define !== null) && (define.amd != null)) {
-    define([], function() {
-        return jstz;
-    });
-} else {
-    if (typeof root === 'undefined') {
-        window.jstz = jstz;
-    } else {
-        root.jstz = jstz;
-    }
-}
-}());
 
 },{}],12:[function(require,module,exports){
 // Mingo.js 0.4.0
@@ -9849,13 +8775,13 @@ code.google.com/p/crypto-js/wiki/License
 });
 
 },{}],34:[function(require,module,exports){
-(function (process,global){
+(function (process){
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
- * @version   3.1.0
+ * @version   3.0.17
  */
 
 (function() {
@@ -9985,10 +8911,6 @@ code.google.com/p/crypto-js/wiki/License
         @param {Function} callback function to be called when the event is triggered.
       */
       'on': function(eventName, callback) {
-        if (typeof callback !== 'function') {
-          throw new TypeError('Callback must be a function');
-        }
-
         var allCallbacks = lib$rsvp$events$$callbacksFor(this), callbacks;
 
         callbacks = allCallbacks[eventName];
@@ -10083,10 +9005,10 @@ code.google.com/p/crypto-js/wiki/License
         @for RSVP.EventTarget
         @private
         @param {String} eventName name of the event to be triggered
-        @param {*} options optional value to be passed to any event handlers for
+        @param {Any} options optional value to be passed to any event handlers for
         the given `eventName`
       */
-      'trigger': function(eventName, options, label) {
+      'trigger': function(eventName, options) {
         var allCallbacks = lib$rsvp$events$$callbacksFor(this), callbacks, callback;
 
         if (callbacks = allCallbacks[eventName]) {
@@ -10094,7 +9016,7 @@ code.google.com/p/crypto-js/wiki/License
           for (var i=0; i<callbacks.length; i++) {
             callback = callbacks[i];
 
-            callback(options, label);
+            callback(options);
           }
         }
       }
@@ -10146,19 +9068,19 @@ code.google.com/p/crypto-js/wiki/License
 
     function lib$rsvp$instrument$$instrument(eventName, promise, child) {
       if (1 === lib$rsvp$instrument$$queue.push({
-        name: eventName,
-        payload: {
-          key: promise._guidKey,
-          id:  promise._id,
-          eventName: eventName,
-          detail: promise._result,
-          childId: child && child._id,
-          label: promise._label,
-          timeStamp: lib$rsvp$utils$$now(),
-          error: lib$rsvp$config$$config["instrument-with-stack"] ? new Error(promise._label) : null
-        }})) {
-          lib$rsvp$instrument$$scheduleFlush();
-        }
+          name: eventName,
+          payload: {
+            key: promise._guidKey,
+            id:  promise._id,
+            eventName: eventName,
+            detail: promise._result,
+            childId: child && child._id,
+            label: promise._label,
+            timeStamp: lib$rsvp$utils$$now(),
+            error: lib$rsvp$config$$config["instrument-with-stack"] ? new Error(promise._label) : null
+          }})) {
+            lib$rsvp$instrument$$scheduleFlush();
+          }
       }
     var lib$rsvp$instrument$$default = lib$rsvp$instrument$$instrument;
 
@@ -10411,7 +9333,7 @@ code.google.com/p/crypto-js/wiki/License
           value: value
         };
       } else {
-         return {
+        return {
           state: 'rejected',
           reason: value
         };
@@ -10419,30 +9341,28 @@ code.google.com/p/crypto-js/wiki/License
     }
 
     function lib$rsvp$enumerator$$Enumerator(Constructor, input, abortOnReject, label) {
-      var enumerator = this;
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor(lib$rsvp$$internal$$noop, label);
+      this._abortOnReject = abortOnReject;
 
-      enumerator._instanceConstructor = Constructor;
-      enumerator.promise = new Constructor(lib$rsvp$$internal$$noop, label);
-      enumerator._abortOnReject = abortOnReject;
+      if (this._validateInput(input)) {
+        this._input     = input;
+        this.length     = input.length;
+        this._remaining = input.length;
 
-      if (enumerator._validateInput(input)) {
-        enumerator._input     = input;
-        enumerator.length     = input.length;
-        enumerator._remaining = input.length;
+        this._init();
 
-        enumerator._init();
-
-        if (enumerator.length === 0) {
-          lib$rsvp$$internal$$fulfill(enumerator.promise, enumerator._result);
+        if (this.length === 0) {
+          lib$rsvp$$internal$$fulfill(this.promise, this._result);
         } else {
-          enumerator.length = enumerator.length || 0;
-          enumerator._enumerate();
-          if (enumerator._remaining === 0) {
-            lib$rsvp$$internal$$fulfill(enumerator.promise, enumerator._result);
+          this.length = this.length || 0;
+          this._enumerate();
+          if (this._remaining === 0) {
+            lib$rsvp$$internal$$fulfill(this.promise, this._result);
           }
         }
       } else {
-        lib$rsvp$$internal$$reject(enumerator.promise, enumerator._validationError());
+        lib$rsvp$$internal$$reject(this.promise, this._validationError());
       }
     }
 
@@ -10461,48 +9381,45 @@ code.google.com/p/crypto-js/wiki/License
     };
 
     lib$rsvp$enumerator$$Enumerator.prototype._enumerate = function() {
-      var enumerator = this;
-      var length     = enumerator.length;
-      var promise    = enumerator.promise;
-      var input      = enumerator._input;
+      var length  = this.length;
+      var promise = this.promise;
+      var input   = this._input;
 
       for (var i = 0; promise._state === lib$rsvp$$internal$$PENDING && i < length; i++) {
-        enumerator._eachEntry(input[i], i);
+        this._eachEntry(input[i], i);
       }
     };
 
     lib$rsvp$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
-      var enumerator = this;
-      var c = enumerator._instanceConstructor;
+      var c = this._instanceConstructor;
       if (lib$rsvp$utils$$isMaybeThenable(entry)) {
         if (entry.constructor === c && entry._state !== lib$rsvp$$internal$$PENDING) {
           entry._onError = null;
-          enumerator._settledAt(entry._state, i, entry._result);
+          this._settledAt(entry._state, i, entry._result);
         } else {
-          enumerator._willSettleAt(c.resolve(entry), i);
+          this._willSettleAt(c.resolve(entry), i);
         }
       } else {
-        enumerator._remaining--;
-        enumerator._result[i] = enumerator._makeResult(lib$rsvp$$internal$$FULFILLED, i, entry);
+        this._remaining--;
+        this._result[i] = this._makeResult(lib$rsvp$$internal$$FULFILLED, i, entry);
       }
     };
 
     lib$rsvp$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
-      var enumerator = this;
-      var promise = enumerator.promise;
+      var promise = this.promise;
 
       if (promise._state === lib$rsvp$$internal$$PENDING) {
-        enumerator._remaining--;
+        this._remaining--;
 
-        if (enumerator._abortOnReject && state === lib$rsvp$$internal$$REJECTED) {
+        if (this._abortOnReject && state === lib$rsvp$$internal$$REJECTED) {
           lib$rsvp$$internal$$reject(promise, value);
         } else {
-          enumerator._result[i] = enumerator._makeResult(state, i, value);
+          this._result[i] = this._makeResult(state, i, value);
         }
       }
 
-      if (enumerator._remaining === 0) {
-        lib$rsvp$$internal$$fulfill(promise, enumerator._result);
+      if (this._remaining === 0) {
+        lib$rsvp$$internal$$fulfill(promise, this._result);
       }
     };
 
@@ -10584,17 +9501,119 @@ code.google.com/p/crypto-js/wiki/License
       throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
     }
 
-    function lib$rsvp$promise$$Promise(resolver, label) {
-      var promise = this;
+    /**
+      Promise objects represent the eventual result of an asynchronous operation. The
+      primary way of interacting with a promise is through its `then` method, which
+      registers callbacks to receive either a promise’s eventual value or the reason
+      why the promise cannot be fulfilled.
 
-      promise._id = lib$rsvp$promise$$counter++;
-      promise._label = label;
-      promise._state = undefined;
-      promise._result = undefined;
-      promise._subscribers = [];
+      Terminology
+      -----------
+
+      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+      - `thenable` is an object or function that defines a `then` method.
+      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+      - `exception` is a value that is thrown using the throw statement.
+      - `reason` is a value that indicates why a promise was rejected.
+      - `settled` the final resting state of a promise, fulfilled or rejected.
+
+      A promise can be in one of three states: pending, fulfilled, or rejected.
+
+      Promises that are fulfilled have a fulfillment value and are in the fulfilled
+      state.  Promises that are rejected have a rejection reason and are in the
+      rejected state.  A fulfillment value is never a thenable.
+
+      Promises can also be said to *resolve* a value.  If this value is also a
+      promise, then the original promise's settled state will match the value's
+      settled state.  So a promise that *resolves* a promise that rejects will
+      itself reject, and a promise that *resolves* a promise that fulfills will
+      itself fulfill.
+
+
+      Basic Usage:
+      ------------
+
+      ```js
+      var promise = new Promise(function(resolve, reject) {
+        // on success
+        resolve(value);
+
+        // on failure
+        reject(reason);
+      });
+
+      promise.then(function(value) {
+        // on fulfillment
+      }, function(reason) {
+        // on rejection
+      });
+      ```
+
+      Advanced Usage:
+      ---------------
+
+      Promises shine when abstracting away asynchronous interactions such as
+      `XMLHttpRequest`s.
+
+      ```js
+      function getJSON(url) {
+        return new Promise(function(resolve, reject){
+          var xhr = new XMLHttpRequest();
+
+          xhr.open('GET', url);
+          xhr.onreadystatechange = handler;
+          xhr.responseType = 'json';
+          xhr.setRequestHeader('Accept', 'application/json');
+          xhr.send();
+
+          function handler() {
+            if (this.readyState === this.DONE) {
+              if (this.status === 200) {
+                resolve(this.response);
+              } else {
+                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+              }
+            }
+          };
+        });
+      }
+
+      getJSON('/posts.json').then(function(json) {
+        // on fulfillment
+      }, function(reason) {
+        // on rejection
+      });
+      ```
+
+      Unlike callbacks, promises are great composable primitives.
+
+      ```js
+      Promise.all([
+        getJSON('/posts'),
+        getJSON('/comments')
+      ]).then(function(values){
+        values[0] // => postsJSON
+        values[1] // => commentsJSON
+
+        return values;
+      });
+      ```
+
+      @class RSVP.Promise
+      @param {function} resolver
+      @param {String} label optional string for labeling the promise.
+      Useful for tooling.
+      @constructor
+    */
+    function lib$rsvp$promise$$Promise(resolver, label) {
+      this._id = lib$rsvp$promise$$counter++;
+      this._label = label;
+      this._state = undefined;
+      this._result = undefined;
+      this._subscribers = [];
 
       if (lib$rsvp$config$$config.instrument) {
-        lib$rsvp$instrument$$default('created', promise);
+        lib$rsvp$instrument$$default('created', this);
       }
 
       if (lib$rsvp$$internal$$noop !== resolver) {
@@ -10602,11 +9621,11 @@ code.google.com/p/crypto-js/wiki/License
           lib$rsvp$promise$$needsResolver();
         }
 
-        if (!(promise instanceof lib$rsvp$promise$$Promise)) {
+        if (!(this instanceof lib$rsvp$promise$$Promise)) {
           lib$rsvp$promise$$needsNew();
         }
 
-        lib$rsvp$$internal$$initializePromise(promise, resolver);
+        lib$rsvp$$internal$$initializePromise(this, resolver);
       }
     }
 
@@ -10625,12 +9644,13 @@ code.google.com/p/crypto-js/wiki/License
       _guidKey: lib$rsvp$promise$$guidKey,
 
       _onError: function (reason) {
-        var promise = this;
-        lib$rsvp$config$$config.after(function() {
-          if (promise._onError) {
-            lib$rsvp$config$$config['trigger']('error', reason, promise._label);
-          }
-        });
+        lib$rsvp$config$$config.async(function(promise) {
+          setTimeout(function() {
+            if (promise._onError) {
+              lib$rsvp$config$$config['trigger']('error', reason);
+            }
+          }, 0);
+        }, this);
       },
 
     /**
@@ -10821,8 +9841,8 @@ code.google.com/p/crypto-js/wiki/License
       ```
 
       @method then
-      @param {Function} onFulfillment
-      @param {Function} onRejection
+      @param {Function} onFulfilled
+      @param {Function} onRejected
       @param {String} label optional string for labeling the promise.
       Useful for tooling.
       @return {Promise}
@@ -10833,14 +9853,14 @@ code.google.com/p/crypto-js/wiki/License
 
         if (state === lib$rsvp$$internal$$FULFILLED && !onFulfillment || state === lib$rsvp$$internal$$REJECTED && !onRejection) {
           if (lib$rsvp$config$$config.instrument) {
-            lib$rsvp$instrument$$default('chained', parent, parent);
+            lib$rsvp$instrument$$default('chained', this, this);
           }
-          return parent;
+          return this;
         }
 
         parent._onError = null;
 
-        var child = new parent.constructor(lib$rsvp$$internal$$noop, label);
+        var child = new this.constructor(lib$rsvp$$internal$$noop, label);
         var result = parent._result;
 
         if (lib$rsvp$config$$config.instrument) {
@@ -10888,7 +9908,7 @@ code.google.com/p/crypto-js/wiki/License
       @return {Promise}
     */
       'catch': function(onRejection, label) {
-        return this.then(undefined, onRejection, label);
+        return this.then(null, onRejection, label);
       },
 
     /**
@@ -10932,10 +9952,9 @@ code.google.com/p/crypto-js/wiki/License
       @return {Promise}
     */
       'finally': function(callback, label) {
-        var promise = this;
-        var constructor = promise.constructor;
+        var constructor = this.constructor;
 
-        return promise.then(function(value) {
+        return this.then(function(value) {
           return constructor.resolve(callback()).then(function(){
             return value;
           });
@@ -10986,8 +10005,7 @@ code.google.com/p/crypto-js/wiki/License
     var lib$rsvp$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
     var lib$rsvp$asap$$browserGlobal = lib$rsvp$asap$$browserWindow || {};
     var lib$rsvp$asap$$BrowserMutationObserver = lib$rsvp$asap$$browserGlobal.MutationObserver || lib$rsvp$asap$$browserGlobal.WebKitMutationObserver;
-    var lib$rsvp$asap$$isNode = typeof self === 'undefined' &&
-      typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+    var lib$rsvp$asap$$isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
     // test for web worker but not in IE10
     var lib$rsvp$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
@@ -11081,7 +10099,7 @@ code.google.com/p/crypto-js/wiki/License
       lib$rsvp$asap$$scheduleFlush = lib$rsvp$asap$$useSetTimeout();
     }
     function lib$rsvp$defer$$defer(label) {
-      var deferred = {};
+      var deferred = { };
 
       deferred['promise'] = new lib$rsvp$promise$$default(function(resolve, reject) {
         deferred['resolve'] = resolve;
@@ -11144,13 +10162,12 @@ code.google.com/p/crypto-js/wiki/License
     };
 
     lib$rsvp$promise$hash$$PromiseHash.prototype._enumerate = function() {
-      var enumerator = this;
-      var promise    = enumerator.promise;
-      var input      = enumerator._input;
-      var results    = [];
+      var promise = this.promise;
+      var input   = this._input;
+      var results = [];
 
       for (var key in input) {
-        if (promise._state === lib$rsvp$$internal$$PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
+        if (promise._state === lib$rsvp$$internal$$PENDING && input.hasOwnProperty(key)) {
           results.push({
             position: key,
             entry: input[key]
@@ -11159,12 +10176,12 @@ code.google.com/p/crypto-js/wiki/License
       }
 
       var length = results.length;
-      enumerator._remaining = length;
+      this._remaining = length;
       var result;
 
       for (var i = 0; promise._state === lib$rsvp$$internal$$PENDING && i < length; i++) {
         result = results[i];
-        enumerator._eachEntry(result.entry, result.position);
+        this._eachEntry(result.entry, result.position);
       }
     };
 
@@ -11353,20 +10370,6 @@ code.google.com/p/crypto-js/wiki/License
         return false;
       }
     }
-    var lib$rsvp$platform$$platform;
-
-    /* global self */
-    if (typeof self === 'object') {
-      lib$rsvp$platform$$platform = self;
-
-    /* global global */
-    } else if (typeof global === 'object') {
-      lib$rsvp$platform$$platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
-    }
-
-    var lib$rsvp$platform$$default = lib$rsvp$platform$$platform;
     function lib$rsvp$race$$race(array, label) {
       return lib$rsvp$promise$$default.race(array, label);
     }
@@ -11387,11 +10390,8 @@ code.google.com/p/crypto-js/wiki/License
     }
     var lib$rsvp$rethrow$$default = lib$rsvp$rethrow$$rethrow;
 
-    // defaults
+    // default async is asap;
     lib$rsvp$config$$config.async = lib$rsvp$asap$$default;
-    lib$rsvp$config$$config.after = function(cb) {
-      setTimeout(cb, 0);
-    };
     var lib$rsvp$$cast = lib$rsvp$resolve$$default;
     function lib$rsvp$$async(callback, arg) {
       lib$rsvp$config$$config.async(callback, arg);
@@ -11442,16 +10442,16 @@ code.google.com/p/crypto-js/wiki/License
       define(function() { return lib$rsvp$umd$$RSVP; });
     } else if (typeof module !== 'undefined' && module['exports']) {
       module['exports'] = lib$rsvp$umd$$RSVP;
-    } else if (typeof lib$rsvp$platform$$default !== 'undefined') {
-      lib$rsvp$platform$$default['RSVP'] = lib$rsvp$umd$$RSVP;
+    } else if (typeof this !== 'undefined') {
+      this['RSVP'] = lib$rsvp$umd$$RSVP;
     }
 }).call(this);
 
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this,require('_process'))
 
 },{"_process":4}],35:[function(require,module,exports){
-//     Underscore.js 1.8.3
+//     Underscore.js 1.8.2
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
@@ -11508,7 +10508,7 @@ code.google.com/p/crypto-js/wiki/License
   }
 
   // Current version.
-  _.VERSION = '1.8.3';
+  _.VERSION = '1.8.2';
 
   // Internal function that returns an efficient (for current engines) version
   // of the passed-in callback, to be repeatedly applied in other Underscore
@@ -11575,20 +10575,12 @@ code.google.com/p/crypto-js/wiki/License
     return result;
   };
 
-  var property = function(key) {
-    return function(obj) {
-      return obj == null ? void 0 : obj[key];
-    };
-  };
-
   // Helper for collection methods to determine whether a collection
   // should be iterated as an array or as an object
   // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-  var getLength = property('length');
   var isArrayLike = function(collection) {
-    var length = getLength(collection);
+    var length = collection && collection.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 
@@ -11713,12 +10705,11 @@ code.google.com/p/crypto-js/wiki/License
     return false;
   };
 
-  // Determine if the array or object contains a given item (using `===`).
+  // Determine if the array or object contains a given value (using `===`).
   // Aliased as `includes` and `include`.
-  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+  _.contains = _.includes = _.include = function(obj, target, fromIndex) {
     if (!isArrayLike(obj)) obj = _.values(obj);
-    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
-    return _.indexOf(obj, item, fromIndex) >= 0;
+    return _.indexOf(obj, target, typeof fromIndex == 'number' && fromIndex) >= 0;
   };
 
   // Invoke a method (with arguments) on every item in a collection.
@@ -11942,7 +10933,7 @@ code.google.com/p/crypto-js/wiki/License
   // Internal implementation of a recursive `flatten` function.
   var flatten = function(input, shallow, strict, startIndex) {
     var output = [], idx = 0;
-    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
+    for (var i = startIndex || 0, length = input && input.length; i < length; i++) {
       var value = input[i];
       if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
         //flatten current level of array or arguments object
@@ -11973,6 +10964,7 @@ code.google.com/p/crypto-js/wiki/License
   // been sorted, you have the option of using a faster algorithm.
   // Aliased as `unique`.
   _.uniq = _.unique = function(array, isSorted, iteratee, context) {
+    if (array == null) return [];
     if (!_.isBoolean(isSorted)) {
       context = iteratee;
       iteratee = isSorted;
@@ -11981,7 +10973,7 @@ code.google.com/p/crypto-js/wiki/License
     if (iteratee != null) iteratee = cb(iteratee, context);
     var result = [];
     var seen = [];
-    for (var i = 0, length = getLength(array); i < length; i++) {
+    for (var i = 0, length = array.length; i < length; i++) {
       var value = array[i],
           computed = iteratee ? iteratee(value, i, array) : value;
       if (isSorted) {
@@ -12008,9 +11000,10 @@ code.google.com/p/crypto-js/wiki/License
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
   _.intersection = function(array) {
+    if (array == null) return [];
     var result = [];
     var argsLength = arguments.length;
-    for (var i = 0, length = getLength(array); i < length; i++) {
+    for (var i = 0, length = array.length; i < length; i++) {
       var item = array[i];
       if (_.contains(result, item)) continue;
       for (var j = 1; j < argsLength; j++) {
@@ -12039,7 +11032,7 @@ code.google.com/p/crypto-js/wiki/License
   // Complement of _.zip. Unzip accepts an array of arrays and groups
   // each array's elements on shared indices
   _.unzip = function(array) {
-    var length = array && _.max(array, getLength).length || 0;
+    var length = array && _.max(array, 'length').length || 0;
     var result = Array(length);
 
     for (var index = 0; index < length; index++) {
@@ -12053,7 +11046,7 @@ code.google.com/p/crypto-js/wiki/License
   // the corresponding values.
   _.object = function(list, values) {
     var result = {};
-    for (var i = 0, length = getLength(list); i < length; i++) {
+    for (var i = 0, length = list && list.length; i < length; i++) {
       if (values) {
         result[list[i]] = values[i];
       } else {
@@ -12063,11 +11056,42 @@ code.google.com/p/crypto-js/wiki/License
     return result;
   };
 
+  // Return the position of the first occurrence of an item in an array,
+  // or -1 if the item is not included in the array.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = function(array, item, isSorted) {
+    var i = 0, length = array && array.length;
+    if (typeof isSorted == 'number') {
+      i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
+    } else if (isSorted && length) {
+      i = _.sortedIndex(array, item);
+      return array[i] === item ? i : -1;
+    }
+    if (item !== item) {
+      return _.findIndex(slice.call(array, i), _.isNaN);
+    }
+    for (; i < length; i++) if (array[i] === item) return i;
+    return -1;
+  };
+
+  _.lastIndexOf = function(array, item, from) {
+    var idx = array ? array.length : 0;
+    if (typeof from == 'number') {
+      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
+    }
+    if (item !== item) {
+      return _.findLastIndex(slice.call(array, 0, idx), _.isNaN);
+    }
+    while (--idx >= 0) if (array[idx] === item) return idx;
+    return -1;
+  };
+
   // Generator function to create the findIndex and findLastIndex functions
-  function createPredicateIndexFinder(dir) {
+  function createIndexFinder(dir) {
     return function(array, predicate, context) {
       predicate = cb(predicate, context);
-      var length = getLength(array);
+      var length = array != null && array.length;
       var index = dir > 0 ? 0 : length - 1;
       for (; index >= 0 && index < length; index += dir) {
         if (predicate(array[index], index, array)) return index;
@@ -12077,15 +11101,16 @@ code.google.com/p/crypto-js/wiki/License
   }
 
   // Returns the first index on an array-like that passes a predicate test
-  _.findIndex = createPredicateIndexFinder(1);
-  _.findLastIndex = createPredicateIndexFinder(-1);
+  _.findIndex = createIndexFinder(1);
+
+  _.findLastIndex = createIndexFinder(-1);
 
   // Use a comparator function to figure out the smallest index at which
   // an object should be inserted so as to maintain order. Uses binary search.
   _.sortedIndex = function(array, obj, iteratee, context) {
     iteratee = cb(iteratee, context, 1);
     var value = iteratee(obj);
-    var low = 0, high = getLength(array);
+    var low = 0, high = array.length;
     while (low < high) {
       var mid = Math.floor((low + high) / 2);
       if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
@@ -12093,43 +11118,11 @@ code.google.com/p/crypto-js/wiki/License
     return low;
   };
 
-  // Generator function to create the indexOf and lastIndexOf functions
-  function createIndexFinder(dir, predicateFind, sortedIndex) {
-    return function(array, item, idx) {
-      var i = 0, length = getLength(array);
-      if (typeof idx == 'number') {
-        if (dir > 0) {
-            i = idx >= 0 ? idx : Math.max(idx + length, i);
-        } else {
-            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
-        }
-      } else if (sortedIndex && idx && length) {
-        idx = sortedIndex(array, item);
-        return array[idx] === item ? idx : -1;
-      }
-      if (item !== item) {
-        idx = predicateFind(slice.call(array, i, length), _.isNaN);
-        return idx >= 0 ? idx + i : -1;
-      }
-      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
-        if (array[idx] === item) return idx;
-      }
-      return -1;
-    };
-  }
-
-  // Return the position of the first occurrence of an item in an array,
-  // or -1 if the item is not included in the array.
-  // If the array is large and already in sort order, pass `true`
-  // for **isSorted** to use binary search.
-  _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
-  _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
-
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
   // [the Python documentation](http://docs.python.org/library/functions.html#range).
   _.range = function(start, stop, step) {
-    if (stop == null) {
+    if (arguments.length <= 1) {
       stop = start || 0;
       start = 0;
     }
@@ -12508,15 +11501,6 @@ code.google.com/p/crypto-js/wiki/License
   // Fill in a given object with default properties.
   _.defaults = createAssigner(_.allKeys, true);
 
-  // Creates an object that inherits from the given prototype object.
-  // If additional properties are provided then they will be added to the
-  // created object.
-  _.create = function(prototype, props) {
-    var result = baseCreate(prototype);
-    if (props) _.extendOwn(result, props);
-    return result;
-  };
-
   // Create a (shallow-cloned) duplicate of an object.
   _.clone = function(obj) {
     if (!_.isObject(obj)) return obj;
@@ -12594,7 +11578,7 @@ code.google.com/p/crypto-js/wiki/License
     }
     // Assume equality for cyclic structures. The algorithm for detecting cyclic
     // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-
+    
     // Initializing stack of traversed objects.
     // It's done here since we only need them for objects and arrays comparison.
     aStack = aStack || [];
@@ -12745,7 +11729,11 @@ code.google.com/p/crypto-js/wiki/License
 
   _.noop = function(){};
 
-  _.property = property;
+  _.property = function(key) {
+    return function(obj) {
+      return obj == null ? void 0 : obj[key];
+    };
+  };
 
   // Generates a function for a given object that returns a given property.
   _.propertyOf = function(obj) {
@@ -12754,7 +11742,7 @@ code.google.com/p/crypto-js/wiki/License
     };
   };
 
-  // Returns a predicate for checking whether an object has a given set of
+  // Returns a predicate for checking whether an object has a given set of 
   // `key:value` pairs.
   _.matcher = _.matches = function(attrs) {
     attrs = _.extendOwn({}, attrs);
@@ -12981,7 +11969,7 @@ code.google.com/p/crypto-js/wiki/License
   // Provide unwrapping proxy for some methods used in engine operations
   // such as arithmetic and JSON stringification.
   _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
-
+  
   _.prototype.toString = function() {
     return '' + this._wrapped;
   };
@@ -15208,1544 +14196,8 @@ module.exports = RelationTreeBuilder;
 }).call(this,require('_process'))
 
 },{"_process":4}],43:[function(require,module,exports){
-//     Underscore.js 1.8.2
-//     http://underscorejs.org
-//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-//     Underscore may be freely distributed under the MIT license.
-
-(function() {
-
-  // Baseline setup
-  // --------------
-
-  // Establish the root object, `window` in the browser, or `exports` on the server.
-  var root = this;
-
-  // Save the previous value of the `_` variable.
-  var previousUnderscore = root._;
-
-  // Save bytes in the minified (but not gzipped) version:
-  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
-
-  // Create quick reference variables for speed access to core prototypes.
-  var
-    push             = ArrayProto.push,
-    slice            = ArrayProto.slice,
-    toString         = ObjProto.toString,
-    hasOwnProperty   = ObjProto.hasOwnProperty;
-
-  // All **ECMAScript 5** native function implementations that we hope to use
-  // are declared here.
-  var
-    nativeIsArray      = Array.isArray,
-    nativeKeys         = Object.keys,
-    nativeBind         = FuncProto.bind,
-    nativeCreate       = Object.create;
-
-  // Naked function reference for surrogate-prototype-swapping.
-  var Ctor = function(){};
-
-  // Create a safe reference to the Underscore object for use below.
-  var _ = function(obj) {
-    if (obj instanceof _) return obj;
-    if (!(this instanceof _)) return new _(obj);
-    this._wrapped = obj;
-  };
-
-  // Export the Underscore object for **Node.js**, with
-  // backwards-compatibility for the old `require()` API. If we're in
-  // the browser, add `_` as a global object.
-  if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = _;
-    }
-    exports._ = _;
-  } else {
-    root._ = _;
-  }
-
-  // Current version.
-  _.VERSION = '1.8.2';
-
-  // Internal function that returns an efficient (for current engines) version
-  // of the passed-in callback, to be repeatedly applied in other Underscore
-  // functions.
-  var optimizeCb = function(func, context, argCount) {
-    if (context === void 0) return func;
-    switch (argCount == null ? 3 : argCount) {
-      case 1: return function(value) {
-        return func.call(context, value);
-      };
-      case 2: return function(value, other) {
-        return func.call(context, value, other);
-      };
-      case 3: return function(value, index, collection) {
-        return func.call(context, value, index, collection);
-      };
-      case 4: return function(accumulator, value, index, collection) {
-        return func.call(context, accumulator, value, index, collection);
-      };
-    }
-    return function() {
-      return func.apply(context, arguments);
-    };
-  };
-
-  // A mostly-internal function to generate callbacks that can be applied
-  // to each element in a collection, returning the desired result — either
-  // identity, an arbitrary callback, a property matcher, or a property accessor.
-  var cb = function(value, context, argCount) {
-    if (value == null) return _.identity;
-    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
-    if (_.isObject(value)) return _.matcher(value);
-    return _.property(value);
-  };
-  _.iteratee = function(value, context) {
-    return cb(value, context, Infinity);
-  };
-
-  // An internal function for creating assigner functions.
-  var createAssigner = function(keysFunc, undefinedOnly) {
-    return function(obj) {
-      var length = arguments.length;
-      if (length < 2 || obj == null) return obj;
-      for (var index = 1; index < length; index++) {
-        var source = arguments[index],
-            keys = keysFunc(source),
-            l = keys.length;
-        for (var i = 0; i < l; i++) {
-          var key = keys[i];
-          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
-        }
-      }
-      return obj;
-    };
-  };
-
-  // An internal function for creating a new object that inherits from another.
-  var baseCreate = function(prototype) {
-    if (!_.isObject(prototype)) return {};
-    if (nativeCreate) return nativeCreate(prototype);
-    Ctor.prototype = prototype;
-    var result = new Ctor;
-    Ctor.prototype = null;
-    return result;
-  };
-
-  // Helper for collection methods to determine whether a collection
-  // should be iterated as an array or as an object
-  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
-  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-  var isArrayLike = function(collection) {
-    var length = collection && collection.length;
-    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
-  };
-
-  // Collection Functions
-  // --------------------
-
-  // The cornerstone, an `each` implementation, aka `forEach`.
-  // Handles raw objects in addition to array-likes. Treats all
-  // sparse array-likes as if they were dense.
-  _.each = _.forEach = function(obj, iteratee, context) {
-    iteratee = optimizeCb(iteratee, context);
-    var i, length;
-    if (isArrayLike(obj)) {
-      for (i = 0, length = obj.length; i < length; i++) {
-        iteratee(obj[i], i, obj);
-      }
-    } else {
-      var keys = _.keys(obj);
-      for (i = 0, length = keys.length; i < length; i++) {
-        iteratee(obj[keys[i]], keys[i], obj);
-      }
-    }
-    return obj;
-  };
-
-  // Return the results of applying the iteratee to each element.
-  _.map = _.collect = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length,
-        results = Array(length);
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      results[index] = iteratee(obj[currentKey], currentKey, obj);
-    }
-    return results;
-  };
-
-  // Create a reducing function iterating left or right.
-  function createReduce(dir) {
-    // Optimized iterator function as using arguments.length
-    // in the main function will deoptimize the, see #1991.
-    function iterator(obj, iteratee, memo, keys, index, length) {
-      for (; index >= 0 && index < length; index += dir) {
-        var currentKey = keys ? keys[index] : index;
-        memo = iteratee(memo, obj[currentKey], currentKey, obj);
-      }
-      return memo;
-    }
-
-    return function(obj, iteratee, memo, context) {
-      iteratee = optimizeCb(iteratee, context, 4);
-      var keys = !isArrayLike(obj) && _.keys(obj),
-          length = (keys || obj).length,
-          index = dir > 0 ? 0 : length - 1;
-      // Determine the initial value if none is provided.
-      if (arguments.length < 3) {
-        memo = obj[keys ? keys[index] : index];
-        index += dir;
-      }
-      return iterator(obj, iteratee, memo, keys, index, length);
-    };
-  }
-
-  // **Reduce** builds up a single result from a list of values, aka `inject`,
-  // or `foldl`.
-  _.reduce = _.foldl = _.inject = createReduce(1);
-
-  // The right-associative version of reduce, also known as `foldr`.
-  _.reduceRight = _.foldr = createReduce(-1);
-
-  // Return the first value which passes a truth test. Aliased as `detect`.
-  _.find = _.detect = function(obj, predicate, context) {
-    var key;
-    if (isArrayLike(obj)) {
-      key = _.findIndex(obj, predicate, context);
-    } else {
-      key = _.findKey(obj, predicate, context);
-    }
-    if (key !== void 0 && key !== -1) return obj[key];
-  };
-
-  // Return all the elements that pass a truth test.
-  // Aliased as `select`.
-  _.filter = _.select = function(obj, predicate, context) {
-    var results = [];
-    predicate = cb(predicate, context);
-    _.each(obj, function(value, index, list) {
-      if (predicate(value, index, list)) results.push(value);
-    });
-    return results;
-  };
-
-  // Return all the elements for which a truth test fails.
-  _.reject = function(obj, predicate, context) {
-    return _.filter(obj, _.negate(cb(predicate)), context);
-  };
-
-  // Determine whether all of the elements match a truth test.
-  // Aliased as `all`.
-  _.every = _.all = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length;
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      if (!predicate(obj[currentKey], currentKey, obj)) return false;
-    }
-    return true;
-  };
-
-  // Determine if at least one element in the object matches a truth test.
-  // Aliased as `any`.
-  _.some = _.any = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = !isArrayLike(obj) && _.keys(obj),
-        length = (keys || obj).length;
-    for (var index = 0; index < length; index++) {
-      var currentKey = keys ? keys[index] : index;
-      if (predicate(obj[currentKey], currentKey, obj)) return true;
-    }
-    return false;
-  };
-
-  // Determine if the array or object contains a given value (using `===`).
-  // Aliased as `includes` and `include`.
-  _.contains = _.includes = _.include = function(obj, target, fromIndex) {
-    if (!isArrayLike(obj)) obj = _.values(obj);
-    return _.indexOf(obj, target, typeof fromIndex == 'number' && fromIndex) >= 0;
-  };
-
-  // Invoke a method (with arguments) on every item in a collection.
-  _.invoke = function(obj, method) {
-    var args = slice.call(arguments, 2);
-    var isFunc = _.isFunction(method);
-    return _.map(obj, function(value) {
-      var func = isFunc ? method : value[method];
-      return func == null ? func : func.apply(value, args);
-    });
-  };
-
-  // Convenience version of a common use case of `map`: fetching a property.
-  _.pluck = function(obj, key) {
-    return _.map(obj, _.property(key));
-  };
-
-  // Convenience version of a common use case of `filter`: selecting only objects
-  // containing specific `key:value` pairs.
-  _.where = function(obj, attrs) {
-    return _.filter(obj, _.matcher(attrs));
-  };
-
-  // Convenience version of a common use case of `find`: getting the first object
-  // containing specific `key:value` pairs.
-  _.findWhere = function(obj, attrs) {
-    return _.find(obj, _.matcher(attrs));
-  };
-
-  // Return the maximum element (or element-based computation).
-  _.max = function(obj, iteratee, context) {
-    var result = -Infinity, lastComputed = -Infinity,
-        value, computed;
-    if (iteratee == null && obj != null) {
-      obj = isArrayLike(obj) ? obj : _.values(obj);
-      for (var i = 0, length = obj.length; i < length; i++) {
-        value = obj[i];
-        if (value > result) {
-          result = value;
-        }
-      }
-    } else {
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index, list) {
-        computed = iteratee(value, index, list);
-        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
-          result = value;
-          lastComputed = computed;
-        }
-      });
-    }
-    return result;
-  };
-
-  // Return the minimum element (or element-based computation).
-  _.min = function(obj, iteratee, context) {
-    var result = Infinity, lastComputed = Infinity,
-        value, computed;
-    if (iteratee == null && obj != null) {
-      obj = isArrayLike(obj) ? obj : _.values(obj);
-      for (var i = 0, length = obj.length; i < length; i++) {
-        value = obj[i];
-        if (value < result) {
-          result = value;
-        }
-      }
-    } else {
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index, list) {
-        computed = iteratee(value, index, list);
-        if (computed < lastComputed || computed === Infinity && result === Infinity) {
-          result = value;
-          lastComputed = computed;
-        }
-      });
-    }
-    return result;
-  };
-
-  // Shuffle a collection, using the modern version of the
-  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
-  _.shuffle = function(obj) {
-    var set = isArrayLike(obj) ? obj : _.values(obj);
-    var length = set.length;
-    var shuffled = Array(length);
-    for (var index = 0, rand; index < length; index++) {
-      rand = _.random(0, index);
-      if (rand !== index) shuffled[index] = shuffled[rand];
-      shuffled[rand] = set[index];
-    }
-    return shuffled;
-  };
-
-  // Sample **n** random values from a collection.
-  // If **n** is not specified, returns a single random element.
-  // The internal `guard` argument allows it to work with `map`.
-  _.sample = function(obj, n, guard) {
-    if (n == null || guard) {
-      if (!isArrayLike(obj)) obj = _.values(obj);
-      return obj[_.random(obj.length - 1)];
-    }
-    return _.shuffle(obj).slice(0, Math.max(0, n));
-  };
-
-  // Sort the object's values by a criterion produced by an iteratee.
-  _.sortBy = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    return _.pluck(_.map(obj, function(value, index, list) {
-      return {
-        value: value,
-        index: index,
-        criteria: iteratee(value, index, list)
-      };
-    }).sort(function(left, right) {
-      var a = left.criteria;
-      var b = right.criteria;
-      if (a !== b) {
-        if (a > b || a === void 0) return 1;
-        if (a < b || b === void 0) return -1;
-      }
-      return left.index - right.index;
-    }), 'value');
-  };
-
-  // An internal function used for aggregate "group by" operations.
-  var group = function(behavior) {
-    return function(obj, iteratee, context) {
-      var result = {};
-      iteratee = cb(iteratee, context);
-      _.each(obj, function(value, index) {
-        var key = iteratee(value, index, obj);
-        behavior(result, value, key);
-      });
-      return result;
-    };
-  };
-
-  // Groups the object's values by a criterion. Pass either a string attribute
-  // to group by, or a function that returns the criterion.
-  _.groupBy = group(function(result, value, key) {
-    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
-  });
-
-  // Indexes the object's values by a criterion, similar to `groupBy`, but for
-  // when you know that your index values will be unique.
-  _.indexBy = group(function(result, value, key) {
-    result[key] = value;
-  });
-
-  // Counts instances of an object that group by a certain criterion. Pass
-  // either a string attribute to count by, or a function that returns the
-  // criterion.
-  _.countBy = group(function(result, value, key) {
-    if (_.has(result, key)) result[key]++; else result[key] = 1;
-  });
-
-  // Safely create a real, live array from anything iterable.
-  _.toArray = function(obj) {
-    if (!obj) return [];
-    if (_.isArray(obj)) return slice.call(obj);
-    if (isArrayLike(obj)) return _.map(obj, _.identity);
-    return _.values(obj);
-  };
-
-  // Return the number of elements in an object.
-  _.size = function(obj) {
-    if (obj == null) return 0;
-    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
-  };
-
-  // Split a collection into two arrays: one whose elements all satisfy the given
-  // predicate, and one whose elements all do not satisfy the predicate.
-  _.partition = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var pass = [], fail = [];
-    _.each(obj, function(value, key, obj) {
-      (predicate(value, key, obj) ? pass : fail).push(value);
-    });
-    return [pass, fail];
-  };
-
-  // Array Functions
-  // ---------------
-
-  // Get the first element of an array. Passing **n** will return the first N
-  // values in the array. Aliased as `head` and `take`. The **guard** check
-  // allows it to work with `_.map`.
-  _.first = _.head = _.take = function(array, n, guard) {
-    if (array == null) return void 0;
-    if (n == null || guard) return array[0];
-    return _.initial(array, array.length - n);
-  };
-
-  // Returns everything but the last entry of the array. Especially useful on
-  // the arguments object. Passing **n** will return all the values in
-  // the array, excluding the last N.
-  _.initial = function(array, n, guard) {
-    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
-  };
-
-  // Get the last element of an array. Passing **n** will return the last N
-  // values in the array.
-  _.last = function(array, n, guard) {
-    if (array == null) return void 0;
-    if (n == null || guard) return array[array.length - 1];
-    return _.rest(array, Math.max(0, array.length - n));
-  };
-
-  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
-  // Especially useful on the arguments object. Passing an **n** will return
-  // the rest N values in the array.
-  _.rest = _.tail = _.drop = function(array, n, guard) {
-    return slice.call(array, n == null || guard ? 1 : n);
-  };
-
-  // Trim out all falsy values from an array.
-  _.compact = function(array) {
-    return _.filter(array, _.identity);
-  };
-
-  // Internal implementation of a recursive `flatten` function.
-  var flatten = function(input, shallow, strict, startIndex) {
-    var output = [], idx = 0;
-    for (var i = startIndex || 0, length = input && input.length; i < length; i++) {
-      var value = input[i];
-      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
-        //flatten current level of array or arguments object
-        if (!shallow) value = flatten(value, shallow, strict);
-        var j = 0, len = value.length;
-        output.length += len;
-        while (j < len) {
-          output[idx++] = value[j++];
-        }
-      } else if (!strict) {
-        output[idx++] = value;
-      }
-    }
-    return output;
-  };
-
-  // Flatten out an array, either recursively (by default), or just one level.
-  _.flatten = function(array, shallow) {
-    return flatten(array, shallow, false);
-  };
-
-  // Return a version of the array that does not contain the specified value(s).
-  _.without = function(array) {
-    return _.difference(array, slice.call(arguments, 1));
-  };
-
-  // Produce a duplicate-free version of the array. If the array has already
-  // been sorted, you have the option of using a faster algorithm.
-  // Aliased as `unique`.
-  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
-    if (array == null) return [];
-    if (!_.isBoolean(isSorted)) {
-      context = iteratee;
-      iteratee = isSorted;
-      isSorted = false;
-    }
-    if (iteratee != null) iteratee = cb(iteratee, context);
-    var result = [];
-    var seen = [];
-    for (var i = 0, length = array.length; i < length; i++) {
-      var value = array[i],
-          computed = iteratee ? iteratee(value, i, array) : value;
-      if (isSorted) {
-        if (!i || seen !== computed) result.push(value);
-        seen = computed;
-      } else if (iteratee) {
-        if (!_.contains(seen, computed)) {
-          seen.push(computed);
-          result.push(value);
-        }
-      } else if (!_.contains(result, value)) {
-        result.push(value);
-      }
-    }
-    return result;
-  };
-
-  // Produce an array that contains the union: each distinct element from all of
-  // the passed-in arrays.
-  _.union = function() {
-    return _.uniq(flatten(arguments, true, true));
-  };
-
-  // Produce an array that contains every item shared between all the
-  // passed-in arrays.
-  _.intersection = function(array) {
-    if (array == null) return [];
-    var result = [];
-    var argsLength = arguments.length;
-    for (var i = 0, length = array.length; i < length; i++) {
-      var item = array[i];
-      if (_.contains(result, item)) continue;
-      for (var j = 1; j < argsLength; j++) {
-        if (!_.contains(arguments[j], item)) break;
-      }
-      if (j === argsLength) result.push(item);
-    }
-    return result;
-  };
-
-  // Take the difference between one array and a number of other arrays.
-  // Only the elements present in just the first array will remain.
-  _.difference = function(array) {
-    var rest = flatten(arguments, true, true, 1);
-    return _.filter(array, function(value){
-      return !_.contains(rest, value);
-    });
-  };
-
-  // Zip together multiple lists into a single array -- elements that share
-  // an index go together.
-  _.zip = function() {
-    return _.unzip(arguments);
-  };
-
-  // Complement of _.zip. Unzip accepts an array of arrays and groups
-  // each array's elements on shared indices
-  _.unzip = function(array) {
-    var length = array && _.max(array, 'length').length || 0;
-    var result = Array(length);
-
-    for (var index = 0; index < length; index++) {
-      result[index] = _.pluck(array, index);
-    }
-    return result;
-  };
-
-  // Converts lists into objects. Pass either a single array of `[key, value]`
-  // pairs, or two parallel arrays of the same length -- one of keys, and one of
-  // the corresponding values.
-  _.object = function(list, values) {
-    var result = {};
-    for (var i = 0, length = list && list.length; i < length; i++) {
-      if (values) {
-        result[list[i]] = values[i];
-      } else {
-        result[list[i][0]] = list[i][1];
-      }
-    }
-    return result;
-  };
-
-  // Return the position of the first occurrence of an item in an array,
-  // or -1 if the item is not included in the array.
-  // If the array is large and already in sort order, pass `true`
-  // for **isSorted** to use binary search.
-  _.indexOf = function(array, item, isSorted) {
-    var i = 0, length = array && array.length;
-    if (typeof isSorted == 'number') {
-      i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
-    } else if (isSorted && length) {
-      i = _.sortedIndex(array, item);
-      return array[i] === item ? i : -1;
-    }
-    if (item !== item) {
-      return _.findIndex(slice.call(array, i), _.isNaN);
-    }
-    for (; i < length; i++) if (array[i] === item) return i;
-    return -1;
-  };
-
-  _.lastIndexOf = function(array, item, from) {
-    var idx = array ? array.length : 0;
-    if (typeof from == 'number') {
-      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
-    }
-    if (item !== item) {
-      return _.findLastIndex(slice.call(array, 0, idx), _.isNaN);
-    }
-    while (--idx >= 0) if (array[idx] === item) return idx;
-    return -1;
-  };
-
-  // Generator function to create the findIndex and findLastIndex functions
-  function createIndexFinder(dir) {
-    return function(array, predicate, context) {
-      predicate = cb(predicate, context);
-      var length = array != null && array.length;
-      var index = dir > 0 ? 0 : length - 1;
-      for (; index >= 0 && index < length; index += dir) {
-        if (predicate(array[index], index, array)) return index;
-      }
-      return -1;
-    };
-  }
-
-  // Returns the first index on an array-like that passes a predicate test
-  _.findIndex = createIndexFinder(1);
-
-  _.findLastIndex = createIndexFinder(-1);
-
-  // Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
-  _.sortedIndex = function(array, obj, iteratee, context) {
-    iteratee = cb(iteratee, context, 1);
-    var value = iteratee(obj);
-    var low = 0, high = array.length;
-    while (low < high) {
-      var mid = Math.floor((low + high) / 2);
-      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
-    }
-    return low;
-  };
-
-  // Generate an integer Array containing an arithmetic progression. A port of
-  // the native Python `range()` function. See
-  // [the Python documentation](http://docs.python.org/library/functions.html#range).
-  _.range = function(start, stop, step) {
-    if (arguments.length <= 1) {
-      stop = start || 0;
-      start = 0;
-    }
-    step = step || 1;
-
-    var length = Math.max(Math.ceil((stop - start) / step), 0);
-    var range = Array(length);
-
-    for (var idx = 0; idx < length; idx++, start += step) {
-      range[idx] = start;
-    }
-
-    return range;
-  };
-
-  // Function (ahem) Functions
-  // ------------------
-
-  // Determines whether to execute a function as a constructor
-  // or a normal function with the provided arguments
-  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
-    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
-    var self = baseCreate(sourceFunc.prototype);
-    var result = sourceFunc.apply(self, args);
-    if (_.isObject(result)) return result;
-    return self;
-  };
-
-  // Create a function bound to a given object (assigning `this`, and arguments,
-  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
-  // available.
-  _.bind = function(func, context) {
-    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
-    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
-    var args = slice.call(arguments, 2);
-    var bound = function() {
-      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
-    };
-    return bound;
-  };
-
-  // Partially apply a function by creating a version that has had some of its
-  // arguments pre-filled, without changing its dynamic `this` context. _ acts
-  // as a placeholder, allowing any combination of arguments to be pre-filled.
-  _.partial = function(func) {
-    var boundArgs = slice.call(arguments, 1);
-    var bound = function() {
-      var position = 0, length = boundArgs.length;
-      var args = Array(length);
-      for (var i = 0; i < length; i++) {
-        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
-      }
-      while (position < arguments.length) args.push(arguments[position++]);
-      return executeBound(func, bound, this, this, args);
-    };
-    return bound;
-  };
-
-  // Bind a number of an object's methods to that object. Remaining arguments
-  // are the method names to be bound. Useful for ensuring that all callbacks
-  // defined on an object belong to it.
-  _.bindAll = function(obj) {
-    var i, length = arguments.length, key;
-    if (length <= 1) throw new Error('bindAll must be passed function names');
-    for (i = 1; i < length; i++) {
-      key = arguments[i];
-      obj[key] = _.bind(obj[key], obj);
-    }
-    return obj;
-  };
-
-  // Memoize an expensive function by storing its results.
-  _.memoize = function(func, hasher) {
-    var memoize = function(key) {
-      var cache = memoize.cache;
-      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
-      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
-      return cache[address];
-    };
-    memoize.cache = {};
-    return memoize;
-  };
-
-  // Delays a function for the given number of milliseconds, and then calls
-  // it with the arguments supplied.
-  _.delay = function(func, wait) {
-    var args = slice.call(arguments, 2);
-    return setTimeout(function(){
-      return func.apply(null, args);
-    }, wait);
-  };
-
-  // Defers a function, scheduling it to run after the current call stack has
-  // cleared.
-  _.defer = _.partial(_.delay, _, 1);
-
-  // Returns a function, that, when invoked, will only be triggered at most once
-  // during a given window of time. Normally, the throttled function will run
-  // as much as it can, without ever going more than once per `wait` duration;
-  // but if you'd like to disable the execution on the leading edge, pass
-  // `{leading: false}`. To disable execution on the trailing edge, ditto.
-  _.throttle = function(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
-    var previous = 0;
-    if (!options) options = {};
-    var later = function() {
-      previous = options.leading === false ? 0 : _.now();
-      timeout = null;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    };
-    return function() {
-      var now = _.now();
-      if (!previous && options.leading === false) previous = now;
-      var remaining = wait - (now - previous);
-      context = this;
-      args = arguments;
-      if (remaining <= 0 || remaining > wait) {
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        previous = now;
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, remaining);
-      }
-      return result;
-    };
-  };
-
-  // Returns a function, that, as long as it continues to be invoked, will not
-  // be triggered. The function will be called after it stops being called for
-  // N milliseconds. If `immediate` is passed, trigger the function on the
-  // leading edge, instead of the trailing.
-  _.debounce = function(func, wait, immediate) {
-    var timeout, args, context, timestamp, result;
-
-    var later = function() {
-      var last = _.now() - timestamp;
-
-      if (last < wait && last >= 0) {
-        timeout = setTimeout(later, wait - last);
-      } else {
-        timeout = null;
-        if (!immediate) {
-          result = func.apply(context, args);
-          if (!timeout) context = args = null;
-        }
-      }
-    };
-
-    return function() {
-      context = this;
-      args = arguments;
-      timestamp = _.now();
-      var callNow = immediate && !timeout;
-      if (!timeout) timeout = setTimeout(later, wait);
-      if (callNow) {
-        result = func.apply(context, args);
-        context = args = null;
-      }
-
-      return result;
-    };
-  };
-
-  // Returns the first function passed as an argument to the second,
-  // allowing you to adjust arguments, run code before and after, and
-  // conditionally execute the original function.
-  _.wrap = function(func, wrapper) {
-    return _.partial(wrapper, func);
-  };
-
-  // Returns a negated version of the passed-in predicate.
-  _.negate = function(predicate) {
-    return function() {
-      return !predicate.apply(this, arguments);
-    };
-  };
-
-  // Returns a function that is the composition of a list of functions, each
-  // consuming the return value of the function that follows.
-  _.compose = function() {
-    var args = arguments;
-    var start = args.length - 1;
-    return function() {
-      var i = start;
-      var result = args[start].apply(this, arguments);
-      while (i--) result = args[i].call(this, result);
-      return result;
-    };
-  };
-
-  // Returns a function that will only be executed on and after the Nth call.
-  _.after = function(times, func) {
-    return function() {
-      if (--times < 1) {
-        return func.apply(this, arguments);
-      }
-    };
-  };
-
-  // Returns a function that will only be executed up to (but not including) the Nth call.
-  _.before = function(times, func) {
-    var memo;
-    return function() {
-      if (--times > 0) {
-        memo = func.apply(this, arguments);
-      }
-      if (times <= 1) func = null;
-      return memo;
-    };
-  };
-
-  // Returns a function that will be executed at most one time, no matter how
-  // often you call it. Useful for lazy initialization.
-  _.once = _.partial(_.before, 2);
-
-  // Object Functions
-  // ----------------
-
-  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
-  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
-                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
-
-  function collectNonEnumProps(obj, keys) {
-    var nonEnumIdx = nonEnumerableProps.length;
-    var constructor = obj.constructor;
-    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
-
-    // Constructor is a special case.
-    var prop = 'constructor';
-    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
-
-    while (nonEnumIdx--) {
-      prop = nonEnumerableProps[nonEnumIdx];
-      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
-        keys.push(prop);
-      }
-    }
-  }
-
-  // Retrieve the names of an object's own properties.
-  // Delegates to **ECMAScript 5**'s native `Object.keys`
-  _.keys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    if (nativeKeys) return nativeKeys(obj);
-    var keys = [];
-    for (var key in obj) if (_.has(obj, key)) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  };
-
-  // Retrieve all the property names of an object.
-  _.allKeys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    var keys = [];
-    for (var key in obj) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  };
-
-  // Retrieve the values of an object's properties.
-  _.values = function(obj) {
-    var keys = _.keys(obj);
-    var length = keys.length;
-    var values = Array(length);
-    for (var i = 0; i < length; i++) {
-      values[i] = obj[keys[i]];
-    }
-    return values;
-  };
-
-  // Returns the results of applying the iteratee to each element of the object
-  // In contrast to _.map it returns an object
-  _.mapObject = function(obj, iteratee, context) {
-    iteratee = cb(iteratee, context);
-    var keys =  _.keys(obj),
-          length = keys.length,
-          results = {},
-          currentKey;
-      for (var index = 0; index < length; index++) {
-        currentKey = keys[index];
-        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
-      }
-      return results;
-  };
-
-  // Convert an object into a list of `[key, value]` pairs.
-  _.pairs = function(obj) {
-    var keys = _.keys(obj);
-    var length = keys.length;
-    var pairs = Array(length);
-    for (var i = 0; i < length; i++) {
-      pairs[i] = [keys[i], obj[keys[i]]];
-    }
-    return pairs;
-  };
-
-  // Invert the keys and values of an object. The values must be serializable.
-  _.invert = function(obj) {
-    var result = {};
-    var keys = _.keys(obj);
-    for (var i = 0, length = keys.length; i < length; i++) {
-      result[obj[keys[i]]] = keys[i];
-    }
-    return result;
-  };
-
-  // Return a sorted list of the function names available on the object.
-  // Aliased as `methods`
-  _.functions = _.methods = function(obj) {
-    var names = [];
-    for (var key in obj) {
-      if (_.isFunction(obj[key])) names.push(key);
-    }
-    return names.sort();
-  };
-
-  // Extend a given object with all the properties in passed-in object(s).
-  _.extend = createAssigner(_.allKeys);
-
-  // Assigns a given object with all the own properties in the passed-in object(s)
-  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
-  _.extendOwn = _.assign = createAssigner(_.keys);
-
-  // Returns the first key on an object that passes a predicate test
-  _.findKey = function(obj, predicate, context) {
-    predicate = cb(predicate, context);
-    var keys = _.keys(obj), key;
-    for (var i = 0, length = keys.length; i < length; i++) {
-      key = keys[i];
-      if (predicate(obj[key], key, obj)) return key;
-    }
-  };
-
-  // Return a copy of the object only containing the whitelisted properties.
-  _.pick = function(object, oiteratee, context) {
-    var result = {}, obj = object, iteratee, keys;
-    if (obj == null) return result;
-    if (_.isFunction(oiteratee)) {
-      keys = _.allKeys(obj);
-      iteratee = optimizeCb(oiteratee, context);
-    } else {
-      keys = flatten(arguments, false, false, 1);
-      iteratee = function(value, key, obj) { return key in obj; };
-      obj = Object(obj);
-    }
-    for (var i = 0, length = keys.length; i < length; i++) {
-      var key = keys[i];
-      var value = obj[key];
-      if (iteratee(value, key, obj)) result[key] = value;
-    }
-    return result;
-  };
-
-   // Return a copy of the object without the blacklisted properties.
-  _.omit = function(obj, iteratee, context) {
-    if (_.isFunction(iteratee)) {
-      iteratee = _.negate(iteratee);
-    } else {
-      var keys = _.map(flatten(arguments, false, false, 1), String);
-      iteratee = function(value, key) {
-        return !_.contains(keys, key);
-      };
-    }
-    return _.pick(obj, iteratee, context);
-  };
-
-  // Fill in a given object with default properties.
-  _.defaults = createAssigner(_.allKeys, true);
-
-  // Create a (shallow-cloned) duplicate of an object.
-  _.clone = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
-  };
-
-  // Invokes interceptor with the obj, and then returns obj.
-  // The primary purpose of this method is to "tap into" a method chain, in
-  // order to perform operations on intermediate results within the chain.
-  _.tap = function(obj, interceptor) {
-    interceptor(obj);
-    return obj;
-  };
-
-  // Returns whether an object has a given set of `key:value` pairs.
-  _.isMatch = function(object, attrs) {
-    var keys = _.keys(attrs), length = keys.length;
-    if (object == null) return !length;
-    var obj = Object(object);
-    for (var i = 0; i < length; i++) {
-      var key = keys[i];
-      if (attrs[key] !== obj[key] || !(key in obj)) return false;
-    }
-    return true;
-  };
-
-
-  // Internal recursive comparison function for `isEqual`.
-  var eq = function(a, b, aStack, bStack) {
-    // Identical objects are equal. `0 === -0`, but they aren't identical.
-    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
-    if (a === b) return a !== 0 || 1 / a === 1 / b;
-    // A strict comparison is necessary because `null == undefined`.
-    if (a == null || b == null) return a === b;
-    // Unwrap any wrapped objects.
-    if (a instanceof _) a = a._wrapped;
-    if (b instanceof _) b = b._wrapped;
-    // Compare `[[Class]]` names.
-    var className = toString.call(a);
-    if (className !== toString.call(b)) return false;
-    switch (className) {
-      // Strings, numbers, regular expressions, dates, and booleans are compared by value.
-      case '[object RegExp]':
-      // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
-      case '[object String]':
-        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
-        // equivalent to `new String("5")`.
-        return '' + a === '' + b;
-      case '[object Number]':
-        // `NaN`s are equivalent, but non-reflexive.
-        // Object(NaN) is equivalent to NaN
-        if (+a !== +a) return +b !== +b;
-        // An `egal` comparison is performed for other numeric values.
-        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-      case '[object Date]':
-      case '[object Boolean]':
-        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-        // millisecond representations. Note that invalid dates with millisecond representations
-        // of `NaN` are not equivalent.
-        return +a === +b;
-    }
-
-    var areArrays = className === '[object Array]';
-    if (!areArrays) {
-      if (typeof a != 'object' || typeof b != 'object') return false;
-
-      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
-      // from different frames are.
-      var aCtor = a.constructor, bCtor = b.constructor;
-      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
-                               _.isFunction(bCtor) && bCtor instanceof bCtor)
-                          && ('constructor' in a && 'constructor' in b)) {
-        return false;
-      }
-    }
-    // Assume equality for cyclic structures. The algorithm for detecting cyclic
-    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
-    
-    // Initializing stack of traversed objects.
-    // It's done here since we only need them for objects and arrays comparison.
-    aStack = aStack || [];
-    bStack = bStack || [];
-    var length = aStack.length;
-    while (length--) {
-      // Linear search. Performance is inversely proportional to the number of
-      // unique nested structures.
-      if (aStack[length] === a) return bStack[length] === b;
-    }
-
-    // Add the first object to the stack of traversed objects.
-    aStack.push(a);
-    bStack.push(b);
-
-    // Recursively compare objects and arrays.
-    if (areArrays) {
-      // Compare array lengths to determine if a deep comparison is necessary.
-      length = a.length;
-      if (length !== b.length) return false;
-      // Deep compare the contents, ignoring non-numeric properties.
-      while (length--) {
-        if (!eq(a[length], b[length], aStack, bStack)) return false;
-      }
-    } else {
-      // Deep compare objects.
-      var keys = _.keys(a), key;
-      length = keys.length;
-      // Ensure that both objects contain the same number of properties before comparing deep equality.
-      if (_.keys(b).length !== length) return false;
-      while (length--) {
-        // Deep compare each member
-        key = keys[length];
-        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
-      }
-    }
-    // Remove the first object from the stack of traversed objects.
-    aStack.pop();
-    bStack.pop();
-    return true;
-  };
-
-  // Perform a deep comparison to check if two objects are equal.
-  _.isEqual = function(a, b) {
-    return eq(a, b);
-  };
-
-  // Is a given array, string, or object empty?
-  // An "empty" object has no enumerable own-properties.
-  _.isEmpty = function(obj) {
-    if (obj == null) return true;
-    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
-    return _.keys(obj).length === 0;
-  };
-
-  // Is a given value a DOM element?
-  _.isElement = function(obj) {
-    return !!(obj && obj.nodeType === 1);
-  };
-
-  // Is a given value an array?
-  // Delegates to ECMA5's native Array.isArray
-  _.isArray = nativeIsArray || function(obj) {
-    return toString.call(obj) === '[object Array]';
-  };
-
-  // Is a given variable an object?
-  _.isObject = function(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-  };
-
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
-  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
-    _['is' + name] = function(obj) {
-      return toString.call(obj) === '[object ' + name + ']';
-    };
-  });
-
-  // Define a fallback version of the method in browsers (ahem, IE < 9), where
-  // there isn't any inspectable "Arguments" type.
-  if (!_.isArguments(arguments)) {
-    _.isArguments = function(obj) {
-      return _.has(obj, 'callee');
-    };
-  }
-
-  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
-  // IE 11 (#1621), and in Safari 8 (#1929).
-  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
-    _.isFunction = function(obj) {
-      return typeof obj == 'function' || false;
-    };
-  }
-
-  // Is a given object a finite number?
-  _.isFinite = function(obj) {
-    return isFinite(obj) && !isNaN(parseFloat(obj));
-  };
-
-  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
-  _.isNaN = function(obj) {
-    return _.isNumber(obj) && obj !== +obj;
-  };
-
-  // Is a given value a boolean?
-  _.isBoolean = function(obj) {
-    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
-  };
-
-  // Is a given value equal to null?
-  _.isNull = function(obj) {
-    return obj === null;
-  };
-
-  // Is a given variable undefined?
-  _.isUndefined = function(obj) {
-    return obj === void 0;
-  };
-
-  // Shortcut function for checking if an object has a given property directly
-  // on itself (in other words, not on a prototype).
-  _.has = function(obj, key) {
-    return obj != null && hasOwnProperty.call(obj, key);
-  };
-
-  // Utility Functions
-  // -----------------
-
-  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
-  // previous owner. Returns a reference to the Underscore object.
-  _.noConflict = function() {
-    root._ = previousUnderscore;
-    return this;
-  };
-
-  // Keep the identity function around for default iteratees.
-  _.identity = function(value) {
-    return value;
-  };
-
-  // Predicate-generating functions. Often useful outside of Underscore.
-  _.constant = function(value) {
-    return function() {
-      return value;
-    };
-  };
-
-  _.noop = function(){};
-
-  _.property = function(key) {
-    return function(obj) {
-      return obj == null ? void 0 : obj[key];
-    };
-  };
-
-  // Generates a function for a given object that returns a given property.
-  _.propertyOf = function(obj) {
-    return obj == null ? function(){} : function(key) {
-      return obj[key];
-    };
-  };
-
-  // Returns a predicate for checking whether an object has a given set of 
-  // `key:value` pairs.
-  _.matcher = _.matches = function(attrs) {
-    attrs = _.extendOwn({}, attrs);
-    return function(obj) {
-      return _.isMatch(obj, attrs);
-    };
-  };
-
-  // Run a function **n** times.
-  _.times = function(n, iteratee, context) {
-    var accum = Array(Math.max(0, n));
-    iteratee = optimizeCb(iteratee, context, 1);
-    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
-    return accum;
-  };
-
-  // Return a random integer between min and max (inclusive).
-  _.random = function(min, max) {
-    if (max == null) {
-      max = min;
-      min = 0;
-    }
-    return min + Math.floor(Math.random() * (max - min + 1));
-  };
-
-  // A (possibly faster) way to get the current timestamp as an integer.
-  _.now = Date.now || function() {
-    return new Date().getTime();
-  };
-
-   // List of HTML entities for escaping.
-  var escapeMap = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-    '`': '&#x60;'
-  };
-  var unescapeMap = _.invert(escapeMap);
-
-  // Functions for escaping and unescaping strings to/from HTML interpolation.
-  var createEscaper = function(map) {
-    var escaper = function(match) {
-      return map[match];
-    };
-    // Regexes for identifying a key that needs to be escaped
-    var source = '(?:' + _.keys(map).join('|') + ')';
-    var testRegexp = RegExp(source);
-    var replaceRegexp = RegExp(source, 'g');
-    return function(string) {
-      string = string == null ? '' : '' + string;
-      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
-    };
-  };
-  _.escape = createEscaper(escapeMap);
-  _.unescape = createEscaper(unescapeMap);
-
-  // If the value of the named `property` is a function then invoke it with the
-  // `object` as context; otherwise, return it.
-  _.result = function(object, property, fallback) {
-    var value = object == null ? void 0 : object[property];
-    if (value === void 0) {
-      value = fallback;
-    }
-    return _.isFunction(value) ? value.call(object) : value;
-  };
-
-  // Generate a unique integer id (unique within the entire client session).
-  // Useful for temporary DOM ids.
-  var idCounter = 0;
-  _.uniqueId = function(prefix) {
-    var id = ++idCounter + '';
-    return prefix ? prefix + id : id;
-  };
-
-  // By default, Underscore uses ERB-style template delimiters, change the
-  // following template settings to use alternative delimiters.
-  _.templateSettings = {
-    evaluate    : /<%([\s\S]+?)%>/g,
-    interpolate : /<%=([\s\S]+?)%>/g,
-    escape      : /<%-([\s\S]+?)%>/g
-  };
-
-  // When customizing `templateSettings`, if you don't want to define an
-  // interpolation, evaluation or escaping regex, we need one that is
-  // guaranteed not to match.
-  var noMatch = /(.)^/;
-
-  // Certain characters need to be escaped so that they can be put into a
-  // string literal.
-  var escapes = {
-    "'":      "'",
-    '\\':     '\\',
-    '\r':     'r',
-    '\n':     'n',
-    '\u2028': 'u2028',
-    '\u2029': 'u2029'
-  };
-
-  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
-
-  var escapeChar = function(match) {
-    return '\\' + escapes[match];
-  };
-
-  // JavaScript micro-templating, similar to John Resig's implementation.
-  // Underscore templating handles arbitrary delimiters, preserves whitespace,
-  // and correctly escapes quotes within interpolated code.
-  // NB: `oldSettings` only exists for backwards compatibility.
-  _.template = function(text, settings, oldSettings) {
-    if (!settings && oldSettings) settings = oldSettings;
-    settings = _.defaults({}, settings, _.templateSettings);
-
-    // Combine delimiters into one regular expression via alternation.
-    var matcher = RegExp([
-      (settings.escape || noMatch).source,
-      (settings.interpolate || noMatch).source,
-      (settings.evaluate || noMatch).source
-    ].join('|') + '|$', 'g');
-
-    // Compile the template source, escaping string literals appropriately.
-    var index = 0;
-    var source = "__p+='";
-    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
-      source += text.slice(index, offset).replace(escaper, escapeChar);
-      index = offset + match.length;
-
-      if (escape) {
-        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
-      } else if (interpolate) {
-        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
-      } else if (evaluate) {
-        source += "';\n" + evaluate + "\n__p+='";
-      }
-
-      // Adobe VMs need the match returned to produce the correct offest.
-      return match;
-    });
-    source += "';\n";
-
-    // If a variable is not specified, place data values in local scope.
-    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
-
-    source = "var __t,__p='',__j=Array.prototype.join," +
-      "print=function(){__p+=__j.call(arguments,'');};\n" +
-      source + 'return __p;\n';
-
-    try {
-      var render = new Function(settings.variable || 'obj', '_', source);
-    } catch (e) {
-      e.source = source;
-      throw e;
-    }
-
-    var template = function(data) {
-      return render.call(this, data, _);
-    };
-
-    // Provide the compiled source as a convenience for precompilation.
-    var argument = settings.variable || 'obj';
-    template.source = 'function(' + argument + '){\n' + source + '}';
-
-    return template;
-  };
-
-  // Add a "chain" function. Start chaining a wrapped Underscore object.
-  _.chain = function(obj) {
-    var instance = _(obj);
-    instance._chain = true;
-    return instance;
-  };
-
-  // OOP
-  // ---------------
-  // If Underscore is called as a function, it returns a wrapped object that
-  // can be used OO-style. This wrapper holds altered versions of all the
-  // underscore functions. Wrapped objects may be chained.
-
-  // Helper function to continue chaining intermediate results.
-  var result = function(instance, obj) {
-    return instance._chain ? _(obj).chain() : obj;
-  };
-
-  // Add your own custom functions to the Underscore object.
-  _.mixin = function(obj) {
-    _.each(_.functions(obj), function(name) {
-      var func = _[name] = obj[name];
-      _.prototype[name] = function() {
-        var args = [this._wrapped];
-        push.apply(args, arguments);
-        return result(this, func.apply(_, args));
-      };
-    });
-  };
-
-  // Add all of the Underscore functions to the wrapper object.
-  _.mixin(_);
-
-  // Add all mutator Array functions to the wrapper.
-  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
-    var method = ArrayProto[name];
-    _.prototype[name] = function() {
-      var obj = this._wrapped;
-      method.apply(obj, arguments);
-      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
-      return result(this, obj);
-    };
-  });
-
-  // Add all accessor Array functions to the wrapper.
-  _.each(['concat', 'join', 'slice'], function(name) {
-    var method = ArrayProto[name];
-    _.prototype[name] = function() {
-      return result(this, method.apply(this._wrapped, arguments));
-    };
-  });
-
-  // Extracts the result from a wrapped and chained object.
-  _.prototype.value = function() {
-    return this._wrapped;
-  };
-
-  // Provide unwrapping proxy for some methods used in engine operations
-  // such as arithmetic and JSON stringification.
-  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
-  
-  _.prototype.toString = function() {
-    return '' + this._wrapped;
-  };
-
-  // AMD registration happens at the end for compatibility with AMD loaders
-  // that may not enforce next-turn semantics on modules. Even though general
-  // practice for AMD registration is to be anonymous, underscore registers
-  // as a named module because, like jQuery, it is a base library that is
-  // popular enough to be bundled in a third party lib, but not be part of
-  // an AMD load request. Those cases could generate an error when an
-  // anonymous define() is called outside of a loader request.
-  if (typeof define === 'function' && define.amd) {
-    define('underscore', [], function() {
-      return _;
-    });
-  }
-}.call(this));
-
-},{}],44:[function(require,module,exports){
+arguments[4][35][0].apply(exports,arguments)
+},{"dup":35}],44:[function(require,module,exports){
 var EverliveError = require('./EverliveError').EverliveError;
 var constants = require('./constants');
 var _ = require('underscore');
@@ -19971,7 +17423,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.5.7
+ Version 1.5.8
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -20006,6 +17458,7 @@ module.exports = (function () {
 
     module.exports = Everlive;
 }());
+
 },{"./Everlive":46,"./GeoPoint":50,"./Request":52,"./common":58,"./constants":59,"./everlive.platform":61,"./kendo/kendo.everlive":67,"./offline/offlinePersisters":77,"./query/Query":87,"./query/QueryBuilder":88,"./types/Data":97,"./utils":100}],67:[function(require,module,exports){
 var QueryBuilder = require('../query/QueryBuilder');
 var Query = require('../query/Query');
