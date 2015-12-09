@@ -14340,8 +14340,9 @@ module.exports = (function () {
     /**
      * @class Everlive
      * @classdesc The constructor of the {{site.bs}} (Everlive) JavaScript SDK. This is the entry point for the SDK.
-     * @param {object|string} options - An object containing configuration options for the Setup object. Alternatively, you can pass a string representing your API key.
-     * @param {string} options.apiKey - Your API key.
+     * @param {object|string} options - An object containing configuration options for the Setup object. Alternatively, you can pass a string representing your App ID.
+     * @param {string} options.apiKey - Your API Key. *Deprecated*: use options.appId instead.
+     * @param {string} options.appId - Your app's App ID.
      * @param {string} [options.url=//api.everlive.com/v1/] - The {{site.TelerikBackendServices}} URL.
      * @param {string} [options.token] - An authentication token. The instance will be associated with the provided previously obtained token.
      * @param {string} [options.tokenType=bearer] - The type of the token that is used for authentication.
@@ -14559,7 +14560,7 @@ module.exports = (function () {
      * @method request
      * @memberOf Everlive.prototype
      * @param {object} options Object used to configure the request.
-     * @param {object} [options.endpoint] The endpoint of the {{site.bs}} JavaScript API relative to the API key section. (For example, options.endpoint = MyType will make a request to the MyType type.)
+     * @param {object} [options.endpoint] The endpoint of the {{site.bs}} JavaScript API relative to the App ID section. (For example, options.endpoint = MyType will make a request to the MyType type.)
      * @param {HttpMethod} [options.method] HTTP request method.
      * @param {object} [options.data] Data to be sent with the request.
      * @param {Function} [options.success] Success callback that will be called when the request finishes successfully.
@@ -15282,8 +15283,6 @@ module.exports = (function () {
          * @param {Function} [onError] Callback to invoke on error.
          */
         send: function (notification, onSuccess, onError) {
-            this.ensurePushIsAvailable();
-
             return this.notifications.create.apply(this.notifications, arguments);
         },
 
@@ -15504,7 +15503,7 @@ module.exports = (function () {
     // An object that keeps information about an Everlive connection
     function Setup(options) {
         this.url = everliveUrl;
-        this.apiKey = null;
+        this.appId = null;
         this.masterKey = null;
         this.token = null;
         this.tokenType = null;
@@ -15512,10 +15511,12 @@ module.exports = (function () {
         this.scheme = 'http'; // http or https
         this.parseOnlyCompleteDateTimeObjects = false;
         if (typeof options === 'string') {
-            this.apiKey = options;
+            this.appId = options;
         } else {
             this._emulatorMode = options.emulatorMode;
             _.extend(this, options);
+            if(options.apiKey)
+                this.appId = options.apiKey; // backward compatibility
         }
 
         this.authentication = new AuthenticationSetup(this, options.authentication);
@@ -16806,7 +16807,7 @@ module.exports = (function () {
 
         this._everlive = everlive;
         this._settings = {
-            urlTemplate: '[protocol][hostname][apikey]/[operations][url]',
+            urlTemplate: '[protocol][hostname][appid]/[operations][url]',
             server: 'bs1.cdn.telerik.com/image/v1/'
         };
 
@@ -17265,9 +17266,9 @@ module.exports = (function () {
             var imgUrl = src.replace(/.*?resize=[^//]*\//gi, '');
             var protocolRe = new RegExp('https?://', 'gi');
             var serverRe = new RegExp(this.htmlHelper._settings.server, 'gi');
-            var apiKeyRe = new RegExp(this.htmlHelper._everlive.apiKey + '/', 'gi');
+            var apiIdRe = new RegExp(this.htmlHelper._everlive.appId + '/', 'gi');
 
-            operations = src.replace(imgUrl, '').replace(protocolRe, '').replace(serverRe, '').replace(apiKeyRe, '').toLowerCase();
+            operations = src.replace(imgUrl, '').replace(protocolRe, '').replace(serverRe, '').replace(apiIdRe, '').toLowerCase();
             if (operations !== '') {
                 operations = operations.indexOf('/') ? operations.substring(0, operations.length - 1) : operations;
             } else {
@@ -17369,7 +17370,7 @@ module.exports = (function () {
 
         getImgSrc: function getImgSrc(image, imgWidth) {
             var protocol = this.htmlHelper._everlive.setup.scheme + '://';
-            var apiKey = this.htmlHelper._everlive.setup.apiKey;
+            var appId = this.htmlHelper._everlive.setup.appId;
             var server = this.htmlHelper._settings.server;
             var url = this.htmlHelper._settings.urlTemplate;
             var pixelDensity = this.getPixelRatio(image.item);
@@ -17377,7 +17378,7 @@ module.exports = (function () {
             pixelDensity = pixelDensity ? ',pd:' + pixelDensity : '';
 
             url = url.replace('[protocol]', protocol);
-            url = url.replace('[apikey]', apiKey ? apiKey : '');
+            url = url.replace('[appid]', appId ? appId : '');
             url = url.replace('[hostname]', server);
 
             var params = image.operations || false;
@@ -17423,7 +17424,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.5.8
+ Version 1.6.0
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -21189,7 +21190,7 @@ module.exports = (function () {
     };
 
     var initStoragePersister = function initStoragePersister(options) {
-        var storageKey = options.storage.name || 'everliveOfflineStorage_' + this.setup.apiKey;
+        var storageKey = options.storage.name || 'everliveOfflineStorage_' + this.setup.appId;
         var persister = persisters.getPersister(storageKey, options);
         options.storage.implementation = persister;
         return persister;
@@ -26946,8 +26947,8 @@ utils.buildUrl = function (setup) {
         url += setup.scheme + ':';
     }
     url += setup.url;
-    if (setup.apiKey) {
-        url += setup.apiKey + '/';
+    if (setup.appId) {
+        url += setup.appId + '/';
     }
     return url;
 };
