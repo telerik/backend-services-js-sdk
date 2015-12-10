@@ -17424,12 +17424,11 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.6.0
+ Version 1.6.1
  */
 (function () {
     var Everlive = require('./Everlive');
     var platform = require('./everlive.platform');
-    var common = require('./common');
 
     if (!platform.isNativeScript && !platform.isNodejs) {
         var kendo = require('./kendo/kendo.everlive');
