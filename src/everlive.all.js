@@ -15060,10 +15060,11 @@ module.exports = (function () {
      * @classdesc The constructor of the {{site.bs}} (Everlive) JavaScript SDK. This is the entry point for the SDK.
      * @param {object|string} options - An object containing configuration options for the Setup object. Alternatively, you can pass a string representing your App ID.
      * @param {string} options.apiKey - Your API Key. *Deprecated*: use options.appId instead.
-     * @param {string} options.appId - Your app's App ID.
+     * @param {string} options.appId - Your Telerik Platform app's App ID.
      * @param {string} [options.url=//api.everlive.com/v1/] - The {{site.TelerikBackendServices}} URL.
      * @param {string} [options.token] - An authentication token. The instance will be associated with the provided previously obtained token.
      * @param {string} [options.tokenType=bearer] - The type of the token that is used for authentication.
+     * @param {string} [options.masterKey] - The master key of the Telerik Platform app. Use this authorization scheme for operations that require it or to override you app's access control. Use only for development purposes. Do not deploy it with your app.
      * @param {string} [options.scheme=http] - The URI scheme used to make requests. Supported values: http, https
      * @param {boolean} [options.parseOnlyCompleteDateTimeObjects=false] - If set to true, the SDK will parse only complete date strings (according to the ISO 8601 standard).
      * @param {boolean} [options.emulatorMode=false] - Set this option to true to set the SDK in emulator mode.
@@ -15533,7 +15534,11 @@ var EverliveErrors = {
     },
     filesNotSupportedInBrowser: {
         code: 706,
-        message: 'Offline files are not supported in web browsers.'
+        message: 'Create and Update operations are not supported for Files in browsers while in offline mode.'
+    },
+    pushNotSupportedOffline: {
+        code: 707,
+        message: 'Push is not supported in offline mode.'
     }
 };
 
@@ -15694,7 +15699,8 @@ var everliveErrorModule = require('./EverliveError');
 var DeviceRegistrationError = everliveErrorModule.DeviceRegistrationError;
 var EverliveError = everliveErrorModule.EverliveError;
 var CurrentDevice = require('./push/CurrentDevice');
-var Platform = require('./constants').Platform;
+var constants = require('./constants');
+var Platform = constants.Platform;
 
 module.exports = (function () {
     /**
@@ -15705,8 +15711,8 @@ module.exports = (function () {
      */
     function Push(el) {
         this._el = el;
-        this.notifications = el.data('Push/Notifications');
-        this.devices = el.data('Push/Devices');
+        this.notifications = el.data(constants.Push.NotificationsType);
+        this.devices = el.data(constants.Push.DevicesType);
     }
 
     Push.prototype = {
@@ -17402,6 +17408,11 @@ constants.Aggregation = {
     MaxDocumentsCount: 100000
 };
 
+constants.Push = {
+    NotificationsType: 'Push/Notifications',
+    DevicesType: 'Push/Devices'
+};
+
 module.exports = constants;
 
 },{}],61:[function(require,module,exports){
@@ -18172,7 +18183,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.6.2
+ Version 1.6.3
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -19489,6 +19500,12 @@ OfflineFilesProcessor.prototype = {
     },
 
     upsertFileFromObject: function (obj, isCreate, isSync) {
+        //TODO: make separate offline files processors when we start supporting nativescript
+        if (platform.isDesktop || platform.isNativeScript) {
+            //we will not support files in desktop and nativescript, only their metadata
+            return utils.successfulPromise();
+        }
+
         var self = this;
 
         if (!isSync) {
@@ -19704,11 +19721,12 @@ function OfflineQueryProcessor(persister, encryptionProvider, offlineFilesProces
 
 OfflineQueryProcessor.prototype = {
     processQuery: function (dataQuery) {
-        if (utils.isContentType.files(dataQuery.collectionName) && platform.isDesktop) {
+        var collectionName = dataQuery.collectionName;
+        if (utils.isContentType.pushDevices(collectionName) || utils.isContentType.pushNotifications(collectionName)) {
             if (this.everlive.isOnline()) {
                 return utils.successfulPromise();
             } else {
-                return utils.rejectedPromise(new EverliveError(EverliveErrors.filesNotSupportedInBrowser));
+                return utils.rejectedPromise(new EverliveError(EverliveErrors.pushNotSupportedOffline));
             }
         }
 
@@ -19765,7 +19783,7 @@ OfflineQueryProcessor.prototype = {
                     if (dataQuery.isSync) {
                         resolve();
                     } else {
-                        reject(new EverliveError(dataQuery.operation + ' is not supported in offline mode'));
+                        reject(new EverliveError(dataQuery.operation + ' is not supported in offline mode.'));
                     }
                 });
         }
@@ -19775,6 +19793,7 @@ OfflineQueryProcessor.prototype = {
         var self = this;
         var id = dataQuery.additionalOptions.id;
         var offlineFilePath;
+        var fileDirectUri;
 
         return self.everlive
             .files
@@ -19783,6 +19802,7 @@ OfflineQueryProcessor.prototype = {
             .getById(id)
             .then(function (res) {
                 var file = res.result;
+                fileDirectUri = file.Uri;
                 return self.everlive.offlineStorage.files._getFileUrlForId(file.Id, file.Filename);
             })
             .then(function (filePath) {
@@ -19790,17 +19810,11 @@ OfflineQueryProcessor.prototype = {
                 return self.everlive.offlineStorage._offlineFilesProcessor.fileStore.getFileByAbsolutePath(filePath);
             })
             .then(function (fileEntry) {
-                if (fileEntry) {
-                    return {
-                        result: {
-                            Uri: offlineFilePath
-                        }
-                    }
-                }
-
                 return {
-                    result: {}
-                }
+                    result: {
+                        Uri: fileEntry ? offlineFilePath : fileDirectUri
+                    }
+                };
             });
     },
 
@@ -20179,6 +20193,10 @@ OfflineQueryProcessor.prototype = {
     },
 
     updateFileContent: function (dataQuery) {
+        if (platform.isDesktop) {
+            return utils.successfulPromise();
+        }
+        
         var isSync = dataQuery.isSync;
         var updateExpression = dataQuery.data;
         var self = this;
@@ -20226,6 +20244,11 @@ OfflineQueryProcessor.prototype = {
                 if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
                     var itemId = dataQuery.additionalOptions.id;
                     var singleItemForUpdate = self._getById(collection, itemId);
+                    if (!singleItemForUpdate) {
+                        throw new EverliveError(EverliveErrors.itemNotFound,
+                            'Item with id :' + itemId + ' does not exist offline in the collection :' + collectionName);
+                    }
+
                     updateItems = [singleItemForUpdate];
 
                     if (utils.isContentType.files(collectionName) && updateExpression.$set && updateExpression.$set.Filename || updateExpression.Filename) {
@@ -20340,7 +20363,8 @@ OfflineQueryProcessor.prototype = {
         var self = this;
 
         return new rsvp.Promise(function (resolve, reject) {
-            if (utils.isContentType.files(collectionName)) {
+            //we cannot remove files while in desktop mode
+            if (utils.isContentType.files(collectionName) && !platform.isDesktop) {
                 return self.everlive.offlineStorage.files.purge(itemToRemove._id).then(resolve, reject);
             } else {
                 return resolve();
@@ -25840,7 +25864,8 @@ var Everlive = require('../Everlive');
 var EverliveError = require('../EverliveError').EverliveError;
 var EverliveErrors = require('../EverliveError').EverliveErrors;
 var EventQuery = require('../query/EventQuery');
-var everlivePlatform = require('../everlive.platform').platform;
+var platform = require('../everlive.platform');
+var everlivePlatform = platform.platform;
 var _ = require('../common')._;
 var utils = require('../utils');
 var Query = require('../query/Query');
@@ -25923,6 +25948,7 @@ module.exports = (function () {
                 switch (query.operation) {
                     case DataQuery.operations.Read:
                     case DataQuery.operations.ReadById:
+                    case DataQuery.operations.FilesGetDownloadUrlById:
                         var syncReadQuery = new DataQuery(_.defaults({
                             data: requestResponse.result,
                             isSync: true,
@@ -26089,7 +26115,7 @@ module.exports = (function () {
             var self = this;
 
             if (!query.applyOffline) {
-                query.onError.call(this, new EverliveError('The applyOffline must be false when working offline.'));
+                query.onError.call(this, new EverliveError('The applyOffline must be true when working offline.'));
             } else {
                 self.offlineStorage.processQuery(query)
                     .then(function () {
@@ -26155,7 +26181,7 @@ module.exports = (function () {
             requestOptions.headers[constants.Headers.sdk] = JSON.stringify(sdkHeaderValue);
         },
 
-        processDataQuery: function (query) {
+        processDataQuery: function (query) {            
             var self = this;
 
             var offlineStorageEnabled = this.everlive._isOfflineStorageEnabled();
@@ -26164,6 +26190,7 @@ module.exports = (function () {
             if (this.options) {
                 query = _.defaults(this.options, query);
             }
+            
             var isCachingEnabled = (this.everlive.setup.caching === true || (this.everlive.setup.caching && this.everlive.setup.caching.enabled));
             var isSupportedInOffline = utils.isQuerySupportedOffline(query);
 
@@ -26209,7 +26236,6 @@ module.exports = (function () {
                 }
             }
 
-
             if (_.contains(beforeExecuteAllowedOperations, query.operation)) {
                 var eventQuery = EventQuery.fromDataQuery(query);
                 this.everlive._emitter.emit(constants.Events.BeforeExecute, eventQuery);
@@ -26219,10 +26245,29 @@ module.exports = (function () {
 
                 query.applyEventQuery(eventQuery);
             }
-
+            
+            var canUseOffline = undefined;
+            if (utils.isContentType.files(query.collectionName) && platform.isDesktop) {
+                var op = query.operation;
+                
+                if (query.useOffline && query.applyOffline && (op === DataQuery.operations.Create || op === DataQuery.operations.Update)) {
+                    return query.onError.call(this, new EverliveError(EverliveErrors.filesNotSupportedInBrowser));
+                }
+                
+                var isDesktopFilesOpSupported = op === DataQuery.operations.Read ||
+                    op === DataQuery.operations.ReadById ||
+                    op === DataQuery.operations.FilesGetDownloadUrlById ||
+                    op === DataQuery.operations.Delete ||
+                    op === DataQuery.operations.DeleteById;
+                
+                canUseOffline = query.useOffline && isDesktopFilesOpSupported;
+            } else {
+                canUseOffline = query.useOffline;
+            }
+                  
             if ((!query.isSync && this.offlineStorage && this.offlineStorage.isSynchronizing())) {
                 query.onError.call(this, new EverliveError(EverliveErrors.syncInProgress));
-            } else if (query.useOffline) {
+            } else if (canUseOffline) {
                 this._applyQueryOffline(query);
             } else {
                 this._applyQueryOnline(query);
@@ -26397,7 +26442,6 @@ module.exports = (function () {
                     onError: error
                 });
 
-
                 return self.processDataQuery(dataQuery);
             }, success, error);
         },
@@ -26562,6 +26606,23 @@ module.exports = (function () {
             }, success, error);
         },
 
+        /**
+         * Deletes a single data item by ID.
+         * @memberOf Data.prototype
+         * @method destroySingle
+         * @name destroySingle
+         * @param {string} itemId The ID of the item to delete.
+         * @returns {Promise} The promise for the request.
+         */
+        /**
+         * Deletes a single data item by ID.
+         * @memberOf Data.prototype
+         * @method destroySingle
+         * @name destroySingle
+         * @param {string} itemId The ID of the item to delete.
+         * @param {Function} [success] A success callback.
+         * @param {Function} [error] An error callback.
+         */
         /**
          * Deletes a single data item by ID.
          * @memberOf Data.prototype
@@ -26793,6 +26854,7 @@ var buildPromise = require('../utils').buildPromise;
 var DataQuery = require('../query/DataQuery');
 var Request = require('../Request');
 var utils = require('../utils');
+var platform = require('../everlive.platform');
 
 module.exports.addFilesFunctions = function addFilesFunctions(ns) {
     /**
@@ -26883,6 +26945,12 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
         var self = this;
 
         return buildPromise(function (success, error) {
+            if (platform.isDesktop && !self.everlive.isOnline()) {
+                //while in offline we cannot get the url of the file, but we can generate one
+                var url = self.getDownloadUrl(fileId);
+                return success(url);
+            }
+
             var dataQuery = new DataQuery({
                 operation: DataQuery.operations.FilesGetDownloadUrlById,
                 collectionName: self.collectionName,
@@ -26990,7 +27058,7 @@ module.exports.addFilesFunctions = function addFilesFunctions(ns) {
         }, success, error);
     }
 };
-},{"../Request":53,"../query/DataQuery":87,"../utils":102}],101:[function(require,module,exports){
+},{"../Request":53,"../everlive.platform":62,"../query/DataQuery":87,"../utils":102}],101:[function(require,module,exports){
 /**
  * @class Users
  * @extends Data
@@ -27732,6 +27800,7 @@ var rsvp = common.rsvp;
 var Everlive = require('./Everlive');
 var platform = require('./everlive.platform');
 var path = require('path');
+var constants = require('./constants');
 
 var utils = {};
 
@@ -28129,6 +28198,12 @@ utils.isContentType = {
     },
     users: function (collectionName) {
         return utils._stringCompare(collectionName, 'users');
+    },
+    pushNotifications: function (collectionName) {
+        return utils._stringCompare(collectionName, constants.Push.NotificationsType.toLowerCase());
+    },
+    pushDevices: function (collectionName) {
+        return utils._stringCompare(collectionName, constants.Push.DevicesType.toLowerCase());
     }
 };
 
@@ -28196,6 +28271,6 @@ utils._inAppBuilderSimulator = function () {
 
 module.exports = utils;
 
-},{"./Everlive":47,"./EverliveError":48,"./common":59,"./everlive.platform":62,"path":3}]},{},[67])(67)
+},{"./Everlive":47,"./EverliveError":48,"./common":59,"./constants":60,"./everlive.platform":62,"path":3}]},{},[67])(67)
 });
 //# sourceMappingURL=everlive.map
