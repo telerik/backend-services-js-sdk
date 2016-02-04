@@ -15072,6 +15072,7 @@ module.exports = (function () {
      * @param {boolean} [options.offline.enabled=false] - When using an object to initialize Offline Support with non-default settings, set this option to enable or disable Offline Support.
      * @param {boolean} [options.offline.isOnline=true] - Whether the storage is in online mode initially.
      * @param {ConflictResolutionStrategy|function} [options.offline.conflicts.strategy=ConflictResolutionStrategy.ClientWins] - A constant specifying the conflict resolution strategy or a function used to resolve the conflicts.
+     * @param {boolean} [options.offline.syncUnmodified=false] - Whether to synchronize items updated or deleted on the server but not on the device.
      * @param {object} [options.offline.storage] - An object specifying settings for the offline storage.
      * @param {string} [options.offline.storage.provider=_platform dependant_] - Allows you to select an offline storage provider. Possible values: Everlive.Constants.StorageProvider.LocalStorage, Everlive.Constants.StorageProvider.FileSystem, Everlive.Constants.StorageProvider.Custom. Default value: Cordova, Web: Everlive.Constants.StorageProvider.LocalStorage; NativeScript, Node.js: Everlive.Constants.StorageProvider.FileSystem.
      * @param {string} [options.offline.storage.storagePath=el_store] - A relative path specifying where data will be saved if the FileSystem provider is used.
@@ -15693,6 +15694,7 @@ module.exports = (function () {
 }());
 },{}],52:[function(require,module,exports){
 var utils = require('./utils');
+var platform = require('./everlive.platform');
 var buildPromise = utils.buildPromise;
 var DeviceRegistrationResult = utils.DeviceRegistrationResult;
 var everliveErrorModule = require('./EverliveError');
@@ -16056,7 +16058,7 @@ module.exports = (function () {
 
     return Push;
 }());
-},{"./EverliveError":48,"./constants":60,"./push/CurrentDevice":84,"./utils":102}],53:[function(require,module,exports){
+},{"./EverliveError":48,"./constants":60,"./everlive.platform":62,"./push/CurrentDevice":84,"./utils":102}],53:[function(require,module,exports){
 var utils = require('./utils');
 var rsvp = require('./common').rsvp;
 var buildAuthHeader = utils.buildAuthHeader;
@@ -16981,7 +16983,14 @@ CacheModule.prototype = {
         return this._getExpirationForHash(contentType, hash)
             .then(function (cachedAt) {
                 var maxAgeForContentType = self.typeSettings && self.typeSettings[contentType] ? self.typeSettings[contentType].maxAge * 60 * 1000 : null;
-                var cacheAge = maxAge || maxAgeForContentType || self.maxAgeInMs;
+                var cacheAge;
+                if (maxAge || maxAge === 0) {
+                    cacheAge = maxAge;
+                } else if (maxAgeForContentType || maxAgeForContentType === 0) {
+                    cacheAge = maxAgeForContentType;
+                } else {
+                    cacheAge = self.maxAgeInMs;
+                }
                 return (cachedAt + cacheAge) < Date.now();
             });
     },
@@ -17371,6 +17380,7 @@ constants.FilesTypeName = 'Files';
 
 constants.MaxConcurrentDownloadTasks = 3;
 
+constants.DefaultFilesystemStorageQuota = 10485760;
 constants.Events = {
     SyncStart: 'syncStart',
     SyncEnd: 'syncEnd',
@@ -17454,7 +17464,6 @@ module.exports = (function () {
     return CryptographicProvider;
 }());
 },{"node-cryptojs-aes":25}],62:[function(require,module,exports){
-(function (global){
 var isNativeScript = Boolean(((typeof android !== 'undefined' && android && android.widget && android.widget.Button)
 || (typeof UIButton !== 'undefined' && UIButton)));
 
@@ -17463,15 +17472,7 @@ var isCordova = false;
 var isWindowsPhone = false;
 var isAndroid = false;
 
-if (isNativeScript) {
-    global.window = {
-        localStorage: {
-            removeItem: function () {
-            } //shim for mongo-query under nativescript
-        }
-    };
-
-} else if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !isNativeScript) {
     isCordova = /^file:\/{3}[^\/]|x-wmapp/i.test(window.location.href) && /ios|iphone|ipod|ipad|android|iemobile/i.test(navigator.userAgent);
     isWindowsPhone = isCordova && /iemobile/i.test(navigator.userAgent);
     isAndroid = isCordova && cordova.platformId === 'android';
@@ -17491,6 +17492,10 @@ if (isNativeScript) {
     platform = 'cordova';
 }
 
+var isInAppBuilderSimulator = function () {
+    return typeof window !== undefined && window.navigator && window.navigator.simulator;
+};
+
 module.exports = {
     isCordova: isCordova,
     isNativeScript: isNativeScript,
@@ -17499,10 +17504,9 @@ module.exports = {
     isAndroid: isAndroid,
     isNodejs: isNodejs,
     isRequirejs: isRequirejs,
-    platform: platform
+    platform: platform,
+    isInAppBuilderSimulator: isInAppBuilderSimulator
 };
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
 },{}],63:[function(require,module,exports){
 'use strict';
 
@@ -18183,7 +18187,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.6.3
+ Version 1.6.4
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -19730,10 +19734,10 @@ OfflineQueryProcessor.prototype = {
             }
         }
 
-        var unsupportedClientOpMessage = this.getUnsupportedClientOpMessage(dataQuery);
-        if (unsupportedClientOpMessage && !dataQuery.isSync) {
+        var queryNotSupportedError = this.checkSupportedQuery(dataQuery);
+        if (queryNotSupportedError && !dataQuery.isSync) {
             return new rsvp.Promise(function (resolve, reject) {
-                reject(new EverliveError(unsupportedClientOpMessage));
+                reject(new EverliveError(queryNotSupportedError));
             });
         }
 
@@ -19818,7 +19822,7 @@ OfflineQueryProcessor.prototype = {
             });
     },
 
-    getUnsupportedClientOpMessage: function (dataQuery) {
+    checkSupportedQuery: function (dataQuery) {
         for (var i = 0; i < unsupportedOfflineHeaders.length; i++) {
             var header = unsupportedOfflineHeaders[i];
             if (dataQuery.getHeader(header)) {
@@ -19828,6 +19832,13 @@ OfflineQueryProcessor.prototype = {
 
         if (utils.isContentType.users(dataQuery.collectionName) && unsupportedUsersOperations[dataQuery.operation]) {
             return buildUsersErrorMessage(dataQuery);
+        }
+
+        if (utils.isContentType.files(dataQuery.collectionName)) {
+            if ((dataQuery.operation === DataQuery.operations.create && Array.isArray(dataQuery.data)) ||
+                dataQuery.operation === DataQuery.operations.rawUpdate || dataQuery.operation === DataQuery.operations.update) {
+                return EverliveErrors.invalidRequest;
+            }
         }
 
         var isSingle = dataQuery.additionalOptions && dataQuery.additionalOptions.id;
@@ -20564,6 +20575,7 @@ var syncLocation = {
     client: 'client'
 };
 
+
 /**
  * @class OfflineModule
  * @classDesc A class providing access to the various offline storage features.
@@ -20575,7 +20587,7 @@ var syncLocation = {
  * @member {OfflineModule} offlineStorage
  */
 
-module.exports = (function () {
+module.exports = (function() {
     function OfflineModule(everlive, options, persister, encryptionProvider) {
         this._everlive = everlive;
         this.setup = options;
@@ -20596,13 +20608,13 @@ module.exports = (function () {
             this._everlive, this.setup.files.maxConcurrentDownloads);
     }
 
-    var getSyncFilterForItem = function (item) {
+    var getSyncFilterForItem = function(item) {
         var filter = getSyncFilterNoModifiedAt(item);
         filter.ModifiedAt = item.ModifiedAt;
         return filter;
     };
 
-    var getSyncFilterNoModifiedAt = function (item) {
+    var getSyncFilterNoModifiedAt = function(item) {
         return {
             Id: item.Id
         }
@@ -20625,7 +20637,7 @@ module.exports = (function () {
          * @memberOf OfflineModule.prototype
          * @returns {Promise}
          */
-        purgeAll: function (success, error) {
+        purgeAll: function(success, error) {
             return this._queryProcessor.purgeAll(success, error);
         },
 
@@ -20648,28 +20660,28 @@ module.exports = (function () {
          * @param {string} contentType The content type to purge.
          * @returns {Promise}
          */
-        purge: function (contentType, success, error) {
+        purge: function(contentType, success, error) {
             return this._queryProcessor.purge(contentType, success, error);
         },
 
-        processQuery: function (query) {
+        processQuery: function(query) {
             return this._queryProcessor.processQuery(query);
         },
 
-        _setOffline: function (offline) {
+        _setOffline: function(offline) {
             this.setup.offline = offline;
         },
 
-        isOnline: function () {
+        isOnline: function() {
             return !this.setup.offline;
         },
 
-        _prepareSyncData: function (contentTypesForSync) {
+        _prepareSyncData: function(contentTypesForSync) {
             var self = this;
 
             var contentTypesSyncData = {};
             var conflicts = [];
-            _.each(contentTypesForSync, function (contentType, typeName) {
+            _.each(contentTypesForSync, function(contentType, typeName) {
                 var syncItems = offlineTransformations.idTransform(contentType.offlineItemsToSync);
                 var syncData = self._getSyncItemStates(typeName, syncItems, contentType.serverItems);
                 conflicts.push(syncData.conflicts);
@@ -20682,25 +20694,25 @@ module.exports = (function () {
             };
         },
 
-        _resolveConflicts: function (syncData) {
+        _resolveConflicts: function(syncData) {
             var self = this;
             return this._applyResolutionStrategy(syncData.conflicts)
-                .then(function () {
+                .then(function() {
                     return self._mergeResolvedConflicts(syncData.conflicts, syncData.contentTypesSyncData);
                 })
-                .then(function () {
+                .then(function() {
                     return syncData.contentTypesSyncData;
                 });
         },
 
-        isSynchronizing: function () {
+        isSynchronizing: function() {
             return this._isSynchronizing;
         },
 
-        _fireSyncStart: function () {
+        _fireSyncStart: function() {
             var self = this;
 
-            return new rsvp.Promise(function (resolve) {
+            return new rsvp.Promise(function(resolve) {
                 if (!self._isSynchronizing) {
                     self._isSynchronizing = true;
                     self._everlive._emitter.emit(constants.Events.SyncStart);
@@ -20711,22 +20723,24 @@ module.exports = (function () {
             });
         },
 
-        _fireSyncEnd: function () {
+        _fireSyncEnd: function() {
             this._isSynchronizing = false;
             this._everlive._emitter.emit(constants.Events.SyncEnd, this._syncResultInfo);
             delete this._syncResultInfo;
         },
 
-        _eachSyncItem: function (items, getFilterFunction, contentTypeName, operation) {
+        _eachSyncItem: function(items, getFilterFunction, contentTypeName, operation) {
             var self = this;
 
-            _.each(items, function (item) {
+            _.each(items, function(item) {
                 var itemFilter = getFilterFunction(item.remoteItem);
                 // if we already have an error for this item we do not want to try and sync it again
                 var resultItem = item.resultingItem;
                 var isCustom = item.isCustom;
                 var resolutionType = item.resolutionType;
-                if (_.some(self._syncResultInfo.failedItems[contentTypeName], {itemId: resultItem.Id})) {
+                if (_.some(self._syncResultInfo.failedItems[contentTypeName], {
+                        itemId: resultItem.Id
+                    })) {
                     return;
                 }
 
@@ -20734,22 +20748,22 @@ module.exports = (function () {
             });
         },
 
-        _shouldAutogenerateIdForContentType: function (collectionName) {
+        _shouldAutogenerateIdForContentType: function(collectionName) {
             return this._queryProcessor._shouldAutogenerateIdForContentType(collectionName);
         },
 
-        _addCreatedFileToSyncPromises: function (resultingItemsForCreate, syncPromises, collectionName) {
+        _addCreatedFileToSyncPromises: function(resultingItemsForCreate, syncPromises, collectionName) {
             var self = this;
 
-            _.each(resultingItemsForCreate, function (item) {
+            _.each(resultingItemsForCreate, function(item) {
                 var filesCollection = self._everlive.files;
-                syncPromises[item.Id] = new rsvp.Promise(function (resolve, reject) {
+                syncPromises[item.Id] = new rsvp.Promise(function(resolve, reject) {
                     self.files.getOfflineLocation(item.Id)
-                        .then(function (location) {
+                        .then(function(location) {
                             if (location) {
                                 return self._transferFile(false, item, location);
                             }
-                        }, function (err) {
+                        }, function(err) {
                             reject({
                                 type: offlineItemStates.created,
                                 items: item,
@@ -20758,14 +20772,14 @@ module.exports = (function () {
                                 storage: syncLocation.server
                             });
                         })
-                        .then(function (res) {
+                        .then(function(res) {
                             var mergedWithServerResponseItem = _.extend({}, item, res.result);
                             self._onItemProcessed(mergedWithServerResponseItem, collectionName, syncLocation.server, offlineItemStates.created);
                             return filesCollection
                                 .isSync(true)
                                 .useOffline(true)
                                 .updateSingle(mergedWithServerResponseItem);
-                        }, function (err) {
+                        }, function(err) {
                             reject({
                                 type: offlineItemStates.created,
                                 items: item,
@@ -20774,7 +20788,7 @@ module.exports = (function () {
                                 storage: syncLocation.server
                             });
                         })
-                        .then(resolve, function (err) {
+                        .then(resolve, function(err) {
                             reject({
                                 type: offlineItemStates.modified,
                                 items: item,
@@ -20787,30 +20801,30 @@ module.exports = (function () {
             });
         },
 
-        _transferFile: function (isUpdate, item, location) {
+        _transferFile: function(isUpdate, item, location) {
             var sdk = this._everlive;
 
-            return new rsvp.Promise(function (resolve, reject) {
+            return new rsvp.Promise(function(resolve, reject) {
                 var self = this;
                 var uploadUrl = sdk.files.getUploadUrl();
                 var fileExistsPromise = utils.successfulPromise();
 
                 if (isUpdate) {
-                    fileExistsPromise = new rsvp.Promise(function (resolve) {
+                    fileExistsPromise = new rsvp.Promise(function(resolve) {
                         sdk.files
                             .isSync(true)
                             .applyOffline(false)
                             .getById(item.Id)
-                            .then(function () {
+                            .then(function() {
                                 resolve(true);
                             })
-                            .catch(function () {
+                            .catch(function() {
                                 resolve(false);
                             });
                     });
                 }
 
-                fileExistsPromise.then(function (fileExistsOnServer) {
+                fileExistsPromise.then(function(fileExistsOnServer) {
                     var canUpdate = isUpdate && fileExistsOnServer;
                     if (canUpdate) {
                         uploadUrl += '/' + item.Id + '/Content';
@@ -20828,14 +20842,14 @@ module.exports = (function () {
 
                     options.params = {};
 
-                    _.each(item, function (value, key) {
+                    _.each(item, function(value, key) {
                         if (key.toLowerCase() !== 'base64') {
                             var prefixedKey = constants.fileUploadKey + constants.fileUploadDelimiter + key;
                             options.params[prefixedKey] = value;
                         }
                     });
 
-                    fileTransfer.upload(location, uploadUrl, function (result) {
+                    fileTransfer.upload(location, uploadUrl, function(result) {
                         var parsedResult = utils.parseUtilities.parseJSON(result.response);
                         if (parsedResult.Result === false) {
                             reject.apply(self, arguments);
@@ -20851,19 +20865,19 @@ module.exports = (function () {
             });
         },
 
-        _addCreatedObjectToSyncPromises: function (syncPromises, dataCollection, resultingItemsForCreate, contentTypeData, collectionName, ids) {
+        _addCreatedObjectToSyncPromises: function(syncPromises, dataCollection, resultingItemsForCreate, contentTypeData, collectionName, ids) {
             var self = this;
 
-            var promise = new rsvp.Promise(function (resolve, reject) {
+            var promise = new rsvp.Promise(function(resolve, reject) {
                 dataCollection
                     .isSync(true)
                     .applyOffline(false)
                     .create(resultingItemsForCreate)
-                    .then(function (res) {
-                        resultingItemsForCreate = _.map(resultingItemsForCreate, function (item, index) {
+                    .then(function(res) {
+                        resultingItemsForCreate = _.map(resultingItemsForCreate, function(item, index) {
                             item.Id = res.result[index].Id;
                             item.CreatedAt = item.ModifiedAt = res.result[index].CreatedAt;
-                            var resultingItem = _.find(contentTypeData.createdItems, function (createdItem) {
+                            var resultingItem = _.find(contentTypeData.createdItems, function(createdItem) {
                                 return createdItem.resultingItem.Id === item.Id;
                             });
 
@@ -20873,7 +20887,7 @@ module.exports = (function () {
 
                             return item;
                         });
-                    }, function (err) {
+                    }, function(err) {
                         throw {
                             type: offlineItemStates.created,
                             items: resultingItemsForCreate,
@@ -20882,17 +20896,17 @@ module.exports = (function () {
                             storage: syncLocation.server
                         };
                     })
-                    .then(function () {
+                    .then(function() {
                         return dataCollection
                             .isSync(true)
                             .useOffline(true)
                             .create(resultingItemsForCreate)
-                            .then(function () {
-                                _.each(resultingItemsForCreate, function (createdItem) {
+                            .then(function() {
+                                _.each(resultingItemsForCreate, function(createdItem) {
                                     self._onItemProcessed(createdItem, collectionName, syncLocation.server,
                                         offlineItemStates.created);
                                 });
-                            }, function (err) {
+                            }, function(err) {
                                 throw {
                                     type: offlineItemStates.created,
                                     items: resultingItemsForCreate,
@@ -20902,14 +20916,18 @@ module.exports = (function () {
                                 };
                             });
                     })
-                    .then(function () {
+                    .then(function() {
                         if (ids && ids.length) {
-                            var filter = {Id: {$in: ids}};
+                            var filter = {
+                                Id: {
+                                    $in: ids
+                                }
+                            };
                             return dataCollection
                                 .isSync(true)
                                 .useOffline(true)
                                 .destroy(filter)
-                                .catch(function (err) {
+                                .catch(function(err) {
                                     throw {
                                         type: offlineItemStates.created,
                                         items: resultingItemsForCreate,
@@ -20921,19 +20939,19 @@ module.exports = (function () {
                         }
                     })
                     .then(resolve)
-                    .catch(function (err) {
+                    .catch(function(err) {
                         reject(err);
                     });
             });
 
-            _.each(resultingItemsForCreate, function (item) {
+            _.each(resultingItemsForCreate, function(item) {
                 syncPromises[item.Id] = promise;
             });
 
             return resultingItemsForCreate;
         },
 
-        _addCreatedItemsForSync: function (contentTypeData, syncPromises, dataCollection) {
+        _addCreatedItemsForSync: function(contentTypeData, syncPromises, dataCollection) {
             var collectionName = dataCollection.collectionName;
 
             var resultingItemsForCreate = _.pluck(contentTypeData.createdItems, 'resultingItem');
@@ -20950,24 +20968,24 @@ module.exports = (function () {
             }
         },
 
-        _addUpdatedItemsForSync: function (contentTypeData, getFilterOperation, syncPromises, dataCollection, itemUpdateOperation) {
+        _addUpdatedItemsForSync: function(contentTypeData, getFilterOperation, syncPromises, dataCollection, itemUpdateOperation) {
             var self = this;
             var collectionName = dataCollection.collectionName;
             self._eachSyncItem(contentTypeData.modifiedItems, getFilterOperation, collectionName, itemUpdateOperation);
         },
 
-        _addDeletedItemsForSync: function (contentTypeData, getFilterOperation, syncPromises, dataCollection, itemDeleteOperation) {
+        _addDeletedItemsForSync: function(contentTypeData, getFilterOperation, syncPromises, dataCollection, itemDeleteOperation) {
             var self = this;
 
             var collectionName = dataCollection.collectionName;
             self._eachSyncItem(contentTypeData.deletedItems, getFilterOperation, collectionName, itemDeleteOperation);
         },
 
-        _onSyncResponse: function (res, item, collectionName, operation, isCustomItem) {
+        _onSyncResponse: function(res, item, collectionName, operation, isCustomItem) {
             var self = this;
 
             if (res.result !== 1) {
-                return new rsvp.Promise(function (resolve, reject) {
+                return new rsvp.Promise(function(resolve, reject) {
                     reject(_.extend({}, EverliveErrors.syncConflict, {
                         contentType: collectionName
                     }));
@@ -20990,9 +21008,9 @@ module.exports = (function () {
                     });
 
                     return this.processQuery(updateQuery)
-                        .then(function () {
+                        .then(function() {
                             if (isCustomItem) {
-                                var existingItem = _.find(self._syncResultInfo.syncedItems[collectionName], function (syncedItem) {
+                                var existingItem = _.find(self._syncResultInfo.syncedItems[collectionName], function(syncedItem) {
                                     return syncedItem.itemId === item.Id;
                                 });
 
@@ -21004,7 +21022,7 @@ module.exports = (function () {
                 } else if (operation === DataQuery.operations.Delete) {
                     self._onItemProcessed(item, collectionName, syncLocation.server, offlineItemStates.deleted);
                     return this._purgeById(collectionName, item.Id)
-                        .then(function () {
+                        .then(function() {
                             if (isCustomItem) {
                                 self._onItemProcessed(item, collectionName, syncLocation.client, offlineItemStates.deleted);
                             }
@@ -21013,37 +21031,37 @@ module.exports = (function () {
             }
         },
 
-        _purgeById: function (contentType, itemId) {
+        _purgeById: function(contentType, itemId) {
             var self = this;
 
             return this._queryProcessor._getCollection(contentType)
-                .then(function (collection) {
+                .then(function(collection) {
                     delete collection[itemId];
                     return self._queryProcessor._persistData(contentType);
                 });
         },
 
-        sync: function () {
+        sync: function() {
             var self = this;
             self._syncResultInfo = self._syncResultInfo || {
-                    syncedItems: {},
-                    syncedToServer: 0,
-                    syncedToClient: 0,
-                    failedItems: {},
-                    error: undefined // added for visibility
-                };
+                syncedItems: {},
+                syncedToServer: 0,
+                syncedToClient: 0,
+                failedItems: {},
+                error: undefined // added for visibility
+            };
 
             if (!this.isOnline()) {
                 throw new EverliveError('Cannot synchronize while offline');
             }
 
             self._fireSyncStart()
-                .then(function () {
+                .then(function() {
                     return self._applySync();
                 })
-                .then(function (syncResults) {
+                .then(function(syncResults) {
                     var conflictsWhileSync = [];
-                    _.each(syncResults, function (syncResult, itemId) {
+                    _.each(syncResults, function(syncResult, itemId) {
                         if (syncResult && syncResult.state === 'rejected') {
                             if (syncResult.reason && syncResult.reason.code === EverliveErrors.syncConflict.code) {
                                 conflictsWhileSync.push(syncResult);
@@ -21062,13 +21080,13 @@ module.exports = (function () {
                         self._fireSyncEnd();
                     }
                 })
-                .catch(function (err) {
+                .catch(function(err) {
                     self._syncResultInfo.error = err;
                     self._fireSyncEnd();
                 });
         },
 
-        _handleKeepServer: function (typeName, conflictingItem, offlineSyncOperations, contentTypeSyncData) {
+        _handleKeepServer: function(typeName, conflictingItem, offlineSyncOperations, contentTypeSyncData) {
             var self = this;
 
             var serverItem = conflictingItem.serverItem;
@@ -21105,9 +21123,9 @@ module.exports = (function () {
             }
 
             syncQuery.isSync = true;
-            offlineSyncOperations.push(new rsvp.Promise(function (resolve, reject) {
+            offlineSyncOperations.push(new rsvp.Promise(function(resolve, reject) {
                 self.processQuery(syncQuery)
-                    .then(function () {
+                    .then(function() {
                         switch (syncQuery.operation) {
                             case DataQuery.operations.Update:
                                 self._onItemProcessed(serverItem, typeName, syncLocation.client, offlineItemStates.modified);
@@ -21129,7 +21147,7 @@ module.exports = (function () {
                                 break;
                         }
                         resolve();
-                    }, function (err) {
+                    }, function(err) {
                         var itemId;
                         var operation;
                         switch (syncQuery.operation) {
@@ -21158,14 +21176,16 @@ module.exports = (function () {
             }));
         },
 
-        _handleKeepClient: function (conflictingItem, contentTypeSyncData) {
+        _handleKeepClient: function(conflictingItem, contentTypeSyncData) {
             var serverItem = conflictingItem.serverItem;
             var clientItem = conflictingItem.clientItem;
             var resultingItem;
             var collection;
 
             if (serverItem && clientItem) {
-                resultingItem = _.extend(clientItem, {ModifiedAt: new Date(serverItem.ModifiedAt)});
+                resultingItem = _.extend(clientItem, {
+                    ModifiedAt: new Date(serverItem.ModifiedAt)
+                });
                 collection = contentTypeSyncData.modifiedItems;
             } else if (serverItem && !clientItem) {
                 resultingItem = serverItem;
@@ -21184,7 +21204,7 @@ module.exports = (function () {
             });
         },
 
-        _handleCustom: function (conflictingItem, typeName, offlineSyncOperations, contentTypeSyncData) {
+        _handleCustom: function(conflictingItem, typeName, offlineSyncOperations, contentTypeSyncData) {
             var serverItem = conflictingItem.serverItem;
             var clientItem = conflictingItem.clientItem;
             var customItem = _.omit(conflictingItem.result.item, 'CreatedAt', 'ModifiedAt');
@@ -21244,13 +21264,13 @@ module.exports = (function () {
             }
         },
 
-        _mergeResolvedConflicts: function (conflicts, syncData) {
+        _mergeResolvedConflicts: function(conflicts, syncData) {
             var self = this;
 
             var offlineSyncOperations = [];
-            _.each(conflicts, function (conflict) {
+            _.each(conflicts, function(conflict) {
                 var typeName = conflict.contentTypeName;
-                _.each(conflict.conflictingItems, function (conflictingItem) {
+                _.each(conflict.conflictingItems, function(conflictingItem) {
                     var contentTypeSyncData = syncData[typeName];
                     switch (conflictingItem.result.resolutionType) {
                         case constants.ConflictResolution.KeepServer:
@@ -21276,14 +21296,16 @@ module.exports = (function () {
             return rsvp.all(offlineSyncOperations);
         },
 
-        _getSyncItemStates: function (contentType, offlineItems, serverItems) {
+        _getSyncItemStates: function(contentType, offlineItems, serverItems) {
             var self = this;
 
             var contentTypeSyncData = {
                 itemsForSync: {
                     createdItems: [],
                     modifiedItems: [],
-                    deletedItems: []
+                    modifiedItemsOnServer: [],
+                    deletedItems: [],
+                    deletedItemsOnServer: []
                 },
                 conflicts: {
                     contentTypeName: contentType,
@@ -21291,8 +21313,10 @@ module.exports = (function () {
                 }
             };
 
-            _.each(offlineItems, function (offlineItem) {
-                var serverItem = _.findWhere(serverItems, {Id: offlineItem.Id});
+            _.each(offlineItems, function(offlineItem) {
+                var serverItem = _.findWhere(serverItems, {
+                    Id: offlineItem.Id
+                });
                 if (serverItem) {
                     if (serverItem.Id === offlineItem.Id && offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.created) {
                         if (self.setup.conflicts.strategy === constants.ConflictResolutionStrategy.Custom) {
@@ -21323,8 +21347,7 @@ module.exports = (function () {
                     var hasUpdateConflict = false;
 
                     if (clientItemChanged) {
-                        hasUpdateConflict = serverItem.ModifiedAt.getTime() !== offlineItem.ModifiedAt.getTime()
-                            || offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.deleted;
+                        hasUpdateConflict = serverItem.ModifiedAt.getTime() !== offlineItem.ModifiedAt.getTime() || offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.deleted;
                         //TODO: when an item is removed offline its ModifiedAt field is not set, check if it needs to be set or we can use this
                     }
 
@@ -21342,10 +21365,17 @@ module.exports = (function () {
                                 remoteItem: serverItem,
                                 resultingItem: offlineItem
                             });
-                        } else {
+                        } else if (offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.modified) {
                             contentTypeSyncData.itemsForSync.modifiedItems.push({
                                 remoteItem: serverItem,
                                 resultingItem: offlineItem
+                            });
+                        } else if (offlineItem[constants.offlineItemsStateMarker] === undefined) {
+                            contentTypeSyncData.itemsForSync.modifiedItemsOnServer.push(serverItem);
+                        } else {
+                            contentTypeSyncData.itemsForSync.modifiedItems.push({
+                                remoteItem: serverItem,
+                                resultingItem: serverItem
                             });
                         }
                     }
@@ -21357,11 +21387,13 @@ module.exports = (function () {
                             serverItem: null,
                             result: {}
                         });
-                    } else {
+                    } else if (offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.created) {
                         contentTypeSyncData.itemsForSync.createdItems.push({
                             remoteItem: serverItem,
                             resultingItem: offlineItem
                         });
+                    } else {
+                        contentTypeSyncData.itemsForSync.deletedItemsOnServer.push(offlineItem);
                     }
                 }
 
@@ -21371,16 +21403,16 @@ module.exports = (function () {
             return contentTypeSyncData;
         },
 
-        _setResolutionTypeForItem: function (resolutionType, conflictingItem) {
+        _setResolutionTypeForItem: function(resolutionType, conflictingItem) {
             conflictingItem.result = {
                 resolutionType: resolutionType
             };
         },
 
-        _applyResolutionStrategy: function (conflicts) {
+        _applyResolutionStrategy: function(conflicts) {
             var self = this;
             var conflictResolutionStrategy = self.setup.conflicts.strategy;
-            return new rsvp.Promise(function (resolve, reject) {
+            return new rsvp.Promise(function(resolve, reject) {
                 var conflictResolutionPromises = [];
 
                 for (var i = 0; i < conflicts.length; i++) {
@@ -21398,7 +21430,7 @@ module.exports = (function () {
                                         'must be provided when set to Custom'));
                                 }
 
-                                conflictResolutionPromises.push(new rsvp.Promise(function (resolve) {
+                                conflictResolutionPromises.push(new rsvp.Promise(function(resolve) {
                                     customStrategy(conflicts, resolve)
                                 }));
                                 break;
@@ -21409,21 +21441,25 @@ module.exports = (function () {
                 }
 
                 rsvp.all(conflictResolutionPromises)
-                    .then(function () {
+                    .then(function() {
                         resolve();
                     });
             });
         },
 
-        _getSyncPromiseBatch: function (contentType, batchIds) {
+        _getSyncPromiseBatch: function(contentType, batchIds) {
             var self = this;
 
-            return new rsvp.Promise(function (resolve, reject) {
+            return new rsvp.Promise(function(resolve, reject) {
                 var dataQuery = new DataQuery({
                     collectionName: contentType,
-                    query: new Query({'Id': {'$in': batchIds}}),
+                    query: new Query({
+                        'Id': {
+                            '$in': batchIds
+                        }
+                    }),
                     operation: DataQuery.operations.Read,
-                    onSuccess: function (res) {
+                    onSuccess: function(res) {
                         resolve(res.result);
                     },
                     applyOffline: false,
@@ -21437,26 +21473,30 @@ module.exports = (function () {
             });
         },
 
-        _getDirtyItems: function (collection) {
-            return this._queryProcessor._getDirtyItems(collection);
+        _getPlainItemsForSync: function(collection, forceDirty) {
+            if (this.setup.syncUnmodified && !forceDirty) {
+                return _.values(collection);
+            } else {
+                return this._queryProcessor._getDirtyItems(collection);
+            }
         },
 
-        _getSyncPromiseForCollection: function (collection, contentType) {
-            var self = this;
-
-            var batches = [];
-            var batchSize = constants.syncBatchSize;
-
-            var offlineItemsToSync = self._getDirtyItems(collection);
-
-            var allIdsForSync;
+        _getIdsForSync: function(contentType, offlineItemsToSync) {
             if (this._shouldAutogenerateIdForContentType(contentType)) {
-                allIdsForSync = _.pluck(offlineItemsToSync, '_id');
+                return _.pluck(offlineItemsToSync, '_id');
             } else {
-                allIdsForSync = _.pluck(_.reject(offlineItemsToSync, function (offlineItem) {
+                return _.pluck(_.reject(offlineItemsToSync, function(offlineItem) {
                     return offlineItem[constants.offlineItemsStateMarker] === offlineItemStates.created;
                 }), '_id');
             }
+        },
+
+        _getSyncPromiseForCollection: function(collection, contentType) {
+            var batches = [];
+            var batchSize = constants.syncBatchSize;
+
+            var offlineItemsToSync = this._getPlainItemsForSync(collection);
+            var allIdsForSync = this._getIdsForSync(contentType, offlineItemsToSync);
 
             var batchCount = Math.ceil(allIdsForSync.length / batchSize);
 
@@ -21468,12 +21508,12 @@ module.exports = (function () {
             }
 
             return rsvp.all(batches)
-                .then(function (serverItemsSyncResponses) {
+                .then(function(serverItemsSyncResponses) {
                     var result = {
                         serverItems: []
                     };
 
-                    _.each(serverItemsSyncResponses, function (serverItems) {
+                    _.each(serverItemsSyncResponses, function(serverItems) {
                         result.serverItems = _.union(result.serverItems, serverItems);
                     });
 
@@ -21482,13 +21522,13 @@ module.exports = (function () {
                 });
         },
 
-        _onItemFailed: function (syncResult, itemId) {
+        _onItemFailed: function(syncResult, itemId) {
             var self = this;
 
             var results = syncResult.reason ? syncResult.reason : syncResult;
             var targetType = results.contentType;
 
-            var getFailedItem = function (id) {
+            var getFailedItem = function(id) {
                 var pickedObject = _.pick(results, 'storage', 'type', 'error');
                 return _.extend({
                     itemId: id,
@@ -21498,7 +21538,7 @@ module.exports = (function () {
 
             var failedItems = [];
             if (results.type === offlineItemStates.created && results.items) {
-                failedItems = _.map(results.items, function (item) {
+                failedItems = _.map(results.items, function(item) {
                     return getFailedItem(item.Id);
                 });
             } else {
@@ -21506,13 +21546,13 @@ module.exports = (function () {
             }
 
             self._syncResultInfo.failedItems[targetType] = self._syncResultInfo.failedItems[targetType] || [];
-            _.each(failedItems, function (failedItem) {
+            _.each(failedItems, function(failedItem) {
                 self._syncResultInfo.failedItems[targetType].push(failedItem);
                 self._fireItemProcessed(failedItem);
             });
         },
 
-        _onItemProcessed: function (item, contentType, syncStorage, syncType) {
+        _onItemProcessed: function(item, contentType, syncStorage, syncType) {
             var syncInfo = {
                 itemId: item.Id,
                 type: syncType,
@@ -21532,26 +21572,28 @@ module.exports = (function () {
             this._fireItemProcessed(syncInfo);
         },
 
-        _fireItemProcessed: function (syncInfo) {
+        _fireItemProcessed: function(syncInfo) {
             this._everlive._emitter.emit(constants.Events.ItemProcessed, syncInfo);
         },
 
-        _getClientWinsSyncData: function (collections) {
+        _getClientWinsSyncData: function(collections, forceDirty) {
             var self = this;
             var syncData = {};
-            _.each(collections, function (collection, typeName) {
+            _.each(collections, function(collection, typeName) {
                 if (!syncData[typeName]) {
                     syncData[typeName] = {
                         createdItems: [],
                         modifiedItems: [],
-                        deletedItems: []
+                        deletedItems: [],
+                        deletedItemsOnServer: [],
+                        modifiedItemsOnServer: []
                     };
                 }
 
-                var dirtyItems = self._getDirtyItems(collection);
-                var itemsForSync = offlineTransformations.idTransform(dirtyItems);
+                var plainItems = self._getPlainItemsForSync(collection, forceDirty);
+                var itemsForSync = offlineTransformations.idTransform(plainItems);
 
-                _.each(itemsForSync, function (itemForSync) {
+                _.each(itemsForSync, function(itemForSync) {
                     switch (itemForSync[constants.offlineItemsStateMarker]) {
                         case offlineItemStates.created:
                             syncData[typeName].createdItems.push({
@@ -21580,17 +21622,17 @@ module.exports = (function () {
             return syncData;
         },
 
-        _getModifiedFilesForSyncClientWins: function (itemId, item, collectionName) {
+        _getModifiedFilesForSyncClientWins: function(itemId, item, collectionName) {
             var self = this;
             var sdk = self._everlive;
 
-            return new rsvp.Promise(function (resolve, reject) {
+            return new rsvp.Promise(function(resolve, reject) {
                 var offlineFiles = self.files;
                 offlineFiles.getOfflineLocation(itemId)
-                    .then(function (location) {
+                    .then(function(location) {
                         if (location) {
                             return self._transferFile(true, item, location)
-                                .then(function (result) {
+                                .then(function(result) {
                                     if (result.Result === false) {
                                         reject({
                                             type: offlineItemStates.modified,
@@ -21604,7 +21646,7 @@ module.exports = (function () {
                                             result: result
                                         };
                                     }
-                                }, function (err) {
+                                }, function(err) {
                                     reject({
                                         type: offlineItemStates.modified,
                                         itemId: item.Id,
@@ -21618,9 +21660,9 @@ module.exports = (function () {
                                 .isSync(true)
                                 .applyOffline(false)
                                 .updateSingle(item)
-                                .then(function (response) {
+                                .then(function(response) {
                                     return response;
-                                }, function (err) {
+                                }, function(err) {
                                     reject({
                                         type: offlineItemStates.modified,
                                         itemId: item.Id,
@@ -21631,7 +21673,7 @@ module.exports = (function () {
                                 });
                         }
                     })
-                    .then(function (onlineResponse) {
+                    .then(function(onlineResponse) {
                         var onlineResult = onlineResponse.result;
                         item.ModifiedAt = onlineResult.ModifiedAt;
                         self._onItemProcessed(item, collectionName, syncLocation.server, offlineItemStates.modified);
@@ -21641,7 +21683,7 @@ module.exports = (function () {
                             .updateSingle(item);
                     })
                     .then(resolve)
-                    .catch(function (err) {
+                    .catch(function(err) {
                         reject({
                             type: offlineItemStates.modified,
                             itemId: item.Id,
@@ -21653,15 +21695,15 @@ module.exports = (function () {
             });
         },
 
-        _getModifiedItemForSyncClientWins: function (dataCollection, item, collectionName) {
+        _getModifiedItemForSyncClientWins: function(dataCollection, item, collectionName) {
             var self = this;
 
-            return new rsvp.Promise(function (resolve, reject) {
+            return new rsvp.Promise(function(resolve, reject) {
                 return dataCollection
                     .isSync(true)
                     .applyOffline(false)
                     .updateSingle(item)
-                    .then(function (res) {
+                    .then(function(res) {
                         self._onItemProcessed(item, collectionName, syncLocation.server, offlineItemStates.modified);
                         var updatedItem = _.extend({}, item, {
                             ModifiedAt: res.ModifiedAt
@@ -21678,7 +21720,7 @@ module.exports = (function () {
                         });
 
                         return self.processQuery(updateQuery);
-                    }, function (res) {
+                    }, function(res) {
                         reject({
                             storage: syncLocation.server,
                             type: offlineItemStates.modified,
@@ -21687,7 +21729,7 @@ module.exports = (function () {
                             error: res
                         });
                     })
-                    .then(resolve, function (err) {
+                    .then(resolve, function(err) {
                         reject({
                             storage: syncLocation.client,
                             type: offlineItemStates.modified,
@@ -21699,10 +21741,10 @@ module.exports = (function () {
             });
         },
 
-        _addModifiedItemsForSyncClientWins: function (contentTypeData, syncPromises, dataCollection) {
+        _addModifiedItemsForSyncClientWins: function(contentTypeData, syncPromises, dataCollection) {
             var self = this;
 
-            this._addUpdatedItemsForSync(contentTypeData, getSyncFilterNoModifiedAt, syncPromises, dataCollection, function (item) {
+            this._addUpdatedItemsForSync(contentTypeData, getSyncFilterNoModifiedAt, syncPromises, dataCollection, function(item) {
                 var itemId = item.Id;
                 if (!itemId) {
                     throw new EverliveError('When updating an item it must have an Id field.');
@@ -21717,13 +21759,13 @@ module.exports = (function () {
             });
         },
 
-        _addDeletedItemsForSyncClientWins: function (contentTypeData, syncPromises, dataCollection) {
+        _addDeletedItemsForSyncClientWins: function(contentTypeData, syncPromises, dataCollection) {
             var self = this;
 
             this._addDeletedItemsForSync(contentTypeData, getSyncFilterNoModifiedAt, syncPromises, dataCollection,
-                function (item, itemFilter) {
+                function(item, itemFilter) {
                     var collectionName = dataCollection.collectionName;
-                    syncPromises[item.Id] = new rsvp.Promise(function (resolve, reject) {
+                    syncPromises[item.Id] = new rsvp.Promise(function(resolve, reject) {
                         var itemId = item.Id;
                         if (!itemId) {
                             throw new EverliveError('When deleting an item it must have an Id field.');
@@ -21733,11 +21775,11 @@ module.exports = (function () {
                             .isSync(true)
                             .applyOffline(false)
                             .destroySingle(itemFilter)
-                            .then(function () {
+                            .then(function() {
                                 self._onItemProcessed(item, collectionName, syncLocation.server, offlineItemStates.deleted);
-                                return self._purgeById(collectionName, item.Id).then(function () {
+                                return self._purgeById(collectionName, item.Id).then(function() {
                                     resolve();
-                                }, function (err) {
+                                }, function(err) {
                                     reject(_.extend({}, {
                                         storage: syncLocation.client,
                                         type: offlineItemStates.deleted,
@@ -21746,7 +21788,7 @@ module.exports = (function () {
                                         error: err
                                     }));
                                 });
-                            }, function (err) {
+                            }, function(err) {
                                 reject(_.extend({}, {
                                     storage: syncLocation.server,
                                     type: offlineItemStates.deleted,
@@ -21759,12 +21801,12 @@ module.exports = (function () {
                 });
         },
 
-        _applyClientWins: function (collections) {
+        _applyClientWins: function(collections) {
             var self = this;
-            var syncData = this._getClientWinsSyncData(collections);
+            var syncData = this._getClientWinsSyncData(collections, true);
             var syncPromises = {};
 
-            _.each(syncData, function (contentTypeData, typeName) {
+            _.each(syncData, function(contentTypeData, typeName) {
                 var dataCollection = self._everlive.data(typeName);
                 if (contentTypeData.createdItems.length) {
                     self._addCreatedItemsForSync(contentTypeData, syncPromises, dataCollection);
@@ -21779,26 +21821,132 @@ module.exports = (function () {
                 }
             });
 
-            return rsvp.hashSettled(syncPromises);
+            var syncResult;
+
+            return rsvp.hashSettled(syncPromises)
+                .then(function(result) {
+                    syncResult = result;
+                    if (self.setup.syncUnmodified) {
+                        var promises = [];
+                        _.each(collections, function(collection, collectionName) {
+                            var allOfflineItems = self._getPlainItemsForSync(collection);
+                            var itemsToDownload = _.where(allOfflineItems, function(offlineItem) {
+                                return offlineItem[constants.offlineItemsStateMarker] !== undefined;
+                            });
+
+                            var DataCollection = self._everlive.data(collectionName);
+
+                            var itemIdsForSync = _.pluck(itemsToDownload, '_id');
+                            var downloadPromise = DataCollection
+                                .isSync(true)
+                                .useOffline(false)
+                                .get({
+                                    Id: {
+                                        $in: itemIdsForSync
+                                    }
+                                })
+                                .then(function(res) {
+                                    var serverItems = res.result;
+                                    var serverItemIds = _.pluck(serverItems, 'Id');
+                                    return self._unmodifiedClientWinsItemsDeletedOnServer(collectionName, serverItemIds, itemsToDownload)
+                                        .then(function() {
+                                            return self._unmodifiedClientWinsItemsUpdatedOnServer(collectionName, serverItems, itemsToDownload);
+                                        });
+                                });
+
+                            promises.push(downloadPromise);
+                        });
+
+                        return rsvp.all(promises);
+                    }
+                })
+                .then(function() {
+                    return syncResult;
+                });
         },
 
-        _modifyFileStandardSync: function (syncPromises, itemId, item, collectionName, resolutionType) {
+        _unmodifiedClientWinsItemsDeletedOnServer: function(collectionName, serverItemIds, clientItems) {
+            var self = this;
+            var itemsForDeleteIds = [];
+            var itemIdsForSync = _.pluck(clientItems, '_id');
+            _.each(itemIdsForSync, function(itemId) {
+                if (serverItemIds.indexOf(itemId) === -1) {
+                    itemsForDeleteIds.push(itemId);
+                }
+            });
+
+            return utils.successfulPromise()
+                .then(function() {
+                    if (itemsForDeleteIds.length !== 0) {
+                        var deleteQuery = new DataQuery({
+                            operation: DataQuery.operations.Delete,
+                            filter: {
+                                Id: {
+                                    $in: itemsForDeleteIds
+                                }
+                            },
+                            collectionName: collectionName,
+                            isSync: true
+                        });
+
+                        return self.processQuery(deleteQuery).then(function() {
+                            _.each(itemsForDeleteIds, function(itemsForDeleteId) {
+                                self._onItemProcessed({Id: itemsForDeleteId}, collectionName, syncLocation.client, offlineItemStates.deleted);
+                            });
+                        });
+                    }
+                });
+        },
+
+        _unmodifiedClientWinsItemsUpdatedOnServer: function(collectionName, serverItems, clientItems) {
+            var self = this;
+            var updatePromises = [];
+
+            _.each(serverItems, function(serverItem) {
+                var item = _.find(clientItems, function(clientItem) {
+                    return clientItem._id === serverItem.Id;
+                });
+
+                if (item) {
+                    var updateQuery = new DataQuery({
+                        operation: DataQuery.operations.Update,
+                        data: serverItem,
+                        additionalOptions: {
+                            id: item._id
+                        },
+                        collectionName: collectionName,
+                        isSync: true
+                    });
+
+                    var itemUpdatedPromise = self.processQuery(updateQuery)
+                        .then(function(res) {
+                            self._onItemProcessed(serverItem, collectionName, syncLocation.client, offlineItemStates.modified);
+                        });
+
+                    updatePromises.push(itemUpdatedPromise);
+                }
+            });
+
+            return rsvp.all(updatePromises);
+        },
+
+        _modifyFileStandardSync: function(syncPromises, itemId, item, collectionName, resolutionType) {
             var self = this;
 
             var filesCollection = self._everlive.files;
-            syncPromises[itemId] = new rsvp.Promise(function (resolve, reject) {
+            syncPromises[itemId] = new rsvp.Promise(function(resolve, reject) {
                 var offlineLocation;
                 self.files.getOfflineLocation(itemId)
-                    .then(function (locationOnDisk) {
+                    .then(function(locationOnDisk) {
                         offlineLocation = locationOnDisk;
                     })
-                    .then(function () {
+                    .then(function() {
                         return filesCollection
                             .isSync(true)
                             .applyOffline(false)
                             .getById(itemId);
                     })
-                    .then(function (response) {
+                    .then(function(response) {
                         var file = response.result;
                         if (file.ModifiedAt.getTime() !== item.ModifiedAt.getTime()) {
                             reject(_.extend({}, new EverliveError(EverliveErrors.syncConflict), {
@@ -21808,10 +21956,10 @@ module.exports = (function () {
                             if (offlineLocation) {
                                 if (resolutionType === constants.ConflictResolution.KeepServer) {
                                     return self.files._saveFile(item.Uri, item.Filename, item.Id)
-                                        .then(function () {
+                                        .then(function() {
                                             return self._offlineFilesProcessor.purge(offlineLocation);
                                         })
-                                        .then(function () {
+                                        .then(function() {
                                             return response;
                                         });
                                 } else if (resolutionType === constants.ConflictResolution.KeepClient) {
@@ -21820,7 +21968,7 @@ module.exports = (function () {
                             }
                         }
                     })
-                    .then(function () {
+                    .then(function() {
                         return self._everlive.files
                             .isSync(true)
                             .useOffline(true)
@@ -21831,17 +21979,17 @@ module.exports = (function () {
             });
         },
 
-        _modifyContentTypeStandardSync: function (syncPromises, itemId, dataCollection, item, itemFilter, collectionName, isCustom) {
+        _modifyContentTypeStandardSync: function(syncPromises, itemId, dataCollection, item, itemFilter, collectionName, isCustom) {
             var self = this;
 
             syncPromises[itemId] = dataCollection
                 .isSync(true)
                 .applyOffline(false)
                 .update(item, itemFilter)
-                .then(function (res) {
+                .then(function(res) {
                     return self._onSyncResponse(res, item, collectionName, DataQuery.operations.Update, isCustom);
-                }, function (err) {
-                    return new rsvp.Promise(function (resolve, reject) {
+                }, function(err) {
+                    return new rsvp.Promise(function(resolve, reject) {
                         reject({
                             type: offlineItemStates.modified,
                             itemId: item.Id,
@@ -21853,31 +22001,31 @@ module.exports = (function () {
                 });
         },
 
-        _applyStandardSync: function (collections) {
+        _applyStandardSync: function(collections) {
             var self = this;
 
             var promises = {};
-            _.each(collections, function (collection, contentType) {
+            _.each(collections, function(collection, contentType) {
                 promises[contentType] = self._getSyncPromiseForCollection(collection, contentType);
             });
 
             return rsvp.hash(promises)
-                .then(function (contentTypes) {
+                .then(function(contentTypes) {
                     return self._prepareSyncData(contentTypes);
                 })
-                .then(function (syncData) {
+                .then(function(syncData) {
                     return self._resolveConflicts(syncData);
                 })
-                .then(function (contentTypeSyncData) {
+                .then(function(contentTypeSyncData) {
                     var syncPromises = {};
-                    _.each(contentTypeSyncData, function (contentTypeData, collectionName) {
+                    _.each(contentTypeSyncData, function(contentTypeData, collectionName) {
                         var dataCollection = self._everlive.data(collectionName);
                         if (contentTypeData.createdItems.length) {
                             self._addCreatedItemsForSync(contentTypeData, syncPromises, dataCollection);
                         }
 
                         if (contentTypeData.modifiedItems.length) {
-                            self._addUpdatedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter, isCustom, resolutionType) {
+                            self._addUpdatedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function(item, itemFilter, isCustom, resolutionType) {
                                 var itemId = item.Id;
 
                                 if (utils.isContentType.files(collectionName)) {
@@ -21889,15 +22037,15 @@ module.exports = (function () {
                         }
 
                         if (contentTypeData.deletedItems.length) {
-                            self._addDeletedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function (item, itemFilter, isCustom) {
+                            self._addDeletedItemsForSync(contentTypeData, getSyncFilterForItem, syncPromises, dataCollection, function(item, itemFilter, isCustom) {
                                 syncPromises[item.Id] = dataCollection
                                     .isSync(true)
                                     .applyOffline(false)
                                     .destroy(itemFilter)
-                                    .then(function (res) {
+                                    .then(function(res) {
                                         return self._onSyncResponse(res, item, collectionName, DataQuery.operations.Delete, isCustom);
-                                    }, function (err) {
-                                        return new rsvp.Promise(function (resolve, reject) {
+                                    }, function(err) {
+                                        return new rsvp.Promise(function(resolve, reject) {
                                             reject({
                                                 type: offlineItemStates.deleted,
                                                 itemId: item.Id,
@@ -21909,17 +22057,59 @@ module.exports = (function () {
                                     });
                             });
                         }
+
+                        _.each(contentTypeData.deletedItemsOnServer, function(item) {
+                            syncPromises[item.Id] = dataCollection
+                                .isSync(true)
+                                .useOffline(true)
+                                .destroySingle({
+                                    Id: item.Id
+                                })
+                                .then(function(res) {
+                                    return self._onItemProcessed(item, collectionName, syncLocation.client, offlineItemStates.deleted);
+                                }, function(err) {
+                                    return new rsvp.Promise(function(resolve, reject) {
+                                        reject({
+                                            type: offlineItemStates.deleted,
+                                            itemId: item.Id,
+                                            contentType: collectionName,
+                                            error: err,
+                                            storage: syncLocation.client
+                                        });
+                                    });
+                                });
+                        });
+
+                        _.each(contentTypeData.modifiedItemsOnServer, function(item) {
+                            syncPromises[item.Id] = dataCollection
+                                .isSync(true)
+                                .useOffline(true)
+                                .update(item, {
+                                    Id: item.Id
+                                })
+                                .then(function(res) {
+                                    return self._onItemProcessed(item, collectionName, syncLocation.client, offlineItemStates.modified);
+                                }, function(err) {
+                                    return utils.rejectedPromise({
+                                        type: offlineItemStates.modified,
+                                        itemId: item.Id,
+                                        contentType: collectionName,
+                                        error: err,
+                                        storage: syncLocation.client
+                                    })
+                                })
+                        })
                     });
 
                     return rsvp.hashSettled(syncPromises);
                 });
         },
 
-        _applySync: function () {
+        _applySync: function() {
             var self = this;
 
             return this._queryProcessor._getAllCollections()
-                .then(function (collections) {
+                .then(function(collections) {
                     if (self.setup.conflicts.strategy === constants.ConflictResolutionStrategy.ClientWins) {
                         return self._applyClientWins(collections);
                     } else {
@@ -21943,15 +22133,15 @@ module.exports = (function () {
          * @memberOf OfflineModule.prototype
          * @returns {Promise}
          */
-        getItemsForSync: function (success, error) {
+        getItemsForSync: function(success, error) {
             var self = this;
-            var dirtyItemsForSync = {};
-            return buildPromise(function (successCb, errorCb) {
+            var plainItemsForSync = {};
+            return buildPromise(function(successCb, errorCb) {
                 self._queryProcessor._getAllCollections()
-                    .then(function (collections) {
-                        _.each(collections, function (collection, collectionName) {
-                            var dirtyItems = self._getDirtyItems(collection);
-                            dirtyItemsForSync[collectionName] = _.map(dirtyItems, function (item) {
+                    .then(function(collections) {
+                        _.each(collections, function(collection, collectionName) {
+                            var plainItems = self._getPlainItemsForSync(collection);
+                            plainItemsForSync[collectionName] = _.map(plainItems, function(item) {
                                 var itemForSync = {
                                     item: _.extend({}, item),
                                     action: item[constants.offlineItemsStateMarker]
@@ -21962,7 +22152,7 @@ module.exports = (function () {
                             });
                         });
 
-                        successCb(dirtyItemsForSync);
+                        successCb(plainItemsForSync);
                     }).catch(errorCb);
             }, success, error);
         }
@@ -21970,7 +22160,6 @@ module.exports = (function () {
 
     return OfflineModule;
 })();
-
 },{"../EverliveError":48,"../Request":53,"../common":59,"../constants":60,"../query/DataQuery":87,"../query/Query":89,"../query/RequestOptionsBuilder":91,"../utils":102,"./OfflineFilesModule":73,"./OfflineFilesProcessor":74,"./OfflineQueryProcessor":75,"./offlineTransformations":79,"path":3}],77:[function(require,module,exports){
 var constants = require('../constants');
 var persisters = require('./offlinePersisters');
@@ -21996,7 +22185,8 @@ var defaultOfflineStorageOptions = {
         name: '',
         provider: isNativeScript ? constants.StorageProvider.FileSystem : constants.StorageProvider.LocalStorage,
         implementation: null,
-        storagePath: constants.DefaultStoragePath
+        storagePath: constants.DefaultStoragePath,
+        requestedQuota: constants.DefaultFilesystemStorageQuota
     },
     typeSettings: {},
     encryption: {
@@ -25573,7 +25763,7 @@ function WebFileStore(storagePath, options) {
 
     var filesDirectoryPath;
 
-    if (platform.isWindowsPhone) {
+    if (platform.isWindowsPhone || platform.isInAppBuilderSimulator()) {
         //windows phone does not handle leading or trailing slashes very well :(
         filesDirectoryPath = storagePath.replace(new RegExp('/', 'g'), '');
     } else {
@@ -26490,6 +26680,7 @@ module.exports = (function () {
                 var dataQuery = new DataQuery({
                     operation: DataQuery.operations.RawUpdate,
                     collectionName: self.collectionName,
+                    parse: Request.parsers.update,
                     query: filter,
                     data: attrs,
                     onSuccess: success,
