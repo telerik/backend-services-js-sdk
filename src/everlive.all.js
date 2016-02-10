@@ -16053,6 +16053,28 @@ module.exports = (function () {
 
             var currentDevice = this.currentDevice();
             return currentDevice.areNotificationsEnabled(options, onSuccess, onError);
+        },
+
+        /**
+         * Currently available only for iOS
+         * Use this method in case you are working with iOS interactive push notifications in background mode, including TextInput, or iOS silent push notifications
+         * Call it once you are done with processing your push notification in notificationCallbackIOS.
+         * @method notificationProcessed
+         * @name notificationProcessed
+         * @memberOf Push.prototype
+         */
+        /**
+         * Use this method in case you are working with iOS interactive push notifications in background mode, including TextInput, or iOS silent push notifications
+         * Call it once you are done with processing your push notification in notificationCallbackIOS.
+         * @method notificationProcessed
+         * @name notificationProcessed
+         * @memberOf Push.prototype
+         */
+        notificationProcessed: function () {
+            this.ensurePushIsAvailable();
+
+            var currentDevice = this.currentDevice();
+            currentDevice.notificationProcessed();
         }
     };
 
@@ -18187,7 +18209,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.6.4
+ Version 1.6.5
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -22791,7 +22813,7 @@ module.exports = (function () {
     var CurrentDevice = function (pushHandler) {
 
         if (!window.cordova) {
-                throw new EverliveError('Error: currentDevice() can only be called from within a hybrid mobile app, after \'deviceready\' event has been fired.');
+            throw new EverliveError('Error: currentDevice() can only be called from within a hybrid mobile app, after \'deviceready\' event has been fired.');
         }
 
         this._pushHandler = pushHandler;
@@ -22809,12 +22831,12 @@ module.exports = (function () {
         this.emulatorMode = false;
     };
 
-    CurrentDevice.ensurePushIsAvailable = function() {
+    CurrentDevice.ensurePushIsAvailable = function () {
         var isPushNotificationPluginAvailable = (typeof window !== 'undefined' && window.plugins && window.plugins.pushNotification);
 
         if (!isPushNotificationPluginAvailable && !utils._inAppBuilderSimulator()) {
             throw new EverliveError('The push notification plugin is not available. Ensure that the pushNotification plugin is included ' +
-            'and use after `deviceready` event has been fired.');
+                'and use after `deviceready` event has been fired.');
         }
     };
 
@@ -23029,6 +23051,27 @@ module.exports = (function () {
             return buildPromise(function (successCb, errorCb) {
                 pushNotification.areNotificationsEnabled(successCb, errorCb, options);
             }, onSuccess, onError);
+        },
+
+        /**
+         * Currently available only for iOS
+         * Use this method in case you are working with iOS interactive push notifications in background mode, including TextInput, or iOS silent push notifications
+         * Call it once you are done with processing your push notification in notificationCallbackIOS.
+         * @method notificationProcessed
+         * @name notificationProcessed
+         * @memberOf Push.prototype
+         */
+        /**
+         * Currently available only for iOS
+         * Use this method in case you are working with iOS interactive push notifications in background mode, including TextInput, or iOS silent push notifications
+         * Call it once you are done with processing your push notification in notificationCallbackIOS.
+         * @method notificationProcessed
+         * @name notificationProcessed
+         * @memberOf Push.prototype
+         */
+        notificationProcessed: function () {
+            var pushPlugin = window.plugins.pushNotification;
+            pushPlugin.notificationProcessed();
         },
 
         _initializeInteractivePush: function (iOSSettings, success, error) {
@@ -23932,6 +23975,10 @@ module.exports = (function () {
         //Occurs when an error occured when sending registration request to GCM
         _errorSentRegistrationGCM: function (error) {
             this._deviceRegistrationFailed(error);
+        },
+
+        notificationProcessed: function () {
+            throw new Error('Not implemented');
         },
 
         //This function receives all notification events from APN
