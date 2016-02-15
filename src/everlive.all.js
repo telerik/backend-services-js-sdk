@@ -15584,7 +15584,8 @@ var EverliveError = (function () {
 
 var DeviceRegistrationError = (function () {
     var DeviceRegistrationError = function (errorType, message, additionalInformation) {
-        EverliveError.call(this, message);
+        var errorCode = additionalInformation ? additionalInformation.code : undefined;
+        EverliveError.call(this, message, errorCode);
         this.errorType = errorType;
         this.message = message;
         if (additionalInformation !== undefined) {
@@ -16126,6 +16127,7 @@ module.exports = (function () {
         });
 
         _.extend(this, options);
+        delete this.headers[Headers.filter];
         _self = this;
         this._init(options);
     }
@@ -16139,34 +16141,35 @@ module.exports = (function () {
         // If there is a logged in user for the Everlive instance then her/his authentication will be used.
         buildAuthHeader: buildAuthHeader,
         // Builds the URL of the target Everlive service
-        buildUrl: function buildUrl(setup) {
-            return utils.buildUrl(setup);
+        buildUrl: function buildUrl() {
+            var queryString = '';
+
+            if (this.query && this.query.filter) {
+                queryString = '?filter=' + JSON.stringify(this.query.filter);
+            }
+
+            return utils.buildUrl(this.setup) + this.endpoint + queryString;
         },
         // Processes the given query to return appropriate headers to be used by the request
         buildQueryHeaders: function buildQueryHeaders(query) {
-            if (query) {
-                if (query instanceof Query) {
-                    return Request.prototype._buildQueryHeaders(query);
-                }
-                else {
-                    return Request.prototype._buildFilterHeader(query);
-                }
-            }
-            else {
+            if (query && query instanceof Query) {
+                return Request.prototype._buildQueryHeaders(query);
+            } else {
                 return {};
             }
         },
         // Initialize the Request object by using the passed options
         _init: function (options) {
-            _.extend(this.headers, this.buildAuthHeader(this.setup, options), this.buildQueryHeaders(options.query), options.headers);
+            _.extend(this.headers, this.buildAuthHeader(this.setup, options), this.buildQueryHeaders(options.query));
         },
         // Translates an Everlive.Query to request headers
         _buildQueryHeaders: function (query) {
             query = query.build();
             var headers = {};
-            if (query.$where !== null) {
-                headers[Headers.filter] = JSON.stringify(query.$where);
-            }
+
+            // query filter has been moved to the URL of the request
+            // in order to avoid character encoding difficulties
+
             if (query.$select !== null) {
                 headers[Headers.select] = JSON.stringify(query.$select);
             }
@@ -16185,12 +16188,6 @@ module.exports = (function () {
             if (query.$aggregate !== null) {
                 headers[Headers.aggregate] = JSON.stringify(query.$aggregate);
             }
-            return headers;
-        },
-        // Creates a header from a simple filter
-        _buildFilterHeader: function (filter) {
-            var headers = {};
-            headers[Headers.filter] = JSON.stringify(filter);
             return headers;
         }
     };
@@ -16216,7 +16213,7 @@ module.exports = (function () {
 
     if (typeof Request.sendRequest === 'undefined') {
         Request.sendRequest = function (request) {
-            var url = request.buildUrl(request.setup) + request.endpoint;
+            var url = request.buildUrl();
             url = utils.disableRequestCache(url, request.method);
             request.method = request.method || 'GET';
             var data = request.method === 'GET' ? request.data : JSON.stringify(request.data);
@@ -18209,7 +18206,7 @@ module.exports = (function () {
  */
 /*!
  Everlive SDK
- Version 1.6.5
+ Version 1.6.6
  */
 (function () {
     var Everlive = require('./Everlive');
@@ -18532,16 +18529,13 @@ var operations = {
             return filter.logic === 'and';
         },
         _and: function (filter) {
-            var i, l, term, result = {};
+            var i, l, term, result = { $and: []};
             var operands = filter.filters;
             for (i = 0, l = operands.length; i < l; i++) {
                 term = filterBuilder._build(operands[i]);
-                result = filterBuilder._andAppend(result, term);
+                result.$and.push(term);
             }
             return result;
-        },
-        _andAppend: function (andObj, newObj) {
-            return QueryBuilder.prototype._andAppend.call(this, andObj, newObj);
         },
         _isOr: function (filter) {
             return filter.logic === 'or';
@@ -19800,8 +19794,9 @@ OfflineQueryProcessor.prototype = {
             case DataQuery.operations.Delete:
                 return this.remove(dataQuery, queryParams.filter);
             case DataQuery.operations.DeleteById:
-                queryParams.filter._id = dataQuery.additionalOptions.id;
-                return this.remove(dataQuery, queryParams.filter);
+                return this.remove(dataQuery, {
+                    _id: dataQuery.additionalOptions.id
+                });
             case DataQuery.operations.Aggregate:
                 return this.aggregate(dataQuery, queryParams);
             default:
@@ -24248,9 +24243,9 @@ module.exports = (function () {
             var queryParams = {};
 
             if (this.operation === DataQuery.operations.ReadById) {
-                queryParams.filter = this.additionalOptions.id;
                 queryParams.expand = this.getHeaderAsJSON(Headers.expand);
-            } else {
+                queryParams.select = this.getHeaderAsJSON(Headers.select);
+            } else if (!this.additionalOptions || !this.additionalOptions.id) {
                 var sort = this.getHeaderAsJSON(Headers.sort);
                 var limit = this.getHeaderAsJSON(Headers.take);
                 var skip = this.getHeaderAsJSON(Headers.skip);
@@ -24310,16 +24305,21 @@ module.exports = (function () {
         },
 
         _applyEventQueryParams: function (eventQuery) {
-            if (eventQuery.filter && !this.query) {
-                this.query = {};
+            if (eventQuery.filter) {
+                this.query = this.query || {};
+                this.query.filter = eventQuery.filter;
             }
-            this.query.filter = eventQuery.filter;
+
+            if (eventQuery.aggregate) {
+                this.query = this.query || {};
+                this.query.aggregateExpression = eventQuery.aggregate;
+            }
+
             this.fields = eventQuery.select;
             this.sort = eventQuery.sort;
             this.skip = eventQuery.skip;
             this.take = eventQuery.take;
             this.expand = eventQuery.expand;
-            this.aggregate = eventQuery.aggregate;
         },
 
         _applyEventQuerySettings: function (eventQuery) {
@@ -24918,7 +24918,7 @@ module.exports = (function () {
 
     RequestOptionsBuilder._buildEndpointUrl = function (dataQuery) {
         var endpoint = dataQuery.collectionName;
-        if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
+        if (dataQuery.additionalOptions && dataQuery.additionalOptions.id !== undefined) {
             endpoint += '/' + dataQuery.additionalOptions.id;
         }
 
@@ -25070,7 +25070,6 @@ module.exports = (function () {
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'POST',
             endpoint: endpoint,
-            authHeaders: false,
             parse: Request.parsers.single
         });
     };
@@ -26379,7 +26378,10 @@ module.exports = (function () {
                         .then(function () {
                             originalSuccess.apply(this, args);
                         }, function (err) {
-                            if (online && err.code === EverliveErrors.operationNotSupportedOffline.code) {
+                            var notSupported = EverliveErrors.operationNotSupportedOffline.code;
+                            var notFound = EverliveErrors.itemNotFound.code;
+
+                            if (online && (err.code === notSupported || err.code === notFound)) {
                                 originalSuccess.apply(this, args);
                             } else {
                                 query.onError.apply(this, arguments);
@@ -26792,11 +26794,11 @@ module.exports = (function () {
 
         _validateIdForModel: function (model, isDestroy) {
             // validation for destroySingle('id-as-string') scenario
-            if ((typeof model === 'string' || typeof model === 'number') && isDestroy) {
+            if (((typeof model === 'string' && model !== '') || typeof model === 'number') && isDestroy) {
                 return;
             }
 
-            if (!model || model.Id === undefined || model.Id === null) {
+            if (!model || model.Id === undefined || model.Id === null || model.Id === '') {
                 return new EverliveError(EverliveErrors.invalidId)
             }
         },
@@ -27437,7 +27439,6 @@ module.exports.addUsersFunctions = function addUsersFunctions(ns, everlive) {
                 additionalOptions: {
                     keepTokens: keepTokens
                 },
-                skipAuth: true,
                 onSuccess: success,
                 onError: error
             });
