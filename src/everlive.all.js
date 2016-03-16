@@ -1,3 +1,29 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013 Telerik AD
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.y distributed under the MIT license.
+
+Everlive SDK Version: 1.6.8
+*/
+
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Everlive = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -15486,6 +15512,10 @@ var EverliveErrors = {
         code: 10004,
         message: 'Synchronization cancelled by user.'
     },
+    syncErrorUnknown: {
+        code: 10005,
+        message: 'An unknown error occurred while synchronizing. Please make sure there is internet connectivity.'
+    },
     operationNotSupportedOffline: {
         code: 20000 // the error message is created dynamically based on the query filter for offline storage
     },
@@ -16896,8 +16926,9 @@ CacheModule.prototype = {
         var ignoreCacheForQuery = dataQuery.ignoreCache;
 
         var isUnsupportedOffline = this.isQueryUnsupportedOffline(dataQuery);
+        var isForCurrentUser = dataQuery.additionalOptions && dataQuery.additionalOptions.id === 'me';
 
-        return operationShouldSkipCache || cacheDisabledForContentType || ignoreCacheForQuery || isUnsupportedOffline;
+        return operationShouldSkipCache || cacheDisabledForContentType || isForCurrentUser || ignoreCacheForQuery || isUnsupportedOffline;
     },
 
     _cacheDataQuery: function (dataQuery) {
@@ -18206,32 +18237,9 @@ module.exports = (function () {
     return HtmlHelperResponsiveModule;
 }());
 },{"../../EverliveError":48,"../../common":59,"../../constants":60,"../../utils":102}],67:[function(require,module,exports){
-/*!
- The MIT License (MIT)
- Copyright (c) 2013 Telerik AD
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.y distributed under the MIT license.
- */
-/*!
- Everlive SDK
- Version 1.6.7
- */
 (function () {
     var Everlive = require('./Everlive');
-    Everlive.version = '1.6.7';
+    Everlive.version = '1.6.8';
 
     var platform = require('./everlive.platform');
 
@@ -21121,6 +21129,9 @@ module.exports = (function() {
                     }
                 })
                 .catch(function(err) {
+                    if (!err) {
+                        err = new EverliveError(EverliveErrors.syncErrorUnknown);
+                    }
                     self._syncResultInfo.error = err;
                     self._fireSyncEnd();
                 });
@@ -21570,6 +21581,9 @@ module.exports = (function() {
 
             var getFailedItem = function(id) {
                 var pickedObject = _.pick(results, 'storage', 'type', 'error');
+                if (!pickedObject.error) {
+                    pickedObject.error = new EverliveError(EverliveErrors.syncErrorUnknown);
+                }
                 return _.extend({
                     itemId: id,
                     contentType: targetType
@@ -24268,7 +24282,7 @@ module.exports = (function () {
             if (this.operation === DataQuery.operations.ReadById) {
                 queryParams.expand = this.getHeaderAsJSON(Headers.expand);
                 queryParams.select = this.getHeaderAsJSON(Headers.select);
-            } else if (!this.additionalOptions || !this.additionalOptions.id) {
+            } else if (!this.additionalOptions || this.additionalOptions.id === undefined) {
                 var sort = this.getHeaderAsJSON(Headers.sort);
                 var limit = this.getHeaderAsJSON(Headers.take);
                 var skip = this.getHeaderAsJSON(Headers.skip);
@@ -24935,14 +24949,20 @@ var DataQuery = require('./DataQuery');
 var Request = require('../Request');
 var _ = require('../common')._;
 var constants = require('../constants');
+var path = require('path');
 
 module.exports = (function () {
     var RequestOptionsBuilder = {};
 
     RequestOptionsBuilder._buildEndpointUrl = function (dataQuery) {
         var endpoint = dataQuery.collectionName;
-        if (dataQuery.additionalOptions && dataQuery.additionalOptions.id !== undefined) {
-            endpoint += '/' + dataQuery.additionalOptions.id;
+        var isQueryById = dataQuery.additionalOptions && dataQuery.additionalOptions.id !== undefined;
+        var queryType = typeof dataQuery.query;
+
+        if (isQueryById) {
+            endpoint = path.join(endpoint, dataQuery.additionalOptions.id.toString());
+        } else if (queryType === 'string' || queryType === 'number') {
+            endpoint = path.join(endpoint, dataQuery.query);
         }
 
         return endpoint;
@@ -24966,7 +24986,13 @@ module.exports = (function () {
     };
 
     RequestOptionsBuilder._build = function (dataQuery, additionalOptions) {
-        return _.extend(RequestOptionsBuilder._buildBaseObject(dataQuery), additionalOptions);
+        var options = _.extend(RequestOptionsBuilder._buildBaseObject(dataQuery), additionalOptions);
+
+        if (additionalOptions.endpointSupplement) {
+            options.endpoint = path.join(options.endpoint, additionalOptions.endpointSupplement);
+        }
+
+        return options;
     };
 
     RequestOptionsBuilder[DataQuery.operations.Read] = function (dataQuery) {
@@ -24995,19 +25021,11 @@ module.exports = (function () {
     };
 
     RequestOptionsBuilder[DataQuery.operations.RawUpdate] = function (dataQuery) {
-        var endpoint = dataQuery.collectionName;
         var query = dataQuery.query;
-        var ofilter = null; // request options filter
-
-        if (typeof query === 'string') {
-            endpoint += '/' + query; // send the filter as string
-        } else if (typeof query === 'object') {
-            ofilter = query; // send the filter as filter headers
-        }
+        var ofilter = typeof query === 'object' ? query : null; // request options filter
 
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'PUT',
-            endpoint: endpoint,
             query: ofilter
         });
     };
@@ -25027,15 +25045,6 @@ module.exports = (function () {
     RequestOptionsBuilder[DataQuery.operations.DeleteById] = RequestOptionsBuilder[DataQuery.operations.Delete];
 
     RequestOptionsBuilder[DataQuery.operations.SetAcl] = function (dataQuery) {
-        var endpoint = dataQuery.collectionName;
-        var query = dataQuery.query;
-
-        if (typeof query === 'string') { // if query is string than will update a single item using the query as an identifier
-            endpoint += '/' + query;
-        } else if (typeof query === 'object') { // else if it is an object than we will use it's id property
-            endpoint += '/' + query[constants.idField];
-        }
-        endpoint += '/_acl';
         var method, data;
         if (dataQuery.additionalOptions.acl === null) {
             method = 'DELETE';
@@ -25046,24 +25055,15 @@ module.exports = (function () {
 
         return RequestOptionsBuilder._build(dataQuery, {
             method: method,
-            endpoint: endpoint,
+            endpointSupplement: '/_acl',
             data: data
         });
     };
 
     RequestOptionsBuilder[DataQuery.operations.SetOwner] = function (dataQuery) {
-        var endpoint = dataQuery.collectionName;
-        var query = dataQuery.query;
-        if (typeof query === 'string') { // if query is string than will update a single item using the query as an identifier
-            endpoint += '/' + query;
-        } else if (typeof query === 'object') { // else if it is an object than we will use it's id property
-            endpoint += '/' + query[constants.idField];
-        }
-        endpoint += '/_owner';
-
         return RequestOptionsBuilder._build(dataQuery, {
             method: 'PUT',
-            endpoint: endpoint
+            endpointSupplement: '/_owner'
         });
     };
 
@@ -25154,7 +25154,7 @@ module.exports = (function () {
 
     return RequestOptionsBuilder;
 }());
-},{"../Request":53,"../common":59,"../constants":60,"./DataQuery":87}],92:[function(require,module,exports){
+},{"../Request":53,"../common":59,"../constants":60,"./DataQuery":87,"path":3}],92:[function(require,module,exports){
 var Expression = require('../Expression');
 var OperatorType = require('../constants').OperatorType;
 
@@ -26745,16 +26745,26 @@ module.exports = (function () {
          * @param {Function} [success] A success callback.
          * @param {Function} [error] An error callback.
          */
-        rawUpdate: function (attrs, filter, success, error) {
+        rawUpdate: function (attrs, filterOrId, success, error) {
             var self = this;
+            var isSingleUpdate = typeof filterOrId === 'string' || typeof filterOrId === 'number';
+
+            if (isSingleUpdate && !utils.modelHasValidId(filterOrId)) {
+                return self._invalidIdRejectedPromise();
+            }
+
+            var query = isSingleUpdate ? filterOrId : self._generateQueryFromFilter(filterOrId);
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
                     operation: DataQuery.operations.RawUpdate,
                     collectionName: self.collectionName,
                     parse: Request.parsers.update,
-                    query: filter,
+                    query: query,
                     data: attrs,
+                    additionalOptions: {
+                        id: isSingleUpdate ? filterOrId : undefined
+                    },
                     onSuccess: success,
                     onError: error
                 });
@@ -26806,24 +26816,16 @@ module.exports = (function () {
          * @param {Function} [error] An error callback.
          */
         updateSingle: function (model, success, error) {
-            var err = this._validateIdForModel(model);
-            if (err) {
-                return buildPromise(function (success, error) {
-                    return error(err);
-                }, success, error);
+            if (!utils.modelHasValidId(model)) {
+                return this._invalidIdRejectedPromise();
             }
+
             return this._update(model, null, true, false, success, error);
         },
 
-        _validateIdForModel: function (model, isDestroy) {
-            // validation for destroySingle('id-as-string') scenario
-            if (((typeof model === 'string' && model !== '') || typeof model === 'number') && isDestroy) {
-                return;
-            }
-
-            if (!model || model.Id === undefined || model.Id === null || model.Id === '') {
-                return new EverliveError(EverliveErrors.invalidId)
-            }
+        _invalidIdRejectedPromise: function () {
+            var err = new EverliveError(EverliveErrors.invalidId);
+            return utils.rejectedPromise(err);
         },
 
         /**
@@ -26904,11 +26906,8 @@ module.exports = (function () {
          * @param {Function} [error] An error callback.
          */
         destroySingle: function (model, success, error) {
-            var err = this._validateIdForModel(model, true);
-            if (err) {
-                return buildPromise(function (success, error) {
-                    return error(err);
-                }, success, error);
+            if (!utils.modelHasValidId(model)) {
+                return this._invalidIdRejectedPromise();
             }
 
             return this._destroy(model, null, true, success, error);
@@ -26976,19 +26975,29 @@ module.exports = (function () {
          */
         setAcl: function (acl, filter, success, error) {
             var self = this;
+            var isSingle = filter && filter[idField] !== undefined;
+
+            if (isSingle &&  !utils.modelHasValidId(filter[idField])) {
+                return self._invalidIdRejectedPromise();
+            }
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
                     operation: DataQuery.operations.SetAcl,
                     collectionName: self.collectionName,
                     parse: Request.parsers.single,
-                    query: filter,
                     additionalOptions: {
                         acl: acl
                     },
                     onSuccess: success,
                     onError: error
                 });
+
+                if (isSingle) {
+                    dataQuery.additionalOptions.id = filter[idField];
+                } else {
+                    dataQuery.query = self._generateQueryFromFilter(filter);
+                }
 
                 return self.processDataQuery(dataQuery);
             }, success, error);
@@ -27037,6 +27046,11 @@ module.exports = (function () {
          */
         setOwner: function (ownerId, filter, success, error) {
             var self = this;
+            var isSingle = filter && filter[idField] !== undefined;
+
+            if (isSingle &&  !utils.modelHasValidId(filter[idField])) {
+                return self._invalidIdRejectedPromise();
+            }
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
@@ -27046,9 +27060,17 @@ module.exports = (function () {
                     data: {
                         Owner: ownerId
                     },
+                    additionalOptions: {},
                     onSuccess: success,
                     onError: error
                 });
+
+                if (isSingle) {
+                    dataQuery.additionalOptions.id = filter[idField];
+                } else {
+                    dataQuery.query = self._generateQueryFromFilter(filter);
+                }
+
                 return self.processDataQuery(dataQuery);
             }, success, error);
         },
@@ -28529,6 +28551,18 @@ utils.lazyRequire = function (moduleName, exportName) {
 
 utils._inAppBuilderSimulator = function () {
     return typeof window !== undefined && window.navigator && window.navigator.simulator;
+};
+
+utils.isValidId = function (input) {
+    var isValidString = typeof input === 'string' && input !== '';
+    var isValidNumber = typeof input === 'number' && !_.isNaN(input);
+
+    return isValidString || isValidNumber;
+};
+
+utils.modelHasValidId = function (model) {
+    var idToValidate = (typeof model === 'object' && model !== null) ? model.Id : model;
+    return utils.isValidId(idToValidate);
 };
 
 module.exports = utils;
