@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 
-Everlive SDK Version: 1.6.8
+Everlive SDK Version: 1.6.9
 */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Everlive = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -16179,9 +16179,9 @@ module.exports = (function () {
         buildQueryHeaders: function buildQueryHeaders(query) {
             if (query) {
                 if (query instanceof Query) {
-                    return Request.prototype._buildQueryHeaders(query);
+                    return this._buildQueryHeaders(query);
                 } else {
-                    return Request.prototype._buildFilterHeader(query.filter);
+                    return this._buildFilterHeader(query.filter);
                 }
             } else {
                 return {};
@@ -16190,42 +16190,59 @@ module.exports = (function () {
         // Initialize the Request object by using the passed options
         _init: function (options) {
             _.extend(this.headers, this.buildAuthHeader(this.setup, options), this.buildQueryHeaders(options.query));
+            this.clearEmptyHeaders();
             this.encodeHeaders();
         },
         // Translates an Everlive.Query to request headers
         _buildQueryHeaders: function (query) {
             query = query.build();
             var headers = {};
-            if (query.$where !== null) {
-                headers[Headers.filter] = JSON.stringify(query.$where);
-            }
-            if (query.$select !== null) {
-                headers[Headers.select] = JSON.stringify(query.$select);
-            }
-            if (query.$sort !== null) {
-                headers[Headers.sort] = JSON.stringify(query.$sort);
-            }
-            if (query.$skip !== null) {
-                headers[Headers.skip] = query.$skip;
-            }
-            if (query.$take !== null) {
-                headers[Headers.take] = query.$take;
-            }
-            if (query.$expand !== null) {
-                headers[Headers.expand] = JSON.stringify(query.$expand);
-            }
-            if (query.$aggregate !== null) {
-                headers[Headers.aggregate] = JSON.stringify(query.$aggregate);
-            }
+            this._setHeader(headers, query.$where, Headers.filter);
+            this._setHeader(headers, query.$select, Headers.select);
+            this._setHeader(headers, query.$sort, Headers.sort);
+            this._setHeader(headers, query.$skip, Headers.skip);
+            this._setHeader(headers, query.$take, Headers.take);
+            this._setHeader(headers, query.$expand, Headers.expand);
+            this._setHeader(headers, query.$aggregate, Headers.aggregate);
+
             return headers;
         },
         // Creates a header from a simple filter
         _buildFilterHeader: function (filter) {
             var headers = {};
-            headers[Headers.filter] = JSON.stringify(filter);
+            this._setHeader(headers, filter, Headers.filter);
             return headers;
         },
-        encodeHeaders: function encodeHeaders () {
+        _setHeader: function _setHeader(headers, inputHeader, targetHeaderName) {
+            //make sure not to put nulls or something of the sort as a header
+            if (inputHeader) {
+                headers[targetHeaderName] = JSON.stringify(inputHeader);
+            }
+        },
+        clearEmptyHeaders: function clearEmptyHeaders() {
+            var headers = this.headers;
+            _.each(headers, function (headerString, key) {
+                var header;
+                try {
+                    //try to parse the header as object
+                    header = JSON.parse(headerString);
+                    //make sure that the header is a string if it is parsed as a number
+                    if (!_.isObject(header)) {
+                        header += '';
+                    }
+                }
+                catch(e) {
+                    //if it is not an object it probably should stay that way
+                    header = headerString;
+                }
+
+                //if the header is an empty string or empty object it will not be sent
+                if (_.isEmpty(header)) {
+                    delete headers[key];
+                }
+            });
+        },
+        encodeHeaders: function encodeHeaders() {
             var headers = this.headers;
             _.each(EncodableHeaders, function (headerName) {
                 if (headers[headerName] !== undefined) {
@@ -18239,7 +18256,7 @@ module.exports = (function () {
 },{"../../EverliveError":48,"../../common":59,"../../constants":60,"../../utils":102}],67:[function(require,module,exports){
 (function () {
     var Everlive = require('./Everlive');
-    Everlive.version = '1.6.8';
+    Everlive.version = '1.6.9';
 
     var platform = require('./everlive.platform');
 
@@ -24180,21 +24197,10 @@ AggregateQuery.prototype.sum = function () {
     return this._aggregateFunc.apply(this, arguments);
 };
 
-AggregateQuery.prototype.select = function () {
-    throw new EverliveError('select() is not supported for aggregations.');
-};
-
-AggregateQuery.prototype.skip = function () {
-    throw new EverliveError('skip() is not supported for aggregations.');
-};
-
-AggregateQuery.prototype.take = function () {
-    throw new EverliveError('take() is not supported for aggregations.');
-};
-
-AggregateQuery.prototype.order = function () {
-    throw new EverliveError('order() is not supported for aggregations.');
-};
+AggregateQuery.prototype.select = undefined;
+AggregateQuery.prototype.skip  = undefined;
+AggregateQuery.prototype.take = undefined;
+AggregateQuery.prototype.order = undefined;
 
 AggregateQuery.prototype.average = AggregateQuery.prototype.avg;
 
@@ -24383,8 +24389,85 @@ module.exports = (function () {
 
 var constants = require('../constants');
 
+/**
+ * @class EventQuery
+ * @classdesc A query which is passed in the 'beforeExecute' event of [Everlive]{@link Everlive}. Allows changing the parameters of
+ * a query before executing it.
+ */
 var EventQuery = function () {
 };
+
+/** The name of the content type, e.g. EmailSubcrbers.
+ * @memberOf EventQuery.prototype
+ * @member {string} contentTypeName
+ */
+
+/** The query data which will be send to the server.
+ * @memberOf EventQuery.prototype
+ * @member {Object} data
+ */
+
+/** The query headers which will be send with the HTTP request.
+ * @memberOf EventQuery.prototype
+ * @member {Object} headers
+ */
+
+/** The Id of the item.
+ * @memberOf EventQuery.prototype
+ * @member {string} itemId
+ */
+
+/** The type of the operation--read, write, update, delete.
+ * @memberOf EventQuery.prototype
+ * @member {string} operation
+ */
+
+/** A power fields expression.
+ * @memberOf EventQuery.prototype
+ * @member {string} powerfields
+ * @deprecated
+ */
+
+/** A custom settings object.
+ * @memberOf EventQuery.prototype
+ * @member {string} settings
+ */
+
+/** A [filter expression](http://docs.telerik.com/platform/backend-services/rest/queries/queries-filtering) definition.
+ * @memberOf EventQuery.prototype
+ * @member {Object} filter
+ */
+
+/** A [fields expression](http://docs.telerik.com/platform/backend-services/rest/queries/queries-subset-fields) definition.
+ * @memberOf EventQuery.prototype
+ * @member {Object} fields
+ */
+
+/** A [sort expression](http://docs.telerik.com/platform/backend-services/rest/queries/queries-sorting) definition.
+ * @memberOf EventQuery.prototype
+ * @member {Object} sort
+ */
+
+/** The number of result items to skip. Used for paging.
+ * @memberOf EventQuery.prototype
+ * @member {Number} skip
+ */
+
+/** The number of result items to take. Used for paging.
+ * @memberOf EventQuery.prototype
+ * @member {Number} take
+ */
+
+/** An [expand expression](http://docs.telerik.com/platform/backend-services/javascript/data/relations/relations-defining) definition.
+ * @memberOf EventQuery.prototype
+ * @member {Object} expand
+ */
+
+/** Indicates whether the query is a synchronization query. Used with Offline Support.
+ * @memberOf EventQuery.prototype
+ * @member {boolean} isSync
+ * @readonly
+ */
 
 function applyDataQueryParameters(eventQuery, dataQuery) {
     var queryParameters = dataQuery.getQueryParameters();
@@ -24397,6 +24480,15 @@ function applyDataQueryParameters(eventQuery, dataQuery) {
     eventQuery.aggregate = queryParameters.aggregate;
     return queryParameters;
 }
+
+/** An object allowing to modify the settings of the EventQuery.
+ * @memberOf EventQuery.prototype
+ * @member {Object} settings
+ * @property {boolean} useOffline - Modifies whether the query should be invoked on the offline storage.
+ * @property {boolean} applyOffline - Modifies whether the query should be applied offline if the SDK is currently working online. Default is true. Only valid when offlineStorage is enabled.
+ * @property {boolean} ignoreCache - Does not use the cache when retrieving the data. Only valid when caching is enabled.
+ * @property {boolean} forceCache - Forces the request to get the data from the cache even if the data is already expired. Only valid when caching is enabled.
+ */
 
 function applyDataQuerySettings(eventQuery, dataQuery) {
     eventQuery.settings = {
@@ -24439,6 +24531,19 @@ EventQuery.fromDataQuery = function (dataQuery) {
 
     return eventQuery;
 };
+
+/**
+ * Cancels the query.
+ * @memberOf EventQuery.prototype
+ * @method cancel
+ */
+
+/**
+ * Indicates whether the query has been canceled.
+ * @memberOf EventQuery.prototype
+ * @method isCanceled
+ * @returns {boolean}
+ */
 
 EventQuery.prototype = {
     cancel: function () {
@@ -25045,18 +25150,17 @@ module.exports = (function () {
     RequestOptionsBuilder[DataQuery.operations.DeleteById] = RequestOptionsBuilder[DataQuery.operations.Delete];
 
     RequestOptionsBuilder[DataQuery.operations.SetAcl] = function (dataQuery) {
-        var method, data;
-        if (dataQuery.additionalOptions.acl === null) {
+        var method;
+        if (dataQuery.data === null) {
             method = 'DELETE';
+            dataQuery.data = undefined;
         } else {
             method = 'PUT';
-            data = dataQuery.additionalOptions.acl;
         }
 
         return RequestOptionsBuilder._build(dataQuery, {
             method: method,
-            endpointSupplement: '/_acl',
-            data: data
+            endpointSupplement: '/_acl'
         });
     };
 
@@ -26973,31 +27077,26 @@ module.exports = (function () {
          * @param {Function} [success] A success callback.
          * @param {Function} [error] An error callback.
          */
-        setAcl: function (acl, filter, success, error) {
-            var self = this;
-            var isSingle = filter && filter[idField] !== undefined;
-
-            if (isSingle &&  !utils.modelHasValidId(filter[idField])) {
-                return self._invalidIdRejectedPromise();
+        setAcl: function (acl, itemOrId, success, error) {
+            if (!utils.modelHasValidId(itemOrId)) {
+                return this._invalidIdRejectedPromise();
             }
+
+            var self = this;
+            var id = _.isObject(itemOrId) ? itemOrId[idField] : itemOrId;
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
                     operation: DataQuery.operations.SetAcl,
                     collectionName: self.collectionName,
                     parse: Request.parsers.single,
+                    data: acl,
                     additionalOptions: {
-                        acl: acl
+                        id: id
                     },
                     onSuccess: success,
                     onError: error
                 });
-
-                if (isSingle) {
-                    dataQuery.additionalOptions.id = filter[idField];
-                } else {
-                    dataQuery.query = self._generateQueryFromFilter(filter);
-                }
 
                 return self.processDataQuery(dataQuery);
             }, success, error);
@@ -27044,32 +27143,27 @@ module.exports = (function () {
          * @param {Function} [success] A success callback.
          * @param {Function} [error] An error callback.
          */
-        setOwner: function (ownerId, filter, success, error) {
-            var self = this;
-            var isSingle = filter && filter[idField] !== undefined;
-
-            if (isSingle &&  !utils.modelHasValidId(filter[idField])) {
-                return self._invalidIdRejectedPromise();
+        setOwner: function (ownerId, itemOrId, success, error) {
+            if (!utils.modelHasValidId(itemOrId)) {
+                return this._invalidIdRejectedPromise();
             }
+
+            var self = this;
+            var id = _.isObject(itemOrId) ? itemOrId[idField] : itemOrId;
 
             return buildPromise(function (success, error) {
                 var dataQuery = new DataQuery({
                     operation: DataQuery.operations.SetOwner,
                     collectionName: self.collectionName,
-                    query: filter,
                     data: {
                         Owner: ownerId
                     },
-                    additionalOptions: {},
+                    additionalOptions: {
+                        id: id
+                    },
                     onSuccess: success,
                     onError: error
                 });
-
-                if (isSingle) {
-                    dataQuery.additionalOptions.id = filter[idField];
-                } else {
-                    dataQuery.query = self._generateQueryFromFilter(filter);
-                }
 
                 return self.processDataQuery(dataQuery);
             }, success, error);
