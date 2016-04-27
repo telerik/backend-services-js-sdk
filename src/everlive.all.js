@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 
-Everlive SDK Version: 1.6.9
+Everlive SDK Version: 1.6.10
 */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Everlive = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -17645,6 +17645,9 @@ module.exports = (function () {
             fileSource: 'data-href',
             enableOffline: 'data-offline',
             enableResponsive: 'data-responsive'
+        },
+        responsiveParams: {
+            //http://docs.telerik.com/platform/backend-services/javascript/responsive-images/responsive-images-parameters
         }
     };
 
@@ -17666,6 +17669,7 @@ module.exports = (function () {
 
         this.options = _.extend({}, defaults, config);
         this.options.attributes = _.extend({}, defaults.attributes, config.attributes);
+        this.options.responsiveParams = _.extend({}, defaults.responsiveParams, config.responsiveParams);
 
         this._responsive = new HtmlHelperResponsiveModule(this);
         this._offline = new HtmlHelperOfflineModule(this);
@@ -18071,6 +18075,13 @@ var EverliveError = require('../../EverliveError').EverliveError;
 var constants = require('../../constants');
 var utils = require('../../utils');
 
+var DEFAULT_RESPONSIVE_OPERATIONS = {
+    params: {
+        resize: {}
+    },
+    isUserResize: false
+};
+
 module.exports = (function () {
     function HtmlHelperResponsiveModule(htmlHelper) {
         this.htmlHelper = htmlHelper;
@@ -18081,52 +18092,76 @@ module.exports = (function () {
             return Math.ceil(el.offsetWidth);
         },
 
+        getBackgroundHeight: function (el) {
+            return Math.ceil(el.offsetHeight);
+        },
+
         parseParamsString: function parseParamsString(str) {
             if (!str || typeof str === 'undefined' || str.length <= 1) {
-                return false;
+                return DEFAULT_RESPONSIVE_OPERATIONS;
             }
 
+            var params = str.split('/');
+
+            var result = {};
             var isUserResize = false;
-            var params = [];
-            var tmp = str.split('/');
-            var ii = tmp.length;
 
-            for (var i = 0; i < ii; i++) {
-                var item = tmp[i].split('='),
-                    tmpObj = {};
-                if (typeof item[1] === 'undefined') {
-                    item[1] = false;
-                } else {
-                    item[1] = unescape(item[1].replace(/\+/g, ' '));
-                }
+            //TODO: Perhaps the conversion from query string to object and vice versa could go in utils, since it may be useful in other places?
+            _.chain(params)
+                .filter(function (param) {
+                    return !!param;
+                }) //TODO: I think there's a function in lodash called "compact", which does this.
+                .each(function (param) {
+                    var paramPair = param.split('=');
+                    var paramName = paramPair[0];
+                    var paramValues = paramPair[1];
+                    paramValues = unescape(paramValues.replace(/\+/g, ' '));
+                    result[paramName] = paramValues;
 
-                tmpObj[item[0]] = item[1];
-                params.push(tmpObj);
-                if (item[0] === 'resize') {
-                    isUserResize = true;
-                }
-            }
+                    if (paramName === 'resize') {
+                        isUserResize = true;
+                    }
+                });
+
             return {
-                params: params,
+                params: result,
                 isUserResize: isUserResize
             };
         },
 
-        getImgParams: function getImgParams(src) {
+        getImgParams: function getImgParams(src, el) {
+            var self = this;
+
             var operations;
             var imgUrl = src.replace(/.*?resize=[^//]*\//gi, '');
             var protocolRe = new RegExp('https?://', 'gi');
             var serverRe = new RegExp(this.htmlHelper._settings.server, 'gi');
             var apiIdRe = new RegExp(this.htmlHelper._everlive.appId + '/', 'gi');
 
-            operations = src.replace(imgUrl, '').replace(protocolRe, '').replace(serverRe, '').replace(apiIdRe, '').toLowerCase();
-            if (operations !== '') {
-                operations = operations.indexOf('/') ? operations.substring(0, operations.length - 1) : operations;
+            var operationsRaw = src.replace(imgUrl, '').replace(protocolRe, '').replace(serverRe, '').replace(apiIdRe, '').toLowerCase();
+            if (operationsRaw !== '') {
+                var operationsToParse = operationsRaw.indexOf('/') ? operationsRaw.substring(0, operationsRaw.length - 1) : operationsRaw;
+                //TODO: I'm hazy on the context, but... If operationsToParse starts with "/", we parse it "as is",
+                //if not, I guess it's expected to have it in the end and it's truncated? Is it
+                //impossible to not have a "/" at all and cut the last symbol when maybe it shouldn't be cut?
+                operations = this.parseParamsString(operationsToParse);
+            } else if (el.dataset.responsiveParams) {
+                operations = DEFAULT_RESPONSIVE_OPERATIONS;
+                _.each(el.dataset.responsiveParams.split(','), function (key) {
+                    var pair = key.split(':');
+                    var param = pair[0];
+                    var value = pair[1];
+                    operations.params.resize[param] = value;
+                });
             } else {
-                operations = false;
+                operations = DEFAULT_RESPONSIVE_OPERATIONS;
             }
 
-            operations = this.parseParamsString(operations);
+            _.chain(this.htmlHelper.options.responsiveParams).keys().each(function (key) {
+                var value = self.htmlHelper.options.responsiveParams[key];
+                operations.params.resize[key] = value;
+            });
+
             // If it's a user resize operation, use the passed url in the data-src property
             if (operations.isUserResize) {
                 imgUrl = src;
@@ -18146,14 +18181,34 @@ module.exports = (function () {
 
         getImageWidth: function getImageWidth(el) {
             var parentEl = el.parentNode;
-            var parentWidth = parentEl.offsetWidth;
-            var itemStyle = window.getComputedStyle(parentEl, null);
-            var pl = parseFloat(itemStyle.getPropertyValue('padding-left'));
-            var pr = parseFloat(itemStyle.getPropertyValue('padding-right'));
-            var bl = parseFloat(itemStyle.getPropertyValue('border-left-width'));
-            var br = parseFloat(itemStyle.getPropertyValue('border-right-width'));
+            if (parentEl) {
+                var parentWidth = parentEl.offsetWidth;
+                var itemStyle = window.getComputedStyle(parentEl, null);
+                var pl = parseFloat(itemStyle.getPropertyValue('padding-left'));
+                var pr = parseFloat(itemStyle.getPropertyValue('padding-right'));
+                var bl = parseFloat(itemStyle.getPropertyValue('border-left-width'));
+                var br = parseFloat(itemStyle.getPropertyValue('border-right-width'));
 
-            return Math.abs(parentWidth - Math.ceil(pl + pr + bl + br));
+                return Math.abs(parentWidth - Math.ceil(pl + pr + bl + br));
+            }
+
+            return 0;
+        },
+
+        getImageHeight: function (el) {
+            var parentEl = el.parentNode;
+            if (parentEl) {
+                var parentHeight = parentEl.offsetHeight;
+                var itemStyle = window.getComputedStyle(parentEl, null);
+                var pt = parseFloat(itemStyle.getPropertyValue('padding-top'));
+                var pb = parseFloat(itemStyle.getPropertyValue('padding-bottom'));
+                var bt = parseFloat(itemStyle.getPropertyValue('border-top-width'));
+                var bb = parseFloat(itemStyle.getPropertyValue('border-bottom-width'));
+
+                return Math.abs(parentHeight - Math.ceil(pt + pb + bt + bb));
+            }
+
+            return 0;
         },
 
         getDevicePixelRatio: function getDevicePixelRatio() {
@@ -18165,27 +18220,17 @@ module.exports = (function () {
             return pixelDensity !== '' ? _.isNumber(pixelDensity) ? parseFloat(pixelDensity) : false : this.getDevicePixelRatio();
         },
 
-        getImgParamsString: function getImgParamsString(image, params) {
-            var paramsStr = '';
-            var i = 0;
-            var ii = params.length;
-            for (; i < ii; i++) {
-                var item = params[i];
-                var key = _.keys(item)[0];
-                var value;
+        getImgParamsString: function getImgParamsString(params) {
+            var paramsStr = 'resize=';
 
-                if (!utils.isElement.image(image) && key === 'resize') {
-                    continue;
+            _.chain(params.resize).keys().each(function (paramName, index, arr) {
+                paramsStr += (paramName + ':' + params.resize[paramName]);
+                if (index < arr.length - 1) {
+                    paramsStr += ',';
+                } else {
+                    paramsStr += '/';
                 }
-
-                var pixelDensity = this.getPixelRatio(image.item);
-                pixelDensity = (pixelDensity) ? ',pd:' + pixelDensity : '';
-                for (var k in item) {
-                    value = (key === 'resize') ? item[k] + pixelDensity : item[k];
-                }
-
-                paramsStr += key + '=' + value + '/';
-            }
+            });
 
             return paramsStr;
         },
@@ -18199,10 +18244,10 @@ module.exports = (function () {
             var isImage = utils.isElement.image(tag);
             var imgWidth;
 
-            image = _.extend({}, image, self.getImgParams(dataSrc));
+            image = _.extend({}, image, self.getImgParams(dataSrc, item.item));
 
             if (!image.isUserResize) {
-                imgWidth = (!isImage) ? self.getBackgroundWidth(element) : self.getImageWidth(element);
+                imgWidth = isImage ? self.getImageWidth(element) : self.getBackgroundWidth(element);
             }
 
             imgWidth = imgWidth ? imgWidth : false;
@@ -18226,26 +18271,35 @@ module.exports = (function () {
             var url = this.htmlHelper._settings.urlTemplate;
             var pixelDensity = this.getPixelRatio(image.item);
 
-            pixelDensity = pixelDensity ? ',pd:' + pixelDensity : '';
-
             url = url.replace('[protocol]', protocol);
-            url = url.replace('[appid]', appId ? appId : '');
+            url = url.replace('[appid]', appId || '');
             url = url.replace('[hostname]', server);
 
             var params = image.operations || false;
+            var paramsString;
             if (params) {
                 var operations = '';
-                params = this.getImgParamsString(image, params);
-                if (utils.isElement.image(image.tag)) {
-                    operations = imgWidth ? 'resize=w:' + imgWidth + pixelDensity + '/' + params : params;
-                } else {
-                    operations = 'resize=w:' + imgWidth + pixelDensity + '/' + params;
+                params.resize = params.resize || {};
+                params.resize.w = imgWidth;
+                params.resize.pd = pixelDensity;
+                var fill = params.resize.fill;
+                if (fill === 'cover' || fill === 'contain') {
+                    //for fill:cover, we need both the width and height of the image
+                    params.resize.h = this.getImageHeight(image.item) || this.getBackgroundHeight(image.item);
                 }
-                url = url.replace('[operations]', operations);
+
+                paramsString = this.getImgParamsString(params);
             } else {
-                url = url.replace('[operations]', 'resize=w:' + imgWidth + pixelDensity + '/');
+                var defaultParams = {
+                    resize: {
+                        w: imgWidth,
+                        pd: pixelDensity
+                    }
+                };
+                paramsString = this.getImgParamsString(defaultParams);
             }
 
+            url = url.replace('[operations]', paramsString);
             url = url.replace('[url]', image.imgUrl);
             return url;
         }
@@ -18253,10 +18307,11 @@ module.exports = (function () {
 
     return HtmlHelperResponsiveModule;
 }());
+
 },{"../../EverliveError":48,"../../common":59,"../../constants":60,"../../utils":102}],67:[function(require,module,exports){
 (function () {
     var Everlive = require('./Everlive');
-    Everlive.version = '1.6.9';
+    Everlive.version = '1.6.10';
 
     var platform = require('./everlive.platform');
 
