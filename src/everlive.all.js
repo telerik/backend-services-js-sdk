@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 
-Everlive SDK Version: 1.7.0
+Everlive SDK Version: 1.7.1
 */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Everlive = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -14104,7 +14104,7 @@ var Errors = {};
 
 Errors.cancelled = {
     code: 3000,
-    message: 'Cancelled.'
+    message: 'Query cancelled.'
 };
 
 module.exports = Errors;
@@ -14934,7 +14934,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var initializations = [];
 function protectOfflineEnabled() {
     if (!this._isOfflineStorageEnabled()) {
-        throw new _EverliveError.EverliveError('You have instantiated the SDK without support for offline storage');
+        throw new _EverliveError.EverliveError(_EverliveError.EverliveErrors.noOfflineSupport);
     }
 }
 
@@ -15496,6 +15496,10 @@ var EverliveErrors = {
         code: 601,
         message: 'Invalid request.'
     },
+    queryCancelled: {
+        code: 700,
+        message: 'Query cancelled.'
+    },
     missingContentType: {
         code: 701,
         message: 'ContentType not specified.'
@@ -15524,6 +15528,13 @@ var EverliveErrors = {
         code: 707,
         message: 'Push is not supported in offline mode.'
     },
+    noOfflineSupport: {
+        code: 708,
+        message: 'You have instantiated the SDK without support for offline storage.'
+    },
+    cacheDisabled: {
+        code: 709 // the error message is created dynamically based on the cache operation
+    },
     singleValueExpected: {
         code: 710
     }
@@ -15532,6 +15543,10 @@ var EverliveErrors = {
 EverliveErrors = _underscore2.default.deepExtend(EverliveErrors, _errors2.default);
 
 var EverliveErrorHelper = {
+    buildCacheDisabledErrorMessage: function buildCacheDisabledErrorMessage(cacheOperation) {
+        var errorMessage = 'Cannot use ' + cacheOperation + ' while the caching is disabled.';
+        return errorMessage;
+    },
     buildSingleValueExpectedErrorMessage: function buildSingleValueExpectedErrorMessage(operation) {
         var errorMessage = 'A single value is expected in ' + operation + ' query modifier.';
         return errorMessage;
@@ -15619,8 +15634,8 @@ var DeviceRegistrationError = function () {
 
 module.exports = {
     EverliveError: EverliveError,
-    EverliveErrors: EverliveErrors,
     EverliveErrorHelper: EverliveErrorHelper,
+    EverliveErrors: EverliveErrors,
     DeviceRegistrationError: DeviceRegistrationError
 };
 
@@ -17086,6 +17101,8 @@ var _offlinePersisters2 = _interopRequireDefault(_offlinePersisters);
 
 var _offline = require('../../everlive/offline/offline');
 
+var _EverliveError = require('../../everlive/EverliveError');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var CacheModule = function CacheModule(options, everlive) {
@@ -17335,8 +17352,16 @@ CacheModule.prototype = {
         var self = this;
 
         return (0, _utils.buildPromise)(function (success, error) {
+            if (!self.options.enabled) {
+                var errorMessage = _EverliveError.EverliveErrorHelper.buildCacheDisabledErrorMessage('clear');
+                return error(new _EverliveError.EverliveError(errorMessage, _EverliveError.EverliveErrors.cacheDisabled.code));
+            }
+
             return self.persister.purge(contentType, function () {
-                delete self.cacheData[contentType];
+                if (self.cacheData && self.cacheData[contentType]) {
+                    delete self.cacheData[contentType];
+                }
+
                 if (self._everlive.offlineStorage.setup.enabled) {
                     success();
                 } else {
@@ -17366,6 +17391,11 @@ CacheModule.prototype = {
         self.cacheData = null;
 
         return (0, _utils.buildPromise)(function (success, error) {
+            if (self.options.enabled === false) {
+                var errorMessage = _EverliveError.EverliveErrorHelper.buildCacheDisabledErrorMessage('clearAll');
+                return error(new _EverliveError.EverliveError(errorMessage, _EverliveError.EverliveErrors.cacheDisabled.code));
+            }
+
             return self.persister.purgeAll(function () {
                 if (self._everlive.offlineStorage.setup.enabled) {
                     success();
@@ -17379,7 +17409,7 @@ CacheModule.prototype = {
 
 module.exports = CacheModule;
 
-},{"../../everlive/constants":70,"../../everlive/offline/offline":85,"../../everlive/offline/offlinePersisters":86,"../../everlive/services/RequestService":105,"../../everlive/utils":121,"json-stable-stringify":8,"rsvp":35,"underscore":36}],69:[function(require,module,exports){
+},{"../../everlive/EverliveError":58,"../../everlive/constants":70,"../../everlive/offline/offline":85,"../../everlive/offline/offlinePersisters":86,"../../everlive/services/RequestService":105,"../../everlive/utils":121,"json-stable-stringify":8,"rsvp":35,"underscore":36}],69:[function(require,module,exports){
 'use strict';
 
 var _CacheModule = require('../../everlive/caching/CacheModule');
@@ -18965,7 +18995,7 @@ var _offlinePersisters2 = _interopRequireDefault(_offlinePersisters);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (function () {
-    _Everlive2.default.version = '1.7.0';
+    _Everlive2.default.version = '1.7.1';
 
     if (!_everlive2.default.isNativeScript && !_everlive2.default.isNodejs) {
         var kendo = require('../everlive/kendo/kendo.everlive');
@@ -21108,7 +21138,8 @@ OfflineQueryProcessor.prototype = {
             self._collectionCache = {};
 
             self._persister.purgeAll(function () {
-                if (self.everlive.setup.caching) {
+                var cachingIsEnabled = self.everlive.setup.caching && self.everlive.setup.caching.enabled === true;
+                if (cachingIsEnabled) {
                     self.everlive.cache.clearAll(success, error);
                 } else {
                     success();
@@ -21123,7 +21154,8 @@ OfflineQueryProcessor.prototype = {
             delete self._collectionCache[contentType];
 
             self._persister.purge(contentType, function () {
-                if (self.everlive.setup.caching) {
+                var cachingIsEnabled = self.everlive.setup.caching && self.everlive.setup.caching.enabled === true;
+                if (cachingIsEnabled) {
                     self.everlive.cache.clear(contentType, success, error);
                 } else {
                     success();
@@ -21489,11 +21521,12 @@ module.exports = function () {
                         return item;
                     });
                 }, function (err) {
+                    var error = err.error || err;
                     throw {
                         type: _constants.offlineItemStates.created,
                         items: resultingItemsForCreate,
                         contentType: collectionName,
-                        error: err,
+                        error: error,
                         storage: syncLocation.server
                     };
                 }).then(function () {
@@ -27063,6 +27096,12 @@ module.exports = function () {
                 var message = _EverliveError.EverliveErrorHelper.buildSingleValueExpectedErrorMessage('useOffline()');
                 throw new _EverliveError.EverliveError(message, _EverliveError.EverliveErrors.singleValueExpected.code);
             }
+
+            var isOfflineEnabled = this.sdk._isOfflineStorageEnabled();
+            if (_useOffline === true && !isOfflineEnabled) {
+                throw new _EverliveError.EverliveError(_EverliveError.EverliveErrors.noOfflineSupport);
+            }
+
             return this._setOption('useOffline', _useOffline);
         };
 
@@ -27153,6 +27192,7 @@ module.exports = function () {
                 var message = _EverliveError.EverliveErrorHelper.buildSingleValueExpectedErrorMessage('applyOffline()');
                 throw new _EverliveError.EverliveError(message, _EverliveError.EverliveErrors.singleValueExpected.code);
             }
+
             return this._setOption('applyOffline', _applyOffline2);
         };
 
@@ -28712,7 +28752,7 @@ var Users = function (_Data) {
 
     Users.prototype._unlinkFromProvider = function _unlinkFromProvider(providerName, userId, success, error) {
         var dataQuery = this.buildDataQuery({
-            additionalOptions: { userId: userId },
+            additionalOptions: { id: userId },
             data: {
                 Provider: providerName
             }
@@ -28729,7 +28769,7 @@ exports.default = Users;
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-        value: true
+    value: true
 });
 
 var _underscore = require('underscore');
@@ -28747,33 +28787,43 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DataPreprocessor = function () {
-        function DataPreprocessor() {
-                _classCallCheck(this, DataPreprocessor);
+    function DataPreprocessor() {
+        _classCallCheck(this, DataPreprocessor);
+    }
+
+    DataPreprocessor.prototype.processDataQuery = function processDataQuery(query, iterator, data, value) {
+        var offlineStorageEnabled = data.sdk._isOfflineStorageEnabled();
+        query.useOffline = offlineStorageEnabled ? !data.sdk.isOnline() : false;
+
+        var isCachingEnabled = data.sdk.setup.caching === true || data.sdk.setup.caching && data.sdk.setup.caching.enabled;
+        var isSupportedInOffline = _utils2.default.isQuerySupportedOffline(query);
+
+        if (data.options) {
+            query = _underscore2.default.extend(query, data.options);
+            data.options = null;
         }
 
-        DataPreprocessor.prototype.processDataQuery = function processDataQuery(query, iterator, data, value) {
-                var offlineStorageEnabled = data.sdk._isOfflineStorageEnabled();
-                query.useOffline = offlineStorageEnabled ? !data.sdk.isOnline() : false;
+        query.useCache = isCachingEnabled && !query.isSync && isSupportedInOffline;
+        query.applyOffline = query.applyOffline !== undefined ? query.applyOffline : offlineStorageEnabled || query.useCache;
 
-                var isCachingEnabled = data.sdk.setup.caching === true || data.sdk.setup.caching && data.sdk.setup.caching.enabled;
-                var isSupportedInOffline = _utils2.default.isQuerySupportedOffline(query);
+        if (!query.useCache && (query.forceCache || query.maxAge || query.ignoreCache)) {
+            var wantedCacheOperation = void 0;
+            if (query.forceCache) {
+                wantedCacheOperation = 'forceCache';
+            } else if (query.maxAge) {
+                wantedCacheOperation = 'maxAge';
+            } else {
+                wantedCacheOperation = 'ignoreCache';
+            }
 
-                if (data.options) {
-                        query = _underscore2.default.extend(query, data.options);
-                }
+            var cacheDisabledErrorMessage = _EverliveError.EverliveErrorHelper.buildCacheDisabledErrorMessage(wantedCacheOperation);
+            return iterator.error(new _EverliveError.EverliveError(cacheDisabledErrorMessage, _EverliveError.EverliveErrors.cacheDisabled.code));
+        }
 
-                query.useCache = isCachingEnabled && !query.isSync && isSupportedInOffline;
-                query.applyOffline = query.applyOffline !== undefined ? query.applyOffline : offlineStorageEnabled || query.useCache;
+        return iterator.next(value);
+    };
 
-                if (!query.useCache && query.forceCache) {
-                        return iterator.error(new _EverliveError.EverliveError(_EverliveError.EverliveErrors.cannotForceCacheWhenDisabled));
-                }
-
-                data.options = null;
-                return iterator.next(value);
-        };
-
-        return DataPreprocessor;
+    return DataPreprocessor;
 }();
 
 exports.default = DataPreprocessor;
