@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.y distributed under the MIT license.
 
-Everlive SDK Version: 1.7.1
+Everlive SDK Version: 1.7.2
 */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Everlive = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -1711,7 +1711,6 @@ var substr = 'ab'.substr(-1) === 'b'
 
 },{"_process":5}],5:[function(require,module,exports){
 // shim for using process in browser
-
 var process = module.exports = {};
 
 // cached from whatever global is present so that test runners that stub it
@@ -1723,21 +1722,63 @@ var cachedSetTimeout;
 var cachedClearTimeout;
 
 (function () {
-  try {
-    cachedSetTimeout = setTimeout;
-  } catch (e) {
-    cachedSetTimeout = function () {
-      throw new Error('setTimeout is not defined');
+    try {
+        cachedSetTimeout = setTimeout;
+    } catch (e) {
+        cachedSetTimeout = function () {
+            throw new Error('setTimeout is not defined');
+        }
     }
-  }
-  try {
-    cachedClearTimeout = clearTimeout;
-  } catch (e) {
-    cachedClearTimeout = function () {
-      throw new Error('clearTimeout is not defined');
+    try {
+        cachedClearTimeout = clearTimeout;
+    } catch (e) {
+        cachedClearTimeout = function () {
+            throw new Error('clearTimeout is not defined');
+        }
     }
-  }
 } ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -1762,7 +1803,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = cachedSetTimeout(cleanUpNextTick);
+    var timeout = runTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -1779,7 +1820,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    cachedClearTimeout(timeout);
+    runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -1791,7 +1832,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        cachedSetTimeout(drainQueue, 0);
+        runTimeout(drainQueue);
     }
 };
 
@@ -16651,6 +16692,33 @@ var Authentication = function (_Data) {
     };
 
     /**
+     * Log in a user using an SAML access token.
+     * @memberOf Authentication.prototype
+     * @method loginWithSAML
+     * @name loginWithSAML
+     * @param {string} accessToken SAML access token.
+     * @returns {Promise} The promise for the request.
+     */
+    /**
+     * Log in a user using an SAML access token.
+     * @memberOf Authentication.prototype
+     * @method loginWithSAML
+     * @name loginWithSAML
+     * @param {string} accessToken SAML access token.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+
+
+    Authentication.prototype.loginWithSAML = function loginWithSAML(accessToken, success, error) {
+        var identity = {
+            Provider: 'SAML',
+            Token: accessToken
+        };
+        return this._loginWithProvider(identity, success, error);
+    };
+
+    /**
      * Log in a user using a LiveID access token.
      * @memberOf Authentication.prototype
      * @method loginWithLiveID
@@ -16667,8 +16735,6 @@ var Authentication = function (_Data) {
      * @param {Function} [success] A success callback.
      * @param {Function} [error] An error callback.
      */
-
-
     Authentication.prototype.loginWithLiveID = function loginWithLiveID(accessToken, success, error) {
         var identity = {
             Provider: 'LiveID',
@@ -18995,7 +19061,7 @@ var _offlinePersisters2 = _interopRequireDefault(_offlinePersisters);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (function () {
-    _Everlive2.default.version = '1.7.1';
+    _Everlive2.default.version = '1.7.2';
 
     if (!_everlive2.default.isNativeScript && !_everlive2.default.isNodejs) {
         var kendo = require('../everlive/kendo/kendo.everlive');
@@ -28394,6 +28460,58 @@ var Users = function (_Data) {
 
     Users.prototype.unlinkFromADFS = function unlinkFromADFS(userId, success, error) {
         return this._unlinkFromProvider('ADFS', userId, success, error);
+    };
+
+    /**
+     * Links a {{site.TelerikBackendServices}} user account to an SAML access token.
+     * @memberOf Users.prototype
+     * @method linkWithSAML
+     * @name linkWithSAML
+     * @param {string} userId The user's ID in {{site.bs}}.
+     * @param {string} accessToken The SAML access token that will be linked to the {{site.bs}} user account.
+     * @returns {Promise} The promise for the request.
+     */
+    /**
+     * Links a {{site.TelerikBackendServices}} user account to an SAML access token.
+     * @memberOf Users.prototype
+     * @method linkWithSAML
+     * @name linkWithSAML
+     * @param {string} userId The user's ID in {{site.bs}}.
+     * @param {string} accessToken The SAML access token that will be linked to the {{site.bs}} user account.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+
+
+    Users.prototype.linkWithSAML = function linkWithSAML(userId, accessToken, success, error) {
+        var identity = {
+            Provider: 'SAML',
+            Token: accessToken
+        };
+        return this._linkWithProvider(identity, userId, success, error);
+    };
+
+    /**
+     * Unlinks a {{site.TelerikBackendServices}} user account from the SAML token that it is linked to.
+     * @memberOf Users.prototype
+     * @method unlinkFromSAML
+     * @name unlinkFromSAML
+     * @param {string} userId The user's ID in {{site.bs}}.
+     * @returns {Promise} The promise for the request.
+     */
+    /**
+     * Unlinks a {{site.TelerikBackendServices}} user account from the SAML token that it is linked to.
+     * @memberOf Users.prototype
+     * @method unlinkFromSAML
+     * @name unlinkFromSAML
+     * @param {string} userId The user's ID in {{site.bs}}.
+     * @param {Function} [success] A success callback.
+     * @param {Function} [error] An error callback.
+     */
+
+
+    Users.prototype.unlinkFromSAML = function unlinkFromSAML(userId, success, error) {
+        return this._unlinkFromProvider('SAML', userId, success, error);
     };
 
     /**
