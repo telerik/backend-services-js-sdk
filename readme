@@ -21,3 +21,8 @@ Requirejs
 define(['Everlive'], function (Everlive) {
 });
 ```
+
+Typescript
+```typescript
+`import Everlive from 'everlive-sdk'`
+```
