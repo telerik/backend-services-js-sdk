@@ -22,19 +22,19 @@
  * THE SOFTWARE.y distributed under the MIT license.
  * 
  * Everlive SDK 
- *     Version: 1.8.1
- *     Commit: c9eb4bd0378c4638019c7a873d2e2213ea08cf42
+ *     Version: 1.9.0
+ *     Commit: 88db77e82a97af4862aa61b30a7a9776ba23dac9
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("http"), (function webpackLoadOptionalExternalModule() { try { return require("application-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("file-system"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("https"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("local-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("nativescript-push-notifications"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("node-localstorage"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("platform"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("url"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("zlib"); } catch(e) {} }()));
+		module.exports = factory(require("http"), (function webpackLoadOptionalExternalModule() { try { return require("application-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("file-system"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("https"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("local-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("nativescript-push-notifications"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("nativescript-sqlite"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("node-localstorage"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("platform"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("url"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("zlib"); } catch(e) {} }()));
 	else if(typeof define === 'function' && define.amd)
-		define(["http", "application-settings", "file-system", "https", "local-settings", "nativescript-push-notifications", "node-localstorage", "platform", "url", "zlib"], factory);
+		define(["http", "application-settings", "file-system", "https", "local-settings", "nativescript-push-notifications", "nativescript-sqlite", "node-localstorage", "platform", "url", "zlib"], factory);
 	else if(typeof exports === 'object')
-		exports["Everlive"] = factory(require("http"), (function webpackLoadOptionalExternalModule() { try { return require("application-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("file-system"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("https"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("local-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("nativescript-push-notifications"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("node-localstorage"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("platform"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("url"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("zlib"); } catch(e) {} }()));
+		exports["Everlive"] = factory(require("http"), (function webpackLoadOptionalExternalModule() { try { return require("application-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("file-system"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("https"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("local-settings"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("nativescript-push-notifications"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("nativescript-sqlite"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("node-localstorage"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("platform"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("url"); } catch(e) {} }()), (function webpackLoadOptionalExternalModule() { try { return require("zlib"); } catch(e) {} }()));
 	else
-		root["Everlive"] = factory(root["http"], root["application-settings"], root["file-system"], root["https"], root["local-settings"], root["nativescript-push-notifications"], root["node-localstorage"], root["platform"], root["url"], root["zlib"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_132__, __WEBPACK_EXTERNAL_MODULE_182__, __WEBPACK_EXTERNAL_MODULE_183__, __WEBPACK_EXTERNAL_MODULE_184__, __WEBPACK_EXTERNAL_MODULE_185__, __WEBPACK_EXTERNAL_MODULE_186__, __WEBPACK_EXTERNAL_MODULE_187__, __WEBPACK_EXTERNAL_MODULE_188__, __WEBPACK_EXTERNAL_MODULE_189__, __WEBPACK_EXTERNAL_MODULE_190__) {
+		root["Everlive"] = factory(root["http"], root["application-settings"], root["file-system"], root["https"], root["local-settings"], root["nativescript-push-notifications"], root["nativescript-sqlite"], root["node-localstorage"], root["platform"], root["url"], root["zlib"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_145__, __WEBPACK_EXTERNAL_MODULE_214__, __WEBPACK_EXTERNAL_MODULE_215__, __WEBPACK_EXTERNAL_MODULE_216__, __WEBPACK_EXTERNAL_MODULE_217__, __WEBPACK_EXTERNAL_MODULE_218__, __WEBPACK_EXTERNAL_MODULE_219__, __WEBPACK_EXTERNAL_MODULE_220__, __WEBPACK_EXTERNAL_MODULE_221__, __WEBPACK_EXTERNAL_MODULE_222__, __WEBPACK_EXTERNAL_MODULE_223__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(144);
+	module.exports = __webpack_require__(157);
 
 
 /***/ },
@@ -1703,6 +1703,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Constants.StorageProvider = {
 	        LocalStorage: 'localStorage',
 	        FileSystem: 'fileSystem',
+	        SQLite: 'sqlite',
 	        Custom: 'custom'
 	    };
 	    Constants.DefaultStoragePath = 'el_store';
@@ -1862,6 +1863,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        Constants.Headers.powerFields,
 	        Constants.Headers.customParameters
 	    ];
+	    Constants.SqliteTypes = {
+	        Text: 'TEXT',
+	        Number: 'INT',
+	        Float: 'FLOAT'
+	    };
+	    Constants.SqliteUnsupportedTypes = {
+	        ARRAY: 'ARRAY',
+	        OBJECT: 'OBJECT',
+	        DATE: 'DATE',
+	        BOOLEAN: 'BOOLEAN',
+	        NULL: 'NULL'
+	    };
 	    return Constants;
 	}(Constants_1.Constants));
 	exports.Constants = Constants;
@@ -1877,7 +1890,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var errors_1 = __webpack_require__(99);
+	var errors_1 = __webpack_require__(109);
 	var EverliveErrors = (function (_super) {
 	    __extends(EverliveErrors, _super);
 	    function EverliveErrors() {
@@ -2073,10 +2086,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var path = __webpack_require__(13);
+	var path = __webpack_require__(9);
 	var platform = __webpack_require__(5);
 	var constants_1 = __webpack_require__(2);
-	var utils_1 = __webpack_require__(42);
+	var utils_1 = __webpack_require__(46);
 	var unsupportedDbOperators = [
 	    '$geoWithin',
 	    '$geoIntersects',
@@ -2219,6 +2232,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Utils._stringCompare = function (string, check) {
 	        return string.toLowerCase() === check;
 	    };
+	    Utils.startsWith = function (str, word) {
+	        return str.lastIndexOf(word, 0) === 0;
+	    };
+	    Utils.endsWith = function (str, word) {
+	        return str.indexOf(word, str.length - word.length) !== -1;
+	    };
 	    Utils.joinPath = function () {
 	        var args = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
@@ -2283,7 +2302,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var obj = {};
 	        Object.defineProperty(obj, exportName, {
 	            get: function () {
-	                return __webpack_require__(176)(_dynamic_module_);
+	                return __webpack_require__(208)(_dynamic_module_);
 	            }
 	        });
 	        return obj;
@@ -2351,6 +2370,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var offlineStorageOptions = setup.offlineStorage || setup.offline;
 	        return offlineStorageOptions && offlineStorageOptions.enabled !== false;
 	    };
+	    Utils.existsAndIsNotEmpty = function (obj) {
+	        return (!!obj) && (_.size(obj) > 0);
+	    };
 	    Utils.isContentType = {
 	        files: function (collectionName) {
 	            return Utils._stringCompare(collectionName, 'files');
@@ -2410,7 +2432,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	var isNodejs = typeof exports === 'object' && typeof window === 'undefined';
 	exports.isNodejs = isNodejs;
-	var isRequirejs = "function" === 'function' && __webpack_require__(174);
+	var isRequirejs = "function" === 'function' && __webpack_require__(206);
 	exports.isRequirejs = isRequirejs;
 	var isDesktop = !isNativeScript && !isCordova && !isNodejs;
 	exports.isDesktop = isDesktop;
@@ -2442,11 +2464,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Expression_1 = __webpack_require__(18);
+	var Expression_1 = __webpack_require__(20);
 	var constants_1 = __webpack_require__(2);
-	var WhereQuery_1 = __webpack_require__(68);
-	var QueryBuilder_1 = __webpack_require__(22);
-	var Query_1 = __webpack_require__(41);
+	var WhereQuery_1 = __webpack_require__(76);
+	var QueryBuilder_1 = __webpack_require__(23);
+	var Query_1 = __webpack_require__(45);
 	var OperatorType = constants_1.Constants.OperatorType;
 	var Query = (function (_super) {
 	    __extends(Query, _super);
@@ -2800,10 +2822,241 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	
+	// resolves . and .. elements in a path array with directory names there
+	// must be no slashes, empty elements, or device names (c:\) in the array
+	// (so also no leading and trailing slashes - it does not distinguish
+	// relative and absolute paths)
+	function normalizeArray(parts, allowAboveRoot) {
+	  // if the path tries to go above the root, `up` ends up > 0
+	  var up = 0;
+	  for (var i = parts.length - 1; i >= 0; i--) {
+	    var last = parts[i];
+	    if (last === '.') {
+	      parts.splice(i, 1);
+	    } else if (last === '..') {
+	      parts.splice(i, 1);
+	      up++;
+	    } else if (up) {
+	      parts.splice(i, 1);
+	      up--;
+	    }
+	  }
+	
+	  // if the path is allowed to go above the root, restore leading ..s
+	  if (allowAboveRoot) {
+	    for (; up--; up) {
+	      parts.unshift('..');
+	    }
+	  }
+	
+	  return parts;
+	}
+	
+	// Split a filename into [root, dir, basename, ext], unix version
+	// 'root' is just a slash, or nothing.
+	var splitPathRe =
+	    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+	var splitPath = function(filename) {
+	  return splitPathRe.exec(filename).slice(1);
+	};
+	
+	// path.resolve([from ...], to)
+	// posix version
+	exports.resolve = function() {
+	  var resolvedPath = '',
+	      resolvedAbsolute = false;
+	
+	  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+	    var path = (i >= 0) ? arguments[i] : process.cwd();
+	
+	    // Skip empty and invalid entries
+	    if (typeof path !== 'string') {
+	      throw new TypeError('Arguments to path.resolve must be strings');
+	    } else if (!path) {
+	      continue;
+	    }
+	
+	    resolvedPath = path + '/' + resolvedPath;
+	    resolvedAbsolute = path.charAt(0) === '/';
+	  }
+	
+	  // At this point the path should be resolved to a full absolute path, but
+	  // handle relative paths to be safe (might happen when process.cwd() fails)
+	
+	  // Normalize the path
+	  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+	    return !!p;
+	  }), !resolvedAbsolute).join('/');
+	
+	  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+	};
+	
+	// path.normalize(path)
+	// posix version
+	exports.normalize = function(path) {
+	  var isAbsolute = exports.isAbsolute(path),
+	      trailingSlash = substr(path, -1) === '/';
+	
+	  // Normalize the path
+	  path = normalizeArray(filter(path.split('/'), function(p) {
+	    return !!p;
+	  }), !isAbsolute).join('/');
+	
+	  if (!path && !isAbsolute) {
+	    path = '.';
+	  }
+	  if (path && trailingSlash) {
+	    path += '/';
+	  }
+	
+	  return (isAbsolute ? '/' : '') + path;
+	};
+	
+	// posix version
+	exports.isAbsolute = function(path) {
+	  return path.charAt(0) === '/';
+	};
+	
+	// posix version
+	exports.join = function() {
+	  var paths = Array.prototype.slice.call(arguments, 0);
+	  return exports.normalize(filter(paths, function(p, index) {
+	    if (typeof p !== 'string') {
+	      throw new TypeError('Arguments to path.join must be strings');
+	    }
+	    return p;
+	  }).join('/'));
+	};
+	
+	
+	// path.relative(from, to)
+	// posix version
+	exports.relative = function(from, to) {
+	  from = exports.resolve(from).substr(1);
+	  to = exports.resolve(to).substr(1);
+	
+	  function trim(arr) {
+	    var start = 0;
+	    for (; start < arr.length; start++) {
+	      if (arr[start] !== '') break;
+	    }
+	
+	    var end = arr.length - 1;
+	    for (; end >= 0; end--) {
+	      if (arr[end] !== '') break;
+	    }
+	
+	    if (start > end) return [];
+	    return arr.slice(start, end - start + 1);
+	  }
+	
+	  var fromParts = trim(from.split('/'));
+	  var toParts = trim(to.split('/'));
+	
+	  var length = Math.min(fromParts.length, toParts.length);
+	  var samePartsLength = length;
+	  for (var i = 0; i < length; i++) {
+	    if (fromParts[i] !== toParts[i]) {
+	      samePartsLength = i;
+	      break;
+	    }
+	  }
+	
+	  var outputParts = [];
+	  for (var i = samePartsLength; i < fromParts.length; i++) {
+	    outputParts.push('..');
+	  }
+	
+	  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+	
+	  return outputParts.join('/');
+	};
+	
+	exports.sep = '/';
+	exports.delimiter = ':';
+	
+	exports.dirname = function(path) {
+	  var result = splitPath(path),
+	      root = result[0],
+	      dir = result[1];
+	
+	  if (!root && !dir) {
+	    // No dirname whatsoever
+	    return '.';
+	  }
+	
+	  if (dir) {
+	    // It has a dirname, strip trailing slash
+	    dir = dir.substr(0, dir.length - 1);
+	  }
+	
+	  return root + dir;
+	};
+	
+	
+	exports.basename = function(path, ext) {
+	  var f = splitPath(path)[2];
+	  // TODO: make this comparison case-insensitive on windows?
+	  if (ext && f.substr(-1 * ext.length) === ext) {
+	    f = f.substr(0, f.length - ext.length);
+	  }
+	  return f;
+	};
+	
+	
+	exports.extname = function(path) {
+	  return splitPath(path)[3];
+	};
+	
+	function filter (xs, f) {
+	    if (xs.filter) return xs.filter(f);
+	    var res = [];
+	    for (var i = 0; i < xs.length; i++) {
+	        if (f(xs[i], i, xs)) res.push(xs[i]);
+	    }
+	    return res;
+	}
+	
+	// String.prototype.substr - negative index don't work in IE8
+	var substr = 'ab'.substr(-1) === 'b'
+	    ? function (str, start, len) { return str.substr(start, len) }
+	    : function (str, start, len) {
+	        if (start < 0) start = str.length + start;
+	        return str.substr(start, len);
+	    }
+	;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 	var _ = __webpack_require__(1);
 	var utils_1 = __webpack_require__(4);
-	var reqwest_everlive_1 = __webpack_require__(23);
+	var reqwest_everlive_1 = __webpack_require__(24);
 	var constants_1 = __webpack_require__(2);
 	var platform_1 = __webpack_require__(5);
 	var Query_1 = __webpack_require__(6);
@@ -2964,13 +3217,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Request_1 = __webpack_require__(9);
+	var Request_1 = __webpack_require__(10);
 	var utils_1 = __webpack_require__(4);
-	var RequestOptionsBuilder_1 = __webpack_require__(33);
+	var RequestOptionsBuilder_1 = __webpack_require__(36);
 	var EverliveError_1 = __webpack_require__(3);
 	var constants_1 = __webpack_require__(2);
 	var platform_1 = __webpack_require__(5);
@@ -3050,7 +3303,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -3079,7 +3332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	/*
@@ -3799,237 +4052,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-	
-	// resolves . and .. elements in a path array with directory names there
-	// must be no slashes, empty elements, or device names (c:\) in the array
-	// (so also no leading and trailing slashes - it does not distinguish
-	// relative and absolute paths)
-	function normalizeArray(parts, allowAboveRoot) {
-	  // if the path tries to go above the root, `up` ends up > 0
-	  var up = 0;
-	  for (var i = parts.length - 1; i >= 0; i--) {
-	    var last = parts[i];
-	    if (last === '.') {
-	      parts.splice(i, 1);
-	    } else if (last === '..') {
-	      parts.splice(i, 1);
-	      up++;
-	    } else if (up) {
-	      parts.splice(i, 1);
-	      up--;
-	    }
-	  }
-	
-	  // if the path is allowed to go above the root, restore leading ..s
-	  if (allowAboveRoot) {
-	    for (; up--; up) {
-	      parts.unshift('..');
-	    }
-	  }
-	
-	  return parts;
-	}
-	
-	// Split a filename into [root, dir, basename, ext], unix version
-	// 'root' is just a slash, or nothing.
-	var splitPathRe =
-	    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-	var splitPath = function(filename) {
-	  return splitPathRe.exec(filename).slice(1);
-	};
-	
-	// path.resolve([from ...], to)
-	// posix version
-	exports.resolve = function() {
-	  var resolvedPath = '',
-	      resolvedAbsolute = false;
-	
-	  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-	    var path = (i >= 0) ? arguments[i] : process.cwd();
-	
-	    // Skip empty and invalid entries
-	    if (typeof path !== 'string') {
-	      throw new TypeError('Arguments to path.resolve must be strings');
-	    } else if (!path) {
-	      continue;
-	    }
-	
-	    resolvedPath = path + '/' + resolvedPath;
-	    resolvedAbsolute = path.charAt(0) === '/';
-	  }
-	
-	  // At this point the path should be resolved to a full absolute path, but
-	  // handle relative paths to be safe (might happen when process.cwd() fails)
-	
-	  // Normalize the path
-	  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-	    return !!p;
-	  }), !resolvedAbsolute).join('/');
-	
-	  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-	};
-	
-	// path.normalize(path)
-	// posix version
-	exports.normalize = function(path) {
-	  var isAbsolute = exports.isAbsolute(path),
-	      trailingSlash = substr(path, -1) === '/';
-	
-	  // Normalize the path
-	  path = normalizeArray(filter(path.split('/'), function(p) {
-	    return !!p;
-	  }), !isAbsolute).join('/');
-	
-	  if (!path && !isAbsolute) {
-	    path = '.';
-	  }
-	  if (path && trailingSlash) {
-	    path += '/';
-	  }
-	
-	  return (isAbsolute ? '/' : '') + path;
-	};
-	
-	// posix version
-	exports.isAbsolute = function(path) {
-	  return path.charAt(0) === '/';
-	};
-	
-	// posix version
-	exports.join = function() {
-	  var paths = Array.prototype.slice.call(arguments, 0);
-	  return exports.normalize(filter(paths, function(p, index) {
-	    if (typeof p !== 'string') {
-	      throw new TypeError('Arguments to path.join must be strings');
-	    }
-	    return p;
-	  }).join('/'));
-	};
-	
-	
-	// path.relative(from, to)
-	// posix version
-	exports.relative = function(from, to) {
-	  from = exports.resolve(from).substr(1);
-	  to = exports.resolve(to).substr(1);
-	
-	  function trim(arr) {
-	    var start = 0;
-	    for (; start < arr.length; start++) {
-	      if (arr[start] !== '') break;
-	    }
-	
-	    var end = arr.length - 1;
-	    for (; end >= 0; end--) {
-	      if (arr[end] !== '') break;
-	    }
-	
-	    if (start > end) return [];
-	    return arr.slice(start, end - start + 1);
-	  }
-	
-	  var fromParts = trim(from.split('/'));
-	  var toParts = trim(to.split('/'));
-	
-	  var length = Math.min(fromParts.length, toParts.length);
-	  var samePartsLength = length;
-	  for (var i = 0; i < length; i++) {
-	    if (fromParts[i] !== toParts[i]) {
-	      samePartsLength = i;
-	      break;
-	    }
-	  }
-	
-	  var outputParts = [];
-	  for (var i = samePartsLength; i < fromParts.length; i++) {
-	    outputParts.push('..');
-	  }
-	
-	  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-	
-	  return outputParts.join('/');
-	};
-	
-	exports.sep = '/';
-	exports.delimiter = ':';
-	
-	exports.dirname = function(path) {
-	  var result = splitPath(path),
-	      root = result[0],
-	      dir = result[1];
-	
-	  if (!root && !dir) {
-	    // No dirname whatsoever
-	    return '.';
-	  }
-	
-	  if (dir) {
-	    // It has a dirname, strip trailing slash
-	    dir = dir.substr(0, dir.length - 1);
-	  }
-	
-	  return root + dir;
-	};
-	
-	
-	exports.basename = function(path, ext) {
-	  var f = splitPath(path)[2];
-	  // TODO: make this comparison case-insensitive on windows?
-	  if (ext && f.substr(-1 * ext.length) === ext) {
-	    f = f.substr(0, f.length - ext.length);
-	  }
-	  return f;
-	};
-	
-	
-	exports.extname = function(path) {
-	  return splitPath(path)[3];
-	};
-	
-	function filter (xs, f) {
-	    if (xs.filter) return xs.filter(f);
-	    var res = [];
-	    for (var i = 0; i < xs.length; i++) {
-	        if (f(xs[i], i, xs)) res.push(xs[i]);
-	    }
-	    return res;
-	}
-	
-	// String.prototype.substr - negative index don't work in IE8
-	var substr = 'ab'.substr(-1) === 'b'
-	    ? function (str, start, len) { return str.substr(start, len) }
-	    : function (str, start, len) {
-	        if (start < 0) start = str.length + start;
-	        return str.substr(start, len);
-	    }
-	;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
-
-/***/ },
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -4053,16 +4075,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Duplex;
 	
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(91);
+	var processNextTick = __webpack_require__(101);
 	/*</replacement>*/
 	
 	/*<replacement>*/
-	var util = __webpack_require__(26);
-	util.inherits = __webpack_require__(11);
+	var util = __webpack_require__(27);
+	util.inherits = __webpack_require__(12);
 	/*</replacement>*/
 	
-	var Readable = __webpack_require__(130);
-	var Writable = __webpack_require__(93);
+	var Readable = __webpack_require__(143);
+	var Writable = __webpack_require__(103);
 	
 	util.inherits(Duplex, Readable);
 	
@@ -4120,10 +4142,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var DataQuery_1 = __webpack_require__(97);
+	var DataQuery_1 = __webpack_require__(107);
 	var Constants_1 = __webpack_require__(8);
 	var platform = __webpack_require__(5);
-	var Query_1 = __webpack_require__(41);
+	var Query_1 = __webpack_require__(45);
 	var constants_1 = __webpack_require__(2);
 	var utils_1 = __webpack_require__(4);
 	var Query_2 = __webpack_require__(6);
@@ -4298,6 +4320,254 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+	var _ = __webpack_require__(1);
+	var constants_1 = __webpack_require__(2);
+	var traverseAndApply = function (value, operation, additionalOptions) {
+	    if (_.isArray(value)) {
+	        return _.map(value, function (item) {
+	            return operation(item, additionalOptions);
+	        });
+	    }
+	    else {
+	        return operation(value, additionalOptions);
+	    }
+	};
+	var idTransformation = function (value) {
+	    if (typeof value === 'object' && value._id && !value.Id) {
+	        value.Id = value._id;
+	        delete value._id;
+	    }
+	    return value;
+	};
+	var removeIdTransform = function (value, opts) {
+	    var verifyStateCreated = opts.verifyStateCreated;
+	    var shouldModifyObject = verifyStateCreated ? value[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.created : true;
+	    if (typeof value === 'object' && (value._id || value.Id) && shouldModifyObject) {
+	        delete value._id;
+	        delete value.Id;
+	    }
+	    return value;
+	};
+	var removeMarkerTransform = function (value) {
+	    delete value[constants_1.Constants.offlineItemsStateMarker];
+	    return value;
+	};
+	exports.offlineTransformations = {
+	    removeIdTransform: function (value, verifyStateCreated) {
+	        return traverseAndApply(value, removeIdTransform, { verifyStateCreated: verifyStateCreated });
+	    },
+	    idTransform: function (value) {
+	        return traverseAndApply(value, idTransformation);
+	    },
+	    singleFieldTransform: function (singleFieldExpression, value) {
+	        if (typeof value === 'undefined' || value === null) {
+	            return null;
+	        }
+	        else {
+	            return value[singleFieldExpression];
+	        }
+	    },
+	    traverseAndTransformFilterId: function (filterObj) {
+	        if (filterObj && filterObj.Id) {
+	            filterObj._id = filterObj.Id;
+	            delete filterObj.Id;
+	        }
+	        for (var prop in filterObj) {
+	            if (filterObj.hasOwnProperty(prop)) {
+	                var objectMember = filterObj[prop];
+	                if (typeof objectMember === 'object') {
+	                    exports.offlineTransformations.traverseAndTransformFilterId(objectMember);
+	                }
+	            }
+	        }
+	    },
+	    removeMarkersTransform: function (value) {
+	        return traverseAndApply(value, removeMarkerTransform);
+	    },
+	    removeFieldsTransform: function (value, fields) {
+	        _.each(fields, function (field) {
+	            delete value[field];
+	        });
+	        return value;
+	    }
+	};
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var _ = __webpack_require__(1);
+	var EverliveError_1 = __webpack_require__(3);
+	var utils_1 = __webpack_require__(4);
+	/**
+	 * @class BasePersister
+	 * @classdesc An abstraction layer for all persisters. Every persister can write/read
+	 * data to/from a specific place. The data is saved as key-value pairs where the keys are
+	 * content types.
+	 */
+	var BasePersister = (function () {
+	    function BasePersister(key, options) {
+	        this.key = key;
+	        this.options = options;
+	        this.contentTypesStoreKey = this.key + '@ContentTypes';
+	    }
+	    /**
+	     * Gets all the saved data.
+	     * @method getAllData
+	     * @memberof BasePersister
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @returns {Object} The keys are the content types and the values are the corresponding data items.
+	     */
+	    BasePersister.prototype.getAllData = function (success, error) {
+	        var self = this;
+	        var promises = {};
+	        this._getContentTypes(function (contentTypes) {
+	            _.each(contentTypes, function (contentType) {
+	                promises[contentType] = new Promise(function (resolve, reject) {
+	                    self.getData(contentType, resolve, reject);
+	                });
+	            });
+	            utils_1.Utils.promiseHash(promises)
+	                .then(success)
+	                .catch(error);
+	        }, error);
+	    };
+	    /**
+	     * Returns the saved data for a specific content type.
+	     * @method getData
+	     * @param {string} contentType The content type for which to retrieve the data.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @memberof BasePersister
+	     * @returns {string} The retrieved data.
+	     */
+	    BasePersister.prototype.getData = function (contentType, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method getData is not implemented' });
+	    };
+	    /**
+	     * Saves data for a specific content type.
+	     * @method saveData
+	     * @param {string} contentType The content for which to save the data.
+	     * @param {string} data The data corresponding to the specified content type.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @memberof BasePersister
+	     */
+	    BasePersister.prototype.saveData = function (contentType, data, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method saveData is not implemented' });
+	    };
+	    /**
+	     * Clears the persisted data for a specific content type.
+	     * @method purge
+	     * @param {string} contentType The content type for which to clear the data.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @memberof BasePersister
+	     */
+	    BasePersister.prototype.purge = function (contentType, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method purge is not implemented' });
+	    };
+	    /**
+	     * Clears all persisted data in the offline store.
+	     * @method purgeAll
+	     * @memberof BasePersister
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     */
+	    BasePersister.prototype.purgeAll = function (success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method purgeAll is not implemented' });
+	    };
+	    /**
+	     * Clears the persisted data for a specific item.
+	     * @method purgeById
+	     * @memberof BasePersister
+	     * @param {string} contentType The content type for which to clear the data item.
+	     * @param {string} itemId The item id that will be cleared.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     */
+	    BasePersister.prototype.purgeById = function (contentType, itemId, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method purgeById is not implemented' });
+	    };
+	    /**
+	     * Get the number of items for the specifeid content type.
+	     * @method count
+	     * @memberof BasePersister
+	     * @param {string} contentType The content type for which to clear the data item.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @param {Object=} filter Count the items by filter.
+	     */
+	    BasePersister.prototype.count = function (contentType, success, error, filter) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method count is not implemented' });
+	    };
+	    /**
+	     * Get the data for the specified content type by using filter/sort/skip/take/fields
+	     * @method queryData
+	     * @memberof BasePersister
+	     * @param {string} contentType The content type for which to clear the data item.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @param {Object=} filter Get items by filter.
+	     * @param {Object=} sort Sort the result items.
+	     * @param {number=} skip Skip a number of items.
+	     * @param {number=} limit Take only a number of items.
+	     * @param {Object=} select Select a subset of fields from the result items.
+	     */
+	    BasePersister.prototype.queryData = function (contentType, success, error, filter, sort, skip, limit, select) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method queryData is not implemented' });
+	    };
+	    /**
+	     * Delete items for the specified content type
+	     * @method removeData
+	     * @memberof BasePersister
+	     * @param {string} contentType The content type for which to clear the data item.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @param {Object=} filter Delete the items matching the specified filter.
+	     */
+	    BasePersister.prototype.removeData = function (contentType, success, error, filter) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method removeData is not implemented' });
+	    };
+	    /**
+	     * Update items for the specified content type
+	     * @method updateData
+	     * @memberof BasePersister
+	     * @param {string} contentType The content type for which to clear the data item.
+	     * @param {Object} updateObj The update expression.
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     * @param {Object=} filter Update the items matching the specified filter.
+	     */
+	    BasePersister.prototype.updateData = function (contentType, updateObj, success, error, filter) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method updateData is not implemented' });
+	    };
+	    BasePersister.prototype._getKey = function (contentType) {
+	        return this.key + '_' + contentType;
+	    };
+	    /**
+	     * Returns a list of the mapped content types.
+	     * @method _getContentTypes
+	     * @memberof BasePersister
+	     * @param {Function} success A success callback.
+	     * @param {Function} error An error callback.
+	     */
+	    BasePersister.prototype._getContentTypes = function (success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method _getContentTypes is not implemented' });
+	    };
+	    return BasePersister;
+	}());
+	exports.BasePersister = BasePersister;
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -4309,7 +4579,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var constants_1 = __webpack_require__(2);
 	var DataQuery_1 = __webpack_require__(15);
 	var EverliveError_1 = __webpack_require__(3);
-	var Data_1 = __webpack_require__(134);
+	var Data_1 = __webpack_require__(147);
 	/**
 	 * @class Data
 	 * @classdesc A class that provides methods for all CRUD operations to a given {{site.bs}} data type. Covers advanced scenarios with custom headers and special server-side functionality.
@@ -4895,7 +5165,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -5202,7 +5472,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5221,17 +5491,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var BasePersister_1 = __webpack_require__(20);
+	var BasePersister_1 = __webpack_require__(17);
 	exports.BasePersister = BasePersister_1.BasePersister;
-	var LocalStoragePersister_1 = __webpack_require__(65);
+	var LocalStoragePersister_1 = __webpack_require__(68);
 	exports.LocalStoragePersister = LocalStoragePersister_1.LocalStoragePersister;
-	var FileSystemPersister_1 = __webpack_require__(64);
+	var FileSystemPersister_1 = __webpack_require__(67);
 	exports.FileSystemPersister = FileSystemPersister_1.FileSystemPersister;
+	var SQLitePersister_1 = __webpack_require__(69);
+	exports.SQLitePersister = SQLitePersister_1.SQLitePersister;
 	var constants_1 = __webpack_require__(2);
 	var EverliveError_1 = __webpack_require__(3);
 	function getPersister(storageKey, options) {
@@ -5249,6 +5521,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            case constants_1.Constants.StorageProvider.FileSystem:
 	                persister = new FileSystemPersister_1.FileSystemPersister(storageKey, options);
 	                break;
+	            case constants_1.Constants.StorageProvider.SQLite:
+	                persister = new SQLitePersister_1.SQLitePersister(storageKey, options);
+	                break;
 	            case constants_1.Constants.StorageProvider.Custom:
 	                throw new EverliveError_1.EverliveError({ message: 'Custom storage provider requires an implementation object' });
 	            default:
@@ -5261,105 +5536,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	var _ = __webpack_require__(1);
-	var EverliveError_1 = __webpack_require__(3);
-	var utils_1 = __webpack_require__(4);
-	/**
-	 * @class BasePersister
-	 * @classdesc An abstraction layer for all persisters. Every persister can write/read
-	 * data to/from a specific place. The data is saved as key-value pairs where the keys are
-	 * content types.
-	 */
-	var BasePersister = (function () {
-	    function BasePersister(key, options) {
-	        this.key = key;
-	        this.options = options;
-	        this.contentTypesStoreKey = this.key + '@ContentTypes';
-	    }
-	    /**
-	     * Gets all the saved data.
-	     * @method getAllData
-	     * @memberof BasePersister
-	     * @param {Function} success A success callback.
-	     * @param {Function} error An error callback.
-	     * @returns {Object} The keys are the content types and the values are the corresponding data items.
-	     */
-	    BasePersister.prototype.getAllData = function (success, error) {
-	        var self = this;
-	        var promises = {};
-	        this._getContentTypes(function (contentTypes) {
-	            _.each(contentTypes, function (contentType) {
-	                promises[contentType] = new Promise(function (resolve, reject) {
-	                    self.getData(contentType, resolve, reject);
-	                });
-	            });
-	            utils_1.Utils.promiseHash(promises)
-	                .then(success)
-	                .catch(error);
-	        }, error);
-	    };
-	    /**
-	     * Returns the saved data for a specific content type.
-	     * @method getData
-	     * @param {string} contentType The content type for which to retrieve the data.
-	     * @param {Function} success A success callback.
-	     * @param {Function} error An error callback.
-	     * @memberof BasePersister
-	     * @returns {string} The retrieved data.
-	     */
-	    BasePersister.prototype.getData = function (contentType, success, error) {
-	        throw new EverliveError_1.EverliveError({ message: 'The method getData is not implemented' });
-	    };
-	    /**
-	     * Saves data for a specific content type.
-	     * @method saveData
-	     * @param {string} contentType The content for which to save the data.
-	     * @param {string} data The data corresponding to the specified content type.
-	     * @param {Function} success A success callback.
-	     * @param {Function} error An error callback.
-	     * @memberof BasePersister
-	     */
-	    BasePersister.prototype.saveData = function (contentType, data, success, error) {
-	        throw new EverliveError_1.EverliveError({ message: 'The method saveData is not implemented' });
-	    };
-	    /**
-	     * Clears the persisted data for a specific content type.
-	     * @method purge
-	     * @param {string} contentType The content type for which to clear the data.
-	     * @param {Function} success A success callback.
-	     * @param {Function} error An error callback.
-	     * @memberof BasePersister
-	     */
-	    BasePersister.prototype.purge = function (contentType, success, error) {
-	        throw new EverliveError_1.EverliveError({ message: 'The method clear is not implemented' });
-	    };
-	    /**
-	     * Clears all persisted data in the offline store.
-	     * @method purgeAll
-	     * @memberof BasePersister
-	     * @param {Function} success A success callback.
-	     * @param {Function} error An error callback.
-	     */
-	    BasePersister.prototype.purgeAll = function (success, error) {
-	        throw new EverliveError_1.EverliveError({ message: 'The method clearAll is not implemented' });
-	    };
-	    BasePersister.prototype._getKey = function (contentType) {
-	        return this.key + '_' + contentType;
-	    };
-	    BasePersister.prototype._getContentTypes = function (success, error) {
-	        throw new EverliveError_1.EverliveError({ message: 'The method _getContentTypes is not implemented' });
-	    };
-	    return BasePersister;
-	}());
-	exports.BasePersister = BasePersister;
-
-
-/***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5538,15 +5715,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
 	var constants_1 = __webpack_require__(2);
-	var GeoPoint_1 = __webpack_require__(28);
+	var GeoPoint_1 = __webpack_require__(31);
 	var EverliveError_1 = __webpack_require__(3);
-	var Expression_1 = __webpack_require__(18);
+	var Expression_1 = __webpack_require__(20);
 	var maxDistanceConsts = constants_1.Constants.maxDistanceConsts;
 	var radiusConsts = constants_1.Constants.radiusConsts;
 	var OperatorType = constants_1.Constants.OperatorType;
@@ -5907,7 +6084,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5915,18 +6092,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	var isNativeScript = platform.isNativeScript;
 	var isNodejs = platform.isNodejs;
 	if (!isNodejs && !isNativeScript) {
-	    exports.reqwest = __webpack_require__(169);
+	    exports.reqwest = __webpack_require__(202);
 	}
 	else if (isNativeScript) {
-	    exports.reqwest = __webpack_require__(69);
+	    exports.reqwest = __webpack_require__(77);
 	}
 	else if (isNodejs) {
-	    exports.reqwest = __webpack_require__(70);
+	    exports.reqwest = __webpack_require__(78);
 	}
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer, global) {/*!
@@ -5939,9 +6116,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	'use strict'
 	
-	var base64 = __webpack_require__(125)
-	var ieee754 = __webpack_require__(126)
-	var isArray = __webpack_require__(88)
+	var base64 = __webpack_require__(136)
+	var ieee754 = __webpack_require__(137)
+	var isArray = __webpack_require__(98)
 	
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -7478,10 +7655,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return i
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36).Buffer, (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40).Buffer, (function() { return this; }())))
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	/**
@@ -7521,7 +7698,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -7632,10 +7809,957 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return Object.prototype.toString.call(o);
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40).Buffer))
 
 /***/ },
-/* 27 */
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	var ValuesStore = __webpack_require__(180);
+	
+	var templatesInit = __webpack_require__(168);
+	var blocksInit = __webpack_require__(161);
+	var operatorsInit = __webpack_require__(165);
+	var modifiersInit = __webpack_require__(162);
+	
+	var blockRegExp = /\{([a-z0-9]+)\}(.|$)/ig;
+	
+	var Dialect = module.exports = function(builder) {
+		this.builder = builder;
+	
+		this.templates = new ValuesStore();
+		this.blocks = new ValuesStore();
+		this.operators = {
+			comparison: new ValuesStore(),
+			logical: new ValuesStore(),
+			fetching: new ValuesStore(),
+			state: new ValuesStore()
+		};
+		this.modifiers = new ValuesStore();
+	
+		// init templates
+		templatesInit(this);
+	
+		// init blocks
+		blocksInit(this);
+	
+		// init operators
+		operatorsInit(this);
+	
+		// init modifiers
+		modifiersInit(this);
+	
+		this.identifierPartsRegexp = new RegExp(
+			'(\\' + this.config.identifierPrefix + '[^\\' + this.config.identifierSuffix + ']*\\' +
+				this.config.identifierSuffix + '|[^\\.]+)', 'g'
+		);
+		this.wrappedIdentifierPartRegexp = new RegExp(
+			'^\\' + this.config.identifierPrefix + '.*\\' + this.config.identifierSuffix + '$'
+		);
+	};
+	
+	Dialect.prototype.config = {
+		identifierPrefix: '"',
+		identifierSuffix: '"'
+	};
+	
+	Dialect.prototype._wrapIdentifier = function(name) {
+		if (this.builder.options.wrappedIdentifiers) {
+			var self = this;
+			var nameParts = name.match(this.identifierPartsRegexp);
+	
+			return _(nameParts).map(function(namePart) {
+				if (namePart !== '*' && !self.wrappedIdentifierPartRegexp.test(namePart)) {
+					namePart = self.config.identifierPrefix + namePart + self.config.identifierSuffix;
+				}
+	
+				return namePart;
+			}).join('.');
+		}
+	
+		return name;
+	};
+	
+	Dialect.prototype.buildLogicalOperator = function(params) {
+		var self = this;
+	
+		var operator = params.operator;
+		var value = params.value;
+	
+		if (!_.isObject(value)) value = _.object([params.defaultFetchingOperator], [value]);
+	
+		if (_.isEmpty(value)) return '';
+	
+		var result;
+	
+		if (_.isArray(value)) {
+			// if value is array: [{a: 1}, {b: 2}] process each item as logical operator
+			result = _(value).map(function(item) {
+				return self.buildOperator({
+					context: 'logical',
+					contextOperator: operator,
+					operator: '$and',
+					value: item,
+					states: [],
+					defaultFetchingOperator: params.defaultFetchingOperator
+				});
+			});
+		} else {
+			result = _(value).map(function(item, field) {
+				// if field name is not a operator convert it to {$field: {name: 'a', $eq: 'b'}}
+				if (field[0] !== '$') {
+					if (!_.isObject(item) || _.isArray(item)) item = {$eq: item};
+					item = _.defaults({name: field}, item);
+					field = '$field';
+				}
+	
+				return self.buildOperator({
+					context: 'logical',
+					contextOperator: operator,
+					operator: field,
+					value: item,
+					states: [],
+					defaultFetchingOperator: params.defaultFetchingOperator
+				});
+			});
+		}
+	
+		return this.operators.logical.get(operator).fn(_.compact(result));
+	};
+	
+	Dialect.prototype.buildComparisonOperator = function(params) {
+		var self = this;
+	
+		var operator = params.operator;
+	
+		_(params.states).each(function(state) {
+			operator = self.operators.state.get(state).getOperator(operator);
+		});
+	
+		var operatorParams = this.operators.comparison.get(operator);
+	
+		var value = this.buildEndFetchingOperator({
+			context: 'comparison',
+			contextOperator: operator,
+			value: params.value,
+			states: params.states,
+			defaultFetchingOperator: operatorParams.defaultFetchingOperator ||
+				params.defaultFetchingOperator
+		});
+	
+		return operatorParams.fn(params.field, value);
+	};
+	
+	Dialect.prototype.buildFetchingOperator = function(params) {
+		var operator = params.operator;
+		var value = params.value;
+	
+		var field = this.operators.fetching.get(operator).fn(value, params.end);
+	
+		var result;
+		if (params.end || !_.isObject(value)) {
+			result = field;
+		} else {
+			result = this.buildOperatorsGroup({
+				context: 'fetching',
+				contextOperator: operator,
+				operator: '$and',
+				field: field,
+				value: value,
+				states: params.states,
+				defaultFetchingOperator: params.defaultFetchingOperator
+			});
+		}
+	
+		return result;
+	};
+	
+	Dialect.prototype.buildEndFetchingOperator = function(params) {
+		var self = this;
+	
+		var value = params.value;
+		var operator;
+	
+		if (_.isObject(value) && !_.isArray(value)) {
+			// get first query operator
+			operator = _(value).findKey(function(item, operator) {
+				return operator[0] === '$' && self.operators.fetching.has(operator);
+			});
+	
+			if (operator) {
+				value = value[operator];
+			}
+		}
+	
+		return this.buildOperator(_.extend({}, params, {
+			operator: operator || params.defaultFetchingOperator,
+			value: value,
+			end: true
+		}));
+	};
+	
+	Dialect.prototype.buildStateOperator = function(params) {
+		return this.buildOperatorsGroup(_.extend({}, params, {
+			context: 'state',
+			contextOperator: params.operator,
+			operator: '$and',
+			states: params.states.concat(params.operator)
+		}));
+	};
+	
+	Dialect.prototype.buildOperatorsGroup = function(params) {
+		var self = this;
+	
+		var value = params.value;
+	
+		var result;
+		if (_.isObject(value) && !_.isArray(value)) {
+			result = this.operators.logical.get(params.operator).fn(
+				_(value)
+					.chain()
+					.map(function(item, operator) {
+						if (operator[0] !== '$') return '';
+	
+						if (self.operators.fetching.has(operator)) {
+							// convert {a: {$field: 'b'}} to {a: {$eq: {$field: 'b'}}}
+							item = _.object([operator], [item]);
+							operator = '$eq';
+						}
+	
+						return self.buildOperator(_.extend({}, params, {
+							operator: operator,
+							value: item
+						}));
+					})
+					.compact()
+					.value()
+			);
+	
+			if (!result) result = params.field;
+		} else {
+			result = this.buildEndFetchingOperator(params);
+		}
+	
+		return result;
+	};
+	
+	Dialect.prototype.buildOperator = function(params) {
+		var isContextValid = function(expectedContexts, context) {
+			return _.contains(expectedContexts, context);
+		};
+	
+		var context = params.context;
+		var operator = params.operator;
+	
+		var result;
+	
+		var contexts = _(this.operators).mapObject(function(operatorsGroup) {
+			return operatorsGroup.has(operator);
+		});
+	
+		if (!_(contexts).some()) {
+			throw new Error('Unknown operator "' + operator + '"');
+		}
+	
+		if (contexts.logical && isContextValid(['null', 'logical'], context)) {
+			result = this.buildLogicalOperator(params);
+		} else if (contexts.fetching && isContextValid(['logical', 'comparison'], context)) {
+			result = this.buildFetchingOperator(params);
+		} else if (contexts.comparison && isContextValid(['fetching', 'state'], context)) {
+			result = this.buildComparisonOperator(params);
+		} else if (contexts.state && isContextValid(['fetching', 'state'], context)) {
+			result = this.buildStateOperator(params);
+		} else {
+			var errMessage = 'Unexpected operator "' + operator + '" at ' +
+				(context === 'null' ? 'null ' : '') + 'context';
+	
+			if (params.contextOperator) {
+				errMessage += ' of operator "' + params.contextOperator + '"';
+			}
+	
+			throw new Error(errMessage);
+		}
+	
+		return result;
+	};
+	
+	Dialect.prototype.buildCondition = function(params) {
+		return this.buildOperator({
+			context: 'null',
+			operator: '$and',
+			value: params.value,
+			states: [],
+			defaultFetchingOperator: params.defaultFetchingOperator
+		});
+	};
+	
+	Dialect.prototype.buildModifier = function(params) {
+		var self = this;
+	
+		return _(params.modifier)
+			.chain()
+			.map(function(values, field) {
+				var modifier;
+	
+				if (field[0] === '$') {
+					modifier = field;
+				} else {
+					modifier = '$set';
+					values = _.object([field], [values]);
+				}
+	
+				var modifierFn = self.modifiers.get(modifier);
+	
+				if (!modifierFn) {
+					throw new Error('Unknown modifier "' + modifier + '"');
+				}
+	
+				return _(values).map(function(value, field) {
+					field = self._wrapIdentifier(field);
+					value = self.buildBlock('term', {term: value, type: 'value'});
+	
+					return modifierFn(field, value);
+				});
+			})
+			.flatten()
+			.compact()
+			.value()
+			.join(', ');
+	};
+	
+	Dialect.prototype.buildBlock = function(block, params) {
+		var blockFn = this.blocks.get(block);
+	
+		if (!blockFn) {
+			throw new Error('Unknown block "' + block + '"');
+		}
+	
+		return blockFn(params);
+	};
+	
+	Dialect.prototype.buildTemplate = function(type, params) {
+		var self = this;
+	
+		var template = this.templates.get(type);
+		if (!template) {
+			throw new Error('Unknown template type "' + type + '"');
+		}
+	
+		params = _.defaults({}, params, template.defaults);
+	
+		if (template.validate) {
+			template.validate(type, params);
+		}
+	
+		return template.pattern.replace(blockRegExp, function(fullMatch, block, space) {
+			if (_.isUndefined(params[block])) {
+				return '';
+			} else {
+				if (self.blocks.has(type + ':' + block)) block = type + ':' + block;
+				return self.buildBlock(block, params) + space;
+			}
+		}).trim();
+	};
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
+	
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+	
+	
+	// Mark that a method should not be used.
+	// Returns a modified function which warns once by default.
+	// If --no-deprecation is set, then it is a no-op.
+	exports.deprecate = function(fn, msg) {
+	  // Allow for deprecating things in the process of starting up.
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+	
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+	
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+	
+	  return deprecated;
+	};
+	
+	
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+	
+	
+	/**
+	 * Echos the value of a value. Trys to print the value out
+	 * in the best way possible given the different types.
+	 *
+	 * @param {Object} obj The object to print out.
+	 * @param {Object} opts Optional options object that alters the output.
+	 */
+	/* legacy: obj, showHidden, depth, colors*/
+	function inspect(obj, opts) {
+	  // default options
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  // legacy...
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    // legacy...
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    // got an "options" object
+	    exports._extend(ctx, opts);
+	  }
+	  // set default options
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+	
+	
+	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+	
+	// Don't use 'blue' not visible on cmd.exe
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  // "name": intentionally not styling
+	  'regexp': 'red'
+	};
+	
+	
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+	
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
+	}
+	
+	
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
+	
+	
+	function arrayToHash(array) {
+	  var hash = {};
+	
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
+	
+	  return hash;
+	}
+	
+	
+	function formatValue(ctx, value, recurseTimes) {
+	  // Provide a hook for user-specified inspect functions.
+	  // Check that value is an object with an inspect function on it
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      // Filter out the util module, it's inspect function is special
+	      value.inspect !== exports.inspect &&
+	      // Also filter out any prototype objects using the circular check.
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
+	
+	  // Primitive types cannot have properties
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
+	
+	  // Look up the keys of the object.
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
+	
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
+	
+	  // IE doesn't make error fields non-enumerable
+	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
+	
+	  // Some type of object without properties can be shortcutted.
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
+	
+	  var base = '', array = false, braces = ['{', '}'];
+	
+	  // Make Array say that they are Array
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+	
+	  // Make functions say that they are functions
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+	
+	  // Make RegExps say that they are RegExps
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+	
+	  // Make dates with properties first say the date
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+	
+	  // Make error with message first say the error
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+	
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+	
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+	
+	  ctx.seen.push(value);
+	
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+	
+	  ctx.seen.pop();
+	
+	  return reduceToSingleString(output, base, braces);
+	}
+	
+	
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  // For some reason typeof null is "object", so special case here.
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+	
+	
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+	
+	
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+	
+	
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+	
+	  return name + ': ' + str;
+	}
+	
+	
+	function reduceToSingleString(output, base, braces) {
+	  var numLinesEst = 0;
+	  var length = output.reduce(function(prev, cur) {
+	    numLinesEst++;
+	    if (cur.indexOf('\n') >= 0) numLinesEst++;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+	
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+	
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+	
+	
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+	
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+	
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+	
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+	
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+	
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+	
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+	
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+	
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+	
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+	
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+	
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+	
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+	
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+	
+	exports.isBuffer = __webpack_require__(205);
+	
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+	
+	
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+	
+	
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+	
+	// 26 Feb 16:19:34
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+	
+	
+	// log is just a thin wrapper to console.log that prepends a timestamp
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+	
+	
+	/**
+	 * Inherit the prototype methods from one constructor into another.
+	 *
+	 * The Function.prototype.inherits from lang.js rewritten as a standalone
+	 * function (not on Function.prototype). NOTE: If this file is to be loaded
+	 * during bootstrapping this function needs to be rewritten using some native
+	 * functions as prototype setup using normal JavaScript does not work as
+	 * expected during bootstrapping (see mirror.js in r114903).
+	 *
+	 * @param {function} ctor Constructor function which needs to inherit the
+	 *     prototype.
+	 * @param {function} superCtor Constructor function to inherit prototype from.
+	 */
+	exports.inherits = __webpack_require__(12);
+	
+	exports._extend = function(origin, add) {
+	  // Don't do anything if add isn't an object
+	  if (!add || !isObject(add)) return origin;
+	
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+	
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(7)))
+
+/***/ },
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7645,38 +8769,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var Setup_1 = __webpack_require__(46);
-	var Data_1 = __webpack_require__(16);
-	var Users_1 = __webpack_require__(76);
-	var Files_1 = __webpack_require__(75);
+	var Setup_1 = __webpack_require__(50);
+	var Data_1 = __webpack_require__(18);
+	var Users_1 = __webpack_require__(86);
+	var Files_1 = __webpack_require__(85);
 	var constants_1 = __webpack_require__(2);
 	var utils_1 = __webpack_require__(4);
-	var Push_1 = __webpack_require__(45);
-	var Authentication_1 = __webpack_require__(47);
-	var offline_1 = __webpack_require__(29);
-	var Request_1 = __webpack_require__(9);
+	var Push_1 = __webpack_require__(49);
+	var Authentication_1 = __webpack_require__(51);
+	var offline_1 = __webpack_require__(32);
+	var Request_1 = __webpack_require__(10);
 	var EverliveError_1 = __webpack_require__(3);
-	var helpers_1 = __webpack_require__(54);
-	var BusinessLogic_1 = __webpack_require__(49);
-	var DataPreprocessor_1 = __webpack_require__(77);
-	var OfflineQueryPreprocessor_1 = __webpack_require__(78);
-	var BusinessLogicQueryProcessor_1 = __webpack_require__(80);
-	var EventQueryProcessor_1 = __webpack_require__(82);
-	var AuthenticationProcessor_1 = __webpack_require__(79);
-	var OfflineQueryProcessor_1 = __webpack_require__(83);
-	var OnlineQueryProcessor_1 = __webpack_require__(84);
-	var CacheQueryProcessor_1 = __webpack_require__(81);
-	var ResponseParserProcessor_1 = __webpack_require__(71);
-	var ResponseTransformProcessor_1 = __webpack_require__(72);
-	var DataQueryBuilder_1 = __webpack_require__(52);
-	var QueryBuilder_1 = __webpack_require__(22);
-	var caching_1 = __webpack_require__(51);
+	var helpers_1 = __webpack_require__(58);
+	var BusinessLogic_1 = __webpack_require__(53);
+	var DataPreprocessor_1 = __webpack_require__(87);
+	var OfflineQueryPreprocessor_1 = __webpack_require__(88);
+	var BusinessLogicQueryProcessor_1 = __webpack_require__(90);
+	var EventQueryProcessor_1 = __webpack_require__(92);
+	var AuthenticationProcessor_1 = __webpack_require__(89);
+	var OfflineQueryProcessor_1 = __webpack_require__(93);
+	var OnlineQueryProcessor_1 = __webpack_require__(94);
+	var CacheQueryProcessor_1 = __webpack_require__(91);
+	var ResponseParserProcessor_1 = __webpack_require__(79);
+	var ResponseTransformProcessor_1 = __webpack_require__(80);
+	var DataQueryBuilder_1 = __webpack_require__(56);
+	var QueryBuilder_1 = __webpack_require__(23);
+	var caching_1 = __webpack_require__(55);
 	var Query_1 = __webpack_require__(6);
-	var AggregateQuery_1 = __webpack_require__(21);
-	var GeoPoint_1 = __webpack_require__(28);
-	var reqwest_everlive_1 = __webpack_require__(23);
-	var offlinePersisters_1 = __webpack_require__(19);
-	var kendo_everlive_1 = __webpack_require__(59);
+	var AggregateQuery_1 = __webpack_require__(22);
+	var GeoPoint_1 = __webpack_require__(31);
+	var reqwest_everlive_1 = __webpack_require__(24);
+	var offlinePersisters_1 = __webpack_require__(21);
+	var kendo_everlive_1 = __webpack_require__(63);
 	// An array keeping initialization functions called by the Everlive constructor.
 	// These functions will be used to extend the functionality of an Everlive instance.
 	var initializations = [];
@@ -8018,8 +9142,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        LocalStorage: offlinePersisters_1.LocalStoragePersister,
 	        FileSystem: offlinePersisters_1.FileSystemPersister
 	    };
-	    Everlive.version = '1.8.1';
-	    Everlive.commit = 'c9eb4bd0378c4638019c7a873d2e2213ea08cf42';
+	    Everlive.version = '1.9.0';
+	    Everlive.commit = '88db77e82a97af4862aa61b30a7a9776ba23dac9';
 	    Everlive.idField = constants_1.Constants.idField;
 	    /** An array of functions that are invoked during instantiation of the {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
 	     * @memberOf Everlive
@@ -8116,7 +9240,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 28 */
+/* 31 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8140,17 +9264,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 29 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
 	var constants_1 = __webpack_require__(2);
-	var offlinePersisters_1 = __webpack_require__(19);
-	var OfflineStorageModule_1 = __webpack_require__(63);
+	var offlinePersisters_1 = __webpack_require__(21);
+	var OfflineStorageModule_1 = __webpack_require__(66);
 	var EverliveError_1 = __webpack_require__(3);
 	var platform_1 = __webpack_require__(5);
-	var CryptographicProvider_1 = __webpack_require__(53);
+	var CryptographicProvider_1 = __webpack_require__(57);
 	var defaultOfflineStorageOptions = {
 	    autoSync: true,
 	    enabled: true,
@@ -8236,6 +9360,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            sdkOptions.offlineStorage = options;
 	        }
 	    }
+	    options.appId = sdkOptions.appId;
 	    options.cacheEnabled = sdkOptions.caching && sdkOptions.caching.enabled;
 	    return options;
 	}
@@ -8253,89 +9378,359 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	var _ = __webpack_require__(1);
-	var constants_1 = __webpack_require__(2);
-	var traverseAndApply = function (value, operation, additionalOptions) {
-	    if (_.isArray(value)) {
-	        return _.map(value, function (item) {
-	            return operation(item, additionalOptions);
-	        });
-	    }
-	    else {
-	        return operation(value, additionalOptions);
-	    }
-	};
-	var idTransformation = function (value) {
-	    if (typeof value === 'object' && value._id && !value.Id) {
-	        value.Id = value._id;
-	        delete value._id;
-	    }
-	    return value;
-	};
-	var removeIdTransform = function (value, opts) {
-	    var verifyStateCreated = opts.verifyStateCreated;
-	    var shouldModifyObject = verifyStateCreated ? value[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.created : true;
-	    if (typeof value === 'object' && (value._id || value.Id) && shouldModifyObject) {
-	        delete value._id;
-	        delete value.Id;
-	    }
-	    return value;
-	};
-	var removeMarkerTransform = function (value) {
-	    delete value[constants_1.Constants.offlineItemsStateMarker];
-	    return value;
-	};
-	exports.offlineTransformations = {
-	    removeIdTransform: function (value, verifyStateCreated) {
-	        return traverseAndApply(value, removeIdTransform, { verifyStateCreated: verifyStateCreated });
-	    },
-	    idTransform: function (value) {
-	        return traverseAndApply(value, idTransformation);
-	    },
-	    singleFieldTransform: function (singleFieldExpression, value) {
-	        if (typeof value === 'undefined' || value === null) {
-	            return null;
-	        }
-	        else {
-	            return value[singleFieldExpression];
-	        }
-	    },
-	    traverseAndTransformFilterId: function (filterObj) {
-	        if (filterObj && filterObj.Id) {
-	            filterObj._id = filterObj.Id;
-	            delete filterObj.Id;
-	        }
-	        for (var prop in filterObj) {
-	            if (filterObj.hasOwnProperty(prop)) {
-	                var objectMember = filterObj[prop];
-	                if (typeof objectMember === 'object') {
-	                    exports.offlineTransformations.traverseAndTransformFilterId(objectMember);
-	                }
-	            }
-	        }
-	    },
-	    removeMarkersTransform: function (value) {
-	        return traverseAndApply(value, removeMarkerTransform);
-	    },
-	    removeFieldsTransform: function (value, fields) {
-	        _.each(fields, function (field) {
-	            delete value[field];
-	        });
-	        return value;
-	    }
-	};
-
-
-/***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var jstimezonedetect_1 = __webpack_require__(127);
+	var _ = __webpack_require__(1);
+	var EverliveError_1 = __webpack_require__(3);
+	var constants_1 = __webpack_require__(2);
+	var utils_1 = __webpack_require__(4);
+	var offlineTransformations_1 = __webpack_require__(16);
+	var ExpandProcessor_1 = __webpack_require__(48);
+	var unsupportedOfflineHeaders = [constants_1.Constants.Headers.powerFields];
+	var mingo = __webpack_require__(140);
+	var unsupportedUsersOperations = (_a = {},
+	    _a[constants_1.DataQueryOperation.Create] = true,
+	    _a[constants_1.DataQueryOperation.Update] = true,
+	    _a[constants_1.DataQueryOperation.Delete] = true,
+	    _a[constants_1.DataQueryOperation.DeleteById] = true,
+	    _a[constants_1.DataQueryOperation.RawUpdate] = true,
+	    _a[constants_1.DataQueryOperation.SetAcl] = true,
+	    _a[constants_1.DataQueryOperation.SetOwner] = true,
+	    _a[constants_1.DataQueryOperation.UserLoginWithProvider] = true,
+	    _a[constants_1.DataQueryOperation.UserLinkWithProvider] = true,
+	    _a[constants_1.DataQueryOperation.UserUnlinkFromProvider] = true,
+	    _a[constants_1.DataQueryOperation.UserLogin] = true,
+	    _a[constants_1.DataQueryOperation.UserLogout] = true,
+	    _a[constants_1.DataQueryOperation.UserChangePassword] = true,
+	    _a[constants_1.DataQueryOperation.UserResetPassword] = true,
+	    _a
+	);
+	function buildUsersErrorMessage(dataQuery) {
+	    var unsupportedUserSocialProviderOperations = [
+	        constants_1.DataQueryOperation.UserLoginWithProvider,
+	        constants_1.DataQueryOperation.UserLinkWithProvider,
+	        constants_1.DataQueryOperation.UserUnlinkFromProvider
+	    ];
+	    var operation = dataQuery.operation;
+	    var operationStr = constants_1.DataQueryOperation[dataQuery.operation];
+	    if (unsupportedUserSocialProviderOperations.indexOf(operation) !== -1) {
+	        var providerPrefix = operationStr.substring(0, operationStr.indexOf('Provider'));
+	        operationStr = providerPrefix + (dataQuery.data.Provider || dataQuery.data.Identity.Provider);
+	    }
+	    return { message: 'The Users operation ' + operationStr + ' is not supported in offline mode', code: 0 };
+	}
+	function buildFilesErrorMessage(dataOperation) {
+	    var operationStr = constants_1.DataQueryOperation[dataOperation];
+	    return { message: "The Files operation " + operationStr + " is not supported in offline mode", code: 0 };
+	}
+	var OfflineQueryProcessor = (function () {
+	    function OfflineQueryProcessor(persister, _encryptionProvider, offlineFilesProcessor, everlive, setup) {
+	        this.persister = persister;
+	        this._encryptionProvider = _encryptionProvider;
+	        this.offlineFilesProcessor = offlineFilesProcessor;
+	        this.everlive = everlive;
+	        this.setup = setup;
+	    }
+	    OfflineQueryProcessor.prototype.processQuery = function (dataQuery) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method processQuery is not implemented' });
+	    };
+	    OfflineQueryProcessor.prototype._persistData = function (contentType, items) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method _persistData is not implemented' });
+	    };
+	    OfflineQueryProcessor.prototype._shouldAutogenerateIdForContentType = function (contentType) {
+	        return !(this.setup && this.setup.typeSettings && this.setup.typeSettings[contentType] && this.setup.typeSettings[contentType].autoGenerateId === false);
+	    };
+	    OfflineQueryProcessor.prototype._getAllCollections = function () {
+	        throw new EverliveError_1.EverliveError({ message: 'The method _getAllCollections is not implemented' });
+	    };
+	    OfflineQueryProcessor.prototype.purgeAll = function (success, error) {
+	        var _this = this;
+	        return utils_1.Utils.buildPromise(function (success, error) {
+	            _this.persister.purgeAll(function () {
+	                var cachingIsEnabled = _this.everlive.setup.caching && _this.everlive.setup.caching.enabled === true;
+	                if (cachingIsEnabled) {
+	                    _this.everlive.cache.clearAll(success, error);
+	                }
+	                else {
+	                    success();
+	                }
+	            }, error);
+	        }, success, error);
+	    };
+	    OfflineQueryProcessor.prototype.purge = function (contentType, success, error) {
+	        var _this = this;
+	        return utils_1.Utils.buildPromise(function (success, error) {
+	            _this.persister.purge(contentType, function () {
+	                var cachingIsEnabled = _this.everlive.setup.caching && _this.everlive.setup.caching.enabled === true;
+	                if (cachingIsEnabled) {
+	                    _this.everlive.cache.clear(contentType, success, error);
+	                }
+	                else {
+	                    success();
+	                }
+	            }, error);
+	        }, success, error);
+	    };
+	    OfflineQueryProcessor.prototype.purgeById = function (contentType, itemId) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            _this.persister.purgeById(contentType, itemId, resolve, reject);
+	        });
+	    };
+	    OfflineQueryProcessor.prototype.checkSupportedQuery = function (dataQuery) {
+	        for (var i = 0; i < unsupportedOfflineHeaders.length; i++) {
+	            var header = unsupportedOfflineHeaders[i];
+	            if (dataQuery.getHeader(header)) {
+	                return { message: 'The header ' + header + ' is not supported in offline mode', code: 0 };
+	            }
+	        }
+	        if (utils_1.Utils.isContentType.users(dataQuery.collectionName) && unsupportedUsersOperations[dataQuery.operation]) {
+	            return buildUsersErrorMessage(dataQuery);
+	        }
+	        var isSingle = dataQuery.additionalOptions && dataQuery.additionalOptions.id;
+	        var isUpdateByFilter = dataQuery.operation === constants_1.DataQueryOperation.Update && !isSingle;
+	        var isRawUpdate = dataQuery.operation === constants_1.DataQueryOperation.RawUpdate;
+	        var creatingMultiple = dataQuery.operation === constants_1.DataQueryOperation.Create && Array.isArray(dataQuery.data);
+	        if (utils_1.Utils.isContentType.files(dataQuery.collectionName)) {
+	            if (creatingMultiple) {
+	                return EverliveError_1.EverliveErrors.invalidRequest;
+	            }
+	            else if (isRawUpdate || isUpdateByFilter) {
+	                return buildFilesErrorMessage(dataQuery.operation);
+	            }
+	        }
+	    };
+	    OfflineQueryProcessor.prototype._setItemDates = function (currentItem, itemToCreate, contentType) {
+	        // we need to manually clone the dates in order to dereference them from the original object as
+	        // _.extends will pass a reference to the original date instead of creating a new instance
+	        if (utils_1.Utils.isDate(currentItem.CreatedAt)) {
+	            itemToCreate.CreatedAt = utils_1.Utils.cloneDate(currentItem.CreatedAt);
+	        }
+	        else {
+	            itemToCreate.CreatedAt = new Date();
+	        }
+	        if (utils_1.Utils.isDate(currentItem.ModifiedAt)) {
+	            itemToCreate.ModifiedAt = utils_1.Utils.cloneDate(currentItem.ModifiedAt);
+	        }
+	        else {
+	            itemToCreate.ModifiedAt = utils_1.Utils.cloneDate(itemToCreate.CreatedAt);
+	        }
+	        itemToCreate.CreatedBy = itemToCreate.CreatedBy || this.everlive.setup.principalId || constants_1.Constants.guidEmpty;
+	        itemToCreate.ModifiedBy = itemToCreate.ModifiedBy || itemToCreate.CreatedBy;
+	        if (contentType === 'Users') {
+	            itemToCreate.Owner = itemToCreate._id;
+	        }
+	        else {
+	            itemToCreate.Owner = itemToCreate.CreatedBy || constants_1.Constants.guidEmpty;
+	        }
+	    };
+	    OfflineQueryProcessor.prototype._transformPersistedData = function (contentType, contentTypeData) {
+	        var transformFields = [];
+	        if (contentType === 'Users') {
+	            transformFields = transformFields.concat(['Password', 'SecretQuestionId', 'SecretAnswer']);
+	        }
+	        if (transformFields.length) {
+	            _.each(contentTypeData, function (contentTypeObject) {
+	                offlineTransformations_1.offlineTransformations.removeFieldsTransform(contentTypeObject, transformFields);
+	            });
+	        }
+	    };
+	    OfflineQueryProcessor.prototype._overwriteFile = function (itemId, itemForUpdate, isSync) {
+	        var _this = this;
+	        return this.everlive.offlineStorage.files.purge(itemId)
+	            .then(function () {
+	            return _this.offlineFilesProcessor.upsertFileFromObject(itemForUpdate, true, isSync);
+	        });
+	    };
+	    OfflineQueryProcessor.prototype._getCreateResult = function (createdItems, returnFullItem) {
+	        if (createdItems.length === 1) {
+	            var result;
+	            if (returnFullItem) {
+	                var item = _.extend({}, createdItems[0]);
+	                result = offlineTransformations_1.offlineTransformations.idTransform(item);
+	            }
+	            else {
+	                result = {
+	                    CreatedAt: utils_1.Utils.cloneDate(createdItems[0].CreatedAt),
+	                    Id: createdItems[0]._id
+	                };
+	            }
+	            return {
+	                result: result
+	            };
+	        }
+	        else {
+	            var multipleCreateResult = [];
+	            _.each(createdItems, function (createdItem) {
+	                var item;
+	                if (returnFullItem) {
+	                    var itemCopy = _.extend({}, createdItem);
+	                    item = offlineTransformations_1.offlineTransformations.idTransform(itemCopy);
+	                }
+	                else {
+	                    item = {
+	                        CreatedAt: utils_1.Utils.cloneDate(createdItem.CreatedAt),
+	                        Id: createdItem._id
+	                    };
+	                }
+	                multipleCreateResult.push(item);
+	            });
+	            return {
+	                result: multipleCreateResult
+	            };
+	        }
+	    };
+	    OfflineQueryProcessor.prototype._prepareExpand = function (expand, dataQuery, isArray) {
+	        return new Promise(function (resolve, reject) {
+	            if (expand) {
+	                ExpandProcessor_1.expandProcessor.prepare(expand, dataQuery.collectionName, isArray, dataQuery.fields, null, null, function (err, prepareResult) {
+	                    if (err) {
+	                        if (err.name === 'ExpandError') {
+	                            err.code = EverliveError_1.EverliveErrors.invalidExpandExpression.code;
+	                        }
+	                        return reject(err);
+	                    }
+	                    resolve(prepareResult);
+	                });
+	            }
+	            else {
+	                resolve();
+	            }
+	        });
+	    };
+	    OfflineQueryProcessor.prototype._expandResult = function (prepareExpandResult, result) {
+	        var self = this;
+	        return new Promise(function (resolve, reject) {
+	            if (prepareExpandResult) {
+	                ExpandProcessor_1.expandProcessor.expand(prepareExpandResult.relationsTree, result, {
+	                    offlineModule: self
+	                }, function (err, result) {
+	                    if (err) {
+	                        if (err.name === 'ExpandError') {
+	                            err.code = EverliveError_1.EverliveErrors.invalidExpandExpression.code;
+	                        }
+	                        return reject(err);
+	                    }
+	                    resolve(result);
+	                });
+	            }
+	            else {
+	                resolve(result);
+	            }
+	        });
+	    };
+	    OfflineQueryProcessor.prototype.getDownloadUrlById = function (dataQuery) {
+	        var self = this;
+	        var id = dataQuery.additionalOptions.id;
+	        var offlineFilePath;
+	        var fileDirectUri;
+	        return self.everlive
+	            .files
+	            .useOffline(true)
+	            .isSync(dataQuery.isSync)
+	            .getById(id)
+	            .then(function (res) {
+	            var file = res.result;
+	            fileDirectUri = file.Uri;
+	            return self.everlive.offlineStorage.files._getFileUrlForId(file.Id, file.Filename);
+	        })
+	            .then(function (filePath) {
+	            offlineFilePath = filePath;
+	            return self.everlive.offlineStorage.offlineFilesProcessor.fileStore.getFileByAbsolutePath(filePath);
+	        })
+	            .then(function (fileEntry) {
+	            return {
+	                result: {
+	                    Uri: fileEntry ? offlineFilePath : fileDirectUri
+	                }
+	            };
+	        });
+	    };
+	    OfflineQueryProcessor.prototype._transformOfflineResult = function (resultSet, count, dataQuery, additionalTransformations) {
+	        var transformedResult = {
+	            result: resultSet,
+	            count: count || (resultSet || []).length
+	        };
+	        if ((count !== undefined && count !== null) || Array.isArray(resultSet)) {
+	            transformedResult.count = count || resultSet.length;
+	        }
+	        var transformations = [];
+	        transformations.push(offlineTransformations_1.offlineTransformations.idTransform);
+	        transformations.push(offlineTransformations_1.offlineTransformations.removeMarkersTransform);
+	        if (dataQuery) {
+	            var includeCount = dataQuery.getHeader(constants_1.Constants.Headers.includeCount);
+	            if (includeCount === false) {
+	                delete transformedResult.count;
+	            }
+	            var singleFieldExpression = dataQuery.getHeader(constants_1.Constants.Headers.singleField);
+	            if (typeof singleFieldExpression === 'string') {
+	                transformations.push(offlineTransformations_1.offlineTransformations.singleFieldTransform.bind(this, singleFieldExpression));
+	            }
+	        }
+	        if (additionalTransformations) {
+	            transformations = transformations.concat(additionalTransformations);
+	        }
+	        this._applyTransformations(transformedResult, transformations);
+	        if (transformedResult.count === undefined) {
+	            delete transformedResult.count;
+	        }
+	        return transformedResult;
+	    };
+	    OfflineQueryProcessor.prototype._applyTransformations = function (transformedResult, transformations) {
+	        if (Array.isArray(transformedResult.result)) {
+	            _.each(transformations, function (transformation) {
+	                transformedResult.result.map(function (value, key) {
+	                    transformedResult.result[key] = transformation(value);
+	                });
+	            });
+	        }
+	        else {
+	            _.each(transformations, function (transformation) {
+	                transformedResult.result = transformation(transformedResult.result);
+	            });
+	        }
+	    };
+	    OfflineQueryProcessor.prototype._getDirtyItems = function (collection) {
+	        var filter = {};
+	        filter[constants_1.Constants.offlineItemsStateMarker] = { $exists: true, $ne: null };
+	        var query = mingo.Query(filter);
+	        var cursor = mingo.Cursor(collection, query);
+	        return cursor.all();
+	    };
+	    OfflineQueryProcessor.prototype._getWithoutDeletedFilter = function (filter, checkNull) {
+	        if (checkNull === void 0) { checkNull = false; }
+	        var withoutDeletedFilter = {
+	            $and: []
+	        };
+	        withoutDeletedFilter.$and.push(filter);
+	        var deleteOfflineFilter = {};
+	        if (checkNull) {
+	            deleteOfflineFilter['$or'] = [
+	                (_a = {}, _a[constants_1.Constants.offlineItemsStateMarker] = { $ne: constants_1.Constants.offlineItemStates.deleted }, _a),
+	                (_b = {}, _b[constants_1.Constants.offlineItemsStateMarker] = { $is: null }, _b)
+	            ];
+	        }
+	        else {
+	            deleteOfflineFilter[constants_1.Constants.offlineItemsStateMarker] = { $ne: constants_1.Constants.offlineItemStates.deleted };
+	        }
+	        withoutDeletedFilter.$and.push(deleteOfflineFilter);
+	        return withoutDeletedFilter;
+	        var _a, _b;
+	    };
+	    return OfflineQueryProcessor;
+	}());
+	exports.OfflineQueryProcessor = OfflineQueryProcessor;
+	var _a;
+
+
+/***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var jstimezonedetect_1 = __webpack_require__(139);
 	var _ = __webpack_require__(1);
 	var EverliveError_1 = __webpack_require__(3);
 	var constants_1 = __webpack_require__(2);
@@ -8878,18 +10273,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 32 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var jstimezonedetect_1 = __webpack_require__(127);
+	var jstimezonedetect_1 = __webpack_require__(139);
 	var EverliveError_1 = __webpack_require__(3);
 	var constants_1 = __webpack_require__(2);
 	var utils_1 = __webpack_require__(4);
 	var tnsPlatform;
 	try {
-	    tnsPlatform = __webpack_require__(188);
+	    tnsPlatform = __webpack_require__(221);
 	}
 	catch (e) {
 	    throw e;
@@ -8919,7 +10314,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Object.defineProperty(CurrentDevice.prototype, "pushPlugin", {
 	        get: function () {
 	            try {
-	                return __webpack_require__(186);
+	                return __webpack_require__(218);
 	            }
 	            catch (e) {
 	                throw e;
@@ -9342,14 +10737,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 33 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var path = __webpack_require__(13);
+	var path = __webpack_require__(9);
 	var Constants_1 = __webpack_require__(8);
-	var Request_1 = __webpack_require__(9);
+	var Request_1 = __webpack_require__(10);
 	exports.RequestOptionsBuilder = (_a = {
 	        _buildEndpointUrl: function (dataQuery) {
 	            var endpoint = dataQuery.collectionName;
@@ -9537,13 +10932,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 34 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var platform = __webpack_require__(5);
-	var WebFileStore_1 = __webpack_require__(74);
-	var NativeScriptFileStore_1 = __webpack_require__(73);
+	var WebFileStore_1 = __webpack_require__(84);
+	var NativeScriptFileStore_1 = __webpack_require__(82);
 	function getFileStore(storagePath, options) {
 	    if (platform.isNativeScript) {
 	        return new NativeScriptFileStore_1.NativeScriptFileStore(storagePath, options);
@@ -9559,7 +10954,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 35 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9569,11 +10964,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var localSettings;
 	        //workound for older nativescript versions
 	        try {
-	            localSettings = __webpack_require__(182);
+	            localSettings = __webpack_require__(214);
 	        }
 	        catch (e) {
 	            try {
-	                localSettings = __webpack_require__(185);
+	                localSettings = __webpack_require__(217);
 	            }
 	            catch (ex) {
 	                throw ex;
@@ -9596,7 +10991,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (platform.isNodejs) {
 	            var LocalStorage = null;
 	            try {
-	                LocalStorage = __webpack_require__(187).LocalStorage;
+	                LocalStorage = __webpack_require__(220).LocalStorage;
 	            }
 	            catch (e) {
 	                throw e;
@@ -9639,7 +11034,130 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 36 */
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var _ = __webpack_require__(1);
+	var constants_1 = __webpack_require__(2);
+	var EverliveError_1 = __webpack_require__(3);
+	var BaseSQLiteStore = (function () {
+	    function BaseSQLiteStore(storagePath, typeSettings) {
+	        this.storagePath = storagePath;
+	        this.typeSettings = typeSettings;
+	        this.batchSize = 5000;
+	        this.specialFields = {};
+	    }
+	    BaseSQLiteStore.prototype.queryData = function (tableName, query, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method queryData is not implemented' });
+	    };
+	    BaseSQLiteStore.prototype.addData = function (tableName, data, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method addData is not implemented' });
+	    };
+	    BaseSQLiteStore.prototype.removeData = function (tableName, query, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method removeData is not implemented' });
+	    };
+	    BaseSQLiteStore.prototype.updateData = function (tableName, query, success, error) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method updateData is not implemented' });
+	    };
+	    BaseSQLiteStore.prototype.ensureTableExists = function (tableName, columns) {
+	        throw new EverliveError_1.EverliveError({ message: 'The method ensureTableExists is not implemented' });
+	    };
+	    BaseSQLiteStore.prototype.buildSqlBatchInsert = function (tableName, data) {
+	        var _this = this;
+	        if (!_.isArray(data)) {
+	            data = [data];
+	        }
+	        if (data.length === 0) {
+	            return [];
+	        }
+	        var columns = this.typeSettings[tableName];
+	        var fields = _.map(columns, function (c) { return c.name; });
+	        var query = this.buildInsertStatement(tableName, fields);
+	        var batchCounter = 1;
+	        var currentBatchIndex = 0;
+	        var insertQueries = [];
+	        insertQueries[currentBatchIndex] = [];
+	        _.each(data, function (item) {
+	            var columnValues = _.map(fields, function (key) {
+	                if (item[key] instanceof Date) {
+	                    return item[key].toISOString();
+	                }
+	                else if (_this.specialFields[tableName][key] && item[key]) {
+	                    return JSON.stringify(item[key]);
+	                }
+	                else {
+	                    return item[key];
+	                }
+	            });
+	            columnValues.push(item[constants_1.Constants.offlineItemsStateMarker]);
+	            insertQueries[currentBatchIndex].push([query, columnValues]);
+	            batchCounter++;
+	            if (batchCounter % _this.batchSize == 0) {
+	                currentBatchIndex++;
+	                insertQueries[currentBatchIndex] = [];
+	            }
+	        });
+	        // sample item from the insert queries looks like this:
+	        // insertQueries[batchNumber] = [
+	        //     [ 'INSERT INTO TableName VALUES (?,?)' , [ value1, value2] ];
+	        //     [ 'INSERT INTO TableName VALUES (?,?)' , [ value1, value2] ];
+	        // ]
+	        return insertQueries;
+	    };
+	    BaseSQLiteStore.prototype.buildInsertStatement = function (tableName, itemKeys) {
+	        var columnsDefinition = '';
+	        var valuesDefinition = '';
+	        _.each(itemKeys, function (column) {
+	            columnsDefinition += "\"" + column + "\",";
+	            valuesDefinition += '?,';
+	        });
+	        columnsDefinition += constants_1.Constants.offlineItemsStateMarker;
+	        valuesDefinition += '?';
+	        var insertStatement = "INSERT OR REPLACE INTO \"" + tableName + "\" ( " + columnsDefinition + " ) VALUES ( " + valuesDefinition + " ) ";
+	        return insertStatement;
+	    };
+	    BaseSQLiteStore.prototype.prepareTables = function () {
+	        var _this = this;
+	        _.each(this.typeSettings, function (definition, type) {
+	            _this.ensureTableExists(type, definition);
+	            _this.findSpecialFields(type, definition);
+	        });
+	    };
+	    BaseSQLiteStore.prototype.processResultItem = function (type, item) {
+	        _.each(this.specialFields[type], function (isSpecial, fieldKey) {
+	            if (item[fieldKey]) {
+	                try {
+	                    if (item[fieldKey] === 'true' || item[fieldKey] === 'false') {
+	                        item[fieldKey] = item[fieldKey] === 'true';
+	                    }
+	                    else {
+	                        item[fieldKey] = JSON.parse(item[fieldKey]);
+	                    }
+	                }
+	                catch (e) {
+	                    console.error(e);
+	                }
+	            }
+	        });
+	        return item;
+	    };
+	    BaseSQLiteStore.prototype.findSpecialFields = function (type, scheme) {
+	        var _this = this;
+	        this.specialFields[type] = {};
+	        _.each(scheme, function (field) {
+	            if (field.isSpecialType) {
+	                _this.specialFields[type][field.name] = true;
+	            }
+	        });
+	    };
+	    return BaseSQLiteStore;
+	}());
+	exports.BaseSQLiteStore = BaseSQLiteStore;
+
+
+/***/ },
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer, global) {/*!
@@ -9652,9 +11170,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	'use strict'
 	
-	var base64 = __webpack_require__(125)
-	var ieee754 = __webpack_require__(126)
-	var isArray = __webpack_require__(88)
+	var base64 = __webpack_require__(136)
+	var ieee754 = __webpack_require__(137)
+	var isArray = __webpack_require__(98)
 	
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -11432,10 +12950,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return val !== val // eslint-disable-line no-self-compare
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36).Buffer, (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40).Buffer, (function() { return this; }())))
 
 /***/ },
-/* 37 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -11461,15 +12979,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	module.exports = Stream;
 	
-	var EE = __webpack_require__(17).EventEmitter;
-	var inherits = __webpack_require__(11);
+	var EE = __webpack_require__(19).EventEmitter;
+	var inherits = __webpack_require__(12);
 	
 	inherits(Stream, EE);
-	Stream.Readable = __webpack_require__(166);
-	Stream.Writable = __webpack_require__(168);
-	Stream.Duplex = __webpack_require__(163);
-	Stream.Transform = __webpack_require__(167);
-	Stream.PassThrough = __webpack_require__(165);
+	Stream.Readable = __webpack_require__(199);
+	Stream.Writable = __webpack_require__(201);
+	Stream.Duplex = __webpack_require__(196);
+	Stream.Transform = __webpack_require__(200);
+	Stream.PassThrough = __webpack_require__(198);
 	
 	// Backwards-compat with node 0.4.x
 	Stream.Stream = Stream;
@@ -11568,7 +13086,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 38 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(7).nextTick;
@@ -11647,10 +13165,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38).setImmediate, __webpack_require__(38).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42).setImmediate, __webpack_require__(42).clearImmediate))
 
 /***/ },
-/* 39 */
+/* 43 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -11673,7 +13191,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Constants;
 
 /***/ },
-/* 40 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11682,7 +13200,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var events_1 = __webpack_require__(17);
+	var events_1 = __webpack_require__(19);
 	var underscore_1 = __webpack_require__(1);
 	var EventArgs = (function () {
 	    function EventArgs() {
@@ -11757,7 +13275,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 41 */
+/* 45 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -11770,7 +13288,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 42 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12023,7 +13541,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 43 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12083,14 +13601,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 44 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Processor = __webpack_require__(179);
+	var Processor = __webpack_require__(211);
 	var DataQuery_1 = __webpack_require__(15);
 	var Query_1 = __webpack_require__(6);
-	var AggregateQuery_1 = __webpack_require__(21);
+	var AggregateQuery_1 = __webpack_require__(22);
 	var constants_1 = __webpack_require__(2);
 	exports.expandProcessor = new Processor({
 	    executionNodeFunction: function (node, expandContext, done) {
@@ -12122,13 +13640,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 45 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var utils_1 = __webpack_require__(4);
 	var EverliveError_1 = __webpack_require__(3);
-	var CurrentDevice_1 = __webpack_require__(66);
+	var CurrentDevice_1 = __webpack_require__(74);
 	var constants_1 = __webpack_require__(2);
 	var buildPromise = utils_1.Utils.buildPromise;
 	var Platform = constants_1.Constants.Platform;
@@ -12455,7 +13973,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 46 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12465,9 +13983,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var CommonSetup_1 = __webpack_require__(133);
+	var CommonSetup_1 = __webpack_require__(146);
 	var constants_1 = __webpack_require__(2);
-	var AuthenticationSetup_1 = __webpack_require__(48);
+	var AuthenticationSetup_1 = __webpack_require__(52);
 	var Setup = (function (_super) {
 	    __extends(Setup, _super);
 	    function Setup(options) {
@@ -12511,7 +14029,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 47 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12523,9 +14041,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Constants_1 = __webpack_require__(8);
 	var utils_1 = __webpack_require__(4);
 	var constants_1 = __webpack_require__(2);
-	var LocalStore_1 = __webpack_require__(35);
+	var LocalStore_1 = __webpack_require__(38);
 	var EverliveError_1 = __webpack_require__(3);
-	var Data_1 = __webpack_require__(16);
+	var Data_1 = __webpack_require__(18);
 	var buildPromise = utils_1.Utils.buildPromise;
 	var getCallbacks = utils_1.Utils.getCallbacks;
 	var Authentication = (function (_super) {
@@ -12936,7 +14454,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 48 */
+/* 52 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12953,7 +14471,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 49 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12962,13 +14480,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var path = __webpack_require__(13);
+	var path = __webpack_require__(9);
 	var _ = __webpack_require__(1);
 	var constants_1 = __webpack_require__(2);
 	var EverliveError_1 = __webpack_require__(3);
 	var Constants_1 = __webpack_require__(8);
 	var utils_1 = __webpack_require__(4);
-	var ProcessableObject_1 = __webpack_require__(96);
+	var ProcessableObject_1 = __webpack_require__(106);
 	var BusinessLogic = (function (_super) {
 	    __extends(BusinessLogic, _super);
 	    /**
@@ -13080,17 +14598,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 50 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var jsonStringify = __webpack_require__(147);
+	var jsonStringify = __webpack_require__(181);
 	var constants_1 = __webpack_require__(2);
 	var utils_1 = __webpack_require__(4);
-	var RequestService_1 = __webpack_require__(10);
-	var offlinePersisters_1 = __webpack_require__(19);
-	var offline_1 = __webpack_require__(29);
+	var RequestService_1 = __webpack_require__(11);
+	var offlinePersisters_1 = __webpack_require__(21);
+	var offline_1 = __webpack_require__(32);
 	var EverliveError_1 = __webpack_require__(3);
 	var cacheableOperations = [
 	    constants_1.DataQueryOperation.Read,
@@ -13395,12 +14913,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 51 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	var _ = __webpack_require__(1);
-	var CacheModule_1 = __webpack_require__(50);
+	var CacheModule_1 = __webpack_require__(54);
 	var getDefaultOptions = function () {
 	    return {
 	        maxAge: 60,
@@ -13433,7 +14951,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 52 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13443,7 +14961,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var underscore_1 = __webpack_require__(1);
-	var DataQueryBuilder_1 = __webpack_require__(98);
+	var DataQueryBuilder_1 = __webpack_require__(108);
 	var Constants_1 = __webpack_require__(8);
 	var DataQuery_1 = __webpack_require__(15);
 	var Query_1 = __webpack_require__(6);
@@ -13570,11 +15088,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 53 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var node_cryptojs_aes_1 = __webpack_require__(128);
+	var node_cryptojs_aes_1 = __webpack_require__(141);
 	var AES = node_cryptojs_aes_1.CryptoJS.AES;
 	var CryptographicProvider = (function () {
 	    function CryptographicProvider(options) {
@@ -13605,7 +15123,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 54 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13614,7 +15132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	"use strict";
 	var platform = __webpack_require__(5);
-	var htmlHelper_1 = __webpack_require__(55);
+	var htmlHelper_1 = __webpack_require__(59);
 	exports.helpers = [];
 	if (platform.isCordova || platform.isDesktop) {
 	    exports.helpers.push({
@@ -13625,7 +15143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 55 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13635,10 +15153,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var EventEmitterExtended_1 = __webpack_require__(40);
+	var EventEmitterExtended_1 = __webpack_require__(44);
 	var utils_1 = __webpack_require__(4);
-	var htmlHelperResponsiveModule_1 = __webpack_require__(57);
-	var htmlHelperOfflineModule_1 = __webpack_require__(56);
+	var htmlHelperResponsiveModule_1 = __webpack_require__(61);
+	var htmlHelperOfflineModule_1 = __webpack_require__(60);
 	var constants_1 = __webpack_require__(2);
 	var EverliveError_1 = __webpack_require__(3);
 	var defaults = {
@@ -13968,11 +15486,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 56 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var path = __webpack_require__(13);
+	var path = __webpack_require__(9);
 	var _ = __webpack_require__(1);
 	var utils_1 = __webpack_require__(4);
 	var EverliveError_1 = __webpack_require__(3);
@@ -14017,7 +15535,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 57 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14220,17 +15738,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 58 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	//kendo.everlive adds some kendo methods to the Everlive prototype, if they are not used they cause no harm
-	var Everlive_1 = __webpack_require__(27);
+	var Everlive_1 = __webpack_require__(30);
 	exports.Everlive = Everlive_1.Everlive;
 
 
 /***/ },
-/* 59 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14239,14 +15757,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var utils_1 = __webpack_require__(4);
 	var _ = __webpack_require__(1);
-	var QueryBuilder_1 = __webpack_require__(22);
+	var QueryBuilder_1 = __webpack_require__(23);
 	var Query_1 = __webpack_require__(6);
-	var AggregateQuery_1 = __webpack_require__(21);
+	var AggregateQuery_1 = __webpack_require__(22);
 	var constants_1 = __webpack_require__(2);
-	var Everlive_1 = __webpack_require__(27);
-	var Sdk_1 = __webpack_require__(135);
+	var Everlive_1 = __webpack_require__(30);
+	var Sdk_1 = __webpack_require__(148);
+	var utils_1 = __webpack_require__(4);
 	var operations = {
 	    read: 'read',
 	    update: 'update',
@@ -14834,17 +16352,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 60 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var path = __webpack_require__(13); //TODO: not sure that this is correct, the typings just seem off
-	var node_cryptojs_aes_1 = __webpack_require__(128);
+	var path = __webpack_require__(9); //TODO: not sure that this is correct, the typings just seem off
+	var node_cryptojs_aes_1 = __webpack_require__(141);
 	var utils_1 = __webpack_require__(4);
-	var reqwest_everlive_1 = __webpack_require__(23);
+	var reqwest_everlive_1 = __webpack_require__(24);
 	var EverliveError_1 = __webpack_require__(3);
-	var AutoQueue_1 = __webpack_require__(43);
+	var AutoQueue_1 = __webpack_require__(47);
 	/**
 	 * @class OfflineFilesModule
 	 * @classdesc A class that provides the means to operate with files in offline mode.
@@ -15239,14 +16757,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 61 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var path = __webpack_require__(13); //TODO: not sure that this is correct, the typings just seem off
+	var path = __webpack_require__(9); //TODO: not sure that this is correct, the typings just seem off
 	var EverliveError_1 = __webpack_require__(3);
-	var FileStore_1 = __webpack_require__(34);
+	var FileStore_1 = __webpack_require__(37);
 	var platform = __webpack_require__(5);
 	var utils_1 = __webpack_require__(4);
 	var FILES_METADATA_FILE_NAME = 'filesMetadataMap';
@@ -15431,813 +16949,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 62 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var _ = __webpack_require__(1);
-	var path = __webpack_require__(13);
-	var ExpandProcessor_1 = __webpack_require__(44);
-	var utils_1 = __webpack_require__(4);
-	var offlineTransformations_1 = __webpack_require__(30);
-	var platform = __webpack_require__(5);
-	var EverliveError_1 = __webpack_require__(3);
-	var constants_1 = __webpack_require__(2);
-	var mingo = __webpack_require__(151);
-	var mongoQuery = __webpack_require__(153);
-	var aggregationTranslator = __webpack_require__(177);
-	var unsupportedOfflineHeaders = [constants_1.Constants.Headers.powerFields];
-	var unsupportedUsersOperations = (_a = {},
-	    _a[constants_1.DataQueryOperation.Create] = true,
-	    _a[constants_1.DataQueryOperation.Update] = true,
-	    _a[constants_1.DataQueryOperation.Delete] = true,
-	    _a[constants_1.DataQueryOperation.DeleteById] = true,
-	    _a[constants_1.DataQueryOperation.RawUpdate] = true,
-	    _a[constants_1.DataQueryOperation.SetAcl] = true,
-	    _a[constants_1.DataQueryOperation.SetOwner] = true,
-	    _a[constants_1.DataQueryOperation.UserLoginWithProvider] = true,
-	    _a[constants_1.DataQueryOperation.UserLinkWithProvider] = true,
-	    _a[constants_1.DataQueryOperation.UserUnlinkFromProvider] = true,
-	    _a[constants_1.DataQueryOperation.UserLogin] = true,
-	    _a[constants_1.DataQueryOperation.UserLogout] = true,
-	    _a[constants_1.DataQueryOperation.UserChangePassword] = true,
-	    _a[constants_1.DataQueryOperation.UserResetPassword] = true,
-	    _a
-	);
-	function buildUsersErrorMessage(dataQuery) {
-	    var unsupportedUserSocialProviderOperations = [
-	        constants_1.DataQueryOperation.UserLoginWithProvider,
-	        constants_1.DataQueryOperation.UserLinkWithProvider,
-	        constants_1.DataQueryOperation.UserUnlinkFromProvider
-	    ];
-	    var operation = dataQuery.operation;
-	    var operationStr = constants_1.DataQueryOperation[dataQuery.operation];
-	    if (unsupportedUserSocialProviderOperations.indexOf(operation) !== -1) {
-	        var providerPrefix = operationStr.substring(0, operationStr.indexOf('Provider'));
-	        operationStr = providerPrefix + (dataQuery.data.Provider || dataQuery.data.Identity.Provider);
-	    }
-	    return { message: 'The Users operation ' + operationStr + ' is not supported in offline mode', code: 0 };
-	}
-	function buildFilesErrorMessage(dataOperation) {
-	    var operationStr = constants_1.DataQueryOperation[dataOperation];
-	    return { message: "The Files operation " + operationStr + " is not supported in offline mode", code: 0 };
-	}
-	var OfflineQueryProcessor = (function () {
-	    function OfflineQueryProcessor(persister, _encryptionProvider, offlineFilesProcessor, everlive, setup) {
-	        this.persister = persister;
-	        this._encryptionProvider = _encryptionProvider;
-	        this.offlineFilesProcessor = offlineFilesProcessor;
-	        this.everlive = everlive;
-	        this.setup = setup;
-	        this._collectionCache = {};
-	    }
-	    OfflineQueryProcessor.prototype.processQuery = function (dataQuery) {
-	        var collectionName = dataQuery.collectionName;
-	        if (utils_1.Utils.isContentType.pushDevices(collectionName) || utils_1.Utils.isContentType.pushNotifications(collectionName)) {
-	            if (this.everlive.isOnline()) {
-	                return utils_1.Utils.successfulPromise();
-	            }
-	            else {
-	                return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
-	            }
-	        }
-	        var queryNotSupportedError = this.checkSupportedQuery(dataQuery);
-	        if (queryNotSupportedError && !dataQuery.isSync) {
-	            return new Promise(function (resolve, reject) {
-	                reject(new EverliveError_1.EverliveError(queryNotSupportedError));
-	            });
-	        }
-	        var queryParams = dataQuery.getQueryParameters();
-	        var unsupportedOperators = utils_1.Utils.getUnsupportedOperators(queryParams.filter);
-	        var unsupportedOperatorCount = unsupportedOperators.length;
-	        if (unsupportedOperatorCount) {
-	            return new Promise(function (resolve, reject) {
-	                var errorMessage;
-	                if (unsupportedOperatorCount === 1) {
-	                    errorMessage = 'The operator ' + unsupportedOperators[0] + ' is not supported in offline mode.';
-	                }
-	                else {
-	                    errorMessage = 'The operators ' + unsupportedOperators.join(',') + 'are not supported in offline mode.';
-	                }
-	                reject(new EverliveError_1.EverliveError({
-	                    message: errorMessage,
-	                    code: EverliveError_1.EverliveErrors.operationNotSupportedOffline.code
-	                }));
-	            });
-	        }
-	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(queryParams.filter);
-	        switch (dataQuery.operation) {
-	            case constants_1.DataQueryOperation.Read:
-	                return this.read(dataQuery, queryParams.filter, queryParams.sort, queryParams.skip, queryParams.limit, queryParams.select, queryParams.expand);
-	            case constants_1.DataQueryOperation.ReadById:
-	                return this.readById(dataQuery, queryParams.expand);
-	            case constants_1.DataQueryOperation.FilesGetDownloadUrlById:
-	                return this.getDownloadUrlById(dataQuery);
-	            case constants_1.DataQueryOperation.Count:
-	                return this.count(dataQuery, queryParams.filter);
-	            case constants_1.DataQueryOperation.Create:
-	                return this.create(dataQuery);
-	            case constants_1.DataQueryOperation.RawUpdate:
-	            case constants_1.DataQueryOperation.Update:
-	                return this.update(dataQuery, queryParams.filter);
-	            case constants_1.DataQueryOperation.FilesUpdateContent:
-	                return this.updateFileContent(dataQuery);
-	            case constants_1.DataQueryOperation.Delete:
-	                return this.remove(dataQuery, queryParams.filter);
-	            case constants_1.DataQueryOperation.DeleteById:
-	                return this.remove(dataQuery, {
-	                    _id: dataQuery.additionalOptions.id
-	                });
-	            case constants_1.DataQueryOperation.Aggregate:
-	                return this.aggregate(dataQuery, queryParams);
-	            default:
-	                return new Promise(function (resolve, reject) {
-	                    if (dataQuery.isSync) {
-	                        resolve();
-	                    }
-	                    else {
-	                        var operationStr = constants_1.DataQueryOperation[dataQuery.operation];
-	                        reject(new EverliveError_1.EverliveError({ message: operationStr + ' is not supported in offline mode.' }));
-	                    }
-	                });
-	        }
-	    };
-	    OfflineQueryProcessor.prototype.getDownloadUrlById = function (dataQuery) {
-	        var self = this;
-	        var id = dataQuery.additionalOptions.id;
-	        var offlineFilePath;
-	        var fileDirectUri;
-	        return self.everlive
-	            .files
-	            .useOffline(true)
-	            .isSync(dataQuery.isSync)
-	            .getById(id)
-	            .then(function (res) {
-	            var file = res.result;
-	            fileDirectUri = file.Uri;
-	            return self.everlive.offlineStorage.files._getFileUrlForId(file.Id, file.Filename);
-	        })
-	            .then(function (filePath) {
-	            offlineFilePath = filePath;
-	            return self.everlive.offlineStorage.offlineFilesProcessor.fileStore.getFileByAbsolutePath(filePath);
-	        })
-	            .then(function (fileEntry) {
-	            return {
-	                result: {
-	                    Uri: fileEntry ? offlineFilePath : fileDirectUri
-	                }
-	            };
-	        });
-	    };
-	    OfflineQueryProcessor.prototype.checkSupportedQuery = function (dataQuery) {
-	        for (var i = 0; i < unsupportedOfflineHeaders.length; i++) {
-	            var header = unsupportedOfflineHeaders[i];
-	            if (dataQuery.getHeader(header)) {
-	                return { message: 'The header ' + header + ' is not supported in offline mode', code: 0 };
-	            }
-	        }
-	        if (utils_1.Utils.isContentType.users(dataQuery.collectionName) && unsupportedUsersOperations[dataQuery.operation]) {
-	            return buildUsersErrorMessage(dataQuery);
-	        }
-	        var isSingle = dataQuery.additionalOptions && dataQuery.additionalOptions.id;
-	        var isUpdateByFilter = dataQuery.operation === constants_1.DataQueryOperation.Update && !isSingle;
-	        var isRawUpdate = dataQuery.operation === constants_1.DataQueryOperation.RawUpdate;
-	        var creatingMultiple = dataQuery.operation === constants_1.DataQueryOperation.Create && Array.isArray(dataQuery.data);
-	        if (utils_1.Utils.isContentType.files(dataQuery.collectionName)) {
-	            if (creatingMultiple) {
-	                return EverliveError_1.EverliveErrors.invalidRequest;
-	            }
-	            else if (isRawUpdate || isUpdateByFilter) {
-	                return buildFilesErrorMessage(dataQuery.operation);
-	            }
-	        }
-	    };
-	    OfflineQueryProcessor.prototype._getCreateResult = function (createdItems, returnFullItem) {
-	        if (createdItems.length === 1) {
-	            var result;
-	            if (returnFullItem) {
-	                var item = _.extend({}, createdItems[0]);
-	                result = offlineTransformations_1.offlineTransformations.idTransform(item);
-	            }
-	            else {
-	                result = {
-	                    CreatedAt: utils_1.Utils.cloneDate(createdItems[0].CreatedAt),
-	                    Id: createdItems[0]._id
-	                };
-	            }
-	            return {
-	                result: result
-	            };
-	        }
-	        else {
-	            var multipleCreateResult = [];
-	            _.each(createdItems, function (createdItem) {
-	                var item;
-	                if (returnFullItem) {
-	                    var itemCopy = _.extend({}, createdItem);
-	                    item = offlineTransformations_1.offlineTransformations.idTransform(itemCopy);
-	                }
-	                else {
-	                    item = {
-	                        CreatedAt: utils_1.Utils.cloneDate(createdItem.CreatedAt),
-	                        Id: createdItem._id
-	                    };
-	                }
-	                multipleCreateResult.push(item);
-	            });
-	            return {
-	                result: multipleCreateResult
-	            };
-	        }
-	    };
-	    OfflineQueryProcessor.prototype.create = function (dataQuery) {
-	        var self = this;
-	        return self._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState)
-	            .then(function (createdItems) {
-	            var isFilesQuery = utils_1.Utils.isContentType.files(dataQuery.collectionName);
-	            return self._getCreateResult(createdItems, isFilesQuery);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype.read = function (dataQuery, filter, sort, skip, limit, select, expand) {
-	        var self = this;
-	        var expandResult;
-	        return new Promise(function (resolve, reject) {
-	            var collectionLength;
-	            self._prepareExpand(expand, dataQuery, true)
-	                .then(function (prepareExpandResult) {
-	                expandResult = prepareExpandResult;
-	                if (prepareExpandResult) {
-	                    select = prepareExpandResult.mainQueryFieldsExpression;
-	                }
-	                return self._getCollection(dataQuery.collectionName);
-	            })
-	                .then(function (collection) {
-	                var result = self._readInternal(collection, filter, sort, skip, limit, select);
-	                if (skip || limit) {
-	                    var all = self._readInternal(collection);
-	                    collectionLength = all.length;
-	                }
-	                if (!self._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
-	                    result = offlineTransformations_1.offlineTransformations.removeIdTransform(result, true);
-	                }
-	                else {
-	                    result = offlineTransformations_1.offlineTransformations.idTransform(result);
-	                }
-	                return self._expandResult(expandResult, result);
-	            })
-	                .then(function (result) {
-	                var response = self._transformOfflineResult(result, collectionLength, dataQuery);
-	                resolve(response);
-	            })
-	                .catch(reject);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._readInternal = function (collection, filter, sort, skip, limit, select) {
-	        var filterCopy = _.extend({}, filter);
-	        var actualFilter = this._getWithoutDeletedFilter(filterCopy);
-	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(actualFilter);
-	        var query = mingo.Query(actualFilter);
-	        var cursor = mingo.Cursor(collection, query, select);
-	        if (sort) {
-	            cursor = cursor.sort(sort);
-	        }
-	        if (skip) {
-	            cursor.skip(skip);
-	        }
-	        if (limit) {
-	            cursor.limit(limit);
-	        }
-	        return _.map(cursor.all(), function (item) {
-	            return _.extend({}, item);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype.readById = function (dataQuery, expand) {
-	        var self = this;
-	        var expandResult;
-	        return self._prepareExpand(expand, dataQuery, false)
-	            .then(function (prepareExpandResult) {
-	            expandResult = prepareExpandResult;
-	            return self._getCollection(dataQuery.collectionName);
-	        })
-	            .then(function (collection) {
-	            return new Promise(function (resolve, reject) {
-	                var item = self._getById(collection, dataQuery.additionalOptions.id);
-	                if (!item) {
-	                    return reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.itemNotFound));
-	                }
-	                item = offlineTransformations_1.offlineTransformations.idTransform(item);
-	                return self._expandResult(expandResult, item).then(resolve).catch(reject);
-	            });
-	        })
-	            .then(function (result) {
-	            return self._transformOfflineResult(result, null, dataQuery);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._getById = function (collection, id) {
-	        if (!id) {
-	            throw new EverliveError_1.EverliveError({ message: 'Id field is mandatory when using offline storage' });
-	        }
-	        if (collection[id]) {
-	            var item = _.extend({}, collection[id]);
-	            var isDeleted = item && item[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.deleted;
-	            return isDeleted ? undefined : item;
-	        }
-	    };
-	    OfflineQueryProcessor.prototype._prepareExpand = function (expand, dataQuery, isArray) {
-	        return new Promise(function (resolve, reject) {
-	            if (expand) {
-	                ExpandProcessor_1.expandProcessor.prepare(expand, dataQuery.collectionName, isArray, dataQuery.fields, null, null, function (err, prepareResult) {
-	                    if (err) {
-	                        if (err.name === 'ExpandError') {
-	                            err.code = EverliveError_1.EverliveErrors.invalidExpandExpression.code;
-	                        }
-	                        return reject(err);
-	                    }
-	                    resolve(prepareResult);
-	                });
-	            }
-	            else {
-	                resolve();
-	            }
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._expandResult = function (prepareExpandResult, result) {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            if (prepareExpandResult) {
-	                ExpandProcessor_1.expandProcessor.expand(prepareExpandResult.relationsTree, result, {
-	                    offlineModule: self
-	                }, function (err, result) {
-	                    if (err) {
-	                        if (err.name === 'ExpandError') {
-	                            err.code = EverliveError_1.EverliveErrors.invalidExpandExpression.code;
-	                        }
-	                        return reject(err);
-	                    }
-	                    resolve(result);
-	                });
-	            }
-	            else {
-	                resolve(result);
-	            }
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._getWithoutDeletedFilter = function (filter) {
-	        var withoutDeletedFilter = {
-	            $and: []
-	        };
-	        withoutDeletedFilter.$and.push(filter);
-	        var deleteOfflineFilter = {};
-	        deleteOfflineFilter[constants_1.Constants.offlineItemsStateMarker] = { $ne: constants_1.Constants.offlineItemStates.deleted };
-	        withoutDeletedFilter.$and.push(deleteOfflineFilter);
-	        return withoutDeletedFilter;
-	    };
-	    OfflineQueryProcessor.prototype._getUpdateItemsResult = function (updateItems) {
-	        var updatedItemCount = updateItems.length;
-	        var modifiedAtResult = updatedItemCount ? updateItems[0].ModifiedAt : new Date();
-	        return {
-	            ModifiedAt: modifiedAtResult,
-	            result: updatedItemCount
-	        };
-	    };
-	    OfflineQueryProcessor.prototype.update = function (dataQuery, filter) {
-	        var self = this;
-	        return this._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync).then(function (updateItems) {
-	            return self._getUpdateItemsResult(updateItems);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype.remove = function (dataQuery, filter) {
-	        return this._removeItems(dataQuery, filter, dataQuery.isSync);
-	    };
-	    OfflineQueryProcessor.prototype.count = function (dataQuery, filter) {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            self._getCollection(dataQuery.collectionName)
-	                .then(function (collection) {
-	                var filterResult = self._readInternal(collection, filter);
-	                resolve({ result: filterResult.length });
-	            }).catch(reject);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._setItemDates = function (currentItem, itemToCreate, contentType) {
-	        // we need to manually clone the dates in order to dereference them from the original object as
-	        // _.extends will pass a reference to the original date instead of creating a new instance
-	        if (utils_1.Utils.isDate(currentItem.CreatedAt)) {
-	            itemToCreate.CreatedAt = utils_1.Utils.cloneDate(currentItem.CreatedAt);
-	        }
-	        else {
-	            itemToCreate.CreatedAt = new Date();
-	        }
-	        if (utils_1.Utils.isDate(currentItem.ModifiedAt)) {
-	            itemToCreate.ModifiedAt = utils_1.Utils.cloneDate(currentItem.ModifiedAt);
-	        }
-	        else {
-	            itemToCreate.ModifiedAt = utils_1.Utils.cloneDate(itemToCreate.CreatedAt);
-	        }
-	        itemToCreate.CreatedBy = itemToCreate.CreatedBy || this.everlive.setup.principalId || constants_1.Constants.guidEmpty;
-	        itemToCreate.ModifiedBy = itemToCreate.ModifiedBy || itemToCreate.CreatedBy;
-	        if (contentType === 'Users') {
-	            itemToCreate.Owner = itemToCreate._id;
-	        }
-	        else {
-	            itemToCreate.Owner = itemToCreate.CreatedBy || constants_1.Constants.guidEmpty;
-	        }
-	    };
-	    OfflineQueryProcessor.prototype._mapCreateItem = function (currentItem, collection, isSync, preserveState, contentType) {
-	        var self = this;
-	        var itemToCreate = _.extend({}, currentItem);
-	        itemToCreate._id = itemToCreate.Id || utils_1.Utils.uuid();
-	        delete itemToCreate.Id;
-	        var existingItem = self._getById(collection, itemToCreate._id);
-	        var itemExists = !!existingItem;
-	        var state;
-	        if (itemExists && (!isSync && !preserveState)) {
-	            // TODO: [offline] return the same error as the server does
-	            throw new EverliveError_1.EverliveError({ message: 'An item with the specified id already exists' });
-	        }
-	        else {
-	            if (isSync && preserveState && itemExists) {
-	                state = existingItem[constants_1.Constants.offlineItemsStateMarker];
-	            }
-	            else {
-	                state = isSync ? undefined : constants_1.Constants.offlineItemStates.created; // set the state to created only if not syncing
-	            }
-	        }
-	        function processItemResult() {
-	            self._setItemDates(currentItem, itemToCreate, contentType);
-	            self._setItem(collection, _.extend({}, itemToCreate), state);
-	            return itemToCreate;
-	        }
-	        if (utils_1.Utils.isContentType.files(contentType)) {
-	            return self.offlineFilesProcessor.upsertFileFromObject(itemToCreate, true, isSync).then(processItemResult);
-	        }
-	        else {
-	            return processItemResult();
-	        }
-	    };
-	    OfflineQueryProcessor.prototype._createItems = function (contentType, items, isSync, preserveState) {
-	        var self = this;
-	        return this._getCollection(contentType)
-	            .then(function (collection) {
-	            var itemsForCreate = _.isArray(items) ? items : [items];
-	            var createdItems = _.map(itemsForCreate, function (currentItem) {
-	                return self._mapCreateItem(currentItem, collection, isSync, preserveState, contentType);
-	            });
-	            return Promise.all(createdItems)
-	                .then(function (items) {
-	                return self._persistData(contentType)
-	                    .then(function () {
-	                    // Ids are generated regardless of the autoGenerateId option. However the Id's are omitted when returning
-	                    // the items to the client if autoGenerateId is false
-	                    if (!self._shouldAutogenerateIdForContentType(contentType) && !isSync) {
-	                        createdItems = offlineTransformations_1.offlineTransformations.removeIdTransform(items);
-	                    }
-	                    return items;
-	                });
-	            });
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._applyUpdateOperation = function (originalUpdateExpression, itemToUpdate, collection, isSync, modifiedAt) {
-	        var dbOperators = utils_1.Utils.getDbOperators(originalUpdateExpression, true);
-	        var hasDbOperator = dbOperators.length !== 0;
-	        var updateExpression;
-	        if (hasDbOperator) {
-	            updateExpression = originalUpdateExpression;
-	        }
-	        else {
-	            updateExpression = {
-	                $set: originalUpdateExpression
-	            };
-	        }
-	        var updateExpressionForUser = {
-	            ModifiedBy: this.everlive.setup.principalId || constants_1.Constants.guidEmpty
-	        };
-	        updateExpression.$set = _.extend(updateExpressionForUser, updateExpression.$set);
-	        if (isSync) {
-	            updateExpression.$set.ModifiedAt = utils_1.Utils.cloneDate(originalUpdateExpression.ModifiedAt || modifiedAt);
-	        }
-	        mongoQuery(itemToUpdate, {}, updateExpression, { strict: true }); // Setting strict to true so only exact matches would be updated
-	        itemToUpdate._id = itemToUpdate._id || updateExpression._id || updateExpression.Id;
-	        delete itemToUpdate.Id;
-	        var newState;
-	        if (isSync) {
-	            newState = undefined;
-	        }
-	        else if (itemToUpdate[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.created) {
-	            newState = constants_1.Constants.offlineItemStates.created;
-	        }
-	        else {
-	            newState = constants_1.Constants.offlineItemStates.modified;
-	        }
-	        this._setItem(collection, itemToUpdate, newState);
-	    };
-	    OfflineQueryProcessor.prototype.updateFileContent = function (dataQuery) {
-	        if (platform.isDesktop) {
-	            return utils_1.Utils.successfulPromise();
-	        }
-	        var isSync = dataQuery.isSync;
-	        var updateExpression = dataQuery.data;
-	        var self = this;
-	        var itemId = dataQuery.additionalOptions.id;
-	        var updateItems;
-	        var typeName = dataQuery.collectionName;
-	        return this._getCollection(typeName)
-	            .then(function (collection) {
-	            var singleItemForUpdate = self._getById(collection, itemId);
-	            updateItems = [singleItemForUpdate];
-	            singleItemForUpdate.base64 = updateExpression.base64;
-	            singleItemForUpdate.Filename = updateExpression.Filename;
-	            singleItemForUpdate.ContentType = updateExpression.ContentType;
-	            delete singleItemForUpdate.Uri;
-	            return self._overwriteFile(itemId, singleItemForUpdate, isSync)
-	                .then(function () {
-	                self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection);
-	                self._setItem(collection, singleItemForUpdate, constants_1.Constants.offlineItemStates.modified);
-	                return self._persistData(typeName);
-	            })
-	                .then(function () {
-	                return self._getUpdateItemsResult(updateItems);
-	            });
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._overwriteFile = function (itemId, itemForUpdate, isSync) {
-	        var self = this;
-	        return self.everlive.offlineStorage.files.purge(itemId)
-	            .then(function () {
-	            return self.offlineFilesProcessor.upsertFileFromObject(itemForUpdate, true, isSync);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._updateItems = function (dataQuery, updateExpression, filter, isSync) {
-	        var self = this;
-	        var collectionName = dataQuery.collectionName;
-	        return self._getCollection(collectionName)
-	            .then(function (collection) {
-	            var updateItems;
-	            if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
-	                var itemId = dataQuery.additionalOptions.id;
-	                var singleItemForUpdate = self._getById(collection, itemId);
-	                if (!singleItemForUpdate) {
-	                    throw new EverliveError_1.EverliveError({
-	                        message: 'Item with id :' + itemId + ' does not exist offline in the collection :' + collectionName,
-	                        code: EverliveError_1.EverliveErrors.itemNotFound.code
-	                    });
-	                }
-	                updateItems = [singleItemForUpdate];
-	                if (utils_1.Utils.isContentType.files(collectionName) && updateExpression.$set && updateExpression.$set.Filename || updateExpression.Filename) {
-	                    var filename = updateExpression.Filename || updateExpression.$set.Filename;
-	                    var extension = path.extname(filename);
-	                    return self.everlive.offlineStorage.files.changeFileExtensionById(itemId, extension)
-	                        .then(function () {
-	                        self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
-	                        return self._persistData(collectionName);
-	                    })
-	                        .then(function () {
-	                        return updateItems;
-	                    });
-	                }
-	                else {
-	                    self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
-	                }
-	            }
-	            else {
-	                updateItems = self._readInternal(collection, filter);
-	                for (var i = 0; i < updateItems.length; i++) {
-	                    var itemToUpdate = updateItems[i];
-	                    var itemExists = !!self._getById(collection, itemToUpdate._id.toString());
-	                    if (!itemExists && !isSync) {
-	                        // TODO: [offline] return the correct error
-	                        throw new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.itemNotFound);
-	                    }
-	                    self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync, dataQuery.ModifiedAt);
-	                }
-	            }
-	            return self._persistData(collectionName)
-	                .then(function () {
-	                return updateItems;
-	            });
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._getAllCollections = function () {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            self.persister.getAllData(function (allData) {
-	                _.each(allData, function (value, key) {
-	                    var decryptedData = self._encryptionProvider.decrypt(value);
-	                    allData[key] = JSON.parse(decryptedData || '{}', utils_1.Utils.parseUtilities.getReviver());
-	                });
-	                resolve(allData);
-	            }, reject);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._getCollection = function (contentType) {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            // check the persister if there is no data in the collection cache for this content type
-	            if (!self._collectionCache[contentType]) {
-	                self.persister.getData(contentType, function (data) {
-	                    var decryptedDataRaw = self._encryptionProvider.decrypt(data);
-	                    var decryptedData = JSON.parse(decryptedDataRaw || '{}', utils_1.Utils.parseUtilities.getReviver());
-	                    self._collectionCache[contentType] = decryptedData;
-	                    resolve(self._collectionCache[contentType]);
-	                }, reject);
-	            }
-	            else {
-	                resolve(self._collectionCache[contentType]);
-	            }
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._setItem = function (collection, item, state) {
-	        if (!state) {
-	            delete item[constants_1.Constants.offlineItemsStateMarker];
-	        }
-	        else {
-	            item[constants_1.Constants.offlineItemsStateMarker] = state;
-	        }
-	        collection[item._id] = item;
-	    };
-	    OfflineQueryProcessor.prototype._getDirtyItems = function (collection) {
-	        var filter = {};
-	        filter[constants_1.Constants.offlineItemsStateMarker] = { $exists: true };
-	        var query = mingo.Query(filter);
-	        var cursor = mingo.Cursor(collection, query);
-	        return cursor.all();
-	    };
-	    OfflineQueryProcessor.prototype._persistData = function (contentType) {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            var contentTypeData = self._collectionCache[contentType] || {};
-	            self._transformPersistedData(contentType, contentTypeData);
-	            var contentTypeDataRaw = JSON.stringify(contentTypeData);
-	            var contentTypeDataRawEncrypted = self._encryptionProvider.encrypt(contentTypeDataRaw);
-	            self.persister.saveData(contentType, contentTypeDataRawEncrypted, resolve, reject);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._shouldAutogenerateIdForContentType = function (contentType) {
-	        return !(this.setup && this.setup.typeSettings && this.setup.typeSettings[contentType] && this.setup.typeSettings[contentType].autoGenerateId === false);
-	    };
-	    OfflineQueryProcessor.prototype._clearItem = function (collection, item) {
-	        delete collection[item._id];
-	    };
-	    OfflineQueryProcessor.prototype._mapRemoveItem = function (itemToRemove, collection, isSync, collectionName) {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            //we cannot remove files while in desktop mode
-	            if (utils_1.Utils.isContentType.files(collectionName) && !platform.isDesktop) {
-	                return self.everlive.offlineStorage.files.purge(itemToRemove._id).then(resolve, reject);
-	            }
-	            else {
-	                return resolve();
-	            }
-	        }).then(function () {
-	            itemToRemove._id = itemToRemove._id || itemToRemove.Id;
-	            var itemExists = !!self._getById(collection, itemToRemove._id.toString());
-	            if (!itemExists && !isSync) {
-	                throw new EverliveError_1.EverliveError({ message: 'Cannot delete item - item with id ' + itemToRemove._id + ' does not exist.' });
-	            }
-	            // if the item has existed only offline or the data is syncing
-	            // and the item was deleted by the conflict resolution strategy
-	            var removeFromMemory = itemToRemove[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.created || isSync;
-	            if (removeFromMemory) {
-	                self._clearItem(collection, itemToRemove);
-	            }
-	            else {
-	                self._setItem(collection, itemToRemove, constants_1.Constants.offlineItemStates.deleted);
-	            }
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._removeItems = function (dataQuery, filter, isSync) {
-	        var self = this;
-	        var collectionName = dataQuery.collectionName;
-	        return self._getCollection(collectionName)
-	            .then(function (collection) {
-	            var itemsToRemove = self._readInternal(collection, filter);
-	            var removedItemsPromises = _.map(itemsToRemove, function (itemToRemove) {
-	                return self._mapRemoveItem(itemToRemove, collection, isSync, collectionName);
-	            });
-	            return Promise.all(removedItemsPromises);
-	        })
-	            .then(function (itemsToRemove) {
-	            return self._persistData(collectionName)
-	                .then(function () {
-	                return itemsToRemove;
-	            });
-	        })
-	            .then(function (itemsToRemove) {
-	            return self._transformOfflineResult(itemsToRemove.length);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype._applyTransformations = function (transformedResult, transformations) {
-	        if (Array.isArray(transformedResult.result)) {
-	            _.each(transformations, function (transformation) {
-	                transformedResult.result.map(function (value, key) {
-	                    transformedResult.result[key] = transformation(value);
-	                });
-	            });
-	        }
-	        else {
-	            _.each(transformations, function (transformation) {
-	                transformedResult.result = transformation(transformedResult.result);
-	            });
-	        }
-	    };
-	    OfflineQueryProcessor.prototype._transformOfflineResult = function (resultSet, count, dataQuery, additionalTransformations) {
-	        var transformedResult = {
-	            result: resultSet,
-	            count: count || (resultSet || []).length
-	        };
-	        if ((count !== undefined && count !== null) || Array.isArray(resultSet)) {
-	            transformedResult.count = count || resultSet.length;
-	        }
-	        var transformations = [];
-	        transformations.push(offlineTransformations_1.offlineTransformations.idTransform);
-	        transformations.push(offlineTransformations_1.offlineTransformations.removeMarkersTransform);
-	        if (dataQuery) {
-	            var includeCount = dataQuery.getHeader(constants_1.Constants.Headers.includeCount);
-	            if (includeCount === false) {
-	                delete transformedResult.count;
-	            }
-	            var singleFieldExpression = dataQuery.getHeader(constants_1.Constants.Headers.singleField);
-	            if (typeof singleFieldExpression === 'string') {
-	                transformations.push(offlineTransformations_1.offlineTransformations.singleFieldTransform.bind(this, singleFieldExpression));
-	            }
-	        }
-	        if (additionalTransformations) {
-	            transformations = transformations.concat(additionalTransformations);
-	        }
-	        this._applyTransformations(transformedResult, transformations);
-	        if (transformedResult.count === undefined) {
-	            delete transformedResult.count;
-	        }
-	        return transformedResult;
-	    };
-	    OfflineQueryProcessor.prototype._transformPersistedData = function (contentType, contentTypeData) {
-	        var transformFields = [];
-	        if (contentType === 'Users') {
-	            transformFields = transformFields.concat(['Password', 'SecretQuestionId', 'SecretAnswer']);
-	        }
-	        if (transformFields.length) {
-	            _.each(contentTypeData, function (contentTypeObject) {
-	                offlineTransformations_1.offlineTransformations.removeFieldsTransform(contentTypeObject, transformFields);
-	            });
-	        }
-	    };
-	    OfflineQueryProcessor.prototype.aggregate = function (dataQuery, queryParams) {
-	        var self = this;
-	        return this._getCollection(dataQuery.collectionName).then(function (collection) {
-	            if (!queryParams || !queryParams.aggregate || _.isEmpty(queryParams.aggregate)) {
-	                throw new EverliveError_1.EverliveError({ message: 'You must specify a valid aggregation definition. Either GroupBy or Aggregate is required.' });
-	            }
-	            var aggregationQuery = _.extend({}, queryParams.aggregate);
-	            aggregationQuery.Filter = queryParams.filter;
-	            var translatedPipeline = aggregationTranslator.translate(aggregationQuery, {
-	                maxDocumentsCount: constants_1.Constants.Aggregation.MaxDocumentsCount
-	            });
-	            var collectionWithoutDeleted = _.filter(collection, function (item) {
-	                return item[constants_1.Constants.offlineItemsStateMarker] !== constants_1.Constants.offlineItemStates.deleted;
-	            });
-	            var result = mingo.aggregate(collectionWithoutDeleted, translatedPipeline);
-	            return self._transformOfflineResult(result, null, dataQuery);
-	        });
-	    };
-	    OfflineQueryProcessor.prototype.purgeAll = function (success, error) {
-	        var self = this;
-	        this._collectionCache = {};
-	        return utils_1.Utils.buildPromise(function (success, error) {
-	            self._collectionCache = {};
-	            self.persister.purgeAll(function () {
-	                var cachingIsEnabled = self.everlive.setup.caching && self.everlive.setup.caching.enabled === true;
-	                if (cachingIsEnabled) {
-	                    self.everlive.cache.clearAll(success, error);
-	                }
-	                else {
-	                    success();
-	                }
-	            }, error);
-	        }, success, error);
-	    };
-	    OfflineQueryProcessor.prototype.purge = function (contentType, success, error) {
-	        var self = this;
-	        return utils_1.Utils.buildPromise(function (success, error) {
-	            delete self._collectionCache[contentType];
-	            self.persister.purge(contentType, function () {
-	                var cachingIsEnabled = self.everlive.setup.caching && self.everlive.setup.caching.enabled === true;
-	                if (cachingIsEnabled) {
-	                    self.everlive.cache.clear(contentType, success, error);
-	                }
-	                else {
-	                    success();
-	                }
-	            }, error);
-	        }, success, error);
-	    };
-	    return OfflineQueryProcessor;
-	}());
-	exports.OfflineQueryProcessor = OfflineQueryProcessor;
-	var _a;
-
-
-/***/ },
-/* 63 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16245,15 +16957,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DataQuery_1 = __webpack_require__(15);
 	var EverliveError_1 = __webpack_require__(3);
 	var constants_1 = __webpack_require__(2);
-	var RequestOptionsBuilder_1 = __webpack_require__(33);
+	var RequestOptionsBuilder_1 = __webpack_require__(36);
 	var utils_1 = __webpack_require__(4);
-	var Request_1 = __webpack_require__(9);
-	var offlineTransformations_1 = __webpack_require__(30);
-	var OfflineQueryProcessor_1 = __webpack_require__(62);
-	var OfflineFilesProcessor_1 = __webpack_require__(61);
-	var OfflineFilesModule_1 = __webpack_require__(60);
+	var Request_1 = __webpack_require__(10);
+	var offlineTransformations_1 = __webpack_require__(16);
+	var OfflineFilesProcessor_1 = __webpack_require__(65);
+	var OfflineFilesModule_1 = __webpack_require__(64);
 	var Query_1 = __webpack_require__(6);
-	var RequestService_1 = __webpack_require__(10);
+	var RequestService_1 = __webpack_require__(11);
+	var OfflineInMemoryQueryProcessor_1 = __webpack_require__(72);
+	var OfflineSQLiteQueryProcessor_1 = __webpack_require__(73);
 	var syncLocation = {
 	    server: 'server',
 	    client: 'client'
@@ -16267,6 +16980,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return {
 	        Id: item.Id
 	    };
+	}
+	function getQueryProcessor(persister, _encryptionProvider, offlineFilesProcessor, everlive, options) {
+	    var queryProcessor;
+	    var storageProvider = options.storage.provider;
+	    switch (storageProvider) {
+	        case constants_1.Constants.StorageProvider.LocalStorage:
+	        case constants_1.Constants.StorageProvider.FileSystem:
+	        case constants_1.Constants.StorageProvider.Custom:
+	            queryProcessor = new OfflineInMemoryQueryProcessor_1.OfflineInMemoryQueryProcessor(persister, _encryptionProvider, offlineFilesProcessor, everlive, options);
+	            break;
+	        case constants_1.Constants.StorageProvider.SQLite:
+	            queryProcessor = new OfflineSQLiteQueryProcessor_1.OfflineSQLiteQueryProcessor(persister, _encryptionProvider, offlineFilesProcessor, everlive, options);
+	            break;
+	        default:
+	            throw new EverliveError_1.EverliveError({ message: 'Unsupported storage type ' + storageProvider });
+	    }
+	    return queryProcessor;
 	}
 	/**
 	 * @class OfflineModule
@@ -16284,7 +17014,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._encryptionProvider = _encryptionProvider;
 	        this._isSynchronizing = false;
 	        this.offlineFilesProcessor = new OfflineFilesProcessor_1.OfflineFilesProcessor(this.options, this._everlive);
-	        this.queryProcessor = new OfflineQueryProcessor_1.OfflineQueryProcessor(persister, _encryptionProvider, this.offlineFilesProcessor, this._everlive, this.options);
+	        this.queryProcessor = getQueryProcessor(persister, _encryptionProvider, this.offlineFilesProcessor, this._everlive, this.options);
 	        this.files = new OfflineFilesModule_1.OfflineFilesModule(this.offlineFilesProcessor, this._everlive, this.options.files.maxConcurrentDownloads);
 	    }
 	    /**
@@ -16662,12 +17392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    OfflineStorageModule.prototype._purgeById = function (contentType, itemId) {
-	        var self = this;
-	        return this.queryProcessor._getCollection(contentType)
-	            .then(function (collection) {
-	            delete collection[itemId];
-	            return self.queryProcessor._persistData(contentType);
-	        });
+	        return this.queryProcessor.purgeById(contentType, itemId);
 	    };
 	    OfflineStorageModule.prototype.sync = function () {
 	        var self = this;
@@ -16996,7 +17721,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            resultingItem: offlineItem
 	                        });
 	                    }
-	                    else if (offlineItem[constants_1.Constants.offlineItemsStateMarker] === undefined) {
+	                    else if (offlineItem[constants_1.Constants.offlineItemsStateMarker] === undefined || offlineItem[constants_1.Constants.offlineItemsStateMarker] === null) {
 	                        contentTypeSyncData.itemsForSync.modifiedItemsOnServer.push(serverItem);
 	                    }
 	                    else {
@@ -17723,7 +18448,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 64 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17733,8 +18458,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var FileStore_1 = __webpack_require__(34);
-	var BasePersister_1 = __webpack_require__(20);
+	var FileStore_1 = __webpack_require__(37);
+	var BasePersister_1 = __webpack_require__(17);
 	var FileSystemPersister = (function (_super) {
 	    __extends(FileSystemPersister, _super);
 	    /**
@@ -17835,7 +18560,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 65 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -17845,8 +18570,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var _ = __webpack_require__(1);
-	var LocalStore_1 = __webpack_require__(35);
-	var BasePersister_1 = __webpack_require__(20);
+	var LocalStore_1 = __webpack_require__(38);
+	var BasePersister_1 = __webpack_require__(17);
 	var LocalStoragePersister = (function (_super) {
 	    __extends(LocalStoragePersister, _super);
 	    /**
@@ -17956,18 +18681,1392 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 66 */
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var _ = __webpack_require__(1);
+	var platform = __webpack_require__(5);
+	var CordovaSQLiteStore_1 = __webpack_require__(81);
+	var NativeScriptSQLiteStore_1 = __webpack_require__(83);
+	var BasePersister_1 = __webpack_require__(17);
+	var SystemDefinitions_1 = __webpack_require__(71);
+	var EverliveError_1 = __webpack_require__(3);
+	var utils_1 = __webpack_require__(4);
+	function getSQLiteStore(storagePath, typeSettings) {
+	    if (platform.isNativeScript) {
+	        return new NativeScriptSQLiteStore_1.NativeScriptSQLiteStore(storagePath, typeSettings);
+	    }
+	    else if (platform.isCordova) {
+	        return new CordovaSQLiteStore_1.CordovaSQLiteStore(storagePath, typeSettings);
+	    }
+	    else {
+	        throw new EverliveError_1.EverliveError({ message: 'Unsupported platform for SQLite' });
+	    }
+	}
+	var SQLitePersister = (function (_super) {
+	    __extends(SQLitePersister, _super);
+	    /**
+	     * @class SQLitePersister
+	     * @extends BasePersister
+	     */
+	    function SQLitePersister(key, options) {
+	        _super.call(this, key, options);
+	        var jsonSqlOptions = {
+	            dialect: 'sqlite',
+	            separatedValues: false
+	        };
+	        this.jsonSql = __webpack_require__(179)(jsonSqlOptions);
+	        this.contentTypes = _.keys(options.typeSettings);
+	        var extendedSettings = this.extendTypeSchemes(options.typeSettings);
+	        var storagePath = options.storage.storagePath + "_" + options.appId;
+	        this.sqliteStore = getSQLiteStore(options.storage.storagePath, extendedSettings);
+	    }
+	    SQLitePersister.prototype.getData = function (contentType, success, error) {
+	        return this.queryData(contentType, success, error);
+	    };
+	    SQLitePersister.prototype.count = function (contentType, success, error, filter) {
+	        try {
+	            var sqlQuery = this.prepareCount(contentType, filter);
+	            this.sqliteStore.queryData(contentType, sqlQuery.query, function (resultSet) {
+	                var resultCount = resultSet && resultSet[0] && resultSet[0].Count ? resultSet[0].Count : 0;
+	                success({ Count: resultCount });
+	            }, error);
+	        }
+	        catch (e) {
+	            error(e);
+	        }
+	    };
+	    SQLitePersister.prototype.queryData = function (contentType, success, error, filter, sort, skip, limit, select) {
+	        try {
+	            var sqlQuery = this.prepareQuery(contentType, 'select', filter, sort, skip, limit, select);
+	            this.sqliteStore.queryData(contentType, sqlQuery.query, success, error);
+	        }
+	        catch (e) {
+	            error(e);
+	        }
+	    };
+	    SQLitePersister.prototype.removeData = function (contentType, success, error, filter) {
+	        try {
+	            var sqlQuery = this.prepareQuery(contentType, 'remove', filter);
+	            this.sqliteStore.removeData(contentType, sqlQuery.query, success, error);
+	        }
+	        catch (e) {
+	            error(e);
+	        }
+	    };
+	    SQLitePersister.prototype.updateData = function (contentType, updateObj, success, error, filter) {
+	        try {
+	            var sqlQuery = this.prepareUpdate(contentType, updateObj, filter);
+	            this.sqliteStore.updateData(contentType, sqlQuery.query, success, error);
+	        }
+	        catch (e) {
+	            error(e);
+	        }
+	    };
+	    SQLitePersister.prototype.saveData = function (contentType, data, success, error) {
+	        try {
+	            this.sqliteStore.addData(contentType, data, success, error);
+	        }
+	        catch (e) {
+	            error(e);
+	        }
+	    };
+	    SQLitePersister.prototype.purgeById = function (contentType, itemId, success, error) {
+	        var sqlQuery = this.prepareQuery(contentType, 'remove', { _id: itemId });
+	        this.sqliteStore.removeData(contentType, sqlQuery.query, function () {
+	            // omit the number of deleted items
+	            success();
+	        }, error);
+	    };
+	    SQLitePersister.prototype.purge = function (contentType, success, error) {
+	        var sqlQuery = this.prepareQuery(contentType, 'remove');
+	        this.sqliteStore.removeData(contentType, sqlQuery.query, function () {
+	            // omit the number of deleted items
+	            success();
+	        }, error);
+	    };
+	    SQLitePersister.prototype.purgeAll = function (success, error) {
+	        var _this = this;
+	        var purgeAllPromises = _.map(this.options.typeSettings, function (definition, type) {
+	            var sqlQuery = _this.prepareQuery(type, 'remove');
+	            var purgePromise = new Promise(function (resolve, reject) {
+	                _this.sqliteStore.removeData(type, sqlQuery.query, resolve, reject);
+	            });
+	            return purgePromise;
+	        });
+	        return Promise.all(purgeAllPromises).then(function () {
+	            // omit the number of deleted items
+	            success();
+	        }, error);
+	    };
+	    SQLitePersister.prototype.extendTypeSchemes = function (types) {
+	        var resultScheme = {};
+	        _.each(types, function (definition, type) {
+	            resultScheme[type] = SystemDefinitions_1.getDefinition(type, definition['Scheme']);
+	        });
+	        if (!resultScheme['Files']) {
+	            resultScheme['Files'] = SystemDefinitions_1.getDefinition('Files', []);
+	        }
+	        if (!resultScheme['Users']) {
+	            resultScheme['Users'] = SystemDefinitions_1.getDefinition('Users', []);
+	        }
+	        return resultScheme;
+	    };
+	    SQLitePersister.prototype.prepareCount = function (tableName, filter) {
+	        var jsonQuery = {
+	            type: 'select',
+	            table: tableName
+	        };
+	        jsonQuery['count'] = { Count: 'COUNT(*)' };
+	        if (filter) {
+	            jsonQuery['condition'] = filter;
+	        }
+	        var sqlQuery = this.jsonSql.build(jsonQuery);
+	        return sqlQuery;
+	    };
+	    SQLitePersister.prototype.prepareUpdate = function (tableName, updateObj, filter) {
+	        var jsonQuery = {
+	            type: 'update',
+	            table: tableName
+	        };
+	        if (updateObj.$set) {
+	            // cannot update unsupported data types in sqlite.
+	            // Meta is always part of the updateObject, when passing the whole item for update
+	            delete updateObj.$set.Meta;
+	        }
+	        _.each(updateObj.$set, function (value, key) {
+	            if (value instanceof Date) {
+	                updateObj.$set[key] = value.toISOString();
+	            }
+	        });
+	        jsonQuery['modifier'] = updateObj;
+	        if (filter) {
+	            jsonQuery['condition'] = filter;
+	        }
+	        var sqlQuery = this.jsonSql.build(jsonQuery);
+	        return sqlQuery;
+	    };
+	    SQLitePersister.prototype.prepareFilter = function (filter) {
+	        this.traverseAndRemoveUndefined(filter);
+	        this.traverseAndTransformRegexFilter(filter);
+	    };
+	    SQLitePersister.prototype.traverseAndTransformRegexFilter = function (filterObj) {
+	        if (filterObj && filterObj['$regex']) {
+	            var start = utils_1.Utils.startsWith(filterObj['$regex'], '^') ? '' : '%';
+	            var end = utils_1.Utils.endsWith(filterObj['$regex'], '$') ? '' : '%';
+	            var textValue = filterObj['$regex'].substring(1, filterObj['$regex'].length - 1);
+	            filterObj['$like'] = "" + start + textValue + end;
+	            delete filterObj['$regex'];
+	            delete filterObj['$options']; // invariant search is part of the configuration of the SQLite database.
+	        }
+	        for (var prop in filterObj) {
+	            if (filterObj.hasOwnProperty(prop)) {
+	                var objectMember = filterObj[prop];
+	                if (typeof objectMember === 'object') {
+	                    this.traverseAndTransformRegexFilter(objectMember);
+	                }
+	            }
+	        }
+	    };
+	    // passing object as filter with undefined fields will make the query invalid
+	    // this usually happens when you are passing the item itself for filter
+	    SQLitePersister.prototype.traverseAndRemoveUndefined = function (filterObj) {
+	        for (var prop in filterObj) {
+	            if (filterObj.hasOwnProperty(prop)) {
+	                var member = filterObj[prop];
+	                if (typeof member === 'object') {
+	                    this.traverseAndRemoveUndefined(member);
+	                }
+	                else if (member === undefined) {
+	                    delete filterObj[prop];
+	                }
+	            }
+	        }
+	    };
+	    SQLitePersister.prototype.prepareQuery = function (tableName, type, filter, sort, skip, limit, select) {
+	        var jsonQuery = {
+	            type: type,
+	            table: tableName
+	        };
+	        if (filter) {
+	            this.prepareFilter(filter);
+	            jsonQuery['condition'] = filter;
+	        }
+	        if (sort) {
+	            jsonQuery['sort'] = sort;
+	        }
+	        if (skip) {
+	            jsonQuery['offset'] = skip;
+	        }
+	        if (limit) {
+	            jsonQuery['limit'] = limit;
+	        }
+	        if (select) {
+	            jsonQuery['fields'] = _.keys(select);
+	        }
+	        var sqlQuery = this.jsonSql.build(jsonQuery);
+	        return sqlQuery;
+	    };
+	    SQLitePersister.prototype._getContentTypes = function (success, error) {
+	        success(this.contentTypes);
+	    };
+	    return SQLitePersister;
+	}(BasePersister_1.BasePersister));
+	exports.SQLitePersister = SQLitePersister;
+
+
+/***/ },
+/* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var constants_1 = __webpack_require__(2);
+	var FieldDefinition = (function () {
+	    function FieldDefinition(name, type, key) {
+	        this.name = name;
+	        this.type = type;
+	        this.key = key;
+	        this.isSpecialType = constants_1.Constants.SqliteUnsupportedTypes[this.type] !== undefined;
+	    }
+	    FieldDefinition.prototype.getDefinition = function () {
+	        var type = this.isSpecialType ? constants_1.Constants.SqliteTypes.Text : this.type;
+	        var definition = "\"" + this.name + "\" \"" + type + "\"";
+	        if (this.key) {
+	            definition += " " + this.key;
+	        }
+	        return definition;
+	    };
+	    return FieldDefinition;
+	}());
+	exports.FieldDefinition = FieldDefinition;
+
+
+/***/ },
+/* 71 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var _ = __webpack_require__(1);
+	var FieldDefinition_1 = __webpack_require__(70);
+	var constants_1 = __webpack_require__(2);
+	var utils_1 = __webpack_require__(4);
+	var BaseDefinition = (function () {
+	    function BaseDefinition() {
+	        this._scheme = [];
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('_id', constants_1.Constants.SqliteTypes.Text, 'PRIMARY KEY'));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('CreatedAt', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('ModifiedAt', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('CreatedBy', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('ModifiedBy', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Owner', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Meta', constants_1.Constants.SqliteUnsupportedTypes.OBJECT));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition(constants_1.Constants.offlineItemsStateMarker, constants_1.Constants.SqliteTypes.Text));
+	    }
+	    BaseDefinition.prototype.extendScheme = function (externalScheme) {
+	        var externalDefinition = _.map(externalScheme, function (field) {
+	            return new FieldDefinition_1.FieldDefinition(field.Name, field.Type || constants_1.Constants.SqliteTypes.Text);
+	        });
+	        var extended = _.union(externalDefinition, this._scheme);
+	        return extended;
+	    };
+	    return BaseDefinition;
+	}());
+	var UsersDefinition = (function (_super) {
+	    __extends(UsersDefinition, _super);
+	    function UsersDefinition() {
+	        _super.call(this);
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Username', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Email', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('DisplayName', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Role', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('IdentityProvider', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('IsVerified', constants_1.Constants.SqliteUnsupportedTypes.BOOLEAN));
+	    }
+	    return UsersDefinition;
+	}(BaseDefinition));
+	var FilesDefinition = (function (_super) {
+	    __extends(FilesDefinition, _super);
+	    function FilesDefinition() {
+	        _super.call(this);
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Filename', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('ContentType', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Length', constants_1.Constants.SqliteTypes.Number));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('totalSize', constants_1.Constants.SqliteTypes.Number));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Storage', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('Uri', constants_1.Constants.SqliteTypes.Text));
+	        this._scheme.push(new FieldDefinition_1.FieldDefinition('base64', constants_1.Constants.SqliteTypes.Text));
+	    }
+	    return FilesDefinition;
+	}(BaseDefinition));
+	function getDefinition(type, externalScheme) {
+	    var typeDefinition = null;
+	    if (utils_1.Utils.isContentType.files(type)) {
+	        typeDefinition = new FilesDefinition();
+	    }
+	    else if (utils_1.Utils.isContentType.users(type)) {
+	        typeDefinition = new UsersDefinition();
+	    }
+	    else {
+	        typeDefinition = new BaseDefinition();
+	    }
+	    return typeDefinition.extendScheme(externalScheme);
+	}
+	exports.getDefinition = getDefinition;
+
+
+/***/ },
+/* 72 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var _ = __webpack_require__(1);
+	var path = __webpack_require__(9);
+	var utils_1 = __webpack_require__(4);
+	var offlineTransformations_1 = __webpack_require__(16);
+	var platform = __webpack_require__(5);
+	var EverliveError_1 = __webpack_require__(3);
+	var constants_1 = __webpack_require__(2);
+	var OfflineQueryProcessor_1 = __webpack_require__(33);
+	var mingo = __webpack_require__(140);
+	var mongoQuery = __webpack_require__(186);
+	var aggregationTranslator = __webpack_require__(209);
+	var OfflineInMemoryQueryProcessor = (function (_super) {
+	    __extends(OfflineInMemoryQueryProcessor, _super);
+	    function OfflineInMemoryQueryProcessor(persister, _encryptionProvider, offlineFilesProcessor, everlive, setup) {
+	        _super.call(this, persister, _encryptionProvider, offlineFilesProcessor, everlive, setup);
+	        this.persister = persister;
+	        this._encryptionProvider = _encryptionProvider;
+	        this.offlineFilesProcessor = offlineFilesProcessor;
+	        this.everlive = everlive;
+	        this.setup = setup;
+	        this._collectionCache = {};
+	    }
+	    OfflineInMemoryQueryProcessor.prototype.processQuery = function (dataQuery) {
+	        var collectionName = dataQuery.collectionName;
+	        if (utils_1.Utils.isContentType.pushDevices(collectionName) || utils_1.Utils.isContentType.pushNotifications(collectionName)) {
+	            if (this.everlive.isOnline()) {
+	                return utils_1.Utils.successfulPromise();
+	            }
+	            else {
+	                return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
+	            }
+	        }
+	        var queryNotSupportedError = this.checkSupportedQuery(dataQuery);
+	        if (queryNotSupportedError && !dataQuery.isSync) {
+	            return new Promise(function (resolve, reject) {
+	                reject(new EverliveError_1.EverliveError(queryNotSupportedError));
+	            });
+	        }
+	        var queryParams = dataQuery.getQueryParameters();
+	        var unsupportedOperators = utils_1.Utils.getUnsupportedOperators(queryParams.filter);
+	        var unsupportedOperatorCount = unsupportedOperators.length;
+	        if (unsupportedOperatorCount) {
+	            return new Promise(function (resolve, reject) {
+	                var errorMessage;
+	                if (unsupportedOperatorCount === 1) {
+	                    errorMessage = 'The operator ' + unsupportedOperators[0] + ' is not supported in offline mode.';
+	                }
+	                else {
+	                    errorMessage = 'The operators ' + unsupportedOperators.join(',') + 'are not supported in offline mode.';
+	                }
+	                reject(new EverliveError_1.EverliveError({
+	                    message: errorMessage,
+	                    code: EverliveError_1.EverliveErrors.operationNotSupportedOffline.code
+	                }));
+	            });
+	        }
+	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(queryParams.filter);
+	        switch (dataQuery.operation) {
+	            case constants_1.DataQueryOperation.Read:
+	                return this.read(dataQuery, queryParams.filter, queryParams.sort, queryParams.skip, queryParams.limit, queryParams.select, queryParams.expand);
+	            case constants_1.DataQueryOperation.ReadById:
+	                return this.readById(dataQuery, queryParams.expand);
+	            case constants_1.DataQueryOperation.FilesGetDownloadUrlById:
+	                return this.getDownloadUrlById(dataQuery);
+	            case constants_1.DataQueryOperation.Count:
+	                return this.count(dataQuery, queryParams.filter);
+	            case constants_1.DataQueryOperation.Create:
+	                return this.create(dataQuery);
+	            case constants_1.DataQueryOperation.RawUpdate:
+	            case constants_1.DataQueryOperation.Update:
+	                return this.update(dataQuery, queryParams.filter);
+	            case constants_1.DataQueryOperation.FilesUpdateContent:
+	                return this.updateFileContent(dataQuery);
+	            case constants_1.DataQueryOperation.Delete:
+	                return this.remove(dataQuery, queryParams.filter);
+	            case constants_1.DataQueryOperation.DeleteById:
+	                return this.remove(dataQuery, {
+	                    _id: dataQuery.additionalOptions.id
+	                });
+	            case constants_1.DataQueryOperation.Aggregate:
+	                return this.aggregate(dataQuery, queryParams);
+	            default:
+	                return new Promise(function (resolve, reject) {
+	                    if (dataQuery.isSync) {
+	                        resolve();
+	                    }
+	                    else {
+	                        var operationStr = constants_1.DataQueryOperation[dataQuery.operation];
+	                        reject(new EverliveError_1.EverliveError({ message: operationStr + ' is not supported in offline mode.' }));
+	                    }
+	                });
+	        }
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.create = function (dataQuery) {
+	        var self = this;
+	        return self._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState)
+	            .then(function (createdItems) {
+	            var isFilesQuery = utils_1.Utils.isContentType.files(dataQuery.collectionName);
+	            return self._getCreateResult(createdItems, isFilesQuery);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.read = function (dataQuery, filter, sort, skip, limit, select, expand) {
+	        var self = this;
+	        var expandResult;
+	        return new Promise(function (resolve, reject) {
+	            var collectionLength;
+	            self._prepareExpand(expand, dataQuery, true)
+	                .then(function (prepareExpandResult) {
+	                expandResult = prepareExpandResult;
+	                if (prepareExpandResult) {
+	                    select = prepareExpandResult.mainQueryFieldsExpression;
+	                }
+	                return self._getCollection(dataQuery.collectionName);
+	            })
+	                .then(function (collection) {
+	                var result = self._readInternal(collection, filter, sort, skip, limit, select);
+	                if (skip || limit) {
+	                    var all = self._readInternal(collection);
+	                    collectionLength = all.length;
+	                }
+	                if (!self._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
+	                    result = offlineTransformations_1.offlineTransformations.removeIdTransform(result, true);
+	                }
+	                else {
+	                    result = offlineTransformations_1.offlineTransformations.idTransform(result);
+	                }
+	                return self._expandResult(expandResult, result);
+	            })
+	                .then(function (result) {
+	                var response = self._transformOfflineResult(result, collectionLength, dataQuery);
+	                resolve(response);
+	            })
+	                .catch(reject);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._readInternal = function (collection, filter, sort, skip, limit, select) {
+	        var filterCopy = _.extend({}, filter);
+	        var actualFilter = this._getWithoutDeletedFilter(filterCopy);
+	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(actualFilter);
+	        var query = mingo.Query(actualFilter);
+	        var cursor = mingo.Cursor(collection, query, select);
+	        if (sort) {
+	            cursor = cursor.sort(sort);
+	        }
+	        if (skip) {
+	            cursor.skip(skip);
+	        }
+	        if (limit) {
+	            cursor.limit(limit);
+	        }
+	        return _.map(cursor.all(), function (item) {
+	            return _.extend({}, item);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.readById = function (dataQuery, expand) {
+	        var self = this;
+	        var expandResult;
+	        return self._prepareExpand(expand, dataQuery, false)
+	            .then(function (prepareExpandResult) {
+	            expandResult = prepareExpandResult;
+	            return self._getCollection(dataQuery.collectionName);
+	        })
+	            .then(function (collection) {
+	            return new Promise(function (resolve, reject) {
+	                var item = self._getById(collection, dataQuery.additionalOptions.id);
+	                if (!item) {
+	                    return reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.itemNotFound));
+	                }
+	                item = offlineTransformations_1.offlineTransformations.idTransform(item);
+	                return self._expandResult(expandResult, item).then(resolve).catch(reject);
+	            });
+	        })
+	            .then(function (result) {
+	            return self._transformOfflineResult(result, null, dataQuery);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._getById = function (collection, id) {
+	        if (!id) {
+	            throw new EverliveError_1.EverliveError({ message: 'Id field is mandatory when using offline storage' });
+	        }
+	        if (collection[id]) {
+	            var item = _.extend({}, collection[id]);
+	            var isDeleted = item && item[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.deleted;
+	            return isDeleted ? undefined : item;
+	        }
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._getUpdateItemsResult = function (updateItems) {
+	        var updatedItemCount = updateItems.length;
+	        var modifiedAtResult = updatedItemCount ? updateItems[0].ModifiedAt : new Date();
+	        return {
+	            ModifiedAt: modifiedAtResult,
+	            result: updatedItemCount
+	        };
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.update = function (dataQuery, filter) {
+	        var self = this;
+	        return this._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync).then(function (updateItems) {
+	            return self._getUpdateItemsResult(updateItems);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.remove = function (dataQuery, filter) {
+	        return this._removeItems(dataQuery, filter, dataQuery.isSync);
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.count = function (dataQuery, filter) {
+	        var self = this;
+	        return new Promise(function (resolve, reject) {
+	            self._getCollection(dataQuery.collectionName)
+	                .then(function (collection) {
+	                var filterResult = self._readInternal(collection, filter);
+	                resolve({ result: filterResult.length });
+	            }).catch(reject);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._mapCreateItem = function (currentItem, collection, isSync, preserveState, contentType) {
+	        var self = this;
+	        var itemToCreate = _.extend({}, currentItem);
+	        itemToCreate._id = itemToCreate.Id || utils_1.Utils.uuid();
+	        delete itemToCreate.Id;
+	        var existingItem = self._getById(collection, itemToCreate._id);
+	        var itemExists = !!existingItem;
+	        var state;
+	        if (itemExists && (!isSync && !preserveState)) {
+	            // TODO: [offline] return the same error as the server does
+	            throw new EverliveError_1.EverliveError({ message: 'An item with the specified id already exists' });
+	        }
+	        else {
+	            if (isSync && preserveState && itemExists) {
+	                state = existingItem[constants_1.Constants.offlineItemsStateMarker];
+	            }
+	            else {
+	                state = isSync ? undefined : constants_1.Constants.offlineItemStates.created; // set the state to created only if not syncing
+	            }
+	        }
+	        function processItemResult() {
+	            self._setItemDates(currentItem, itemToCreate, contentType);
+	            self._setItem(collection, _.extend({}, itemToCreate), state);
+	            return itemToCreate;
+	        }
+	        if (utils_1.Utils.isContentType.files(contentType)) {
+	            return self.offlineFilesProcessor.upsertFileFromObject(itemToCreate, true, isSync).then(processItemResult);
+	        }
+	        else {
+	            return processItemResult();
+	        }
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._createItems = function (contentType, items, isSync, preserveState) {
+	        var self = this;
+	        return this._getCollection(contentType)
+	            .then(function (collection) {
+	            var itemsForCreate = _.isArray(items) ? items : [items];
+	            var createdItems = _.map(itemsForCreate, function (currentItem) {
+	                return self._mapCreateItem(currentItem, collection, isSync, preserveState, contentType);
+	            });
+	            return Promise.all(createdItems)
+	                .then(function (items) {
+	                return self._persistData(contentType)
+	                    .then(function () {
+	                    // Ids are generated regardless of the autoGenerateId option. However the Id's are omitted when returning
+	                    // the items to the client if autoGenerateId is false
+	                    if (!self._shouldAutogenerateIdForContentType(contentType) && !isSync) {
+	                        createdItems = offlineTransformations_1.offlineTransformations.removeIdTransform(items);
+	                    }
+	                    return items;
+	                });
+	            });
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._applyUpdateOperation = function (originalUpdateExpression, itemToUpdate, collection, isSync, modifiedAt) {
+	        var dbOperators = utils_1.Utils.getDbOperators(originalUpdateExpression, true);
+	        var hasDbOperator = dbOperators.length !== 0;
+	        var updateExpression;
+	        if (hasDbOperator) {
+	            updateExpression = originalUpdateExpression;
+	        }
+	        else {
+	            updateExpression = {
+	                $set: originalUpdateExpression
+	            };
+	        }
+	        var updateExpressionForUser = {
+	            ModifiedBy: this.everlive.setup.principalId || constants_1.Constants.guidEmpty
+	        };
+	        updateExpression.$set = _.extend(updateExpressionForUser, updateExpression.$set);
+	        if (isSync) {
+	            updateExpression.$set.ModifiedAt = utils_1.Utils.cloneDate(originalUpdateExpression.ModifiedAt || modifiedAt);
+	        }
+	        mongoQuery(itemToUpdate, {}, updateExpression, { strict: true }); // Setting strict to true so only exact matches would be updated
+	        itemToUpdate._id = itemToUpdate._id || updateExpression._id || updateExpression.Id;
+	        delete itemToUpdate.Id;
+	        var newState;
+	        if (isSync) {
+	            newState = undefined;
+	        }
+	        else if (itemToUpdate[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.created) {
+	            newState = constants_1.Constants.offlineItemStates.created;
+	        }
+	        else {
+	            newState = constants_1.Constants.offlineItemStates.modified;
+	        }
+	        this._setItem(collection, itemToUpdate, newState);
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.updateFileContent = function (dataQuery) {
+	        if (platform.isDesktop) {
+	            return utils_1.Utils.successfulPromise();
+	        }
+	        var isSync = dataQuery.isSync;
+	        var updateExpression = dataQuery.data;
+	        var self = this;
+	        var itemId = dataQuery.additionalOptions.id;
+	        var updateItems;
+	        var typeName = dataQuery.collectionName;
+	        return this._getCollection(typeName)
+	            .then(function (collection) {
+	            var singleItemForUpdate = self._getById(collection, itemId);
+	            updateItems = [singleItemForUpdate];
+	            singleItemForUpdate.base64 = updateExpression.base64;
+	            singleItemForUpdate.Filename = updateExpression.Filename;
+	            singleItemForUpdate.ContentType = updateExpression.ContentType;
+	            delete singleItemForUpdate.Uri;
+	            return self._overwriteFile(itemId, singleItemForUpdate, isSync)
+	                .then(function () {
+	                self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection);
+	                self._setItem(collection, singleItemForUpdate, constants_1.Constants.offlineItemStates.modified);
+	                return self._persistData(typeName);
+	            })
+	                .then(function () {
+	                return self._getUpdateItemsResult(updateItems);
+	            });
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._updateItems = function (dataQuery, updateExpression, filter, isSync) {
+	        var self = this;
+	        var collectionName = dataQuery.collectionName;
+	        return self._getCollection(collectionName)
+	            .then(function (collection) {
+	            var updateItems;
+	            if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
+	                var itemId = dataQuery.additionalOptions.id;
+	                var singleItemForUpdate = self._getById(collection, itemId);
+	                if (!singleItemForUpdate) {
+	                    throw new EverliveError_1.EverliveError({
+	                        message: 'Item with id :' + itemId + ' does not exist offline in the collection :' + collectionName,
+	                        code: EverliveError_1.EverliveErrors.itemNotFound.code
+	                    });
+	                }
+	                updateItems = [singleItemForUpdate];
+	                if (utils_1.Utils.isContentType.files(collectionName) && updateExpression.$set && updateExpression.$set.Filename || updateExpression.Filename) {
+	                    var filename = updateExpression.Filename || updateExpression.$set.Filename;
+	                    var extension = path.extname(filename);
+	                    return self.everlive.offlineStorage.files.changeFileExtensionById(itemId, extension)
+	                        .then(function () {
+	                        self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
+	                        return self._persistData(collectionName);
+	                    })
+	                        .then(function () {
+	                        return updateItems;
+	                    });
+	                }
+	                else {
+	                    self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
+	                }
+	            }
+	            else {
+	                updateItems = self._readInternal(collection, filter);
+	                for (var i = 0; i < updateItems.length; i++) {
+	                    var itemToUpdate = updateItems[i];
+	                    var itemExists = !!self._getById(collection, itemToUpdate._id.toString());
+	                    if (!itemExists && !isSync) {
+	                        // TODO: [offline] return the correct error
+	                        throw new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.itemNotFound);
+	                    }
+	                    self._applyUpdateOperation(updateExpression, itemToUpdate, collection, isSync, dataQuery.ModifiedAt);
+	                }
+	            }
+	            return self._persistData(collectionName)
+	                .then(function () {
+	                return updateItems;
+	            });
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._getAllCollections = function () {
+	        var self = this;
+	        return new Promise(function (resolve, reject) {
+	            self.persister.getAllData(function (allData) {
+	                _.each(allData, function (value, key) {
+	                    var decryptedData = self._encryptionProvider.decrypt(value);
+	                    allData[key] = JSON.parse(decryptedData || '{}', utils_1.Utils.parseUtilities.getReviver());
+	                });
+	                resolve(allData);
+	            }, reject);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._getCollection = function (contentType) {
+	        var self = this;
+	        return new Promise(function (resolve, reject) {
+	            // check the persister if there is no data in the collection cache for this content type
+	            if (!self._collectionCache[contentType]) {
+	                self.persister.getData(contentType, function (data) {
+	                    var decryptedDataRaw = self._encryptionProvider.decrypt(data);
+	                    var decryptedData = JSON.parse(decryptedDataRaw || '{}', utils_1.Utils.parseUtilities.getReviver());
+	                    self._collectionCache[contentType] = decryptedData;
+	                    resolve(self._collectionCache[contentType]);
+	                }, reject);
+	            }
+	            else {
+	                resolve(self._collectionCache[contentType]);
+	            }
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._setItem = function (collection, item, state) {
+	        if (!state) {
+	            delete item[constants_1.Constants.offlineItemsStateMarker];
+	        }
+	        else {
+	            item[constants_1.Constants.offlineItemsStateMarker] = state;
+	        }
+	        collection[item._id] = item;
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._persistData = function (contentType, items) {
+	        var self = this;
+	        return new Promise(function (resolve, reject) {
+	            var contentTypeData = self._collectionCache[contentType] || {};
+	            self._transformPersistedData(contentType, contentTypeData);
+	            var contentTypeDataRaw = JSON.stringify(contentTypeData);
+	            var contentTypeDataRawEncrypted = self._encryptionProvider.encrypt(contentTypeDataRaw);
+	            self.persister.saveData(contentType, contentTypeDataRawEncrypted, resolve, reject);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._shouldAutogenerateIdForContentType = function (contentType) {
+	        return !(this.setup && this.setup.typeSettings && this.setup.typeSettings[contentType] && this.setup.typeSettings[contentType].autoGenerateId === false);
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._clearItem = function (collection, item) {
+	        delete collection[item._id];
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._mapRemoveItem = function (itemToRemove, collection, isSync, collectionName) {
+	        var self = this;
+	        return new Promise(function (resolve, reject) {
+	            //we cannot remove files while in desktop mode
+	            if (utils_1.Utils.isContentType.files(collectionName) && !platform.isDesktop) {
+	                return self.everlive.offlineStorage.files.purge(itemToRemove._id).then(resolve, reject);
+	            }
+	            else {
+	                return resolve();
+	            }
+	        }).then(function () {
+	            itemToRemove._id = itemToRemove._id || itemToRemove.Id;
+	            var itemExists = !!self._getById(collection, itemToRemove._id.toString());
+	            if (!itemExists && !isSync) {
+	                throw new EverliveError_1.EverliveError({ message: 'Cannot delete item - item with id ' + itemToRemove._id + ' does not exist.' });
+	            }
+	            // if the item has existed only offline or the data is syncing
+	            // and the item was deleted by the conflict resolution strategy
+	            var removeFromMemory = itemToRemove[constants_1.Constants.offlineItemsStateMarker] === constants_1.Constants.offlineItemStates.created || isSync;
+	            if (removeFromMemory) {
+	                self._clearItem(collection, itemToRemove);
+	            }
+	            else {
+	                self._setItem(collection, itemToRemove, constants_1.Constants.offlineItemStates.deleted);
+	            }
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype._removeItems = function (dataQuery, filter, isSync) {
+	        var self = this;
+	        var collectionName = dataQuery.collectionName;
+	        return self._getCollection(collectionName)
+	            .then(function (collection) {
+	            var itemsToRemove = self._readInternal(collection, filter);
+	            var removedItemsPromises = _.map(itemsToRemove, function (itemToRemove) {
+	                return self._mapRemoveItem(itemToRemove, collection, isSync, collectionName);
+	            });
+	            return Promise.all(removedItemsPromises);
+	        })
+	            .then(function (itemsToRemove) {
+	            return self._persistData(collectionName)
+	                .then(function () {
+	                return itemsToRemove;
+	            });
+	        })
+	            .then(function (itemsToRemove) {
+	            return self._transformOfflineResult(itemsToRemove.length);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.aggregate = function (dataQuery, queryParams) {
+	        var self = this;
+	        return this._getCollection(dataQuery.collectionName).then(function (collection) {
+	            if (!queryParams || !queryParams.aggregate || _.isEmpty(queryParams.aggregate)) {
+	                throw new EverliveError_1.EverliveError({ message: 'You must specify a valid aggregation definition. Either GroupBy or Aggregate is required.' });
+	            }
+	            var aggregationQuery = _.extend({}, queryParams.aggregate);
+	            aggregationQuery.Filter = queryParams.filter;
+	            var translatedPipeline = aggregationTranslator.translate(aggregationQuery, {
+	                maxDocumentsCount: constants_1.Constants.Aggregation.MaxDocumentsCount
+	            });
+	            var collectionWithoutDeleted = _.filter(collection, function (item) {
+	                return item[constants_1.Constants.offlineItemsStateMarker] !== constants_1.Constants.offlineItemStates.deleted;
+	            });
+	            var result = mingo.aggregate(collectionWithoutDeleted, translatedPipeline);
+	            return self._transformOfflineResult(result, null, dataQuery);
+	        });
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.purgeAll = function (success, error) {
+	        this._collectionCache = {};
+	        return _super.prototype.purgeAll.call(this, success, error);
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.purge = function (contentType, success, error) {
+	        delete this._collectionCache[contentType];
+	        return _super.prototype.purge.call(this, contentType, success, error);
+	    };
+	    OfflineInMemoryQueryProcessor.prototype.purgeById = function (contentType, itemId) {
+	        var self = this;
+	        return this._getCollection(contentType)
+	            .then(function (collection) {
+	            delete collection[itemId];
+	            return self._persistData(contentType);
+	        });
+	    };
+	    return OfflineInMemoryQueryProcessor;
+	}(OfflineQueryProcessor_1.OfflineQueryProcessor));
+	exports.OfflineInMemoryQueryProcessor = OfflineInMemoryQueryProcessor;
+
+
+/***/ },
+/* 73 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var _ = __webpack_require__(1);
+	var path = __webpack_require__(9);
+	var platform = __webpack_require__(5);
+	var EverliveError_1 = __webpack_require__(3);
+	var OfflineQueryProcessor_1 = __webpack_require__(33);
+	var utils_1 = __webpack_require__(4);
+	var offlineTransformations_1 = __webpack_require__(16);
+	var constants_1 = __webpack_require__(2);
+	var OfflineSQLiteQueryProcessor = (function (_super) {
+	    __extends(OfflineSQLiteQueryProcessor, _super);
+	    function OfflineSQLiteQueryProcessor() {
+	        _super.apply(this, arguments);
+	    }
+	    OfflineSQLiteQueryProcessor.prototype.processQuery = function (dataQuery) {
+	        var collectionName = dataQuery.collectionName;
+	        if (utils_1.Utils.isContentType.pushDevices(collectionName) || utils_1.Utils.isContentType.pushNotifications(collectionName)) {
+	            if (this.everlive.isOnline()) {
+	                return utils_1.Utils.successfulPromise();
+	            }
+	            else {
+	                return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
+	            }
+	        }
+	        var queryNotSupportedError = this.checkSupportedQuery(dataQuery);
+	        if (queryNotSupportedError && !dataQuery.isSync) {
+	            return new Promise(function (resolve, reject) {
+	                reject(new EverliveError_1.EverliveError(queryNotSupportedError));
+	            });
+	        }
+	        var queryParams = dataQuery.getQueryParameters();
+	        var unsupportedOperators = utils_1.Utils.getUnsupportedOperators(queryParams.filter);
+	        var unsupportedOperatorCount = unsupportedOperators.length;
+	        if (unsupportedOperatorCount) {
+	            return new Promise(function (resolve, reject) {
+	                var errorMessage;
+	                if (unsupportedOperatorCount === 1) {
+	                    errorMessage = 'The operator ' + unsupportedOperators[0] + ' is not supported in offline mode.';
+	                }
+	                else {
+	                    errorMessage = 'The operators ' + unsupportedOperators.join(',') + 'are not supported in offline mode.';
+	                }
+	                reject(new EverliveError_1.EverliveError({
+	                    message: errorMessage,
+	                    code: EverliveError_1.EverliveErrors.operationNotSupportedOffline.code
+	                }));
+	            });
+	        }
+	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(queryParams.filter);
+	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(queryParams.select);
+	        offlineTransformations_1.offlineTransformations.traverseAndTransformFilterId(queryParams.sort);
+	        switch (dataQuery.operation) {
+	            case constants_1.DataQueryOperation.Read:
+	                return this.read(dataQuery, queryParams.filter, queryParams.sort, queryParams.skip, queryParams.limit, queryParams.select, queryParams.expand);
+	            case constants_1.DataQueryOperation.ReadById:
+	                return this.readById(dataQuery, queryParams.expand);
+	            case constants_1.DataQueryOperation.FilesGetDownloadUrlById:
+	                return this.getDownloadUrlById(dataQuery);
+	            case constants_1.DataQueryOperation.Count:
+	                return this.count(dataQuery, queryParams.filter);
+	            case constants_1.DataQueryOperation.Create:
+	                return this.create(dataQuery);
+	            case constants_1.DataQueryOperation.RawUpdate:
+	            case constants_1.DataQueryOperation.Update:
+	                return this.update(dataQuery, queryParams.filter);
+	            case constants_1.DataQueryOperation.FilesUpdateContent:
+	                return this.updateFileContent(dataQuery);
+	            case constants_1.DataQueryOperation.Delete:
+	                return this.remove(dataQuery, queryParams.filter);
+	            case constants_1.DataQueryOperation.DeleteById:
+	                return this.remove(dataQuery, {
+	                    _id: dataQuery.additionalOptions.id
+	                });
+	            case constants_1.DataQueryOperation.Aggregate:
+	                return new Promise(function (resolve, reject) {
+	                    var operationStr = constants_1.DataQueryOperation[dataQuery.operation];
+	                    reject(new EverliveError_1.EverliveError({ message: operationStr + ' is not supported in offline mode.' }));
+	                });
+	            default:
+	                return new Promise(function (resolve, reject) {
+	                    if (dataQuery.isSync) {
+	                        resolve();
+	                    }
+	                    else {
+	                        var operationStr = constants_1.DataQueryOperation[dataQuery.operation];
+	                        reject(new EverliveError_1.EverliveError({ message: operationStr + ' is not supported in offline mode.' }));
+	                    }
+	                });
+	        }
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.update = function (dataQuery, filter) {
+	        return this._updateItems(dataQuery, dataQuery.data, filter, dataQuery.isSync).then(function (updateItems) {
+	            return {
+	                ModifiedAt: new Date(),
+	                result: updateItems
+	            };
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.updateFileContent = function (dataQuery) {
+	        var _this = this;
+	        if (platform.isDesktop) {
+	            return utils_1.Utils.successfulPromise();
+	        }
+	        var isSync = dataQuery.isSync;
+	        var updateExpression = dataQuery.data;
+	        var itemId = dataQuery.additionalOptions.id;
+	        var updateItems;
+	        var typeName = dataQuery.collectionName;
+	        return this._getById(typeName, itemId)
+	            .then(function (item) {
+	            var singleItemForUpdate = item[0];
+	            updateItems = [singleItemForUpdate];
+	            singleItemForUpdate.base64 = updateExpression.base64;
+	            singleItemForUpdate.Filename = updateExpression.Filename;
+	            singleItemForUpdate.ContentType = updateExpression.ContentType;
+	            delete singleItemForUpdate.Uri;
+	            return _this._overwriteFile(itemId, singleItemForUpdate, isSync)
+	                .then(function () {
+	                return _this._getUpdatePromise(typeName, updateExpression, { _id: itemId });
+	            })
+	                .then(function (updateItems) {
+	                return {
+	                    ModifiedAt: new Date(),
+	                    result: updateItems
+	                };
+	            });
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._getById = function (typeName, itemId) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            _this.persister.queryData(typeName, resolve, reject, { _id: itemId });
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._updateItems = function (dataQuery, updateExpression, filter, isSync) {
+	        var _this = this;
+	        var collectionName = dataQuery.collectionName;
+	        if (dataQuery.additionalOptions && dataQuery.additionalOptions.id) {
+	            var itemId = dataQuery.additionalOptions.id;
+	            filter = { _id: itemId };
+	        }
+	        if (utils_1.Utils.isContentType.files(collectionName) && updateExpression.$set && updateExpression.$set.Filename || updateExpression.Filename) {
+	            var filename = updateExpression.Filename || updateExpression.$set.Filename;
+	            var extension = path.extname(filename);
+	            return this.everlive.offlineStorage.files.changeFileExtensionById(dataQuery.additionalOptions.id, extension)
+	                .then(function () {
+	                return _this._getUpdatePromise(collectionName, updateExpression, filter, isSync, dataQuery.ModifiedAt);
+	            });
+	        }
+	        else {
+	            return this._getUpdatePromise(collectionName, updateExpression, filter, isSync, dataQuery.ModifiedAt);
+	        }
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._getUpdatePromise = function (collectionName, updateExpression, filter, isSync, modifiedAt) {
+	        var updateOfflineCreated = this._applyUpdateOperation(collectionName, updateExpression, filter, constants_1.Constants.offlineItemStates.created, isSync, modifiedAt);
+	        var updateModified = this._applyUpdateOperation(collectionName, updateExpression, filter, constants_1.Constants.offlineItemStates.modified, isSync, modifiedAt);
+	        return Promise.all([updateOfflineCreated, updateModified]).then(function (result) {
+	            var modifiedItems = 0;
+	            _.each(result, function (item) {
+	                modifiedItems += item;
+	            });
+	            return modifiedItems;
+	        }, function (err) {
+	            return 0;
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._applyUpdateOperation = function (contentType, originalUpdateExpression, filter, state, isSync, modifiedAt) {
+	        var _this = this;
+	        var dbOperators = utils_1.Utils.getDbOperators(originalUpdateExpression, true);
+	        var hasDbOperator = dbOperators.length !== 0;
+	        var updateExpression;
+	        if (hasDbOperator) {
+	            updateExpression = originalUpdateExpression;
+	        }
+	        else {
+	            updateExpression = {
+	                $set: originalUpdateExpression
+	            };
+	        }
+	        var updateExpressionForUser = {
+	            ModifiedBy: this.everlive.setup.principalId || constants_1.Constants.guidEmpty
+	        };
+	        updateExpression.$set = _.extend(updateExpressionForUser, updateExpression.$set);
+	        delete updateExpression.$set.Id;
+	        if (isSync) {
+	            if (originalUpdateExpression.$set && originalUpdateExpression.$set.ModifiedAt) {
+	                updateExpression.$set.ModifiedAt = utils_1.Utils.cloneDate(originalUpdateExpression.$set.ModifiedAt);
+	            }
+	            else {
+	                updateExpression.$set.ModifiedAt = utils_1.Utils.cloneDate(originalUpdateExpression.ModifiedAt || modifiedAt);
+	            }
+	        }
+	        delete filter[constants_1.Constants.offlineItemsStateMarker];
+	        if (!isSync) {
+	            if (state === constants_1.Constants.offlineItemStates.created) {
+	                filter[constants_1.Constants.offlineItemsStateMarker] = constants_1.Constants.offlineItemStates.created;
+	                updateExpression.$set[constants_1.Constants.offlineItemsStateMarker] = state;
+	            }
+	            else {
+	                filter['$or'] = [
+	                    (_a = {}, _a[constants_1.Constants.offlineItemsStateMarker] = constants_1.Constants.offlineItemStates.modified, _a),
+	                    (_b = {}, _b[constants_1.Constants.offlineItemsStateMarker] = { $is: null }, _b)
+	                ];
+	                updateExpression.$set[constants_1.Constants.offlineItemsStateMarker] = constants_1.Constants.offlineItemStates.modified;
+	            }
+	        }
+	        else {
+	            updateExpression.$set[constants_1.Constants.offlineItemsStateMarker] = '';
+	        }
+	        return new Promise(function (resolve, reject) {
+	            _this.persister.updateData(contentType, updateExpression, resolve, reject, filter);
+	        });
+	        var _a, _b;
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.readById = function (dataQuery, expand) {
+	        var _this = this;
+	        var expandResult;
+	        return this._prepareExpand(expand, dataQuery, false)
+	            .then(function (prepareExpandResult) {
+	            expandResult = prepareExpandResult;
+	            if (!dataQuery.additionalOptions.id) {
+	                return Promise.reject(new EverliveError_1.EverliveError({ message: 'Id field is mandatory when using offline storage' }));
+	            }
+	            return new Promise(function (resolve, reject) {
+	                var itemId = dataQuery.additionalOptions.id;
+	                _this.persister.queryData(dataQuery.collectionName, resolve, reject, { _id: itemId });
+	            });
+	        })
+	            .then(function (queryResults) {
+	            var item = queryResults[0];
+	            if (!item) {
+	                return Promise.reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.itemNotFound));
+	            }
+	            item = offlineTransformations_1.offlineTransformations.idTransform(item);
+	            return _this._expandResult(expandResult, item);
+	        })
+	            .then(function (expandedResult) {
+	            var transformedItem = _this._transformOfflineResult(expandedResult, null, dataQuery);
+	            return transformedItem;
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.remove = function (dataQuery, filter) {
+	        return this._removeItems(dataQuery, filter, dataQuery.isSync);
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._purgeFiles = function (filter, success, error) {
+	        var _this = this;
+	        this.persister.queryData('Files', function (result) {
+	            var purgePromises = _.map(result, function (f) { return _this.everlive.offlineStorage.files.purge(f._id); });
+	            return Promise.all(purgePromises).then(success);
+	        }, function (err) {
+	            error(err);
+	        }, filter);
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._removeItems = function (dataQuery, filter, isSync) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            //we cannot remove files while in desktop mode
+	            if (utils_1.Utils.isContentType.files(dataQuery.collectionName) && !platform.isDesktop) {
+	                if (!filter) {
+	                    return resolve();
+	                }
+	                else {
+	                    _this._purgeFiles(filter, resolve, reject);
+	                }
+	            }
+	            else {
+	                return resolve();
+	            }
+	        }).then(function () {
+	            var collectionName = dataQuery.collectionName;
+	            var deleteOfflineCreated = new Promise(function (resolve, reject) {
+	                var createdOfflineFilter = filter ? _.clone(filter) : {};
+	                createdOfflineFilter[constants_1.Constants.offlineItemsStateMarker] = constants_1.Constants.offlineItemStates.created;
+	                _this.persister.removeData(collectionName, resolve, reject, createdOfflineFilter);
+	            });
+	            var setDeletedStatus = new Promise(function (resolve, reject) {
+	                if (isSync) {
+	                    var itemIdFilter = filter['Id'] || filter['_id'];
+	                    if (itemIdFilter) {
+	                        _this.persister.purgeById(collectionName, itemIdFilter, resolve, reject);
+	                    }
+	                    else if (filter) {
+	                        _this.persister.removeData(collectionName, resolve, reject, filter);
+	                    }
+	                    else {
+	                        _this.persister.purge(collectionName, resolve, reject);
+	                    }
+	                }
+	                else {
+	                    var modifiedOfflineFilter = filter ? _.clone(filter) : {};
+	                    modifiedOfflineFilter['$or'] = [
+	                        (_a = {}, _a[constants_1.Constants.offlineItemsStateMarker] = constants_1.Constants.offlineItemStates.modified, _a),
+	                        (_b = {}, _b[constants_1.Constants.offlineItemsStateMarker] = { $is: null }, _b)
+	                    ];
+	                    _this.persister.updateData(collectionName, (_c = {}, _c[constants_1.Constants.offlineItemsStateMarker] = constants_1.Constants.offlineItemStates.deleted, _c), resolve, reject, modifiedOfflineFilter);
+	                }
+	                var _a, _b, _c;
+	            });
+	            return Promise.all([deleteOfflineCreated, setDeletedStatus])
+	                .then(function (removedItems) {
+	                var count = 0;
+	                _.each(removedItems, function (item) {
+	                    if (item) {
+	                        count += item;
+	                    }
+	                });
+	                return _this._transformOfflineResult(count);
+	            });
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.count = function (dataQuery, filter) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            _this.persister.count(dataQuery.collectionName, function (result) {
+	                resolve({ result: result.Count });
+	            }, reject, filter);
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._persistData = function (contentType, items) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            _this._transformPersistedData(contentType, items);
+	            _this.persister.saveData(contentType, items, resolve, reject);
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.read = function (dataQuery, filter, sort, skip, limit, select, expand) {
+	        var _this = this;
+	        OfflineSQLiteQueryProcessor._handleIdInSelect(select);
+	        var selectIsValid = OfflineSQLiteQueryProcessor._validateSelectMode(select);
+	        if (!selectIsValid) {
+	            var err = new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.generalDatabaseError);
+	            err.message = 'You cannot mix including and excluding fields.';
+	            return Promise.reject(err);
+	        }
+	        var expandResult;
+	        return new Promise(function (resolve, reject) {
+	            _this._prepareExpand(expand, dataQuery, true)
+	                .then(function (prepareExpandResult) {
+	                expandResult = prepareExpandResult;
+	                if (prepareExpandResult) {
+	                    select = prepareExpandResult.mainQueryFieldsExpression;
+	                }
+	                var filterCopy = _.extend({}, filter);
+	                var actualFilter = _this._getWithoutDeletedFilter(filterCopy, true);
+	                return _this._readInternal(dataQuery.collectionName, actualFilter, sort, skip, limit, select, expand);
+	            })
+	                .then(function (result) {
+	                var transformResult = function (collectionLength) {
+	                    if (collectionLength) {
+	                        collectionLength = collectionLength['Count'];
+	                    }
+	                    if (_this._shouldAutogenerateIdForContentType(dataQuery.collectionName)) {
+	                        result = offlineTransformations_1.offlineTransformations.idTransform(result);
+	                    }
+	                    else {
+	                        result = offlineTransformations_1.offlineTransformations.removeIdTransform(result, true);
+	                    }
+	                    _this._expandResult(expandResult, result)
+	                        .then(function (expandedResult) {
+	                        var response = _this._transformOfflineResult(expandedResult, collectionLength, dataQuery);
+	                        resolve(response);
+	                    }, reject);
+	                };
+	                if (skip || limit) {
+	                    _this.persister.count(dataQuery.collectionName, transformResult, reject);
+	                }
+	                else {
+	                    transformResult();
+	                }
+	            })
+	                .catch(reject);
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor._validateSelectMode = function (select) {
+	        if (!utils_1.Utils.existsAndIsNotEmpty(select)) {
+	            return true;
+	        }
+	        var inclusionOrExclusion = null;
+	        var keys = _.keys(select);
+	        for (var i = 0; i < keys.length; i += 1) {
+	            var key = keys[i];
+	            var value = select[key];
+	            if (key === '_id' || key === 'Id' || !select.hasOwnProperty(key)) {
+	                continue;
+	            }
+	            if (inclusionOrExclusion == null) {
+	                inclusionOrExclusion = value;
+	            }
+	            else if (value != inclusionOrExclusion) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    };
+	    OfflineSQLiteQueryProcessor._handleIdInSelect = function (select) {
+	        if (!utils_1.Utils.existsAndIsNotEmpty(select)) {
+	            return;
+	        }
+	        // Id is included, unless explicitly excluded by user
+	        var selectId = select['_id'] || select['Id'];
+	        if (selectId !== 0) {
+	            select['_id'] = 1;
+	        }
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._readInternal = function (tableName, filter, sort, skip, limit, select, expand) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            _this.persister.queryData(tableName, resolve, reject, filter, sort, skip, limit, select);
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype.create = function (dataQuery) {
+	        var _this = this;
+	        return this._createItems(dataQuery.collectionName, dataQuery.data, dataQuery.isSync, dataQuery.preserveState)
+	            .then(function (createdItems) {
+	            var isFilesQuery = utils_1.Utils.isContentType.files(dataQuery.collectionName);
+	            return _this._getCreateResult(createdItems, isFilesQuery);
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._createItems = function (contentType, items, isSync, preserveState) {
+	        var _this = this;
+	        var itemsForCreate = _.isArray(items) ? items : [items];
+	        var createdItems = _.map(itemsForCreate, function (currentItem) {
+	            var itemToCreate = _.extend({}, currentItem);
+	            itemToCreate._id = itemToCreate.Id || utils_1.Utils.uuid();
+	            delete itemToCreate.Id;
+	            return _this._getById(contentType, itemToCreate._id)
+	                .then(function (item) {
+	                var itemExists = item[0] && item[0][constants_1.Constants.offlineItemsStateMarker] !== constants_1.Constants.offlineItemStates.deleted;
+	                var state;
+	                if (isSync && preserveState && itemExists) {
+	                    state = item[0][constants_1.Constants.offlineItemsStateMarker];
+	                }
+	                else {
+	                    state = isSync ? undefined : constants_1.Constants.offlineItemStates.created; // set the state to created only if not syncing
+	                }
+	                var processItemResult = function () {
+	                    _this._setItemDates(currentItem, itemToCreate, contentType);
+	                    if (!state) {
+	                        delete itemToCreate[constants_1.Constants.offlineItemsStateMarker];
+	                    }
+	                    else {
+	                        itemToCreate[constants_1.Constants.offlineItemsStateMarker] = state;
+	                    }
+	                    return itemToCreate;
+	                };
+	                if (utils_1.Utils.isContentType.files(contentType)) {
+	                    return _this.offlineFilesProcessor.upsertFileFromObject(itemToCreate, true, isSync).then(processItemResult);
+	                }
+	                else {
+	                    return processItemResult();
+	                }
+	            });
+	        });
+	        return Promise.all(createdItems)
+	            .then(function (items) {
+	            return _this._persistData(contentType, items)
+	                .then(function () {
+	                // Ids are generated regardless of the autoGenerateId option. However the Id's are omitted when returning
+	                // the items to the client if autoGenerateId is false
+	                if (!_this._shouldAutogenerateIdForContentType(contentType) && !isSync) {
+	                    createdItems = offlineTransformations_1.offlineTransformations.removeIdTransform(items);
+	                }
+	                return items;
+	            });
+	        });
+	    };
+	    OfflineSQLiteQueryProcessor.prototype._getAllCollections = function () {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            _this.persister.getAllData(function (allData) {
+	                _.each(allData, function (items, key) {
+	                    var currentType = {};
+	                    _.each(items, function (item) {
+	                        var itemId = item['_id'];
+	                        var itemAsString = JSON.stringify(item);
+	                        var actualItem = JSON.parse(itemAsString, utils_1.Utils.parseUtilities.getReviver());
+	                        currentType[itemId] = actualItem;
+	                    });
+	                    allData[key] = currentType;
+	                });
+	                resolve(allData);
+	            }, reject);
+	        });
+	    };
+	    return OfflineSQLiteQueryProcessor;
+	}(OfflineQueryProcessor_1.OfflineQueryProcessor));
+	exports.OfflineSQLiteQueryProcessor = OfflineSQLiteQueryProcessor;
+
+
+/***/ },
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var platform = __webpack_require__(5);
 	function getCurrentDevice(pushHandler) {
 	    if (platform.isNativeScript) {
-	        var NativeScriptCurrentDevice = __webpack_require__(32);
+	        var NativeScriptCurrentDevice = __webpack_require__(35);
 	        return new NativeScriptCurrentDevice(pushHandler);
 	    }
 	    else if (platform.isCordova || platform.isDesktop) {
-	        var CordovaCurrentDevice = __webpack_require__(31);
+	        var CordovaCurrentDevice = __webpack_require__(34);
 	        return new CordovaCurrentDevice(pushHandler);
 	    }
 	    else {
@@ -17977,11 +20076,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getCurrentDevice = getCurrentDevice;
 	function ensurePushIsAvailable() {
 	    if (platform.isNativeScript) {
-	        var NativeScriptCurrentDevice = __webpack_require__(32);
+	        var NativeScriptCurrentDevice = __webpack_require__(35);
 	        NativeScriptCurrentDevice.ensurePushIsAvailable();
 	    }
 	    else if (platform.isCordova || platform.isDesktop) {
-	        var CordovaCurrentDevice = __webpack_require__(31);
+	        var CordovaCurrentDevice = __webpack_require__(34);
 	        CordovaCurrentDevice.ensurePushIsAvailable();
 	    }
 	}
@@ -17989,7 +20088,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 67 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18141,11 +20240,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 68 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Expression_1 = __webpack_require__(18);
+	var Expression_1 = __webpack_require__(20);
 	var constants_1 = __webpack_require__(2);
 	var OperatorType = constants_1.Constants.OperatorType;
 	/**
@@ -18480,11 +20579,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 69 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var http = __webpack_require__(132);
+	var http = __webpack_require__(145);
 	var constants_1 = __webpack_require__(2);
 	// NodeJS nulls header name casing by lowering all casing,
 	// we simulate this in NS with this function to avoid header name issues
@@ -18529,7 +20628,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 70 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -18537,14 +20636,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var zlib = null;
 	var https = null;
 	try {
-	    url = __webpack_require__(189);
-	    zlib = __webpack_require__(190);
-	    https = __webpack_require__(184);
+	    url = __webpack_require__(222);
+	    zlib = __webpack_require__(223);
+	    https = __webpack_require__(216);
 	}
 	catch (e) {
 	    throw e;
 	} // because of webpack external dependency declaration - this marks it as optional
-	var http = __webpack_require__(132);
+	var http = __webpack_require__(145);
 	var constants_1 = __webpack_require__(2);
 	var EverliveError_1 = __webpack_require__(3);
 	function reqwest(options) {
@@ -18624,15 +20723,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	module.exports = reqwest;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40).Buffer))
 
 /***/ },
-/* 71 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var constants_1 = __webpack_require__(2);
-	var Request_1 = __webpack_require__(9);
+	var Request_1 = __webpack_require__(10);
 	var ResponseParserProcessor = (function () {
 	    function ResponseParserProcessor() {
 	    }
@@ -18674,7 +20773,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 72 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18727,7 +20826,103 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 73 */
+/* 81 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var _ = __webpack_require__(1);
+	var SQLiteStore_1 = __webpack_require__(39);
+	var deviceReadyPromise = function () {
+	    return new Promise(function (resolve) {
+	        document.addEventListener('deviceready', resolve);
+	    });
+	};
+	var CordovaSQLiteStore = (function (_super) {
+	    __extends(CordovaSQLiteStore, _super);
+	    function CordovaSQLiteStore(storagePath, typeSettings) {
+	        var _this = this;
+	        _super.call(this, storagePath, typeSettings);
+	        deviceReadyPromise().then(function () {
+	            _this.sqliteDb = window.sqlitePlugin.openDatabase({
+	                name: _this.storagePath + ".db",
+	                location: 'default'
+	            });
+	            _this.prepareTables();
+	        });
+	    }
+	    CordovaSQLiteStore.prototype.queryData = function (tableName, query, success, error) {
+	        var _this = this;
+	        this.sqliteDb.transaction(function (tx) {
+	            tx.executeSql(query, [], function (tx, res) {
+	                var resultSet = [];
+	                for (var x = 0; x < res.rows.length; x++) {
+	                    resultSet.push(_this.processResultItem(tableName, res.rows.item(x)));
+	                }
+	                success(resultSet);
+	            }, function (tx, e) {
+	                error(e);
+	            });
+	        });
+	    };
+	    CordovaSQLiteStore.prototype.addData = function (tableName, data, success, error) {
+	        var _this = this;
+	        var batchInsertQueries = this.buildSqlBatchInsert(tableName, data);
+	        var insertPromises = _.map(batchInsertQueries, function (currentBatchList) {
+	            return new Promise(function (resolve, reject) {
+	                _this.sqliteDb.sqlBatch(currentBatchList, function () {
+	                    resolve();
+	                }, function (e) {
+	                    reject(e);
+	                });
+	            });
+	        });
+	        return Promise.all(insertPromises).then(success, error);
+	    };
+	    CordovaSQLiteStore.prototype.removeData = function (tableName, query, success, error) {
+	        this.sqliteDb.transaction(function (tx) {
+	            tx.executeSql(query, [], function (tx, res) {
+	                success(res['rowsAffected']);
+	            }, function (tx, e) {
+	                error(e);
+	            });
+	        });
+	    };
+	    CordovaSQLiteStore.prototype.updateData = function (tableName, query, success, error) {
+	        this.sqliteDb.transaction(function (tx) {
+	            tx.executeSql(query, [], function (tx, res) {
+	                success(res['rowsAffected']);
+	            }, function (tx, e) {
+	                error(e);
+	            });
+	        });
+	    };
+	    CordovaSQLiteStore.prototype.ensureTableExists = function (tableName, columns) {
+	        var _this = this;
+	        var createTableStatement = "CREATE TABLE IF NOT EXISTS \"" + tableName + "\" (_id TEXT PRIMARY KEY)"; // creating empty tables are not supported
+	        this.sqliteDb.transaction(function (tx) {
+	            tx.executeSql(createTableStatement, [], function (tx, res) {
+	                _.each(columns, function (column) {
+	                    var addColumn = "ALTER TABLE \"" + tableName + "\" ADD COLUMN " + column.getDefinition();
+	                    _this.sqliteDb.executeSql(addColumn); // errors for duplicated columns are omited here in order to ensure the scheme is always latest
+	                });
+	            }, function (tx, e) {
+	                console.log(e);
+	                throw e;
+	            });
+	        });
+	    };
+	    return CordovaSQLiteStore;
+	}(SQLiteStore_1.BaseSQLiteStore));
+	exports.CordovaSQLiteStore = CordovaSQLiteStore;
+
+
+/***/ },
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18737,7 +20932,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.options = options;
 	        this.options = options;
 	        try {
-	            this.fs = __webpack_require__(183);
+	            this.fs = __webpack_require__(215);
 	        }
 	        catch (err) {
 	            throw err;
@@ -18835,7 +21030,128 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 74 */
+/* 83 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var SQLiteStore_1 = __webpack_require__(39);
+	var _ = __webpack_require__(1);
+	var NativeScriptSQLiteStore = (function (_super) {
+	    __extends(NativeScriptSQLiteStore, _super);
+	    function NativeScriptSQLiteStore(storagePath, typeSettings) {
+	        var _this = this;
+	        _super.call(this, storagePath, typeSettings);
+	        var Sqlite;
+	        try {
+	            Sqlite = __webpack_require__(219);
+	        }
+	        catch (err) {
+	            throw err;
+	        } // because of webpack external dependency declaration - this marks it as optional
+	        var db_promise = new Sqlite(this.storagePath + ".db", function (err, db) {
+	            if (err) {
+	                console.error("Failed to open database", err);
+	                throw err;
+	            }
+	            else {
+	                _this.sqliteDb = db;
+	                _this.sqliteDb.resultType(Sqlite.RESULTSASOBJECT);
+	                _this.prepareTables();
+	            }
+	        });
+	    }
+	    NativeScriptSQLiteStore.prototype.queryData = function (tableName, query, success, error) {
+	        var _this = this;
+	        this.sqliteDb.all(query, [], function (err, dbResult) {
+	            if (err) {
+	                error(err);
+	            }
+	            else {
+	                var resultSet = [];
+	                for (var x = 0; x < dbResult.length; x++) {
+	                    resultSet.push(_this.processResultItem(tableName, dbResult[x]));
+	                }
+	                success(resultSet);
+	            }
+	        });
+	    };
+	    NativeScriptSQLiteStore.prototype.addData = function (tableName, data, success, error) {
+	        var _this = this;
+	        var batchInsertQueries = this.buildSqlBatchInsert(tableName, data);
+	        if (batchInsertQueries.length === 0) {
+	            return success();
+	        }
+	        var insertPromises = _.map(batchInsertQueries, function (currentBatchList) {
+	            var _loop_1 = function(insertQuery) {
+	                return { value: new Promise(function (resolve, reject) {
+	                    // nativescript sqlite driver need the INSERT statement and the values array as two separate parameters
+	                    // check sample reuslt from buildSqlBatchInsert
+	                    _this.sqliteDb.execSQL(insertQuery[0], insertQuery[1], function (err, dbResult) {
+	                        if (err) {
+	                            reject(err);
+	                        }
+	                        else {
+	                            resolve();
+	                        }
+	                    });
+	                }) };
+	            };
+	            for (var _i = 0, currentBatchList_1 = currentBatchList; _i < currentBatchList_1.length; _i++) {
+	                var insertQuery = currentBatchList_1[_i];
+	                var state_1 = _loop_1(insertQuery);
+	                if (typeof state_1 === "object") return state_1.value;
+	            }
+	            ;
+	        });
+	        return Promise.all(insertPromises).then(success, error);
+	    };
+	    NativeScriptSQLiteStore.prototype.removeData = function (tableName, query, success, error) {
+	        this.sqliteDb.execSQL(query, function (err, dbResult) {
+	            if (err) {
+	                error(err);
+	            }
+	            else {
+	                success(dbResult);
+	            }
+	        });
+	    };
+	    NativeScriptSQLiteStore.prototype.updateData = function (tableName, query, success, error) {
+	        this.sqliteDb.execSQL(query, function (err, dbResult) {
+	            if (err) {
+	                error(err);
+	            }
+	            else {
+	                success(dbResult);
+	            }
+	        });
+	    };
+	    NativeScriptSQLiteStore.prototype.ensureTableExists = function (tableName, columns) {
+	        var _this = this;
+	        var createTableStatement = "CREATE TABLE IF NOT EXISTS " + tableName + " (_id TEXT PRIMARY KEY)"; // creating empty tables are not supported
+	        this.sqliteDb.execSQL(createTableStatement, [], function () {
+	            _.each(columns, function (column) {
+	                var addColumn = "ALTER TABLE " + tableName + " ADD COLUMN " + column.getDefinition();
+	                _this.sqliteDb.execSQL(addColumn, function (err, dbResult) {
+	                    // errors for duplicated columns are omited here in order to ensure the scheme is always latest
+	                });
+	            });
+	        }, function (e) {
+	            console.log(e);
+	            throw e;
+	        });
+	    };
+	    return NativeScriptSQLiteStore;
+	}(SQLiteStore_1.BaseSQLiteStore));
+	exports.NativeScriptSQLiteStore = NativeScriptSQLiteStore;
+
+
+/***/ },
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19091,7 +21407,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 75 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19102,7 +21418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var utils_1 = __webpack_require__(4);
 	var platform = __webpack_require__(5);
-	var Data_1 = __webpack_require__(16);
+	var Data_1 = __webpack_require__(18);
 	var constants_1 = __webpack_require__(2);
 	var Files = (function (_super) {
 	    __extends(Files, _super);
@@ -19279,7 +21595,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 76 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19291,7 +21607,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _ = __webpack_require__(1);
 	var utils_1 = __webpack_require__(4);
 	var EverliveError_1 = __webpack_require__(3);
-	var Data_1 = __webpack_require__(16);
+	var Data_1 = __webpack_require__(18);
 	var constants_1 = __webpack_require__(2);
 	var Users = (function (_super) {
 	    __extends(Users, _super);
@@ -19966,7 +22282,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 77 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20010,7 +22326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 78 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20042,7 +22358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 79 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20100,12 +22416,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 80 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var constants_1 = __webpack_require__(2);
-	var RequestService_1 = __webpack_require__(10);
+	var RequestService_1 = __webpack_require__(11);
 	var BusinessLogicQueryProcessor = (function () {
 	    function BusinessLogicQueryProcessor() {
 	    }
@@ -20131,11 +22447,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 81 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var RequestService_1 = __webpack_require__(10);
+	var RequestService_1 = __webpack_require__(11);
 	var CacheQueryProcessor = (function () {
 	    function CacheQueryProcessor() {
 	    }
@@ -20173,13 +22489,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 82 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
 	var constants_1 = __webpack_require__(2);
-	var EventQuery_1 = __webpack_require__(67);
+	var EventQuery_1 = __webpack_require__(75);
 	var beforeExecuteAllowedOperations = [
 	    constants_1.DataQueryOperation.Count,
 	    constants_1.DataQueryOperation.Read,
@@ -20213,7 +22529,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 83 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20252,11 +22568,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 84 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var RequestService_1 = __webpack_require__(10);
+	var RequestService_1 = __webpack_require__(11);
 	var OnlineQueryProcessor = (function () {
 	    function OnlineQueryProcessor() {
 	    }
@@ -20278,12 +22594,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 85 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 	
-	var buffer = __webpack_require__(24);
+	var buffer = __webpack_require__(25);
 	var Buffer = buffer.Buffer;
 	var SlowBuffer = buffer.SlowBuffer;
 	var MAX_LEN = buffer.kMaxLength || 2147483647;
@@ -20393,7 +22709,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 86 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {
@@ -20403,7 +22719,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Expose `debug()` as the module.
 	 */
 	
-	exports = module.exports = __webpack_require__(145);
+	exports = module.exports = __webpack_require__(158);
 	exports.log = log;
 	exports.formatArgs = formatArgs;
 	exports.save = save;
@@ -20451,7 +22767,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	
 	exports.formatters.j = function(v) {
-	  return JSON.stringify(v);
+	  try {
+	    return JSON.stringify(v);
+	  } catch (err) {
+	    return '[UnexpectedJSONParseError]: ' + err.message;
+	  }
 	};
 	
 	
@@ -20538,15 +22858,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	function load() {
 	  var r;
 	  try {
-	    r = exports.storage.debug;
+	    return exports.storage.debug;
 	  } catch(e) {}
 	
 	  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-	  if ('env' in (typeof process === 'undefined' ? {} : process)) {
-	    r = process.env.DEBUG;
+	  if (typeof process !== 'undefined' && 'env' in process) {
+	    return process.env.DEBUG;
 	  }
-	  
-	  return r;
 	}
 	
 	/**
@@ -20575,7 +22893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ },
-/* 87 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -20583,7 +22901,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 	
-	var type = __webpack_require__(170);
+	var type = __webpack_require__(203);
 	
 	/**
 	 * Gets a certain `path` from the `obj`.
@@ -20663,7 +22981,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 88 */
+/* 98 */
 /***/ function(module, exports) {
 
 	var toString = {}.toString;
@@ -20674,7 +22992,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 89 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -20682,7 +23000,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 	
-	var type = __webpack_require__(25);
+	var type = __webpack_require__(26);
 	
 	/**
 	 * Module exports.
@@ -20749,7 +23067,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 90 */
+/* 100 */
 /***/ function(module, exports) {
 
 	
@@ -20838,7 +23156,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 91 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -20888,7 +23206,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ },
-/* 92 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// a transform stream is a readable/writable stream where you do
@@ -20940,8 +23258,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Duplex = __webpack_require__(14);
 	
 	/*<replacement>*/
-	var util = __webpack_require__(26);
-	util.inherits = __webpack_require__(11);
+	var util = __webpack_require__(27);
+	util.inherits = __webpack_require__(12);
 	/*</replacement>*/
 	
 	util.inherits(Transform, Duplex);
@@ -21075,7 +23393,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 93 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, setImmediate) {// A bit simpler than readable streams.
@@ -21087,7 +23405,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Writable;
 	
 	/*<replacement>*/
-	var processNextTick = __webpack_require__(91);
+	var processNextTick = __webpack_require__(101);
 	/*</replacement>*/
 	
 	/*<replacement>*/
@@ -21101,13 +23419,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	Writable.WritableState = WritableState;
 	
 	/*<replacement>*/
-	var util = __webpack_require__(26);
-	util.inherits = __webpack_require__(11);
+	var util = __webpack_require__(27);
+	util.inherits = __webpack_require__(12);
 	/*</replacement>*/
 	
 	/*<replacement>*/
 	var internalUtil = {
-	  deprecate: __webpack_require__(171)
+	  deprecate: __webpack_require__(204)
 	};
 	/*</replacement>*/
 	
@@ -21115,16 +23433,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Stream;
 	(function () {
 	  try {
-	    Stream = __webpack_require__(37);
+	    Stream = __webpack_require__(41);
 	  } catch (_) {} finally {
-	    if (!Stream) Stream = __webpack_require__(17).EventEmitter;
+	    if (!Stream) Stream = __webpack_require__(19).EventEmitter;
 	  }
 	})();
 	/*</replacement>*/
 	
-	var Buffer = __webpack_require__(24).Buffer;
+	var Buffer = __webpack_require__(25).Buffer;
 	/*<replacement>*/
-	var bufferShim = __webpack_require__(85);
+	var bufferShim = __webpack_require__(95);
 	/*</replacement>*/
 	
 	util.inherits(Writable, Stream);
@@ -21257,7 +23575,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// Test _writableState for inheritance to account for Duplex streams,
 	// whose prototype chain only points to Readable.
 	var realHasInstance;
-	if (typeof Symbol === 'function' && Symbol.hasInstance) {
+	if (typeof Symbol === 'function' && Symbol.hasInstance && typeof Function.prototype[Symbol.hasInstance] === 'function') {
 	  realHasInstance = Function.prototype[Symbol.hasInstance];
 	  Object.defineProperty(Writable, Symbol.hasInstance, {
 	    value: function (object) {
@@ -21632,10 +23950,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  };
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(38).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(42).setImmediate))
 
 /***/ },
-/* 94 */
+/* 104 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -21648,7 +23966,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = ExpandError;
 
 /***/ },
-/* 95 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, module, setImmediate, process) {(function (global, factory) {
@@ -21656,26 +23974,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	    (factory((global.async = global.async || {})));
 	}(this, (function (exports) { 'use strict';
-	
-	/**
-	 * This method returns the first argument it receives.
-	 *
-	 * @static
-	 * @since 0.1.0
-	 * @memberOf _
-	 * @category Util
-	 * @param {*} value Any value.
-	 * @returns {*} Returns `value`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 *
-	 * console.log(_.identity(object) === object);
-	 * // => true
-	 */
-	function identity(value) {
-	  return value;
-	}
 	
 	/**
 	 * A faster alternative to `Function#apply`, this function invokes `func`
@@ -21709,7 +24007,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Function} transform The rest array transform.
 	 * @returns {Function} Returns the new function.
 	 */
-	function overRest(func, start, transform) {
+	function overRest$1(func, start, transform) {
 	  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
 	  return function() {
 	    var args = arguments,
@@ -21731,28 +24029,152 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	/**
-	 * Creates a function that returns `value`.
+	 * This method returns the first argument it receives.
 	 *
 	 * @static
+	 * @since 0.1.0
 	 * @memberOf _
-	 * @since 2.4.0
 	 * @category Util
-	 * @param {*} value The value to return from the new function.
-	 * @returns {Function} Returns the new constant function.
+	 * @param {*} value Any value.
+	 * @returns {*} Returns `value`.
 	 * @example
 	 *
-	 * var objects = _.times(2, _.constant({ 'a': 1 }));
+	 * var object = { 'a': 1 };
 	 *
-	 * console.log(objects);
-	 * // => [{ 'a': 1 }, { 'a': 1 }]
-	 *
-	 * console.log(objects[0] === objects[1]);
+	 * console.log(_.identity(object) === object);
 	 * // => true
 	 */
-	function constant(value) {
-	  return function() {
-	    return value;
-	  };
+	function identity(value) {
+	  return value;
+	}
+	
+	// Lodash rest function without function.toString()
+	// remappings
+	function rest(func, start) {
+	    return overRest$1(func, start, identity);
+	}
+	
+	var initialParams = function (fn) {
+	    return rest(function (args /*..., callback*/) {
+	        var callback = args.pop();
+	        fn.call(this, args, callback);
+	    });
+	};
+	
+	function applyEach$1(eachfn) {
+	    return rest(function (fns, args) {
+	        var go = initialParams(function (args, callback) {
+	            var that = this;
+	            return eachfn(fns, function (fn, cb) {
+	                fn.apply(that, args.concat([cb]));
+	            }, callback);
+	        });
+	        if (args.length) {
+	            return go.apply(this, args);
+	        } else {
+	            return go;
+	        }
+	    });
+	}
+	
+	/** Detect free variable `global` from Node.js. */
+	var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+	
+	/** Detect free variable `self`. */
+	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+	
+	/** Used as a reference to the global object. */
+	var root = freeGlobal || freeSelf || Function('return this')();
+	
+	/** Built-in value references. */
+	var Symbol$1 = root.Symbol;
+	
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+	
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+	
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString = objectProto.toString;
+	
+	/** Built-in value references. */
+	var symToStringTag$1 = Symbol$1 ? Symbol$1.toStringTag : undefined;
+	
+	/**
+	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the raw `toStringTag`.
+	 */
+	function getRawTag(value) {
+	  var isOwn = hasOwnProperty.call(value, symToStringTag$1),
+	      tag = value[symToStringTag$1];
+	
+	  try {
+	    value[symToStringTag$1] = undefined;
+	    var unmasked = true;
+	  } catch (e) {}
+	
+	  var result = nativeObjectToString.call(value);
+	  if (unmasked) {
+	    if (isOwn) {
+	      value[symToStringTag$1] = tag;
+	    } else {
+	      delete value[symToStringTag$1];
+	    }
+	  }
+	  return result;
+	}
+	
+	/** Used for built-in method references. */
+	var objectProto$1 = Object.prototype;
+	
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString$1 = objectProto$1.toString;
+	
+	/**
+	 * Converts `value` to a string using `Object.prototype.toString`.
+	 *
+	 * @private
+	 * @param {*} value The value to convert.
+	 * @returns {string} Returns the converted string.
+	 */
+	function objectToString(value) {
+	  return nativeObjectToString$1.call(value);
+	}
+	
+	/** `Object#toString` result references. */
+	var nullTag = '[object Null]';
+	var undefinedTag = '[object Undefined]';
+	
+	/** Built-in value references. */
+	var symToStringTag = Symbol$1 ? Symbol$1.toStringTag : undefined;
+	
+	/**
+	 * The base implementation of `getTag` without fallbacks for buggy environments.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the `toStringTag`.
+	 */
+	function baseGetTag(value) {
+	  if (value == null) {
+	    return value === undefined ? undefinedTag : nullTag;
+	  }
+	  value = Object(value);
+	  return (symToStringTag && symToStringTag in value)
+	    ? getRawTag(value)
+	    : objectToString(value);
 	}
 	
 	/**
@@ -21786,19 +24208,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	/** `Object#toString` result references. */
+	var asyncTag = '[object AsyncFunction]';
 	var funcTag = '[object Function]';
 	var genTag = '[object GeneratorFunction]';
 	var proxyTag = '[object Proxy]';
-	
-	/** Used for built-in method references. */
-	var objectProto$1 = Object.prototype;
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto$1.toString;
 	
 	/**
 	 * Checks if `value` is classified as a `Function` object.
@@ -21818,236 +24231,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * // => false
 	 */
 	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 9 which returns 'object' for typed array and other constructors.
-	  var tag = isObject(value) ? objectToString.call(value) : '';
-	  return tag == funcTag || tag == genTag || tag == proxyTag;
-	}
-	
-	/** Detect free variable `global` from Node.js. */
-	var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-	
-	/** Detect free variable `self`. */
-	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-	
-	/** Used as a reference to the global object. */
-	var root = freeGlobal || freeSelf || Function('return this')();
-	
-	/** Used to detect overreaching core-js shims. */
-	var coreJsData = root['__core-js_shared__'];
-	
-	/** Used to detect methods masquerading as native. */
-	var maskSrcKey = (function() {
-	  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-	  return uid ? ('Symbol(src)_1.' + uid) : '';
-	}());
-	
-	/**
-	 * Checks if `func` has its source masked.
-	 *
-	 * @private
-	 * @param {Function} func The function to check.
-	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
-	 */
-	function isMasked(func) {
-	  return !!maskSrcKey && (maskSrcKey in func);
-	}
-	
-	/** Used for built-in method references. */
-	var funcProto$1 = Function.prototype;
-	
-	/** Used to resolve the decompiled source of functions. */
-	var funcToString$1 = funcProto$1.toString;
-	
-	/**
-	 * Converts `func` to its source code.
-	 *
-	 * @private
-	 * @param {Function} func The function to process.
-	 * @returns {string} Returns the source code.
-	 */
-	function toSource(func) {
-	  if (func != null) {
-	    try {
-	      return funcToString$1.call(func);
-	    } catch (e) {}
-	    try {
-	      return (func + '');
-	    } catch (e) {}
-	  }
-	  return '';
-	}
-	
-	/**
-	 * Used to match `RegExp`
-	 * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
-	 */
-	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-	
-	/** Used to detect host constructors (Safari). */
-	var reIsHostCtor = /^\[object .+?Constructor\]$/;
-	
-	/** Used for built-in method references. */
-	var funcProto = Function.prototype;
-	var objectProto = Object.prototype;
-	
-	/** Used to resolve the decompiled source of functions. */
-	var funcToString = funcProto.toString;
-	
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-	
-	/** Used to detect if a method is native. */
-	var reIsNative = RegExp('^' +
-	  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
-	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-	);
-	
-	/**
-	 * The base implementation of `_.isNative` without bad shim checks.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a native function,
-	 *  else `false`.
-	 */
-	function baseIsNative(value) {
-	  if (!isObject(value) || isMasked(value)) {
+	  if (!isObject(value)) {
 	    return false;
 	  }
-	  var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
-	  return pattern.test(toSource(value));
-	}
-	
-	/**
-	 * Gets the value at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} [object] The object to query.
-	 * @param {string} key The key of the property to get.
-	 * @returns {*} Returns the property value.
-	 */
-	function getValue(object, key) {
-	  return object == null ? undefined : object[key];
-	}
-	
-	/**
-	 * Gets the native function at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the method to get.
-	 * @returns {*} Returns the function if it's native, else `undefined`.
-	 */
-	function getNative(object, key) {
-	  var value = getValue(object, key);
-	  return baseIsNative(value) ? value : undefined;
-	}
-	
-	var defineProperty = (function() {
-	  try {
-	    var func = getNative(Object, 'defineProperty');
-	    func({}, '', {});
-	    return func;
-	  } catch (e) {}
-	}());
-	
-	/**
-	 * The base implementation of `setToString` without support for hot loop shorting.
-	 *
-	 * @private
-	 * @param {Function} func The function to modify.
-	 * @param {Function} string The `toString` result.
-	 * @returns {Function} Returns `func`.
-	 */
-	var baseSetToString = !defineProperty ? identity : function(func, string) {
-	  return defineProperty(func, 'toString', {
-	    'configurable': true,
-	    'enumerable': false,
-	    'value': constant(string),
-	    'writable': true
-	  });
-	};
-	
-	/** Used to detect hot functions by number of calls within a span of milliseconds. */
-	var HOT_COUNT = 500;
-	var HOT_SPAN = 16;
-	
-	/* Built-in method references for those with the same name as other `lodash` methods. */
-	var nativeNow = Date.now;
-	
-	/**
-	 * Creates a function that'll short out and invoke `identity` instead
-	 * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
-	 * milliseconds.
-	 *
-	 * @private
-	 * @param {Function} func The function to restrict.
-	 * @returns {Function} Returns the new shortable function.
-	 */
-	function shortOut(func) {
-	  var count = 0,
-	      lastCalled = 0;
-	
-	  return function() {
-	    var stamp = nativeNow(),
-	        remaining = HOT_SPAN - (stamp - lastCalled);
-	
-	    lastCalled = stamp;
-	    if (remaining > 0) {
-	      if (++count >= HOT_COUNT) {
-	        return arguments[0];
-	      }
-	    } else {
-	      count = 0;
-	    }
-	    return func.apply(undefined, arguments);
-	  };
-	}
-	
-	/**
-	 * Sets the `toString` method of `func` to return `string`.
-	 *
-	 * @private
-	 * @param {Function} func The function to modify.
-	 * @param {Function} string The `toString` result.
-	 * @returns {Function} Returns `func`.
-	 */
-	var setToString = shortOut(baseSetToString);
-	
-	/**
-	 * The base implementation of `_.rest` which doesn't validate or coerce arguments.
-	 *
-	 * @private
-	 * @param {Function} func The function to apply a rest parameter to.
-	 * @param {number} [start=func.length-1] The start position of the rest parameter.
-	 * @returns {Function} Returns the new function.
-	 */
-	function baseRest$1(func, start) {
-	  return setToString(overRest(func, start, identity), func + '');
-	}
-	
-	var initialParams = function (fn) {
-	    return baseRest$1(function (args /*..., callback*/) {
-	        var callback = args.pop();
-	        fn.call(this, args, callback);
-	    });
-	};
-	
-	function applyEach$1(eachfn) {
-	    return baseRest$1(function (fns, args) {
-	        var go = initialParams(function (args, callback) {
-	            var that = this;
-	            return eachfn(fns, function (fn, cb) {
-	                fn.apply(that, args.concat([cb]));
-	            }, callback);
-	        });
-	        if (args.length) {
-	            return go.apply(this, args);
-	        } else {
-	            return go;
-	        }
-	    });
+	  // The use of `Object#toString` avoids issues with the `typeof` operator
+	  // in Safari 9 which returns 'object' for typed arrays and other constructors.
+	  var tag = baseGetTag(value);
+	  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
 	}
 	
 	/** Used as references for various `Number` constants. */
@@ -22194,16 +24384,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]';
 	
-	/** Used for built-in method references. */
-	var objectProto$4 = Object.prototype;
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString$1 = objectProto$4.toString;
-	
 	/**
 	 * The base implementation of `_.isArguments`.
 	 *
@@ -22212,7 +24392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
 	 */
 	function baseIsArguments(value) {
-	  return isObjectLike(value) && objectToString$1.call(value) == argsTag;
+	  return isObjectLike(value) && baseGetTag(value) == argsTag;
 	}
 	
 	/** Used for built-in method references. */
@@ -22387,16 +24567,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	typedArrayTags[setTag] = typedArrayTags[stringTag] =
 	typedArrayTags[weakMapTag] = false;
 	
-	/** Used for built-in method references. */
-	var objectProto$5 = Object.prototype;
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString$2 = objectProto$5.toString;
-	
 	/**
 	 * The base implementation of `_.isTypedArray` without Node.js optimizations.
 	 *
@@ -22406,7 +24576,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function baseIsTypedArray(value) {
 	  return isObjectLike(value) &&
-	    isLength(value.length) && !!typedArrayTags[objectToString$2.call(value)];
+	    isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
 	}
 	
 	/**
@@ -22505,7 +24675,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	/** Used for built-in method references. */
-	var objectProto$7 = Object.prototype;
+	var objectProto$5 = Object.prototype;
 	
 	/**
 	 * Checks if `value` is likely a prototype object.
@@ -22516,7 +24686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function isPrototype(value) {
 	  var Ctor = value && value.constructor,
-	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$7;
+	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$5;
 	
 	  return value === proto;
 	}
@@ -22539,10 +24709,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var nativeKeys = overArg(Object.keys, Object);
 	
 	/** Used for built-in method references. */
-	var objectProto$6 = Object.prototype;
+	var objectProto$4 = Object.prototype;
 	
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$3 = objectProto$6.hasOwnProperty;
+	var hasOwnProperty$3 = objectProto$4.hasOwnProperty;
 	
 	/**
 	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -22799,7 +24969,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	function _asyncMap(eachfn, arr, iteratee, callback) {
-	    callback = once(callback || noop);
+	    callback = callback || noop;
 	    arr = arr || [];
 	    var results = [];
 	    var counter = 0;
@@ -23000,8 +25170,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * two
 	 * three
 	 */
-	var apply$2 = baseRest$1(function (fn, args) {
-	    return baseRest$1(function (callArgs) {
+	var apply$2 = rest(function (fn, args) {
+	    return rest(function (callArgs) {
 	        return fn.apply(null, args.concat(callArgs));
 	    });
 	});
@@ -23093,7 +25263,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function arrayEach(array, iteratee) {
 	  var index = -1,
-	      length = array ? array.length : 0;
+	      length = array == null ? 0 : array.length;
 	
 	  while (++index < length) {
 	    if (iteratee(array[index], index, array) === false) {
@@ -23400,7 +25570,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function runTask(key, task) {
 	        if (hasError) return;
 	
-	        var taskCallback = onlyOnce(baseRest$1(function (err, args) {
+	        var taskCallback = onlyOnce(rest(function (err, args) {
 	            runningTasks--;
 	            if (args.length <= 1) {
 	                args = args[0];
@@ -23473,7 +25643,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function arrayMap(array, iteratee) {
 	  var index = -1,
-	      length = array ? array.length : 0,
+	      length = array == null ? 0 : array.length,
 	      result = Array(length);
 	
 	  while (++index < length) {
@@ -23482,40 +25652,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return result;
 	}
 	
-	/**
-	 * Copies the values of `source` to `array`.
-	 *
-	 * @private
-	 * @param {Array} source The array to copy values from.
-	 * @param {Array} [array=[]] The array to copy values to.
-	 * @returns {Array} Returns `array`.
-	 */
-	function copyArray(source, array) {
-	  var index = -1,
-	      length = source.length;
-	
-	  array || (array = Array(length));
-	  while (++index < length) {
-	    array[index] = source[index];
-	  }
-	  return array;
-	}
-	
-	/** Built-in value references. */
-	var Symbol$1 = root.Symbol;
-	
 	/** `Object#toString` result references. */
 	var symbolTag = '[object Symbol]';
-	
-	/** Used for built-in method references. */
-	var objectProto$8 = Object.prototype;
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString$3 = objectProto$8.toString;
 	
 	/**
 	 * Checks if `value` is classified as a `Symbol` primitive or object.
@@ -23536,7 +25674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function isSymbol(value) {
 	  return typeof value == 'symbol' ||
-	    (isObjectLike(value) && objectToString$3.call(value) == symbolTag);
+	    (isObjectLike(value) && baseGetTag(value) == symbolTag);
 	}
 	
 	/** Used as references for various `Number` constants. */
@@ -23902,8 +26040,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var params;
 	
 	        if (isArray(taskFn)) {
-	            params = copyArray(taskFn);
-	            taskFn = params.pop();
+	            params = taskFn.slice(0, -1);
+	            taskFn = taskFn[taskFn.length - 1];
 	
 	            newTasks[key] = params.concat(params.length > 0 ? newTask : taskFn);
 	        } else if (taskFn.length === 1) {
@@ -23940,7 +26078,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	function wrap(defer) {
-	    return baseRest$1(function (fn, args) {
+	    return rest(function (fn, args) {
 	        defer(function () {
 	            fn.apply(null, args);
 	        });
@@ -24054,7 +26192,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    function _next(tasks) {
-	        return baseRest$1(function (args) {
+	        return rest(function (args) {
 	            workers -= 1;
 	
 	            for (var i = 0, l = tasks.length; i < l; i++) {
@@ -24356,8 +26494,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *     });
 	 * });
 	 */
-	var seq$1 = baseRest$1(function seq(functions) {
-	    return baseRest$1(function (args) {
+	var seq$1 = rest(function seq(functions) {
+	    return rest(function (args) {
 	        var that = this;
 	
 	        var cb = args[args.length - 1];
@@ -24368,7 +26506,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	
 	        reduce(functions, args, function (newargs, fn, cb) {
-	            fn.apply(that, newargs.concat([baseRest$1(function (err, nextargs) {
+	            fn.apply(that, newargs.concat([rest(function (err, nextargs) {
 	                cb(err, nextargs);
 	            })]));
 	        }, function (err, results) {
@@ -24412,7 +26550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *     // result now equals 15
 	 * });
 	 */
-	var compose = baseRest$1(function (args) {
+	var compose = rest(function (args) {
 	  return seq$1.apply(null, args.reverse());
 	});
 	
@@ -24526,7 +26664,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *     //...
 	 * }, callback);
 	 */
-	var constant$2 = baseRest$1(function (values) {
+	var constant = rest(function (values) {
 	    var args = [null].concat(values);
 	    return initialParams(function (ignoredArgs, callback) {
 	        return callback.apply(this, args);
@@ -24654,8 +26792,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var detectSeries = _createTester(eachOfSeries, identity, _findGetResult);
 	
 	function consoleFunc(name) {
-	    return baseRest$1(function (fn, args) {
-	        fn.apply(null, args.concat([baseRest$1(function (err, args) {
+	    return rest(function (fn, args) {
+	        fn.apply(null, args.concat([rest(function (err, args) {
 	            if (typeof console === 'object') {
 	                if (err) {
 	                    if (console.error) {
@@ -24725,7 +26863,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function doDuring(fn, test, callback) {
 	    callback = onlyOnce(callback || noop);
 	
-	    var next = baseRest$1(function (err, args) {
+	    var next = rest(function (err, args) {
 	        if (err) return callback(err);
 	        args.push(check);
 	        test.apply(this, args);
@@ -24765,7 +26903,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function doWhilst(iteratee, test, callback) {
 	    callback = onlyOnce(callback || noop);
-	    var next = baseRest$1(function (err, args) {
+	    var next = rest(function (err, args) {
 	        if (err) return callback(err);
 	        if (test.apply(this, args)) return iteratee(next);
 	        callback.apply(null, [null].concat(args));
@@ -25111,10 +27249,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	}
 	
-	function _filter(eachfn, arr, iteratee, callback) {
-	    callback = once(callback || noop);
-	    var results = [];
+	function filterArray(eachfn, arr, iteratee, callback) {
+	    var truthValues = new Array(arr.length);
 	    eachfn(arr, function (x, index, callback) {
+	        iteratee(x, function (err, v) {
+	            truthValues[index] = !!v;
+	            callback(err);
+	        });
+	    }, function (err) {
+	        if (err) return callback(err);
+	        var results = [];
+	        for (var i = 0; i < arr.length; i++) {
+	            if (truthValues[i]) results.push(arr[i]);
+	        }
+	        callback(null, results);
+	    });
+	}
+	
+	function filterGeneric(eachfn, coll, iteratee, callback) {
+	    var results = [];
+	    eachfn(coll, function (x, index, callback) {
 	        iteratee(x, function (err, v) {
 	            if (err) {
 	                callback(err);
@@ -25134,6 +27288,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }), baseProperty('value')));
 	        }
 	    });
+	}
+	
+	function _filter(eachfn, coll, iteratee, callback) {
+	    var filter = isArrayLike(coll) ? filterArray : filterGeneric;
+	    filter(eachfn, coll, iteratee, callback || noop);
 	}
 	
 	/**
@@ -25432,7 +27591,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            queues[key].push(callback);
 	        } else {
 	            queues[key] = [callback];
-	            fn.apply(null, args.concat([baseRest$1(function (args) {
+	            fn.apply(null, args.concat([rest(function (args) {
 	                memo[key] = args;
 	                var q = queues[key];
 	                delete queues[key];
@@ -25495,7 +27654,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var results = isArrayLike(tasks) ? [] : {};
 	
 	    eachfn(tasks, function (task, key, callback) {
-	        task(baseRest$1(function (err, args) {
+	        task(rest(function (err, args) {
 	            if (args.length <= 1) {
 	                args = args[0];
 	            }
@@ -25896,7 +28055,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function reflect(fn) {
 	    return initialParams(function reflectOn(args, reflectCallback) {
-	        args.push(baseRest$1(function callback(err, cbArgs) {
+	        args.push(rest(function callback(err, cbArgs) {
 	            if (err) {
 	                reflectCallback(null, {
 	                    error: err
@@ -25921,11 +28080,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function reject$1(eachfn, arr, iteratee, callback) {
 	    _filter(eachfn, arr, function (value, cb) {
 	        iteratee(value, function (err, v) {
-	            if (err) {
-	                cb(err);
-	            } else {
-	                cb(null, !v);
-	            }
+	            cb(err, !v);
 	        });
 	    }, callback);
 	}
@@ -26076,6 +28231,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	var rejectSeries = doLimit(rejectLimit, 1);
 	
 	/**
+	 * Creates a function that returns `value`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 2.4.0
+	 * @category Util
+	 * @param {*} value The value to return from the new function.
+	 * @returns {Function} Returns the new constant function.
+	 * @example
+	 *
+	 * var objects = _.times(2, _.constant({ 'a': 1 }));
+	 *
+	 * console.log(objects);
+	 * // => [{ 'a': 1 }, { 'a': 1 }]
+	 *
+	 * console.log(objects[0] === objects[1]);
+	 * // => true
+	 */
+	function constant$1(value) {
+	  return function() {
+	    return value;
+	  };
+	}
+	
+	/**
 	 * Attempts to get a successful response from `task` no more than `times` times
 	 * before returning an error. If the task is successful, the `callback` will be
 	 * passed the result of the successful task. If all attempts fail, the callback
@@ -26167,14 +28347,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    var options = {
 	        times: DEFAULT_TIMES,
-	        intervalFunc: constant(DEFAULT_INTERVAL)
+	        intervalFunc: constant$1(DEFAULT_INTERVAL)
 	    };
 	
 	    function parseTimes(acc, t) {
 	        if (typeof t === 'object') {
 	            acc.times = +t.times || DEFAULT_TIMES;
 	
-	            acc.intervalFunc = typeof t.interval === 'function' ? t.interval : constant(+t.interval || DEFAULT_INTERVAL);
+	            acc.intervalFunc = typeof t.interval === 'function' ? t.interval : constant$1(+t.interval || DEFAULT_INTERVAL);
 	
 	            acc.errorFilter = t.errorFilter;
 	        } else if (typeof t === 'number' || typeof t === 'string') {
@@ -26743,7 +28923,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function whilst(test, iteratee, callback) {
 	    callback = onlyOnce(callback || noop);
 	    if (!test()) return callback(null);
-	    var next = baseRest$1(function (err, args) {
+	    var next = rest(function (err, args) {
 	        if (err) return callback(err);
 	        if (test()) return iteratee(next);
 	        callback.apply(null, [null].concat(args));
@@ -26848,7 +29028,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return callback.apply(null, [null].concat(args));
 	        }
 	
-	        var taskCallback = onlyOnce(baseRest$1(function (err, args) {
+	        var taskCallback = onlyOnce(rest(function (err, args) {
 	            if (err) {
 	                return callback.apply(null, [err].concat(args));
 	            }
@@ -26898,7 +29078,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  compose: compose,
 	  concat: concat,
 	  concatSeries: concatSeries,
-	  constant: constant$2,
+	  constant: constant,
 	  detect: detect,
 	  detectLimit: detectLimit,
 	  detectSeries: detectSeries,
@@ -26990,7 +29170,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.compose = compose;
 	exports.concat = concat;
 	exports.concatSeries = concatSeries;
-	exports.constant = constant$2;
+	exports.constant = constant;
 	exports.detect = detect;
 	exports.detectLimit = detectLimit;
 	exports.detectSeries = detectSeries;
@@ -27079,10 +29259,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	})));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(175)(module), __webpack_require__(38).setImmediate, __webpack_require__(7)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(207)(module), __webpack_require__(42).setImmediate, __webpack_require__(7)))
 
 /***/ },
-/* 96 */
+/* 106 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -27104,7 +29284,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 97 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27113,7 +29293,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var events_1 = __webpack_require__(17);
+	var events_1 = __webpack_require__(19);
 	var DataQuery = (function (_super) {
 	    __extends(DataQuery, _super);
 	    function DataQuery(config) {
@@ -27131,13 +29311,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 98 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var _ = __webpack_require__(1);
-	var DataQuery_1 = __webpack_require__(97);
-	var Query_1 = __webpack_require__(41);
+	var DataQuery_1 = __webpack_require__(107);
+	var Query_1 = __webpack_require__(45);
 	var DataQueryBuilder = (function () {
 	    function DataQueryBuilder() {
 	    }
@@ -27160,7 +29340,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 99 */
+/* 109 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -27177,7 +29357,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 100 */
+/* 110 */
 /***/ function(module, exports) {
 
 	/**
@@ -27197,7 +29377,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 101 */
+/* 111 */
 /***/ function(module, exports) {
 
 	/**
@@ -27232,58 +29412,60 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 102 */
+/* 112 */
 /***/ function(module, exports) {
 
 	"use strict";
 
 
 /***/ },
-/* 103 */
-102,
-/* 104 */
-102,
-/* 105 */
-102,
-/* 106 */
-102,
-/* 107 */
-102,
-/* 108 */
-102,
-/* 109 */
-102,
-/* 110 */
-102,
-/* 111 */
-102,
-/* 112 */
-102,
 /* 113 */
-102,
+112,
 /* 114 */
-102,
+112,
 /* 115 */
-102,
+112,
 /* 116 */
-102,
+112,
 /* 117 */
-102,
+112,
 /* 118 */
-102,
+112,
 /* 119 */
-102,
+112,
 /* 120 */
-102,
+112,
 /* 121 */
-102,
+112,
 /* 122 */
-102,
+112,
 /* 123 */
-102,
+112,
 /* 124 */
-102,
+112,
 /* 125 */
+112,
+/* 126 */
+112,
+/* 127 */
+112,
+/* 128 */
+112,
+/* 129 */
+112,
+/* 130 */
+112,
+/* 131 */
+112,
+/* 132 */
+112,
+/* 133 */
+112,
+/* 134 */
+112,
+/* 135 */
+112,
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -27413,7 +29595,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 126 */
+/* 137 */
 /***/ function(module, exports) {
 
 	exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -27503,7 +29685,85 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 127 */
+/* 138 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	
+	exports.requiredProp = function(type, params, propName) {
+		if (_.isUndefined(params[propName])) {
+			throw new Error('`' + propName + '` property is not set in `' + type + '` clause');
+		}
+	};
+	
+	exports.atLeastOneOfProps = function(type, params, expectedPropNames) {
+		var propNames = _(params).chain().keys().intersection(expectedPropNames).value();
+	
+		if (!propNames.length) {
+			throw new Error('Neither `' + expectedPropNames.join('`, `') +
+				'` properties are not set in `' + type + '` clause');
+		}
+	};
+	
+	exports.onlyOneOfProps = function(type, params, expectedPropNames) {
+		var propNames = _(params).chain().keys().intersection(expectedPropNames).value();
+	
+		if (propNames.length > 1) {
+			throw new Error('Wrong using `' + propNames.join('`, `') + '` properties together in `' +
+				type + '` clause');
+		}
+	};
+	
+	exports.propType = function(type, params, propName, expectedTypes) {
+		if (_.isUndefined(params[propName])) return;
+	
+		var propValue = params[propName];
+	
+		if (!_.isArray(expectedTypes)) expectedTypes = [expectedTypes];
+	
+		var hasSomeType = _(expectedTypes).some(function(expectedType) {
+			return _['is' + expectedType.charAt(0).toUpperCase() + expectedType.slice(1)](propValue);
+		});
+	
+		if (!hasSomeType) {
+			throw new Error('`' + propName + '` property should have ' +
+				(expectedTypes.length > 1 ? 'one of expected types:' : 'type') +
+				' "' + expectedTypes.join('", "') + '" in `' + type + '` clause');
+		}
+	};
+	
+	exports.minPropLength = function(type, params, propName, length) {
+		if (_.isUndefined(params[propName])) return;
+	
+		if (params[propName].length < length) {
+			throw new Error('`' + propName + '` property should not have length less than ' + length +
+				' in `' + type + '` clause');
+		}
+	};
+	
+	exports.propMatch = function(type, params, propName, regExp) {
+		if (_.isUndefined(params[propName])) return;
+	
+		if (!params[propName].match(regExp)) {
+			throw new Error('Invalid `' + propName + '` property value "' + params[propName] + '" in `' +
+				type + '` clause');
+		}
+	};
+	
+	exports.customProp = function(type, params, propName, fn) {
+		if (_.isUndefined(params[propName])) return;
+	
+		if (!fn(params[propName])) {
+			throw new Error('Invalid `' + propName + '` property value "' + params[propName] + '" in `' +
+				type + '` clause');
+		}
+	};
+
+
+/***/ },
+/* 139 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -27868,3616 +30128,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 128 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var CryptoJS = __webpack_require__(12).CryptoJS;
-	__webpack_require__(159);
-	__webpack_require__(162);
-	__webpack_require__(160);
-	__webpack_require__(158);
-	__webpack_require__(157);
-	var JsonFormatter = __webpack_require__(161).JsonFormatter;
-	
-	exports.CryptoJS = CryptoJS;
-	exports.JsonFormatter = JsonFormatter;
-
-/***/ },
-/* 129 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// a passthrough stream.
-	// basically just the most minimal sort of Transform stream.
-	// Every written chunk gets output as-is.
-	
-	'use strict';
-	
-	module.exports = PassThrough;
-	
-	var Transform = __webpack_require__(92);
-	
-	/*<replacement>*/
-	var util = __webpack_require__(26);
-	util.inherits = __webpack_require__(11);
-	/*</replacement>*/
-	
-	util.inherits(PassThrough, Transform);
-	
-	function PassThrough(options) {
-	  if (!(this instanceof PassThrough)) return new PassThrough(options);
-	
-	  Transform.call(this, options);
-	}
-	
-	PassThrough.prototype._transform = function (chunk, encoding, cb) {
-	  cb(null, chunk);
-	};
-
-/***/ },
-/* 130 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
-	
-	module.exports = Readable;
-	
-	/*<replacement>*/
-	var processNextTick = __webpack_require__(91);
-	/*</replacement>*/
-	
-	/*<replacement>*/
-	var isArray = __webpack_require__(88);
-	/*</replacement>*/
-	
-	/*<replacement>*/
-	var Duplex;
-	/*</replacement>*/
-	
-	Readable.ReadableState = ReadableState;
-	
-	/*<replacement>*/
-	var EE = __webpack_require__(17).EventEmitter;
-	
-	var EElistenerCount = function (emitter, type) {
-	  return emitter.listeners(type).length;
-	};
-	/*</replacement>*/
-	
-	/*<replacement>*/
-	var Stream;
-	(function () {
-	  try {
-	    Stream = __webpack_require__(37);
-	  } catch (_) {} finally {
-	    if (!Stream) Stream = __webpack_require__(17).EventEmitter;
-	  }
-	})();
-	/*</replacement>*/
-	
-	var Buffer = __webpack_require__(24).Buffer;
-	/*<replacement>*/
-	var bufferShim = __webpack_require__(85);
-	/*</replacement>*/
-	
-	/*<replacement>*/
-	var util = __webpack_require__(26);
-	util.inherits = __webpack_require__(11);
-	/*</replacement>*/
-	
-	/*<replacement>*/
-	var debugUtil = __webpack_require__(192);
-	var debug = void 0;
-	if (debugUtil && debugUtil.debuglog) {
-	  debug = debugUtil.debuglog('stream');
-	} else {
-	  debug = function () {};
-	}
-	/*</replacement>*/
-	
-	var BufferList = __webpack_require__(164);
-	var StringDecoder;
-	
-	util.inherits(Readable, Stream);
-	
-	function prependListener(emitter, event, fn) {
-	  // Sadly this is not cacheable as some libraries bundle their own
-	  // event emitter implementation with them.
-	  if (typeof emitter.prependListener === 'function') {
-	    return emitter.prependListener(event, fn);
-	  } else {
-	    // This is a hack to make sure that our error handler is attached before any
-	    // userland ones.  NEVER DO THIS. This is here only because this code needs
-	    // to continue to work with older versions of Node.js that do not include
-	    // the prependListener() method. The goal is to eventually remove this hack.
-	    if (!emitter._events || !emitter._events[event]) emitter.on(event, fn);else if (isArray(emitter._events[event])) emitter._events[event].unshift(fn);else emitter._events[event] = [fn, emitter._events[event]];
-	  }
-	}
-	
-	function ReadableState(options, stream) {
-	  Duplex = Duplex || __webpack_require__(14);
-	
-	  options = options || {};
-	
-	  // object stream flag. Used to make read(n) ignore n and to
-	  // make all the buffer merging and length checks go away
-	  this.objectMode = !!options.objectMode;
-	
-	  if (stream instanceof Duplex) this.objectMode = this.objectMode || !!options.readableObjectMode;
-	
-	  // the point at which it stops calling _read() to fill the buffer
-	  // Note: 0 is a valid value, means "don't call _read preemptively ever"
-	  var hwm = options.highWaterMark;
-	  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
-	  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
-	
-	  // cast to ints.
-	  this.highWaterMark = ~ ~this.highWaterMark;
-	
-	  // A linked list is used to store data chunks instead of an array because the
-	  // linked list can remove elements from the beginning faster than
-	  // array.shift()
-	  this.buffer = new BufferList();
-	  this.length = 0;
-	  this.pipes = null;
-	  this.pipesCount = 0;
-	  this.flowing = null;
-	  this.ended = false;
-	  this.endEmitted = false;
-	  this.reading = false;
-	
-	  // a flag to be able to tell if the onwrite cb is called immediately,
-	  // or on a later tick.  We set this to true at first, because any
-	  // actions that shouldn't happen until "later" should generally also
-	  // not happen before the first write call.
-	  this.sync = true;
-	
-	  // whenever we return null, then we set a flag to say
-	  // that we're awaiting a 'readable' event emission.
-	  this.needReadable = false;
-	  this.emittedReadable = false;
-	  this.readableListening = false;
-	  this.resumeScheduled = false;
-	
-	  // Crypto is kind of old and crusty.  Historically, its default string
-	  // encoding is 'binary' so we have to make this configurable.
-	  // Everything else in the universe uses 'utf8', though.
-	  this.defaultEncoding = options.defaultEncoding || 'utf8';
-	
-	  // when piping, we only care about 'readable' events that happen
-	  // after read()ing all the bytes and not getting any pushback.
-	  this.ranOut = false;
-	
-	  // the number of writers that are awaiting a drain event in .pipe()s
-	  this.awaitDrain = 0;
-	
-	  // if true, a maybeReadMore has been scheduled
-	  this.readingMore = false;
-	
-	  this.decoder = null;
-	  this.encoding = null;
-	  if (options.encoding) {
-	    if (!StringDecoder) StringDecoder = __webpack_require__(131).StringDecoder;
-	    this.decoder = new StringDecoder(options.encoding);
-	    this.encoding = options.encoding;
-	  }
-	}
-	
-	function Readable(options) {
-	  Duplex = Duplex || __webpack_require__(14);
-	
-	  if (!(this instanceof Readable)) return new Readable(options);
-	
-	  this._readableState = new ReadableState(options, this);
-	
-	  // legacy
-	  this.readable = true;
-	
-	  if (options && typeof options.read === 'function') this._read = options.read;
-	
-	  Stream.call(this);
-	}
-	
-	// Manually shove something into the read() buffer.
-	// This returns true if the highWaterMark has not been hit yet,
-	// similar to how Writable.write() returns true if you should
-	// write() some more.
-	Readable.prototype.push = function (chunk, encoding) {
-	  var state = this._readableState;
-	
-	  if (!state.objectMode && typeof chunk === 'string') {
-	    encoding = encoding || state.defaultEncoding;
-	    if (encoding !== state.encoding) {
-	      chunk = bufferShim.from(chunk, encoding);
-	      encoding = '';
-	    }
-	  }
-	
-	  return readableAddChunk(this, state, chunk, encoding, false);
-	};
-	
-	// Unshift should *always* be something directly out of read()
-	Readable.prototype.unshift = function (chunk) {
-	  var state = this._readableState;
-	  return readableAddChunk(this, state, chunk, '', true);
-	};
-	
-	Readable.prototype.isPaused = function () {
-	  return this._readableState.flowing === false;
-	};
-	
-	function readableAddChunk(stream, state, chunk, encoding, addToFront) {
-	  var er = chunkInvalid(state, chunk);
-	  if (er) {
-	    stream.emit('error', er);
-	  } else if (chunk === null) {
-	    state.reading = false;
-	    onEofChunk(stream, state);
-	  } else if (state.objectMode || chunk && chunk.length > 0) {
-	    if (state.ended && !addToFront) {
-	      var e = new Error('stream.push() after EOF');
-	      stream.emit('error', e);
-	    } else if (state.endEmitted && addToFront) {
-	      var _e = new Error('stream.unshift() after end event');
-	      stream.emit('error', _e);
-	    } else {
-	      var skipAdd;
-	      if (state.decoder && !addToFront && !encoding) {
-	        chunk = state.decoder.write(chunk);
-	        skipAdd = !state.objectMode && chunk.length === 0;
-	      }
-	
-	      if (!addToFront) state.reading = false;
-	
-	      // Don't add to the buffer if we've decoded to an empty string chunk and
-	      // we're not in object mode
-	      if (!skipAdd) {
-	        // if we want the data now, just emit it.
-	        if (state.flowing && state.length === 0 && !state.sync) {
-	          stream.emit('data', chunk);
-	          stream.read(0);
-	        } else {
-	          // update the buffer info.
-	          state.length += state.objectMode ? 1 : chunk.length;
-	          if (addToFront) state.buffer.unshift(chunk);else state.buffer.push(chunk);
-	
-	          if (state.needReadable) emitReadable(stream);
-	        }
-	      }
-	
-	      maybeReadMore(stream, state);
-	    }
-	  } else if (!addToFront) {
-	    state.reading = false;
-	  }
-	
-	  return needMoreData(state);
-	}
-	
-	// if it's past the high water mark, we can push in some more.
-	// Also, if we have no data yet, we can stand some
-	// more bytes.  This is to work around cases where hwm=0,
-	// such as the repl.  Also, if the push() triggered a
-	// readable event, and the user called read(largeNumber) such that
-	// needReadable was set, then we ought to push more, so that another
-	// 'readable' event will be triggered.
-	function needMoreData(state) {
-	  return !state.ended && (state.needReadable || state.length < state.highWaterMark || state.length === 0);
-	}
-	
-	// backwards compatibility.
-	Readable.prototype.setEncoding = function (enc) {
-	  if (!StringDecoder) StringDecoder = __webpack_require__(131).StringDecoder;
-	  this._readableState.decoder = new StringDecoder(enc);
-	  this._readableState.encoding = enc;
-	  return this;
-	};
-	
-	// Don't raise the hwm > 8MB
-	var MAX_HWM = 0x800000;
-	function computeNewHighWaterMark(n) {
-	  if (n >= MAX_HWM) {
-	    n = MAX_HWM;
-	  } else {
-	    // Get the next highest power of 2 to prevent increasing hwm excessively in
-	    // tiny amounts
-	    n--;
-	    n |= n >>> 1;
-	    n |= n >>> 2;
-	    n |= n >>> 4;
-	    n |= n >>> 8;
-	    n |= n >>> 16;
-	    n++;
-	  }
-	  return n;
-	}
-	
-	// This function is designed to be inlinable, so please take care when making
-	// changes to the function body.
-	function howMuchToRead(n, state) {
-	  if (n <= 0 || state.length === 0 && state.ended) return 0;
-	  if (state.objectMode) return 1;
-	  if (n !== n) {
-	    // Only flow one buffer at a time
-	    if (state.flowing && state.length) return state.buffer.head.data.length;else return state.length;
-	  }
-	  // If we're asking for more than the current hwm, then raise the hwm.
-	  if (n > state.highWaterMark) state.highWaterMark = computeNewHighWaterMark(n);
-	  if (n <= state.length) return n;
-	  // Don't have enough
-	  if (!state.ended) {
-	    state.needReadable = true;
-	    return 0;
-	  }
-	  return state.length;
-	}
-	
-	// you can override either this method, or the async _read(n) below.
-	Readable.prototype.read = function (n) {
-	  debug('read', n);
-	  n = parseInt(n, 10);
-	  var state = this._readableState;
-	  var nOrig = n;
-	
-	  if (n !== 0) state.emittedReadable = false;
-	
-	  // if we're doing read(0) to trigger a readable event, but we
-	  // already have a bunch of data in the buffer, then just trigger
-	  // the 'readable' event and move on.
-	  if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
-	    debug('read: emitReadable', state.length, state.ended);
-	    if (state.length === 0 && state.ended) endReadable(this);else emitReadable(this);
-	    return null;
-	  }
-	
-	  n = howMuchToRead(n, state);
-	
-	  // if we've ended, and we're now clear, then finish it up.
-	  if (n === 0 && state.ended) {
-	    if (state.length === 0) endReadable(this);
-	    return null;
-	  }
-	
-	  // All the actual chunk generation logic needs to be
-	  // *below* the call to _read.  The reason is that in certain
-	  // synthetic stream cases, such as passthrough streams, _read
-	  // may be a completely synchronous operation which may change
-	  // the state of the read buffer, providing enough data when
-	  // before there was *not* enough.
-	  //
-	  // So, the steps are:
-	  // 1. Figure out what the state of things will be after we do
-	  // a read from the buffer.
-	  //
-	  // 2. If that resulting state will trigger a _read, then call _read.
-	  // Note that this may be asynchronous, or synchronous.  Yes, it is
-	  // deeply ugly to write APIs this way, but that still doesn't mean
-	  // that the Readable class should behave improperly, as streams are
-	  // designed to be sync/async agnostic.
-	  // Take note if the _read call is sync or async (ie, if the read call
-	  // has returned yet), so that we know whether or not it's safe to emit
-	  // 'readable' etc.
-	  //
-	  // 3. Actually pull the requested chunks out of the buffer and return.
-	
-	  // if we need a readable event, then we need to do some reading.
-	  var doRead = state.needReadable;
-	  debug('need readable', doRead);
-	
-	  // if we currently have less than the highWaterMark, then also read some
-	  if (state.length === 0 || state.length - n < state.highWaterMark) {
-	    doRead = true;
-	    debug('length less than watermark', doRead);
-	  }
-	
-	  // however, if we've ended, then there's no point, and if we're already
-	  // reading, then it's unnecessary.
-	  if (state.ended || state.reading) {
-	    doRead = false;
-	    debug('reading or ended', doRead);
-	  } else if (doRead) {
-	    debug('do read');
-	    state.reading = true;
-	    state.sync = true;
-	    // if the length is currently zero, then we *need* a readable event.
-	    if (state.length === 0) state.needReadable = true;
-	    // call internal read method
-	    this._read(state.highWaterMark);
-	    state.sync = false;
-	    // If _read pushed data synchronously, then `reading` will be false,
-	    // and we need to re-evaluate how much data we can return to the user.
-	    if (!state.reading) n = howMuchToRead(nOrig, state);
-	  }
-	
-	  var ret;
-	  if (n > 0) ret = fromList(n, state);else ret = null;
-	
-	  if (ret === null) {
-	    state.needReadable = true;
-	    n = 0;
-	  } else {
-	    state.length -= n;
-	  }
-	
-	  if (state.length === 0) {
-	    // If we have nothing in the buffer, then we want to know
-	    // as soon as we *do* get something into the buffer.
-	    if (!state.ended) state.needReadable = true;
-	
-	    // If we tried to read() past the EOF, then emit end on the next tick.
-	    if (nOrig !== n && state.ended) endReadable(this);
-	  }
-	
-	  if (ret !== null) this.emit('data', ret);
-	
-	  return ret;
-	};
-	
-	function chunkInvalid(state, chunk) {
-	  var er = null;
-	  if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
-	    er = new TypeError('Invalid non-string/buffer chunk');
-	  }
-	  return er;
-	}
-	
-	function onEofChunk(stream, state) {
-	  if (state.ended) return;
-	  if (state.decoder) {
-	    var chunk = state.decoder.end();
-	    if (chunk && chunk.length) {
-	      state.buffer.push(chunk);
-	      state.length += state.objectMode ? 1 : chunk.length;
-	    }
-	  }
-	  state.ended = true;
-	
-	  // emit 'readable' now to make sure it gets picked up.
-	  emitReadable(stream);
-	}
-	
-	// Don't emit readable right away in sync mode, because this can trigger
-	// another read() call => stack overflow.  This way, it might trigger
-	// a nextTick recursion warning, but that's not so bad.
-	function emitReadable(stream) {
-	  var state = stream._readableState;
-	  state.needReadable = false;
-	  if (!state.emittedReadable) {
-	    debug('emitReadable', state.flowing);
-	    state.emittedReadable = true;
-	    if (state.sync) processNextTick(emitReadable_, stream);else emitReadable_(stream);
-	  }
-	}
-	
-	function emitReadable_(stream) {
-	  debug('emit readable');
-	  stream.emit('readable');
-	  flow(stream);
-	}
-	
-	// at this point, the user has presumably seen the 'readable' event,
-	// and called read() to consume some data.  that may have triggered
-	// in turn another _read(n) call, in which case reading = true if
-	// it's in progress.
-	// However, if we're not ended, or reading, and the length < hwm,
-	// then go ahead and try to read some more preemptively.
-	function maybeReadMore(stream, state) {
-	  if (!state.readingMore) {
-	    state.readingMore = true;
-	    processNextTick(maybeReadMore_, stream, state);
-	  }
-	}
-	
-	function maybeReadMore_(stream, state) {
-	  var len = state.length;
-	  while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
-	    debug('maybeReadMore read 0');
-	    stream.read(0);
-	    if (len === state.length)
-	      // didn't get any data, stop spinning.
-	      break;else len = state.length;
-	  }
-	  state.readingMore = false;
-	}
-	
-	// abstract method.  to be overridden in specific implementation classes.
-	// call cb(er, data) where data is <= n in length.
-	// for virtual (non-string, non-buffer) streams, "length" is somewhat
-	// arbitrary, and perhaps not very meaningful.
-	Readable.prototype._read = function (n) {
-	  this.emit('error', new Error('_read() is not implemented'));
-	};
-	
-	Readable.prototype.pipe = function (dest, pipeOpts) {
-	  var src = this;
-	  var state = this._readableState;
-	
-	  switch (state.pipesCount) {
-	    case 0:
-	      state.pipes = dest;
-	      break;
-	    case 1:
-	      state.pipes = [state.pipes, dest];
-	      break;
-	    default:
-	      state.pipes.push(dest);
-	      break;
-	  }
-	  state.pipesCount += 1;
-	  debug('pipe count=%d opts=%j', state.pipesCount, pipeOpts);
-	
-	  var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
-	
-	  var endFn = doEnd ? onend : cleanup;
-	  if (state.endEmitted) processNextTick(endFn);else src.once('end', endFn);
-	
-	  dest.on('unpipe', onunpipe);
-	  function onunpipe(readable) {
-	    debug('onunpipe');
-	    if (readable === src) {
-	      cleanup();
-	    }
-	  }
-	
-	  function onend() {
-	    debug('onend');
-	    dest.end();
-	  }
-	
-	  // when the dest drains, it reduces the awaitDrain counter
-	  // on the source.  This would be more elegant with a .once()
-	  // handler in flow(), but adding and removing repeatedly is
-	  // too slow.
-	  var ondrain = pipeOnDrain(src);
-	  dest.on('drain', ondrain);
-	
-	  var cleanedUp = false;
-	  function cleanup() {
-	    debug('cleanup');
-	    // cleanup event handlers once the pipe is broken
-	    dest.removeListener('close', onclose);
-	    dest.removeListener('finish', onfinish);
-	    dest.removeListener('drain', ondrain);
-	    dest.removeListener('error', onerror);
-	    dest.removeListener('unpipe', onunpipe);
-	    src.removeListener('end', onend);
-	    src.removeListener('end', cleanup);
-	    src.removeListener('data', ondata);
-	
-	    cleanedUp = true;
-	
-	    // if the reader is waiting for a drain event from this
-	    // specific writer, then it would cause it to never start
-	    // flowing again.
-	    // So, if this is awaiting a drain, then we just call it now.
-	    // If we don't know, then assume that we are waiting for one.
-	    if (state.awaitDrain && (!dest._writableState || dest._writableState.needDrain)) ondrain();
-	  }
-	
-	  // If the user pushes more data while we're writing to dest then we'll end up
-	  // in ondata again. However, we only want to increase awaitDrain once because
-	  // dest will only emit one 'drain' event for the multiple writes.
-	  // => Introduce a guard on increasing awaitDrain.
-	  var increasedAwaitDrain = false;
-	  src.on('data', ondata);
-	  function ondata(chunk) {
-	    debug('ondata');
-	    increasedAwaitDrain = false;
-	    var ret = dest.write(chunk);
-	    if (false === ret && !increasedAwaitDrain) {
-	      // If the user unpiped during `dest.write()`, it is possible
-	      // to get stuck in a permanently paused state if that write
-	      // also returned false.
-	      // => Check whether `dest` is still a piping destination.
-	      if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
-	        debug('false write response, pause', src._readableState.awaitDrain);
-	        src._readableState.awaitDrain++;
-	        increasedAwaitDrain = true;
-	      }
-	      src.pause();
-	    }
-	  }
-	
-	  // if the dest has an error, then stop piping into it.
-	  // however, don't suppress the throwing behavior for this.
-	  function onerror(er) {
-	    debug('onerror', er);
-	    unpipe();
-	    dest.removeListener('error', onerror);
-	    if (EElistenerCount(dest, 'error') === 0) dest.emit('error', er);
-	  }
-	
-	  // Make sure our error handler is attached before userland ones.
-	  prependListener(dest, 'error', onerror);
-	
-	  // Both close and finish should trigger unpipe, but only once.
-	  function onclose() {
-	    dest.removeListener('finish', onfinish);
-	    unpipe();
-	  }
-	  dest.once('close', onclose);
-	  function onfinish() {
-	    debug('onfinish');
-	    dest.removeListener('close', onclose);
-	    unpipe();
-	  }
-	  dest.once('finish', onfinish);
-	
-	  function unpipe() {
-	    debug('unpipe');
-	    src.unpipe(dest);
-	  }
-	
-	  // tell the dest that it's being piped to
-	  dest.emit('pipe', src);
-	
-	  // start the flow if it hasn't been started already.
-	  if (!state.flowing) {
-	    debug('pipe resume');
-	    src.resume();
-	  }
-	
-	  return dest;
-	};
-	
-	function pipeOnDrain(src) {
-	  return function () {
-	    var state = src._readableState;
-	    debug('pipeOnDrain', state.awaitDrain);
-	    if (state.awaitDrain) state.awaitDrain--;
-	    if (state.awaitDrain === 0 && EElistenerCount(src, 'data')) {
-	      state.flowing = true;
-	      flow(src);
-	    }
-	  };
-	}
-	
-	Readable.prototype.unpipe = function (dest) {
-	  var state = this._readableState;
-	
-	  // if we're not piping anywhere, then do nothing.
-	  if (state.pipesCount === 0) return this;
-	
-	  // just one destination.  most common case.
-	  if (state.pipesCount === 1) {
-	    // passed in one, but it's not the right one.
-	    if (dest && dest !== state.pipes) return this;
-	
-	    if (!dest) dest = state.pipes;
-	
-	    // got a match.
-	    state.pipes = null;
-	    state.pipesCount = 0;
-	    state.flowing = false;
-	    if (dest) dest.emit('unpipe', this);
-	    return this;
-	  }
-	
-	  // slow case. multiple pipe destinations.
-	
-	  if (!dest) {
-	    // remove all.
-	    var dests = state.pipes;
-	    var len = state.pipesCount;
-	    state.pipes = null;
-	    state.pipesCount = 0;
-	    state.flowing = false;
-	
-	    for (var i = 0; i < len; i++) {
-	      dests[i].emit('unpipe', this);
-	    }return this;
-	  }
-	
-	  // try to find the right one.
-	  var index = indexOf(state.pipes, dest);
-	  if (index === -1) return this;
-	
-	  state.pipes.splice(index, 1);
-	  state.pipesCount -= 1;
-	  if (state.pipesCount === 1) state.pipes = state.pipes[0];
-	
-	  dest.emit('unpipe', this);
-	
-	  return this;
-	};
-	
-	// set up data events if they are asked for
-	// Ensure readable listeners eventually get something
-	Readable.prototype.on = function (ev, fn) {
-	  var res = Stream.prototype.on.call(this, ev, fn);
-	
-	  if (ev === 'data') {
-	    // Start flowing on next tick if stream isn't explicitly paused
-	    if (this._readableState.flowing !== false) this.resume();
-	  } else if (ev === 'readable') {
-	    var state = this._readableState;
-	    if (!state.endEmitted && !state.readableListening) {
-	      state.readableListening = state.needReadable = true;
-	      state.emittedReadable = false;
-	      if (!state.reading) {
-	        processNextTick(nReadingNextTick, this);
-	      } else if (state.length) {
-	        emitReadable(this, state);
-	      }
-	    }
-	  }
-	
-	  return res;
-	};
-	Readable.prototype.addListener = Readable.prototype.on;
-	
-	function nReadingNextTick(self) {
-	  debug('readable nexttick read 0');
-	  self.read(0);
-	}
-	
-	// pause() and resume() are remnants of the legacy readable stream API
-	// If the user uses them, then switch into old mode.
-	Readable.prototype.resume = function () {
-	  var state = this._readableState;
-	  if (!state.flowing) {
-	    debug('resume');
-	    state.flowing = true;
-	    resume(this, state);
-	  }
-	  return this;
-	};
-	
-	function resume(stream, state) {
-	  if (!state.resumeScheduled) {
-	    state.resumeScheduled = true;
-	    processNextTick(resume_, stream, state);
-	  }
-	}
-	
-	function resume_(stream, state) {
-	  if (!state.reading) {
-	    debug('resume read 0');
-	    stream.read(0);
-	  }
-	
-	  state.resumeScheduled = false;
-	  state.awaitDrain = 0;
-	  stream.emit('resume');
-	  flow(stream);
-	  if (state.flowing && !state.reading) stream.read(0);
-	}
-	
-	Readable.prototype.pause = function () {
-	  debug('call pause flowing=%j', this._readableState.flowing);
-	  if (false !== this._readableState.flowing) {
-	    debug('pause');
-	    this._readableState.flowing = false;
-	    this.emit('pause');
-	  }
-	  return this;
-	};
-	
-	function flow(stream) {
-	  var state = stream._readableState;
-	  debug('flow', state.flowing);
-	  while (state.flowing && stream.read() !== null) {}
-	}
-	
-	// wrap an old-style stream as the async data source.
-	// This is *not* part of the readable stream interface.
-	// It is an ugly unfortunate mess of history.
-	Readable.prototype.wrap = function (stream) {
-	  var state = this._readableState;
-	  var paused = false;
-	
-	  var self = this;
-	  stream.on('end', function () {
-	    debug('wrapped end');
-	    if (state.decoder && !state.ended) {
-	      var chunk = state.decoder.end();
-	      if (chunk && chunk.length) self.push(chunk);
-	    }
-	
-	    self.push(null);
-	  });
-	
-	  stream.on('data', function (chunk) {
-	    debug('wrapped data');
-	    if (state.decoder) chunk = state.decoder.write(chunk);
-	
-	    // don't skip over falsy values in objectMode
-	    if (state.objectMode && (chunk === null || chunk === undefined)) return;else if (!state.objectMode && (!chunk || !chunk.length)) return;
-	
-	    var ret = self.push(chunk);
-	    if (!ret) {
-	      paused = true;
-	      stream.pause();
-	    }
-	  });
-	
-	  // proxy all the other methods.
-	  // important when wrapping filters and duplexes.
-	  for (var i in stream) {
-	    if (this[i] === undefined && typeof stream[i] === 'function') {
-	      this[i] = function (method) {
-	        return function () {
-	          return stream[method].apply(stream, arguments);
-	        };
-	      }(i);
-	    }
-	  }
-	
-	  // proxy certain important events.
-	  var events = ['error', 'close', 'destroy', 'pause', 'resume'];
-	  forEach(events, function (ev) {
-	    stream.on(ev, self.emit.bind(self, ev));
-	  });
-	
-	  // when we try to consume some more bytes, simply unpause the
-	  // underlying stream.
-	  self._read = function (n) {
-	    debug('wrapped _read', n);
-	    if (paused) {
-	      paused = false;
-	      stream.resume();
-	    }
-	  };
-	
-	  return self;
-	};
-	
-	// exposed for testing purposes only.
-	Readable._fromList = fromList;
-	
-	// Pluck off n bytes from an array of buffers.
-	// Length is the combined lengths of all the buffers in the list.
-	// This function is designed to be inlinable, so please take care when making
-	// changes to the function body.
-	function fromList(n, state) {
-	  // nothing buffered
-	  if (state.length === 0) return null;
-	
-	  var ret;
-	  if (state.objectMode) ret = state.buffer.shift();else if (!n || n >= state.length) {
-	    // read it all, truncate the list
-	    if (state.decoder) ret = state.buffer.join('');else if (state.buffer.length === 1) ret = state.buffer.head.data;else ret = state.buffer.concat(state.length);
-	    state.buffer.clear();
-	  } else {
-	    // read part of list
-	    ret = fromListPartial(n, state.buffer, state.decoder);
-	  }
-	
-	  return ret;
-	}
-	
-	// Extracts only enough buffered data to satisfy the amount requested.
-	// This function is designed to be inlinable, so please take care when making
-	// changes to the function body.
-	function fromListPartial(n, list, hasStrings) {
-	  var ret;
-	  if (n < list.head.data.length) {
-	    // slice is the same for buffers and strings
-	    ret = list.head.data.slice(0, n);
-	    list.head.data = list.head.data.slice(n);
-	  } else if (n === list.head.data.length) {
-	    // first chunk is a perfect match
-	    ret = list.shift();
-	  } else {
-	    // result spans more than one buffer
-	    ret = hasStrings ? copyFromBufferString(n, list) : copyFromBuffer(n, list);
-	  }
-	  return ret;
-	}
-	
-	// Copies a specified amount of characters from the list of buffered data
-	// chunks.
-	// This function is designed to be inlinable, so please take care when making
-	// changes to the function body.
-	function copyFromBufferString(n, list) {
-	  var p = list.head;
-	  var c = 1;
-	  var ret = p.data;
-	  n -= ret.length;
-	  while (p = p.next) {
-	    var str = p.data;
-	    var nb = n > str.length ? str.length : n;
-	    if (nb === str.length) ret += str;else ret += str.slice(0, n);
-	    n -= nb;
-	    if (n === 0) {
-	      if (nb === str.length) {
-	        ++c;
-	        if (p.next) list.head = p.next;else list.head = list.tail = null;
-	      } else {
-	        list.head = p;
-	        p.data = str.slice(nb);
-	      }
-	      break;
-	    }
-	    ++c;
-	  }
-	  list.length -= c;
-	  return ret;
-	}
-	
-	// Copies a specified amount of bytes from the list of buffered data chunks.
-	// This function is designed to be inlinable, so please take care when making
-	// changes to the function body.
-	function copyFromBuffer(n, list) {
-	  var ret = bufferShim.allocUnsafe(n);
-	  var p = list.head;
-	  var c = 1;
-	  p.data.copy(ret);
-	  n -= p.data.length;
-	  while (p = p.next) {
-	    var buf = p.data;
-	    var nb = n > buf.length ? buf.length : n;
-	    buf.copy(ret, ret.length - n, 0, nb);
-	    n -= nb;
-	    if (n === 0) {
-	      if (nb === buf.length) {
-	        ++c;
-	        if (p.next) list.head = p.next;else list.head = list.tail = null;
-	      } else {
-	        list.head = p;
-	        p.data = buf.slice(nb);
-	      }
-	      break;
-	    }
-	    ++c;
-	  }
-	  list.length -= c;
-	  return ret;
-	}
-	
-	function endReadable(stream) {
-	  var state = stream._readableState;
-	
-	  // If we get here before consuming all the bytes, then that is a
-	  // bug in node.  Should never happen.
-	  if (state.length > 0) throw new Error('"endReadable()" called on non-empty stream');
-	
-	  if (!state.endEmitted) {
-	    state.ended = true;
-	    processNextTick(endReadableNT, state, stream);
-	  }
-	}
-	
-	function endReadableNT(state, stream) {
-	  // Check that we didn't get one last unshift.
-	  if (!state.endEmitted && state.length === 0) {
-	    state.endEmitted = true;
-	    stream.readable = false;
-	    stream.emit('end');
-	  }
-	}
-	
-	function forEach(xs, f) {
-	  for (var i = 0, l = xs.length; i < l; i++) {
-	    f(xs[i], i);
-	  }
-	}
-	
-	function indexOf(xs, x) {
-	  for (var i = 0, l = xs.length; i < l; i++) {
-	    if (xs[i] === x) return i;
-	  }
-	  return -1;
-	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
-
-/***/ },
-/* 131 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-	
-	var Buffer = __webpack_require__(24).Buffer;
-	
-	var isBufferEncoding = Buffer.isEncoding
-	  || function(encoding) {
-	       switch (encoding && encoding.toLowerCase()) {
-	         case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
-	         default: return false;
-	       }
-	     }
-	
-	
-	function assertEncoding(encoding) {
-	  if (encoding && !isBufferEncoding(encoding)) {
-	    throw new Error('Unknown encoding: ' + encoding);
-	  }
-	}
-	
-	// StringDecoder provides an interface for efficiently splitting a series of
-	// buffers into a series of JS strings without breaking apart multi-byte
-	// characters. CESU-8 is handled as part of the UTF-8 encoding.
-	//
-	// @TODO Handling all encodings inside a single object makes it very difficult
-	// to reason about this code, so it should be split up in the future.
-	// @TODO There should be a utf8-strict encoding that rejects invalid UTF-8 code
-	// points as used by CESU-8.
-	var StringDecoder = exports.StringDecoder = function(encoding) {
-	  this.encoding = (encoding || 'utf8').toLowerCase().replace(/[-_]/, '');
-	  assertEncoding(encoding);
-	  switch (this.encoding) {
-	    case 'utf8':
-	      // CESU-8 represents each of Surrogate Pair by 3-bytes
-	      this.surrogateSize = 3;
-	      break;
-	    case 'ucs2':
-	    case 'utf16le':
-	      // UTF-16 represents each of Surrogate Pair by 2-bytes
-	      this.surrogateSize = 2;
-	      this.detectIncompleteChar = utf16DetectIncompleteChar;
-	      break;
-	    case 'base64':
-	      // Base-64 stores 3 bytes in 4 chars, and pads the remainder.
-	      this.surrogateSize = 3;
-	      this.detectIncompleteChar = base64DetectIncompleteChar;
-	      break;
-	    default:
-	      this.write = passThroughWrite;
-	      return;
-	  }
-	
-	  // Enough space to store all bytes of a single character. UTF-8 needs 4
-	  // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
-	  this.charBuffer = new Buffer(6);
-	  // Number of bytes received for the current incomplete multi-byte character.
-	  this.charReceived = 0;
-	  // Number of bytes expected for the current incomplete multi-byte character.
-	  this.charLength = 0;
-	};
-	
-	
-	// write decodes the given buffer and returns it as JS string that is
-	// guaranteed to not contain any partial multi-byte characters. Any partial
-	// character found at the end of the buffer is buffered up, and will be
-	// returned when calling write again with the remaining bytes.
-	//
-	// Note: Converting a Buffer containing an orphan surrogate to a String
-	// currently works, but converting a String to a Buffer (via `new Buffer`, or
-	// Buffer#write) will replace incomplete surrogates with the unicode
-	// replacement character. See https://codereview.chromium.org/121173009/ .
-	StringDecoder.prototype.write = function(buffer) {
-	  var charStr = '';
-	  // if our last write ended with an incomplete multibyte character
-	  while (this.charLength) {
-	    // determine how many remaining bytes this buffer has to offer for this char
-	    var available = (buffer.length >= this.charLength - this.charReceived) ?
-	        this.charLength - this.charReceived :
-	        buffer.length;
-	
-	    // add the new bytes to the char buffer
-	    buffer.copy(this.charBuffer, this.charReceived, 0, available);
-	    this.charReceived += available;
-	
-	    if (this.charReceived < this.charLength) {
-	      // still not enough chars in this buffer? wait for more ...
-	      return '';
-	    }
-	
-	    // remove bytes belonging to the current character from the buffer
-	    buffer = buffer.slice(available, buffer.length);
-	
-	    // get the character that was split
-	    charStr = this.charBuffer.slice(0, this.charLength).toString(this.encoding);
-	
-	    // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
-	    var charCode = charStr.charCodeAt(charStr.length - 1);
-	    if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-	      this.charLength += this.surrogateSize;
-	      charStr = '';
-	      continue;
-	    }
-	    this.charReceived = this.charLength = 0;
-	
-	    // if there are no more bytes in this buffer, just emit our char
-	    if (buffer.length === 0) {
-	      return charStr;
-	    }
-	    break;
-	  }
-	
-	  // determine and set charLength / charReceived
-	  this.detectIncompleteChar(buffer);
-	
-	  var end = buffer.length;
-	  if (this.charLength) {
-	    // buffer the incomplete character bytes we got
-	    buffer.copy(this.charBuffer, 0, buffer.length - this.charReceived, end);
-	    end -= this.charReceived;
-	  }
-	
-	  charStr += buffer.toString(this.encoding, 0, end);
-	
-	  var end = charStr.length - 1;
-	  var charCode = charStr.charCodeAt(end);
-	  // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
-	  if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-	    var size = this.surrogateSize;
-	    this.charLength += size;
-	    this.charReceived += size;
-	    this.charBuffer.copy(this.charBuffer, size, 0, size);
-	    buffer.copy(this.charBuffer, 0, 0, size);
-	    return charStr.substring(0, end);
-	  }
-	
-	  // or just emit the charStr
-	  return charStr;
-	};
-	
-	// detectIncompleteChar determines if there is an incomplete UTF-8 character at
-	// the end of the given buffer. If so, it sets this.charLength to the byte
-	// length that character, and sets this.charReceived to the number of bytes
-	// that are available for this character.
-	StringDecoder.prototype.detectIncompleteChar = function(buffer) {
-	  // determine how many bytes we have to check at the end of this buffer
-	  var i = (buffer.length >= 3) ? 3 : buffer.length;
-	
-	  // Figure out if one of the last i bytes of our buffer announces an
-	  // incomplete char.
-	  for (; i > 0; i--) {
-	    var c = buffer[buffer.length - i];
-	
-	    // See http://en.wikipedia.org/wiki/UTF-8#Description
-	
-	    // 110XXXXX
-	    if (i == 1 && c >> 5 == 0x06) {
-	      this.charLength = 2;
-	      break;
-	    }
-	
-	    // 1110XXXX
-	    if (i <= 2 && c >> 4 == 0x0E) {
-	      this.charLength = 3;
-	      break;
-	    }
-	
-	    // 11110XXX
-	    if (i <= 3 && c >> 3 == 0x1E) {
-	      this.charLength = 4;
-	      break;
-	    }
-	  }
-	  this.charReceived = i;
-	};
-	
-	StringDecoder.prototype.end = function(buffer) {
-	  var res = '';
-	  if (buffer && buffer.length)
-	    res = this.write(buffer);
-	
-	  if (this.charReceived) {
-	    var cr = this.charReceived;
-	    var buf = this.charBuffer;
-	    var enc = this.encoding;
-	    res += buf.slice(0, cr).toString(enc);
-	  }
-	
-	  return res;
-	};
-	
-	function passThroughWrite(buffer) {
-	  return buffer.toString(this.encoding);
-	}
-	
-	function utf16DetectIncompleteChar(buffer) {
-	  this.charReceived = buffer.length % 2;
-	  this.charLength = this.charReceived ? 2 : 0;
-	}
-	
-	function base64DetectIncompleteChar(buffer) {
-	  this.charReceived = buffer.length % 3;
-	  this.charLength = this.charReceived ? 3 : 0;
-	}
-
-
-/***/ },
-/* 132 */
-/***/ function(module, exports) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_132__;
-
-/***/ },
-/* 133 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var CommonSetup = (function () {
-	    function CommonSetup() {
-	    }
-	    return CommonSetup;
-	}());
-	exports.CommonSetup = CommonSetup;
-
-
-/***/ },
-/* 134 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var ProcessableObject_1 = __webpack_require__(96);
-	var CommonData = (function (_super) {
-	    __extends(CommonData, _super);
-	    function CommonData(sdk, collectionName, settings) {
-	        _super.call(this, sdk, collectionName);
-	        this.collectionName = collectionName;
-	        this.settings = settings;
-	    }
-	    return CommonData;
-	}(ProcessableObject_1.ProcessableObject));
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = CommonData;
-
-
-/***/ },
-/* 135 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var Processor_1 = __webpack_require__(136);
-	var ErrorProcessor_1 = __webpack_require__(143);
-	var DataQueryBuilder_1 = __webpack_require__(98);
-	var EventEmitterExtended_1 = __webpack_require__(40);
-	var MethodMustBeOverridenError = new Error('Method must be overriden');
-	var Sdk = (function (_super) {
-	    __extends(Sdk, _super);
-	    function Sdk(options) {
-	        _super.call(this);
-	        this.options = options;
-	        this.setup = this._getSetup(options);
-	        this.dataQueryProcessor = this._getDataQueryProcessor();
-	        this.dataQueryBuilder = this._getDataQueryBuilder();
-	        this.authentication = this._getAuthentication();
-	        this.registerErrorProcessor(new ErrorProcessor_1.default());
-	    }
-	    Sdk.prototype.registerDataQueryPreProcessor = function (processor) {
-	        this.dataQueryProcessor.preProcessors.push(processor);
-	    };
-	    Sdk.prototype.registerDataQueryProcessor = function (processor) {
-	        this.dataQueryProcessor.processors.push(processor);
-	    };
-	    Sdk.prototype.registerDataQueryPostProcessor = function (processor) {
-	        this.dataQueryProcessor.postProcessors.push(processor);
-	    };
-	    Sdk.prototype.registerErrorProcessor = function (processor) {
-	        this.dataQueryProcessor.errorProcessors.push(processor);
-	    };
-	    Sdk.prototype.processDataQuery = function (query, data, success, error) {
-	        return this.dataQueryProcessor.process(query, data, success, error);
-	    };
-	    Sdk.prototype.buildDataQuery = function (data, op, meta) {
-	        if (data === void 0) { data = {}; }
-	        return this.dataQueryBuilder.buildDataQuery(data, op, meta);
-	    };
-	    Sdk.prototype.data = function (name) {
-	        return this._getData(name);
-	    };
-	    Sdk.prototype._getDataQueryProcessor = function () {
-	        return new Processor_1.DataQueryProcessor(this);
-	    };
-	    Sdk.prototype._getDataQueryBuilder = function () {
-	        return new DataQueryBuilder_1.DataQueryBuilder();
-	    };
-	    Sdk.prototype._getSetup = function (options) {
-	        throw MethodMustBeOverridenError;
-	    };
-	    Sdk.prototype._getData = function (name) {
-	        throw MethodMustBeOverridenError;
-	    };
-	    Sdk.prototype._getAuthentication = function () {
-	        throw MethodMustBeOverridenError;
-	    };
-	    return Sdk;
-	}(EventEmitterExtended_1.EventEmitterExtended));
-	exports.Sdk = Sdk;
-
-
-/***/ },
-/* 136 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var QueryProcessorIterator_1 = __webpack_require__(137);
-	var errors_1 = __webpack_require__(99);
-	var utils_1 = __webpack_require__(42);
-	var DataQueryProcessor = (function () {
-	    function DataQueryProcessor(sdk) {
-	        this.sdk = sdk;
-	        this.preProcessors = [];
-	        this.processors = [];
-	        this.postProcessors = [];
-	        this.errorProcessors = [];
-	    }
-	    DataQueryProcessor.prototype._iterate = function (query, processors, data, value) {
-	        var _this = this;
-	        return new Promise(function (resolve, reject) {
-	            var iterator = new QueryProcessorIterator_1.QueryProcessorIterator(processors, query);
-	            var iteratorTimeout = null;
-	            var onNext = function (processor, value) {
-	                clearTimeout(iteratorTimeout);
-	                iteratorTimeout = setTimeout(function () {
-	                    return iterator.error(new Error("Iterator timed out. Processor: " + processor.constructor.name + ". Value - " + JSON.stringify(value)));
-	                }, 10 * 6000); //throw error if somewhere the chain hangs for more than 10 seconds
-	                try {
-	                    return processor.processDataQuery(query, iterator, data, value);
-	                }
-	                catch (e) {
-	                    return iterator.error(e);
-	                }
-	            };
-	            var cleanUp = function () {
-	                iterator.removeListener('next', onNext);
-	                clearTimeout(iteratorTimeout);
-	            };
-	            iterator
-	                .on('next', onNext)
-	                .once('end', function (value) {
-	                cleanUp();
-	                return resolve(value);
-	            })
-	                .once('error', function (err) {
-	                cleanUp();
-	                var processedError = _this._processError(query, data, err);
-	                var error = processedError || err;
-	                return reject(error);
-	            })
-	                .once('cancel', function (reason) {
-	                cleanUp();
-	                return reject({
-	                    reason: reason,
-	                    error: errors_1.Errors.cancelled
-	                });
-	            })
-	                .start(value);
-	        });
-	    };
-	    DataQueryProcessor.prototype._preProcess = function (query, data) {
-	        return this._iterate(query, this.preProcessors, data);
-	    };
-	    DataQueryProcessor.prototype._process = function (query, data, value) {
-	        return this._iterate(query, this.processors, data, value);
-	    };
-	    DataQueryProcessor.prototype._postProcess = function (query, data, value) {
-	        return this._iterate(query, this.postProcessors, data, value);
-	    };
-	    DataQueryProcessor.prototype._processError = function (query, data, err) {
-	        var error = err;
-	        this.errorProcessors.forEach(function (p) {
-	            error = p.processError(query, data, error);
-	        });
-	        return error;
-	    };
-	    DataQueryProcessor.prototype.process = function (query, data, success, error) {
-	        var _this = this;
-	        return utils_1.Utils.buildPromise(function (resolve, reject) {
-	            return _this._preProcess(query, data)
-	                .then(function (value) {
-	                return _this._process(query, data, value);
-	            })
-	                .then(function (value) {
-	                return _this._postProcess(query, data, value);
-	            })
-	                .then(function (res) {
-	                resolve(res);
-	            })
-	                .catch(function (err) {
-	                reject(err);
-	            });
-	        }, success, error);
-	    };
-	    return DataQueryProcessor;
-	}());
-	exports.DataQueryProcessor = DataQueryProcessor;
-
-
-/***/ },
-/* 137 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var underscore_1 = __webpack_require__(1);
-	var EventEmitterExtended_1 = __webpack_require__(40);
-	var QueryProcessorIterator = (function (_super) {
-	    __extends(QueryProcessorIterator, _super);
-	    function QueryProcessorIterator(processors, query) {
-	        _super.call(this);
-	        this.done = false;
-	        this.position = -1;
-	        this.processors = processors;
-	        //helps with debugging
-	        this.$id = underscore_1.random(0, 5000);
-	        this.$query = query;
-	        this.$operation = query.operation;
-	        this._initialValue = null;
-	    }
-	    QueryProcessorIterator.prototype.restart = function (value) {
-	        if (value === void 0) { value = this._initialValue; }
-	        return this.start(value);
-	    };
-	    QueryProcessorIterator.prototype.start = function (value) {
-	        this._initialValue = value;
-	        this.position = -1;
-	        this.done = false;
-	        return this.next(value);
-	    };
-	    QueryProcessorIterator.prototype.next = function (value) {
-	        this.position++;
-	        if (this.position >= this.processors.length) {
-	            return this.end(value);
-	        }
-	        var nextProcessor = this.processors[this.position];
-	        return this.emit('next', nextProcessor, value);
-	    };
-	    QueryProcessorIterator.prototype.end = function (value) {
-	        this.done = true;
-	        return this.emit('end', value);
-	    };
-	    QueryProcessorIterator.prototype.cancel = function (reason) {
-	        this.done = true;
-	        return this.emit('cancel', reason);
-	    };
-	    QueryProcessorIterator.prototype.error = function (error) {
-	        return this.emit('error', error);
-	    };
-	    return QueryProcessorIterator;
-	}(EventEmitterExtended_1.EventEmitterExtended));
-	exports.QueryProcessorIterator = QueryProcessorIterator;
-
-
-/***/ },
-/* 138 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	// Registering underscore mixins:
-	__webpack_require__(139);
-
-
-/***/ },
-/* 139 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var _ = __webpack_require__(1);
-	var underscoreDeepExtend_1 = __webpack_require__(141);
-	var underscoreCompactObject_1 = __webpack_require__(140);
-	var underscoreIsObjectEmpty_1 = __webpack_require__(142);
-	_.mixin({ 'deepExtend': underscoreDeepExtend_1.deepExtend });
-	_.mixin({ 'compactObject': underscoreCompactObject_1.compactObject });
-	_.mixin({ 'isEmptyObject': underscoreIsObjectEmpty_1.isEmpty });
-
-
-/***/ },
 /* 140 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var _ = __webpack_require__(1);
-	//http://stackoverflow.com/questions/14058193/remove-empty-properties-falsy-values-from-object-with-underscore-js
-	function compactObject(o) {
-	    var newObject = {};
-	    _.each(o, function (v, k) {
-	        if (v !== null && v !== undefined) {
-	            newObject[k] = v;
-	        }
-	    });
-	    return newObject;
-	}
-	exports.compactObject = compactObject;
-
-
-/***/ },
-/* 141 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*  Copyright (C) 2012-2014  Kurt Milam - http://xioup.com | Source: https://gist.github.com/1868955
-	 *
-	 *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-	 *  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-	 *
-	 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-	 **/
-	"use strict";
-	// Based conceptually on the _.extend() function in underscore.js ( see http://documentcloud.github.com/underscore/#extend for more details )
-	var _ = __webpack_require__(1);
-	function deepExtend(obj) {
-	    var parentRE = /#{\s*?_\s*?}/, slice = Array.prototype.slice;
-	    _.each(slice.call(arguments, 1), function (source) {
-	        for (var prop in source) {
-	            if (_.isUndefined(obj[prop]) || _.isFunction(obj[prop]) || _.isNull(source[prop]) || _.isDate(source[prop])) {
-	                obj[prop] = source[prop];
-	            }
-	            else if (_.isString(source[prop]) && parentRE.test(source[prop])) {
-	                if (_.isString(obj[prop])) {
-	                    obj[prop] = source[prop].replace(parentRE, obj[prop]);
-	                }
-	            }
-	            else if (_.isArray(obj[prop]) || _.isArray(source[prop])) {
-	                if (!_.isArray(obj[prop]) || !_.isArray(source[prop])) {
-	                    throw new Error('Trying to combine an array with a non-array (' + prop + ')');
-	                }
-	                else {
-	                    obj[prop] = _.reject(_.deepExtend(_.clone(obj[prop]), source[prop]), function (item) {
-	                        return _.isNull(item);
-	                    });
-	                }
-	            }
-	            else if (_.isObject(obj[prop]) || _.isObject(source[prop])) {
-	                if (!_.isObject(obj[prop]) || !_.isObject(source[prop])) {
-	                    throw new Error('Trying to combine an object with a non-object (' + prop + ')');
-	                }
-	                else {
-	                    obj[prop] = _.deepExtend(_.clone(obj[prop]), source[prop]);
-	                }
-	            }
-	            else {
-	                obj[prop] = source[prop];
-	            }
-	        }
-	    });
-	    return obj;
-	}
-	exports.deepExtend = deepExtend;
-	;
-	/**
-	 * Dependency: underscore.js ( http://documentcloud.github.com/underscore/ )
-	 *
-	 * Mix it in with underscore.js:
-	 * _.mixin({deepExtend: deepExtend});
-	 *
-	 * Call it like this:
-	 * var myObj = _.deepExtend(grandparent, child, grandchild, greatgrandchild)
-	 *
-	 * Notes:
-	 * Keep it DRY.
-	 * This function is especially useful if you're working with JSON config documents. It allows you to create a default
-	 * config document with the most common settings, then override those settings for specific cases. It accepts any
-	 * number of objects as arguments, giving you fine-grained control over your config document hierarchy.
-	 *
-	 * Special Features and Considerations:
-	 * - parentRE allows you to concatenate strings. example:
-	 *   var obj = _.deepExtend({url: "www.example.com"}, {url: "http://#{_}/path/to/file.html"});
-	 *   console.log(obj.url);
-	 *   output: "http://www.example.com/path/to/file.html"
-	 *
-	 * - parentRE also acts as a placeholder, which can be useful when you need to change one value in an array, while
-	 *   leaving the others untouched. example:
-	 *   var arr = _.deepExtend([100,    {id: 1234}, true,  "foo",  [250, 500]],
-	 *                          ["#{_}", "#{_}",     false, "#{_}", "#{_}"]);
-	 *   console.log(arr);
-	 *   output: [100, {id: 1234}, false, "foo", [250, 500]]
-	 *
-	 * - The previous example can also be written like this:
-	 *   var arr = _.deepExtend([100,    {id:1234},   true,  "foo",  [250, 500]],
-	 *                          ["#{_}", {},          false, "#{_}", []]);
-	 *   console.log(arr);
-	 *   output: [100, {id: 1234}, false, "foo", [250, 500]]
-	 *
-	 * - And also like this:
-	 *   var arr = _.deepExtend([100,    {id:1234},   true,  "foo",  [250, 500]],
-	 *                          ["#{_}", {},          false]);
-	 *   console.log(arr);
-	 *   output: [100, {id: 1234}, false, "foo", [250, 500]]
-	 *
-	 * - Array order is important. example:
-	 *   var arr = _.deepExtend([1, 2, 3, 4], [1, 4, 3, 2]);
-	 *   console.log(arr);
-	 *   output: [1, 4, 3, 2]
-	 *
-	 * - You can remove an array element set in a parent object by setting the same index value to null in a child object.
-	 *   example:
-	 *   var obj = _.deepExtend({arr: [1, 2, 3, 4]}, {arr: ["#{_}", null]});
-	 *   console.log(obj.arr);
-	 *   output: [1, 3, 4]
-	 *
-	 **/ 
-
-
-/***/ },
-/* 142 */
-/***/ function(module, exports) {
-
-	"use strict";
-	// http://stackoverflow.com/questions/4994201/is-object-empty
-	var hasOwnProperty = Object.prototype.hasOwnProperty;
-	function isEmpty(obj) {
-	    // null and undefined are "empty"
-	    if (obj == null)
-	        return true;
-	    // Assume if it has a length property with a non-zero value
-	    // that that property is correct.
-	    if (obj.length > 0)
-	        return false;
-	    if (obj.length === 0)
-	        return true;
-	    // Otherwise, does it have any properties of its own?
-	    // Note that this doesn't handle
-	    // toString and valueOf enumeration bugs in IE < 9
-	    for (var key in obj) {
-	        if (hasOwnProperty.call(obj, key))
-	            return false;
-	    }
-	    return true;
-	}
-	exports.isEmpty = isEmpty;
-
-
-/***/ },
-/* 143 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var utils_1 = __webpack_require__(42);
-	var ErrorProcessor = (function () {
-	    function ErrorProcessor() {
-	    }
-	    ErrorProcessor.prototype.processError = function (query, data, err) {
-	        var setup = data.sdk.setup;
-	        var parseOnlyCompleteDateTimeString = setup && setup.parseOnlyCompleteDateTimeObjects;
-	        var reviver = utils_1.Utils.parseUtilities.getReviver(parseOnlyCompleteDateTimeString);
-	        return utils_1.Utils.parseUtilities.parseXhrError(reviver, err);
-	    };
-	    return ErrorProcessor;
-	}());
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = ErrorProcessor;
-
-
-/***/ },
-/* 144 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/// <reference path="typings/custom.d.ts" />
-	"use strict";
-	var es6_promise_1 = __webpack_require__(146);
-	__webpack_require__(138); //initialize common sdk
-	var index_1 = __webpack_require__(58);
-	es6_promise_1.polyfill();
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = index_1.Everlive;
-	module.exports = index_1.Everlive;
-	module.exports.default = index_1.Everlive;
-
-
-/***/ },
-/* 145 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
-	 * This is the common logic for both the Node.js and web browser
-	 * implementations of `debug()`.
-	 *
-	 * Expose `debug()` as the module.
-	 */
-	
-	exports = module.exports = debug.debug = debug;
-	exports.coerce = coerce;
-	exports.disable = disable;
-	exports.enable = enable;
-	exports.enabled = enabled;
-	exports.humanize = __webpack_require__(156);
-	
-	/**
-	 * The currently active debug mode names, and names to skip.
-	 */
-	
-	exports.names = [];
-	exports.skips = [];
-	
-	/**
-	 * Map of special "%n" handling functions, for the debug "format" argument.
-	 *
-	 * Valid key names are a single, lowercased letter, i.e. "n".
-	 */
-	
-	exports.formatters = {};
-	
-	/**
-	 * Previously assigned color.
-	 */
-	
-	var prevColor = 0;
-	
-	/**
-	 * Previous log timestamp.
-	 */
-	
-	var prevTime;
-	
-	/**
-	 * Select a color.
-	 *
-	 * @return {Number}
-	 * @api private
-	 */
-	
-	function selectColor() {
-	  return exports.colors[prevColor++ % exports.colors.length];
-	}
-	
-	/**
-	 * Create a debugger with the given `namespace`.
-	 *
-	 * @param {String} namespace
-	 * @return {Function}
-	 * @api public
-	 */
-	
-	function debug(namespace) {
-	
-	  // define the `disabled` version
-	  function disabled() {
-	  }
-	  disabled.enabled = false;
-	
-	  // define the `enabled` version
-	  function enabled() {
-	
-	    var self = enabled;
-	
-	    // set `diff` timestamp
-	    var curr = +new Date();
-	    var ms = curr - (prevTime || curr);
-	    self.diff = ms;
-	    self.prev = prevTime;
-	    self.curr = curr;
-	    prevTime = curr;
-	
-	    // add the `color` if not set
-	    if (null == self.useColors) self.useColors = exports.useColors();
-	    if (null == self.color && self.useColors) self.color = selectColor();
-	
-	    var args = new Array(arguments.length);
-	    for (var i = 0; i < args.length; i++) {
-	      args[i] = arguments[i];
-	    }
-	
-	    args[0] = exports.coerce(args[0]);
-	
-	    if ('string' !== typeof args[0]) {
-	      // anything else let's inspect with %o
-	      args = ['%o'].concat(args);
-	    }
-	
-	    // apply any `formatters` transformations
-	    var index = 0;
-	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-	      // if we encounter an escaped % then don't increase the array index
-	      if (match === '%%') return match;
-	      index++;
-	      var formatter = exports.formatters[format];
-	      if ('function' === typeof formatter) {
-	        var val = args[index];
-	        match = formatter.call(self, val);
-	
-	        // now we need to remove `args[index]` since it's inlined in the `format`
-	        args.splice(index, 1);
-	        index--;
-	      }
-	      return match;
-	    });
-	
-	    // apply env-specific formatting
-	    args = exports.formatArgs.apply(self, args);
-	
-	    var logFn = enabled.log || exports.log || console.log.bind(console);
-	    logFn.apply(self, args);
-	  }
-	  enabled.enabled = true;
-	
-	  var fn = exports.enabled(namespace) ? enabled : disabled;
-	
-	  fn.namespace = namespace;
-	
-	  return fn;
-	}
-	
-	/**
-	 * Enables a debug mode by namespaces. This can include modes
-	 * separated by a colon and wildcards.
-	 *
-	 * @param {String} namespaces
-	 * @api public
-	 */
-	
-	function enable(namespaces) {
-	  exports.save(namespaces);
-	
-	  var split = (namespaces || '').split(/[\s,]+/);
-	  var len = split.length;
-	
-	  for (var i = 0; i < len; i++) {
-	    if (!split[i]) continue; // ignore empty strings
-	    namespaces = split[i].replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.*?');
-	    if (namespaces[0] === '-') {
-	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-	    } else {
-	      exports.names.push(new RegExp('^' + namespaces + '$'));
-	    }
-	  }
-	}
-	
-	/**
-	 * Disable debug output.
-	 *
-	 * @api public
-	 */
-	
-	function disable() {
-	  exports.enable('');
-	}
-	
-	/**
-	 * Returns true if the given mode name is enabled, false otherwise.
-	 *
-	 * @param {String} name
-	 * @return {Boolean}
-	 * @api public
-	 */
-	
-	function enabled(name) {
-	  var i, len;
-	  for (i = 0, len = exports.skips.length; i < len; i++) {
-	    if (exports.skips[i].test(name)) {
-	      return false;
-	    }
-	  }
-	  for (i = 0, len = exports.names.length; i < len; i++) {
-	    if (exports.names[i].test(name)) {
-	      return true;
-	    }
-	  }
-	  return false;
-	}
-	
-	/**
-	 * Coerce `val`.
-	 *
-	 * @param {Mixed} val
-	 * @return {Mixed}
-	 * @api private
-	 */
-	
-	function coerce(val) {
-	  if (val instanceof Error) return val.stack || val.message;
-	  return val;
-	}
-
-
-/***/ },
-/* 146 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var require;/* WEBPACK VAR INJECTION */(function(process, global) {/*!
-	 * @overview es6-promise - a tiny implementation of Promises/A+.
-	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
-	 * @license   Licensed under MIT license
-	 *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
-	 * @version   4.0.5
-	 */
-	
-	(function (global, factory) {
-	     true ? module.exports = factory() :
-	    typeof define === 'function' && define.amd ? define(factory) :
-	    (global.ES6Promise = factory());
-	}(this, (function () { 'use strict';
-	
-	function objectOrFunction(x) {
-	  return typeof x === 'function' || typeof x === 'object' && x !== null;
-	}
-	
-	function isFunction(x) {
-	  return typeof x === 'function';
-	}
-	
-	var _isArray = undefined;
-	if (!Array.isArray) {
-	  _isArray = function (x) {
-	    return Object.prototype.toString.call(x) === '[object Array]';
-	  };
-	} else {
-	  _isArray = Array.isArray;
-	}
-	
-	var isArray = _isArray;
-	
-	var len = 0;
-	var vertxNext = undefined;
-	var customSchedulerFn = undefined;
-	
-	var asap = function asap(callback, arg) {
-	  queue[len] = callback;
-	  queue[len + 1] = arg;
-	  len += 2;
-	  if (len === 2) {
-	    // If len is 2, that means that we need to schedule an async flush.
-	    // If additional callbacks are queued before the queue is flushed, they
-	    // will be processed by this flush that we are scheduling.
-	    if (customSchedulerFn) {
-	      customSchedulerFn(flush);
-	    } else {
-	      scheduleFlush();
-	    }
-	  }
-	};
-	
-	function setScheduler(scheduleFn) {
-	  customSchedulerFn = scheduleFn;
-	}
-	
-	function setAsap(asapFn) {
-	  asap = asapFn;
-	}
-	
-	var browserWindow = typeof window !== 'undefined' ? window : undefined;
-	var browserGlobal = browserWindow || {};
-	var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
-	
-	// test for web worker but not in IE10
-	var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
-	
-	// node
-	function useNextTick() {
-	  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-	  // see https://github.com/cujojs/when/issues/410 for details
-	  return function () {
-	    return process.nextTick(flush);
-	  };
-	}
-	
-	// vertx
-	function useVertxTimer() {
-	  if (typeof vertxNext !== 'undefined') {
-	    return function () {
-	      vertxNext(flush);
-	    };
-	  }
-	
-	  return useSetTimeout();
-	}
-	
-	function useMutationObserver() {
-	  var iterations = 0;
-	  var observer = new BrowserMutationObserver(flush);
-	  var node = document.createTextNode('');
-	  observer.observe(node, { characterData: true });
-	
-	  return function () {
-	    node.data = iterations = ++iterations % 2;
-	  };
-	}
-	
-	// web worker
-	function useMessageChannel() {
-	  var channel = new MessageChannel();
-	  channel.port1.onmessage = flush;
-	  return function () {
-	    return channel.port2.postMessage(0);
-	  };
-	}
-	
-	function useSetTimeout() {
-	  // Store setTimeout reference so es6-promise will be unaffected by
-	  // other code modifying setTimeout (like sinon.useFakeTimers())
-	  var globalSetTimeout = setTimeout;
-	  return function () {
-	    return globalSetTimeout(flush, 1);
-	  };
-	}
-	
-	var queue = new Array(1000);
-	function flush() {
-	  for (var i = 0; i < len; i += 2) {
-	    var callback = queue[i];
-	    var arg = queue[i + 1];
-	
-	    callback(arg);
-	
-	    queue[i] = undefined;
-	    queue[i + 1] = undefined;
-	  }
-	
-	  len = 0;
-	}
-	
-	function attemptVertx() {
-	  try {
-	    var r = require;
-	    var vertx = __webpack_require__(191);
-	    vertxNext = vertx.runOnLoop || vertx.runOnContext;
-	    return useVertxTimer();
-	  } catch (e) {
-	    return useSetTimeout();
-	  }
-	}
-	
-	var scheduleFlush = undefined;
-	// Decide what async method to use to triggering processing of queued callbacks:
-	if (isNode) {
-	  scheduleFlush = useNextTick();
-	} else if (BrowserMutationObserver) {
-	  scheduleFlush = useMutationObserver();
-	} else if (isWorker) {
-	  scheduleFlush = useMessageChannel();
-	} else if (browserWindow === undefined && "function" === 'function') {
-	  scheduleFlush = attemptVertx();
-	} else {
-	  scheduleFlush = useSetTimeout();
-	}
-	
-	function then(onFulfillment, onRejection) {
-	  var _arguments = arguments;
-	
-	  var parent = this;
-	
-	  var child = new this.constructor(noop);
-	
-	  if (child[PROMISE_ID] === undefined) {
-	    makePromise(child);
-	  }
-	
-	  var _state = parent._state;
-	
-	  if (_state) {
-	    (function () {
-	      var callback = _arguments[_state - 1];
-	      asap(function () {
-	        return invokeCallback(_state, child, callback, parent._result);
-	      });
-	    })();
-	  } else {
-	    subscribe(parent, child, onFulfillment, onRejection);
-	  }
-	
-	  return child;
-	}
-	
-	/**
-	  `Promise.resolve` returns a promise that will become resolved with the
-	  passed `value`. It is shorthand for the following:
-	
-	  ```javascript
-	  let promise = new Promise(function(resolve, reject){
-	    resolve(1);
-	  });
-	
-	  promise.then(function(value){
-	    // value === 1
-	  });
-	  ```
-	
-	  Instead of writing the above, your code now simply becomes the following:
-	
-	  ```javascript
-	  let promise = Promise.resolve(1);
-	
-	  promise.then(function(value){
-	    // value === 1
-	  });
-	  ```
-	
-	  @method resolve
-	  @static
-	  @param {Any} value value that the returned promise will be resolved with
-	  Useful for tooling.
-	  @return {Promise} a promise that will become fulfilled with the given
-	  `value`
-	*/
-	function resolve(object) {
-	  /*jshint validthis:true */
-	  var Constructor = this;
-	
-	  if (object && typeof object === 'object' && object.constructor === Constructor) {
-	    return object;
-	  }
-	
-	  var promise = new Constructor(noop);
-	  _resolve(promise, object);
-	  return promise;
-	}
-	
-	var PROMISE_ID = Math.random().toString(36).substring(16);
-	
-	function noop() {}
-	
-	var PENDING = void 0;
-	var FULFILLED = 1;
-	var REJECTED = 2;
-	
-	var GET_THEN_ERROR = new ErrorObject();
-	
-	function selfFulfillment() {
-	  return new TypeError("You cannot resolve a promise with itself");
-	}
-	
-	function cannotReturnOwn() {
-	  return new TypeError('A promises callback cannot return that same promise.');
-	}
-	
-	function getThen(promise) {
-	  try {
-	    return promise.then;
-	  } catch (error) {
-	    GET_THEN_ERROR.error = error;
-	    return GET_THEN_ERROR;
-	  }
-	}
-	
-	function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
-	  try {
-	    then.call(value, fulfillmentHandler, rejectionHandler);
-	  } catch (e) {
-	    return e;
-	  }
-	}
-	
-	function handleForeignThenable(promise, thenable, then) {
-	  asap(function (promise) {
-	    var sealed = false;
-	    var error = tryThen(then, thenable, function (value) {
-	      if (sealed) {
-	        return;
-	      }
-	      sealed = true;
-	      if (thenable !== value) {
-	        _resolve(promise, value);
-	      } else {
-	        fulfill(promise, value);
-	      }
-	    }, function (reason) {
-	      if (sealed) {
-	        return;
-	      }
-	      sealed = true;
-	
-	      _reject(promise, reason);
-	    }, 'Settle: ' + (promise._label || ' unknown promise'));
-	
-	    if (!sealed && error) {
-	      sealed = true;
-	      _reject(promise, error);
-	    }
-	  }, promise);
-	}
-	
-	function handleOwnThenable(promise, thenable) {
-	  if (thenable._state === FULFILLED) {
-	    fulfill(promise, thenable._result);
-	  } else if (thenable._state === REJECTED) {
-	    _reject(promise, thenable._result);
-	  } else {
-	    subscribe(thenable, undefined, function (value) {
-	      return _resolve(promise, value);
-	    }, function (reason) {
-	      return _reject(promise, reason);
-	    });
-	  }
-	}
-	
-	function handleMaybeThenable(promise, maybeThenable, then$$) {
-	  if (maybeThenable.constructor === promise.constructor && then$$ === then && maybeThenable.constructor.resolve === resolve) {
-	    handleOwnThenable(promise, maybeThenable);
-	  } else {
-	    if (then$$ === GET_THEN_ERROR) {
-	      _reject(promise, GET_THEN_ERROR.error);
-	    } else if (then$$ === undefined) {
-	      fulfill(promise, maybeThenable);
-	    } else if (isFunction(then$$)) {
-	      handleForeignThenable(promise, maybeThenable, then$$);
-	    } else {
-	      fulfill(promise, maybeThenable);
-	    }
-	  }
-	}
-	
-	function _resolve(promise, value) {
-	  if (promise === value) {
-	    _reject(promise, selfFulfillment());
-	  } else if (objectOrFunction(value)) {
-	    handleMaybeThenable(promise, value, getThen(value));
-	  } else {
-	    fulfill(promise, value);
-	  }
-	}
-	
-	function publishRejection(promise) {
-	  if (promise._onerror) {
-	    promise._onerror(promise._result);
-	  }
-	
-	  publish(promise);
-	}
-	
-	function fulfill(promise, value) {
-	  if (promise._state !== PENDING) {
-	    return;
-	  }
-	
-	  promise._result = value;
-	  promise._state = FULFILLED;
-	
-	  if (promise._subscribers.length !== 0) {
-	    asap(publish, promise);
-	  }
-	}
-	
-	function _reject(promise, reason) {
-	  if (promise._state !== PENDING) {
-	    return;
-	  }
-	  promise._state = REJECTED;
-	  promise._result = reason;
-	
-	  asap(publishRejection, promise);
-	}
-	
-	function subscribe(parent, child, onFulfillment, onRejection) {
-	  var _subscribers = parent._subscribers;
-	  var length = _subscribers.length;
-	
-	  parent._onerror = null;
-	
-	  _subscribers[length] = child;
-	  _subscribers[length + FULFILLED] = onFulfillment;
-	  _subscribers[length + REJECTED] = onRejection;
-	
-	  if (length === 0 && parent._state) {
-	    asap(publish, parent);
-	  }
-	}
-	
-	function publish(promise) {
-	  var subscribers = promise._subscribers;
-	  var settled = promise._state;
-	
-	  if (subscribers.length === 0) {
-	    return;
-	  }
-	
-	  var child = undefined,
-	      callback = undefined,
-	      detail = promise._result;
-	
-	  for (var i = 0; i < subscribers.length; i += 3) {
-	    child = subscribers[i];
-	    callback = subscribers[i + settled];
-	
-	    if (child) {
-	      invokeCallback(settled, child, callback, detail);
-	    } else {
-	      callback(detail);
-	    }
-	  }
-	
-	  promise._subscribers.length = 0;
-	}
-	
-	function ErrorObject() {
-	  this.error = null;
-	}
-	
-	var TRY_CATCH_ERROR = new ErrorObject();
-	
-	function tryCatch(callback, detail) {
-	  try {
-	    return callback(detail);
-	  } catch (e) {
-	    TRY_CATCH_ERROR.error = e;
-	    return TRY_CATCH_ERROR;
-	  }
-	}
-	
-	function invokeCallback(settled, promise, callback, detail) {
-	  var hasCallback = isFunction(callback),
-	      value = undefined,
-	      error = undefined,
-	      succeeded = undefined,
-	      failed = undefined;
-	
-	  if (hasCallback) {
-	    value = tryCatch(callback, detail);
-	
-	    if (value === TRY_CATCH_ERROR) {
-	      failed = true;
-	      error = value.error;
-	      value = null;
-	    } else {
-	      succeeded = true;
-	    }
-	
-	    if (promise === value) {
-	      _reject(promise, cannotReturnOwn());
-	      return;
-	    }
-	  } else {
-	    value = detail;
-	    succeeded = true;
-	  }
-	
-	  if (promise._state !== PENDING) {
-	    // noop
-	  } else if (hasCallback && succeeded) {
-	      _resolve(promise, value);
-	    } else if (failed) {
-	      _reject(promise, error);
-	    } else if (settled === FULFILLED) {
-	      fulfill(promise, value);
-	    } else if (settled === REJECTED) {
-	      _reject(promise, value);
-	    }
-	}
-	
-	function initializePromise(promise, resolver) {
-	  try {
-	    resolver(function resolvePromise(value) {
-	      _resolve(promise, value);
-	    }, function rejectPromise(reason) {
-	      _reject(promise, reason);
-	    });
-	  } catch (e) {
-	    _reject(promise, e);
-	  }
-	}
-	
-	var id = 0;
-	function nextId() {
-	  return id++;
-	}
-	
-	function makePromise(promise) {
-	  promise[PROMISE_ID] = id++;
-	  promise._state = undefined;
-	  promise._result = undefined;
-	  promise._subscribers = [];
-	}
-	
-	function Enumerator(Constructor, input) {
-	  this._instanceConstructor = Constructor;
-	  this.promise = new Constructor(noop);
-	
-	  if (!this.promise[PROMISE_ID]) {
-	    makePromise(this.promise);
-	  }
-	
-	  if (isArray(input)) {
-	    this._input = input;
-	    this.length = input.length;
-	    this._remaining = input.length;
-	
-	    this._result = new Array(this.length);
-	
-	    if (this.length === 0) {
-	      fulfill(this.promise, this._result);
-	    } else {
-	      this.length = this.length || 0;
-	      this._enumerate();
-	      if (this._remaining === 0) {
-	        fulfill(this.promise, this._result);
-	      }
-	    }
-	  } else {
-	    _reject(this.promise, validationError());
-	  }
-	}
-	
-	function validationError() {
-	  return new Error('Array Methods must be provided an Array');
-	};
-	
-	Enumerator.prototype._enumerate = function () {
-	  var length = this.length;
-	  var _input = this._input;
-	
-	  for (var i = 0; this._state === PENDING && i < length; i++) {
-	    this._eachEntry(_input[i], i);
-	  }
-	};
-	
-	Enumerator.prototype._eachEntry = function (entry, i) {
-	  var c = this._instanceConstructor;
-	  var resolve$$ = c.resolve;
-	
-	  if (resolve$$ === resolve) {
-	    var _then = getThen(entry);
-	
-	    if (_then === then && entry._state !== PENDING) {
-	      this._settledAt(entry._state, i, entry._result);
-	    } else if (typeof _then !== 'function') {
-	      this._remaining--;
-	      this._result[i] = entry;
-	    } else if (c === Promise) {
-	      var promise = new c(noop);
-	      handleMaybeThenable(promise, entry, _then);
-	      this._willSettleAt(promise, i);
-	    } else {
-	      this._willSettleAt(new c(function (resolve$$) {
-	        return resolve$$(entry);
-	      }), i);
-	    }
-	  } else {
-	    this._willSettleAt(resolve$$(entry), i);
-	  }
-	};
-	
-	Enumerator.prototype._settledAt = function (state, i, value) {
-	  var promise = this.promise;
-	
-	  if (promise._state === PENDING) {
-	    this._remaining--;
-	
-	    if (state === REJECTED) {
-	      _reject(promise, value);
-	    } else {
-	      this._result[i] = value;
-	    }
-	  }
-	
-	  if (this._remaining === 0) {
-	    fulfill(promise, this._result);
-	  }
-	};
-	
-	Enumerator.prototype._willSettleAt = function (promise, i) {
-	  var enumerator = this;
-	
-	  subscribe(promise, undefined, function (value) {
-	    return enumerator._settledAt(FULFILLED, i, value);
-	  }, function (reason) {
-	    return enumerator._settledAt(REJECTED, i, reason);
-	  });
-	};
-	
-	/**
-	  `Promise.all` accepts an array of promises, and returns a new promise which
-	  is fulfilled with an array of fulfillment values for the passed promises, or
-	  rejected with the reason of the first passed promise to be rejected. It casts all
-	  elements of the passed iterable to promises as it runs this algorithm.
-	
-	  Example:
-	
-	  ```javascript
-	  let promise1 = resolve(1);
-	  let promise2 = resolve(2);
-	  let promise3 = resolve(3);
-	  let promises = [ promise1, promise2, promise3 ];
-	
-	  Promise.all(promises).then(function(array){
-	    // The array here would be [ 1, 2, 3 ];
-	  });
-	  ```
-	
-	  If any of the `promises` given to `all` are rejected, the first promise
-	  that is rejected will be given as an argument to the returned promises's
-	  rejection handler. For example:
-	
-	  Example:
-	
-	  ```javascript
-	  let promise1 = resolve(1);
-	  let promise2 = reject(new Error("2"));
-	  let promise3 = reject(new Error("3"));
-	  let promises = [ promise1, promise2, promise3 ];
-	
-	  Promise.all(promises).then(function(array){
-	    // Code here never runs because there are rejected promises!
-	  }, function(error) {
-	    // error.message === "2"
-	  });
-	  ```
-	
-	  @method all
-	  @static
-	  @param {Array} entries array of promises
-	  @param {String} label optional string for labeling the promise.
-	  Useful for tooling.
-	  @return {Promise} promise that is fulfilled when all `promises` have been
-	  fulfilled, or rejected if any of them become rejected.
-	  @static
-	*/
-	function all(entries) {
-	  return new Enumerator(this, entries).promise;
-	}
-	
-	/**
-	  `Promise.race` returns a new promise which is settled in the same way as the
-	  first passed promise to settle.
-	
-	  Example:
-	
-	  ```javascript
-	  let promise1 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      resolve('promise 1');
-	    }, 200);
-	  });
-	
-	  let promise2 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      resolve('promise 2');
-	    }, 100);
-	  });
-	
-	  Promise.race([promise1, promise2]).then(function(result){
-	    // result === 'promise 2' because it was resolved before promise1
-	    // was resolved.
-	  });
-	  ```
-	
-	  `Promise.race` is deterministic in that only the state of the first
-	  settled promise matters. For example, even if other promises given to the
-	  `promises` array argument are resolved, but the first settled promise has
-	  become rejected before the other promises became fulfilled, the returned
-	  promise will become rejected:
-	
-	  ```javascript
-	  let promise1 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      resolve('promise 1');
-	    }, 200);
-	  });
-	
-	  let promise2 = new Promise(function(resolve, reject){
-	    setTimeout(function(){
-	      reject(new Error('promise 2'));
-	    }, 100);
-	  });
-	
-	  Promise.race([promise1, promise2]).then(function(result){
-	    // Code here never runs
-	  }, function(reason){
-	    // reason.message === 'promise 2' because promise 2 became rejected before
-	    // promise 1 became fulfilled
-	  });
-	  ```
-	
-	  An example real-world use case is implementing timeouts:
-	
-	  ```javascript
-	  Promise.race([ajax('foo.json'), timeout(5000)])
-	  ```
-	
-	  @method race
-	  @static
-	  @param {Array} promises array of promises to observe
-	  Useful for tooling.
-	  @return {Promise} a promise which settles in the same way as the first passed
-	  promise to settle.
-	*/
-	function race(entries) {
-	  /*jshint validthis:true */
-	  var Constructor = this;
-	
-	  if (!isArray(entries)) {
-	    return new Constructor(function (_, reject) {
-	      return reject(new TypeError('You must pass an array to race.'));
-	    });
-	  } else {
-	    return new Constructor(function (resolve, reject) {
-	      var length = entries.length;
-	      for (var i = 0; i < length; i++) {
-	        Constructor.resolve(entries[i]).then(resolve, reject);
-	      }
-	    });
-	  }
-	}
-	
-	/**
-	  `Promise.reject` returns a promise rejected with the passed `reason`.
-	  It is shorthand for the following:
-	
-	  ```javascript
-	  let promise = new Promise(function(resolve, reject){
-	    reject(new Error('WHOOPS'));
-	  });
-	
-	  promise.then(function(value){
-	    // Code here doesn't run because the promise is rejected!
-	  }, function(reason){
-	    // reason.message === 'WHOOPS'
-	  });
-	  ```
-	
-	  Instead of writing the above, your code now simply becomes the following:
-	
-	  ```javascript
-	  let promise = Promise.reject(new Error('WHOOPS'));
-	
-	  promise.then(function(value){
-	    // Code here doesn't run because the promise is rejected!
-	  }, function(reason){
-	    // reason.message === 'WHOOPS'
-	  });
-	  ```
-	
-	  @method reject
-	  @static
-	  @param {Any} reason value that the returned promise will be rejected with.
-	  Useful for tooling.
-	  @return {Promise} a promise rejected with the given `reason`.
-	*/
-	function reject(reason) {
-	  /*jshint validthis:true */
-	  var Constructor = this;
-	  var promise = new Constructor(noop);
-	  _reject(promise, reason);
-	  return promise;
-	}
-	
-	function needsResolver() {
-	  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-	}
-	
-	function needsNew() {
-	  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-	}
-	
-	/**
-	  Promise objects represent the eventual result of an asynchronous operation. The
-	  primary way of interacting with a promise is through its `then` method, which
-	  registers callbacks to receive either a promise's eventual value or the reason
-	  why the promise cannot be fulfilled.
-	
-	  Terminology
-	  -----------
-	
-	  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-	  - `thenable` is an object or function that defines a `then` method.
-	  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-	  - `exception` is a value that is thrown using the throw statement.
-	  - `reason` is a value that indicates why a promise was rejected.
-	  - `settled` the final resting state of a promise, fulfilled or rejected.
-	
-	  A promise can be in one of three states: pending, fulfilled, or rejected.
-	
-	  Promises that are fulfilled have a fulfillment value and are in the fulfilled
-	  state.  Promises that are rejected have a rejection reason and are in the
-	  rejected state.  A fulfillment value is never a thenable.
-	
-	  Promises can also be said to *resolve* a value.  If this value is also a
-	  promise, then the original promise's settled state will match the value's
-	  settled state.  So a promise that *resolves* a promise that rejects will
-	  itself reject, and a promise that *resolves* a promise that fulfills will
-	  itself fulfill.
-	
-	
-	  Basic Usage:
-	  ------------
-	
-	  ```js
-	  let promise = new Promise(function(resolve, reject) {
-	    // on success
-	    resolve(value);
-	
-	    // on failure
-	    reject(reason);
-	  });
-	
-	  promise.then(function(value) {
-	    // on fulfillment
-	  }, function(reason) {
-	    // on rejection
-	  });
-	  ```
-	
-	  Advanced Usage:
-	  ---------------
-	
-	  Promises shine when abstracting away asynchronous interactions such as
-	  `XMLHttpRequest`s.
-	
-	  ```js
-	  function getJSON(url) {
-	    return new Promise(function(resolve, reject){
-	      let xhr = new XMLHttpRequest();
-	
-	      xhr.open('GET', url);
-	      xhr.onreadystatechange = handler;
-	      xhr.responseType = 'json';
-	      xhr.setRequestHeader('Accept', 'application/json');
-	      xhr.send();
-	
-	      function handler() {
-	        if (this.readyState === this.DONE) {
-	          if (this.status === 200) {
-	            resolve(this.response);
-	          } else {
-	            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-	          }
-	        }
-	      };
-	    });
-	  }
-	
-	  getJSON('/posts.json').then(function(json) {
-	    // on fulfillment
-	  }, function(reason) {
-	    // on rejection
-	  });
-	  ```
-	
-	  Unlike callbacks, promises are great composable primitives.
-	
-	  ```js
-	  Promise.all([
-	    getJSON('/posts'),
-	    getJSON('/comments')
-	  ]).then(function(values){
-	    values[0] // => postsJSON
-	    values[1] // => commentsJSON
-	
-	    return values;
-	  });
-	  ```
-	
-	  @class Promise
-	  @param {function} resolver
-	  Useful for tooling.
-	  @constructor
-	*/
-	function Promise(resolver) {
-	  this[PROMISE_ID] = nextId();
-	  this._result = this._state = undefined;
-	  this._subscribers = [];
-	
-	  if (noop !== resolver) {
-	    typeof resolver !== 'function' && needsResolver();
-	    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-	  }
-	}
-	
-	Promise.all = all;
-	Promise.race = race;
-	Promise.resolve = resolve;
-	Promise.reject = reject;
-	Promise._setScheduler = setScheduler;
-	Promise._setAsap = setAsap;
-	Promise._asap = asap;
-	
-	Promise.prototype = {
-	  constructor: Promise,
-	
-	  /**
-	    The primary way of interacting with a promise is through its `then` method,
-	    which registers callbacks to receive either a promise's eventual value or the
-	    reason why the promise cannot be fulfilled.
-	  
-	    ```js
-	    findUser().then(function(user){
-	      // user is available
-	    }, function(reason){
-	      // user is unavailable, and you are given the reason why
-	    });
-	    ```
-	  
-	    Chaining
-	    --------
-	  
-	    The return value of `then` is itself a promise.  This second, 'downstream'
-	    promise is resolved with the return value of the first promise's fulfillment
-	    or rejection handler, or rejected if the handler throws an exception.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return user.name;
-	    }, function (reason) {
-	      return 'default name';
-	    }).then(function (userName) {
-	      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-	      // will be `'default name'`
-	    });
-	  
-	    findUser().then(function (user) {
-	      throw new Error('Found user, but still unhappy');
-	    }, function (reason) {
-	      throw new Error('`findUser` rejected and we're unhappy');
-	    }).then(function (value) {
-	      // never reached
-	    }, function (reason) {
-	      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-	      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-	    });
-	    ```
-	    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      throw new PedagogicalException('Upstream error');
-	    }).then(function (value) {
-	      // never reached
-	    }).then(function (value) {
-	      // never reached
-	    }, function (reason) {
-	      // The `PedgagocialException` is propagated all the way down to here
-	    });
-	    ```
-	  
-	    Assimilation
-	    ------------
-	  
-	    Sometimes the value you want to propagate to a downstream promise can only be
-	    retrieved asynchronously. This can be achieved by returning a promise in the
-	    fulfillment or rejection handler. The downstream promise will then be pending
-	    until the returned promise is settled. This is called *assimilation*.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return findCommentsByAuthor(user);
-	    }).then(function (comments) {
-	      // The user's comments are now available
-	    });
-	    ```
-	  
-	    If the assimliated promise rejects, then the downstream promise will also reject.
-	  
-	    ```js
-	    findUser().then(function (user) {
-	      return findCommentsByAuthor(user);
-	    }).then(function (comments) {
-	      // If `findCommentsByAuthor` fulfills, we'll have the value here
-	    }, function (reason) {
-	      // If `findCommentsByAuthor` rejects, we'll have the reason here
-	    });
-	    ```
-	  
-	    Simple Example
-	    --------------
-	  
-	    Synchronous Example
-	  
-	    ```javascript
-	    let result;
-	  
-	    try {
-	      result = findResult();
-	      // success
-	    } catch(reason) {
-	      // failure
-	    }
-	    ```
-	  
-	    Errback Example
-	  
-	    ```js
-	    findResult(function(result, err){
-	      if (err) {
-	        // failure
-	      } else {
-	        // success
-	      }
-	    });
-	    ```
-	  
-	    Promise Example;
-	  
-	    ```javascript
-	    findResult().then(function(result){
-	      // success
-	    }, function(reason){
-	      // failure
-	    });
-	    ```
-	  
-	    Advanced Example
-	    --------------
-	  
-	    Synchronous Example
-	  
-	    ```javascript
-	    let author, books;
-	  
-	    try {
-	      author = findAuthor();
-	      books  = findBooksByAuthor(author);
-	      // success
-	    } catch(reason) {
-	      // failure
-	    }
-	    ```
-	  
-	    Errback Example
-	  
-	    ```js
-	  
-	    function foundBooks(books) {
-	  
-	    }
-	  
-	    function failure(reason) {
-	  
-	    }
-	  
-	    findAuthor(function(author, err){
-	      if (err) {
-	        failure(err);
-	        // failure
-	      } else {
-	        try {
-	          findBoooksByAuthor(author, function(books, err) {
-	            if (err) {
-	              failure(err);
-	            } else {
-	              try {
-	                foundBooks(books);
-	              } catch(reason) {
-	                failure(reason);
-	              }
-	            }
-	          });
-	        } catch(error) {
-	          failure(err);
-	        }
-	        // success
-	      }
-	    });
-	    ```
-	  
-	    Promise Example;
-	  
-	    ```javascript
-	    findAuthor().
-	      then(findBooksByAuthor).
-	      then(function(books){
-	        // found books
-	    }).catch(function(reason){
-	      // something went wrong
-	    });
-	    ```
-	  
-	    @method then
-	    @param {Function} onFulfilled
-	    @param {Function} onRejected
-	    Useful for tooling.
-	    @return {Promise}
-	  */
-	  then: then,
-	
-	  /**
-	    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-	    as the catch block of a try/catch statement.
-	  
-	    ```js
-	    function findAuthor(){
-	      throw new Error('couldn't find that author');
-	    }
-	  
-	    // synchronous
-	    try {
-	      findAuthor();
-	    } catch(reason) {
-	      // something went wrong
-	    }
-	  
-	    // async with promises
-	    findAuthor().catch(function(reason){
-	      // something went wrong
-	    });
-	    ```
-	  
-	    @method catch
-	    @param {Function} onRejection
-	    Useful for tooling.
-	    @return {Promise}
-	  */
-	  'catch': function _catch(onRejection) {
-	    return this.then(null, onRejection);
-	  }
-	};
-	
-	function polyfill() {
-	    var local = undefined;
-	
-	    if (typeof global !== 'undefined') {
-	        local = global;
-	    } else if (typeof self !== 'undefined') {
-	        local = self;
-	    } else {
-	        try {
-	            local = Function('return this')();
-	        } catch (e) {
-	            throw new Error('polyfill failed because global object is unavailable in this environment');
-	        }
-	    }
-	
-	    var P = local.Promise;
-	
-	    if (P) {
-	        var promiseToString = null;
-	        try {
-	            promiseToString = Object.prototype.toString.call(P.resolve());
-	        } catch (e) {
-	            // silently ignored
-	        }
-	
-	        if (promiseToString === '[object Object]' && !P.cast) {
-	            return;
-	        }
-	    }
-	
-	    local.Promise = Promise;
-	}
-	
-	// Strange compat..
-	Promise.polyfill = polyfill;
-	Promise.Promise = Promise;
-	
-	return Promise;
-	
-	})));
-	//# sourceMappingURL=es6-promise.map
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), (function() { return this; }())))
-
-/***/ },
-/* 147 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var json = typeof JSON !== 'undefined' ? JSON : __webpack_require__(148);
-	
-	module.exports = function (obj, opts) {
-	    if (!opts) opts = {};
-	    if (typeof opts === 'function') opts = { cmp: opts };
-	    var space = opts.space || '';
-	    if (typeof space === 'number') space = Array(space+1).join(' ');
-	    var cycles = (typeof opts.cycles === 'boolean') ? opts.cycles : false;
-	    var replacer = opts.replacer || function(key, value) { return value; };
-	
-	    var cmp = opts.cmp && (function (f) {
-	        return function (node) {
-	            return function (a, b) {
-	                var aobj = { key: a, value: node[a] };
-	                var bobj = { key: b, value: node[b] };
-	                return f(aobj, bobj);
-	            };
-	        };
-	    })(opts.cmp);
-	
-	    var seen = [];
-	    return (function stringify (parent, key, node, level) {
-	        var indent = space ? ('\n' + new Array(level + 1).join(space)) : '';
-	        var colonSeparator = space ? ': ' : ':';
-	
-	        if (node && node.toJSON && typeof node.toJSON === 'function') {
-	            node = node.toJSON();
-	        }
-	
-	        node = replacer.call(parent, key, node);
-	
-	        if (node === undefined) {
-	            return;
-	        }
-	        if (typeof node !== 'object' || node === null) {
-	            return json.stringify(node);
-	        }
-	        if (isArray(node)) {
-	            var out = [];
-	            for (var i = 0; i < node.length; i++) {
-	                var item = stringify(node, i, node[i], level+1) || json.stringify(null);
-	                out.push(indent + space + item);
-	            }
-	            return '[' + out.join(',') + indent + ']';
-	        }
-	        else {
-	            if (seen.indexOf(node) !== -1) {
-	                if (cycles) return json.stringify('__cycle__');
-	                throw new TypeError('Converting circular structure to JSON');
-	            }
-	            else seen.push(node);
-	
-	            var keys = objectKeys(node).sort(cmp && cmp(node));
-	            var out = [];
-	            for (var i = 0; i < keys.length; i++) {
-	                var key = keys[i];
-	                var value = stringify(node, key, node[key], level+1);
-	
-	                if(!value) continue;
-	
-	                var keyValue = json.stringify(key)
-	                    + colonSeparator
-	                    + value;
-	                ;
-	                out.push(indent + space + keyValue);
-	            }
-	            return '{' + out.join(',') + indent + '}';
-	        }
-	    })({ '': obj }, '', obj, 0);
-	};
-	
-	var isArray = Array.isArray || function (x) {
-	    return {}.toString.call(x) === '[object Array]';
-	};
-	
-	var objectKeys = Object.keys || function (obj) {
-	    var has = Object.prototype.hasOwnProperty || function () { return true };
-	    var keys = [];
-	    for (var key in obj) {
-	        if (has.call(obj, key)) keys.push(key);
-	    }
-	    return keys;
-	};
-
-
-/***/ },
-/* 148 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports.parse = __webpack_require__(149);
-	exports.stringify = __webpack_require__(150);
-
-
-/***/ },
-/* 149 */
-/***/ function(module, exports) {
-
-	var at, // The index of the current character
-	    ch, // The current character
-	    escapee = {
-	        '"':  '"',
-	        '\\': '\\',
-	        '/':  '/',
-	        b:    '\b',
-	        f:    '\f',
-	        n:    '\n',
-	        r:    '\r',
-	        t:    '\t'
-	    },
-	    text,
-	
-	    error = function (m) {
-	        // Call error when something is wrong.
-	        throw {
-	            name:    'SyntaxError',
-	            message: m,
-	            at:      at,
-	            text:    text
-	        };
-	    },
-	    
-	    next = function (c) {
-	        // If a c parameter is provided, verify that it matches the current character.
-	        if (c && c !== ch) {
-	            error("Expected '" + c + "' instead of '" + ch + "'");
-	        }
-	        
-	        // Get the next character. When there are no more characters,
-	        // return the empty string.
-	        
-	        ch = text.charAt(at);
-	        at += 1;
-	        return ch;
-	    },
-	    
-	    number = function () {
-	        // Parse a number value.
-	        var number,
-	            string = '';
-	        
-	        if (ch === '-') {
-	            string = '-';
-	            next('-');
-	        }
-	        while (ch >= '0' && ch <= '9') {
-	            string += ch;
-	            next();
-	        }
-	        if (ch === '.') {
-	            string += '.';
-	            while (next() && ch >= '0' && ch <= '9') {
-	                string += ch;
-	            }
-	        }
-	        if (ch === 'e' || ch === 'E') {
-	            string += ch;
-	            next();
-	            if (ch === '-' || ch === '+') {
-	                string += ch;
-	                next();
-	            }
-	            while (ch >= '0' && ch <= '9') {
-	                string += ch;
-	                next();
-	            }
-	        }
-	        number = +string;
-	        if (!isFinite(number)) {
-	            error("Bad number");
-	        } else {
-	            return number;
-	        }
-	    },
-	    
-	    string = function () {
-	        // Parse a string value.
-	        var hex,
-	            i,
-	            string = '',
-	            uffff;
-	        
-	        // When parsing for string values, we must look for " and \ characters.
-	        if (ch === '"') {
-	            while (next()) {
-	                if (ch === '"') {
-	                    next();
-	                    return string;
-	                } else if (ch === '\\') {
-	                    next();
-	                    if (ch === 'u') {
-	                        uffff = 0;
-	                        for (i = 0; i < 4; i += 1) {
-	                            hex = parseInt(next(), 16);
-	                            if (!isFinite(hex)) {
-	                                break;
-	                            }
-	                            uffff = uffff * 16 + hex;
-	                        }
-	                        string += String.fromCharCode(uffff);
-	                    } else if (typeof escapee[ch] === 'string') {
-	                        string += escapee[ch];
-	                    } else {
-	                        break;
-	                    }
-	                } else {
-	                    string += ch;
-	                }
-	            }
-	        }
-	        error("Bad string");
-	    },
-	
-	    white = function () {
-	
-	// Skip whitespace.
-	
-	        while (ch && ch <= ' ') {
-	            next();
-	        }
-	    },
-	
-	    word = function () {
-	
-	// true, false, or null.
-	
-	        switch (ch) {
-	        case 't':
-	            next('t');
-	            next('r');
-	            next('u');
-	            next('e');
-	            return true;
-	        case 'f':
-	            next('f');
-	            next('a');
-	            next('l');
-	            next('s');
-	            next('e');
-	            return false;
-	        case 'n':
-	            next('n');
-	            next('u');
-	            next('l');
-	            next('l');
-	            return null;
-	        }
-	        error("Unexpected '" + ch + "'");
-	    },
-	
-	    value,  // Place holder for the value function.
-	
-	    array = function () {
-	
-	// Parse an array value.
-	
-	        var array = [];
-	
-	        if (ch === '[') {
-	            next('[');
-	            white();
-	            if (ch === ']') {
-	                next(']');
-	                return array;   // empty array
-	            }
-	            while (ch) {
-	                array.push(value());
-	                white();
-	                if (ch === ']') {
-	                    next(']');
-	                    return array;
-	                }
-	                next(',');
-	                white();
-	            }
-	        }
-	        error("Bad array");
-	    },
-	
-	    object = function () {
-	
-	// Parse an object value.
-	
-	        var key,
-	            object = {};
-	
-	        if (ch === '{') {
-	            next('{');
-	            white();
-	            if (ch === '}') {
-	                next('}');
-	                return object;   // empty object
-	            }
-	            while (ch) {
-	                key = string();
-	                white();
-	                next(':');
-	                if (Object.hasOwnProperty.call(object, key)) {
-	                    error('Duplicate key "' + key + '"');
-	                }
-	                object[key] = value();
-	                white();
-	                if (ch === '}') {
-	                    next('}');
-	                    return object;
-	                }
-	                next(',');
-	                white();
-	            }
-	        }
-	        error("Bad object");
-	    };
-	
-	value = function () {
-	
-	// Parse a JSON value. It could be an object, an array, a string, a number,
-	// or a word.
-	
-	    white();
-	    switch (ch) {
-	    case '{':
-	        return object();
-	    case '[':
-	        return array();
-	    case '"':
-	        return string();
-	    case '-':
-	        return number();
-	    default:
-	        return ch >= '0' && ch <= '9' ? number() : word();
-	    }
-	};
-	
-	// Return the json_parse function. It will have access to all of the above
-	// functions and variables.
-	
-	module.exports = function (source, reviver) {
-	    var result;
-	    
-	    text = source;
-	    at = 0;
-	    ch = ' ';
-	    result = value();
-	    white();
-	    if (ch) {
-	        error("Syntax error");
-	    }
-	
-	    // If there is a reviver function, we recursively walk the new structure,
-	    // passing each name/value pair to the reviver function for possible
-	    // transformation, starting with a temporary root object that holds the result
-	    // in an empty key. If there is not a reviver function, we simply return the
-	    // result.
-	
-	    return typeof reviver === 'function' ? (function walk(holder, key) {
-	        var k, v, value = holder[key];
-	        if (value && typeof value === 'object') {
-	            for (k in value) {
-	                if (Object.prototype.hasOwnProperty.call(value, k)) {
-	                    v = walk(value, k);
-	                    if (v !== undefined) {
-	                        value[k] = v;
-	                    } else {
-	                        delete value[k];
-	                    }
-	                }
-	            }
-	        }
-	        return reviver.call(holder, key, value);
-	    }({'': result}, '')) : result;
-	};
-
-
-/***/ },
-/* 150 */
-/***/ function(module, exports) {
-
-	var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	    escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	    gap,
-	    indent,
-	    meta = {    // table of character substitutions
-	        '\b': '\\b',
-	        '\t': '\\t',
-	        '\n': '\\n',
-	        '\f': '\\f',
-	        '\r': '\\r',
-	        '"' : '\\"',
-	        '\\': '\\\\'
-	    },
-	    rep;
-	
-	function quote(string) {
-	    // If the string contains no control characters, no quote characters, and no
-	    // backslash characters, then we can safely slap some quotes around it.
-	    // Otherwise we must also replace the offending characters with safe escape
-	    // sequences.
-	    
-	    escapable.lastIndex = 0;
-	    return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
-	        var c = meta[a];
-	        return typeof c === 'string' ? c :
-	            '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	    }) + '"' : '"' + string + '"';
-	}
-	
-	function str(key, holder) {
-	    // Produce a string from holder[key].
-	    var i,          // The loop counter.
-	        k,          // The member key.
-	        v,          // The member value.
-	        length,
-	        mind = gap,
-	        partial,
-	        value = holder[key];
-	    
-	    // If the value has a toJSON method, call it to obtain a replacement value.
-	    if (value && typeof value === 'object' &&
-	            typeof value.toJSON === 'function') {
-	        value = value.toJSON(key);
-	    }
-	    
-	    // If we were called with a replacer function, then call the replacer to
-	    // obtain a replacement value.
-	    if (typeof rep === 'function') {
-	        value = rep.call(holder, key, value);
-	    }
-	    
-	    // What happens next depends on the value's type.
-	    switch (typeof value) {
-	        case 'string':
-	            return quote(value);
-	        
-	        case 'number':
-	            // JSON numbers must be finite. Encode non-finite numbers as null.
-	            return isFinite(value) ? String(value) : 'null';
-	        
-	        case 'boolean':
-	        case 'null':
-	            // If the value is a boolean or null, convert it to a string. Note:
-	            // typeof null does not produce 'null'. The case is included here in
-	            // the remote chance that this gets fixed someday.
-	            return String(value);
-	            
-	        case 'object':
-	            if (!value) return 'null';
-	            gap += indent;
-	            partial = [];
-	            
-	            // Array.isArray
-	            if (Object.prototype.toString.apply(value) === '[object Array]') {
-	                length = value.length;
-	                for (i = 0; i < length; i += 1) {
-	                    partial[i] = str(i, value) || 'null';
-	                }
-	                
-	                // Join all of the elements together, separated with commas, and
-	                // wrap them in brackets.
-	                v = partial.length === 0 ? '[]' : gap ?
-	                    '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' :
-	                    '[' + partial.join(',') + ']';
-	                gap = mind;
-	                return v;
-	            }
-	            
-	            // If the replacer is an array, use it to select the members to be
-	            // stringified.
-	            if (rep && typeof rep === 'object') {
-	                length = rep.length;
-	                for (i = 0; i < length; i += 1) {
-	                    k = rep[i];
-	                    if (typeof k === 'string') {
-	                        v = str(k, value);
-	                        if (v) {
-	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                        }
-	                    }
-	                }
-	            }
-	            else {
-	                // Otherwise, iterate through all of the keys in the object.
-	                for (k in value) {
-	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-	                        v = str(k, value);
-	                        if (v) {
-	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                        }
-	                    }
-	                }
-	            }
-	            
-	        // Join all of the member texts together, separated with commas,
-	        // and wrap them in braces.
-	
-	        v = partial.length === 0 ? '{}' : gap ?
-	            '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' :
-	            '{' + partial.join(',') + '}';
-	        gap = mind;
-	        return v;
-	    }
-	}
-	
-	module.exports = function (value, replacer, space) {
-	    var i;
-	    gap = '';
-	    indent = '';
-	    
-	    // If the space parameter is a number, make an indent string containing that
-	    // many spaces.
-	    if (typeof space === 'number') {
-	        for (i = 0; i < space; i += 1) {
-	            indent += ' ';
-	        }
-	    }
-	    // If the space parameter is a string, it will be used as the indent string.
-	    else if (typeof space === 'string') {
-	        indent = space;
-	    }
-	
-	    // If there is a replacer, it must be a function or an array.
-	    // Otherwise, throw an error.
-	    rep = replacer;
-	    if (replacer && typeof replacer !== 'function'
-	    && (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
-	        throw new Error('JSON.stringify');
-	    }
-	    
-	    // Make a fake root object containing our value under the key of ''.
-	    // Return the result of stringifying the value.
-	    return str('', {'': value});
-	};
-
-
-/***/ },
-/* 151 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Mingo.js 0.6.2
@@ -31686,8 +30337,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  if (nodeEnabled) {
 	
-	    var Transform = __webpack_require__(37).Transform;
-	    var util = __webpack_require__(173);
+	    var Transform = __webpack_require__(41).Transform;
+	    var util = __webpack_require__(29);
 	
 	    Mingo.Query.prototype.stream = function (options) {
 	      return new Mingo.Stream(this, options);
@@ -33721,7 +32372,5297 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
+/* 141 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var CryptoJS = __webpack_require__(13).CryptoJS;
+	__webpack_require__(192);
+	__webpack_require__(195);
+	__webpack_require__(193);
+	__webpack_require__(191);
+	__webpack_require__(190);
+	var JsonFormatter = __webpack_require__(194).JsonFormatter;
+	
+	exports.CryptoJS = CryptoJS;
+	exports.JsonFormatter = JsonFormatter;
+
+/***/ },
+/* 142 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// a passthrough stream.
+	// basically just the most minimal sort of Transform stream.
+	// Every written chunk gets output as-is.
+	
+	'use strict';
+	
+	module.exports = PassThrough;
+	
+	var Transform = __webpack_require__(102);
+	
+	/*<replacement>*/
+	var util = __webpack_require__(27);
+	util.inherits = __webpack_require__(12);
+	/*</replacement>*/
+	
+	util.inherits(PassThrough, Transform);
+	
+	function PassThrough(options) {
+	  if (!(this instanceof PassThrough)) return new PassThrough(options);
+	
+	  Transform.call(this, options);
+	}
+	
+	PassThrough.prototype._transform = function (chunk, encoding, cb) {
+	  cb(null, chunk);
+	};
+
+/***/ },
+/* 143 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+	
+	module.exports = Readable;
+	
+	/*<replacement>*/
+	var processNextTick = __webpack_require__(101);
+	/*</replacement>*/
+	
+	/*<replacement>*/
+	var isArray = __webpack_require__(98);
+	/*</replacement>*/
+	
+	/*<replacement>*/
+	var Duplex;
+	/*</replacement>*/
+	
+	Readable.ReadableState = ReadableState;
+	
+	/*<replacement>*/
+	var EE = __webpack_require__(19).EventEmitter;
+	
+	var EElistenerCount = function (emitter, type) {
+	  return emitter.listeners(type).length;
+	};
+	/*</replacement>*/
+	
+	/*<replacement>*/
+	var Stream;
+	(function () {
+	  try {
+	    Stream = __webpack_require__(41);
+	  } catch (_) {} finally {
+	    if (!Stream) Stream = __webpack_require__(19).EventEmitter;
+	  }
+	})();
+	/*</replacement>*/
+	
+	var Buffer = __webpack_require__(25).Buffer;
+	/*<replacement>*/
+	var bufferShim = __webpack_require__(95);
+	/*</replacement>*/
+	
+	/*<replacement>*/
+	var util = __webpack_require__(27);
+	util.inherits = __webpack_require__(12);
+	/*</replacement>*/
+	
+	/*<replacement>*/
+	var debugUtil = __webpack_require__(225);
+	var debug = void 0;
+	if (debugUtil && debugUtil.debuglog) {
+	  debug = debugUtil.debuglog('stream');
+	} else {
+	  debug = function () {};
+	}
+	/*</replacement>*/
+	
+	var BufferList = __webpack_require__(197);
+	var StringDecoder;
+	
+	util.inherits(Readable, Stream);
+	
+	function prependListener(emitter, event, fn) {
+	  // Sadly this is not cacheable as some libraries bundle their own
+	  // event emitter implementation with them.
+	  if (typeof emitter.prependListener === 'function') {
+	    return emitter.prependListener(event, fn);
+	  } else {
+	    // This is a hack to make sure that our error handler is attached before any
+	    // userland ones.  NEVER DO THIS. This is here only because this code needs
+	    // to continue to work with older versions of Node.js that do not include
+	    // the prependListener() method. The goal is to eventually remove this hack.
+	    if (!emitter._events || !emitter._events[event]) emitter.on(event, fn);else if (isArray(emitter._events[event])) emitter._events[event].unshift(fn);else emitter._events[event] = [fn, emitter._events[event]];
+	  }
+	}
+	
+	function ReadableState(options, stream) {
+	  Duplex = Duplex || __webpack_require__(14);
+	
+	  options = options || {};
+	
+	  // object stream flag. Used to make read(n) ignore n and to
+	  // make all the buffer merging and length checks go away
+	  this.objectMode = !!options.objectMode;
+	
+	  if (stream instanceof Duplex) this.objectMode = this.objectMode || !!options.readableObjectMode;
+	
+	  // the point at which it stops calling _read() to fill the buffer
+	  // Note: 0 is a valid value, means "don't call _read preemptively ever"
+	  var hwm = options.highWaterMark;
+	  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+	  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
+	
+	  // cast to ints.
+	  this.highWaterMark = ~ ~this.highWaterMark;
+	
+	  // A linked list is used to store data chunks instead of an array because the
+	  // linked list can remove elements from the beginning faster than
+	  // array.shift()
+	  this.buffer = new BufferList();
+	  this.length = 0;
+	  this.pipes = null;
+	  this.pipesCount = 0;
+	  this.flowing = null;
+	  this.ended = false;
+	  this.endEmitted = false;
+	  this.reading = false;
+	
+	  // a flag to be able to tell if the onwrite cb is called immediately,
+	  // or on a later tick.  We set this to true at first, because any
+	  // actions that shouldn't happen until "later" should generally also
+	  // not happen before the first write call.
+	  this.sync = true;
+	
+	  // whenever we return null, then we set a flag to say
+	  // that we're awaiting a 'readable' event emission.
+	  this.needReadable = false;
+	  this.emittedReadable = false;
+	  this.readableListening = false;
+	  this.resumeScheduled = false;
+	
+	  // Crypto is kind of old and crusty.  Historically, its default string
+	  // encoding is 'binary' so we have to make this configurable.
+	  // Everything else in the universe uses 'utf8', though.
+	  this.defaultEncoding = options.defaultEncoding || 'utf8';
+	
+	  // when piping, we only care about 'readable' events that happen
+	  // after read()ing all the bytes and not getting any pushback.
+	  this.ranOut = false;
+	
+	  // the number of writers that are awaiting a drain event in .pipe()s
+	  this.awaitDrain = 0;
+	
+	  // if true, a maybeReadMore has been scheduled
+	  this.readingMore = false;
+	
+	  this.decoder = null;
+	  this.encoding = null;
+	  if (options.encoding) {
+	    if (!StringDecoder) StringDecoder = __webpack_require__(144).StringDecoder;
+	    this.decoder = new StringDecoder(options.encoding);
+	    this.encoding = options.encoding;
+	  }
+	}
+	
+	function Readable(options) {
+	  Duplex = Duplex || __webpack_require__(14);
+	
+	  if (!(this instanceof Readable)) return new Readable(options);
+	
+	  this._readableState = new ReadableState(options, this);
+	
+	  // legacy
+	  this.readable = true;
+	
+	  if (options && typeof options.read === 'function') this._read = options.read;
+	
+	  Stream.call(this);
+	}
+	
+	// Manually shove something into the read() buffer.
+	// This returns true if the highWaterMark has not been hit yet,
+	// similar to how Writable.write() returns true if you should
+	// write() some more.
+	Readable.prototype.push = function (chunk, encoding) {
+	  var state = this._readableState;
+	
+	  if (!state.objectMode && typeof chunk === 'string') {
+	    encoding = encoding || state.defaultEncoding;
+	    if (encoding !== state.encoding) {
+	      chunk = bufferShim.from(chunk, encoding);
+	      encoding = '';
+	    }
+	  }
+	
+	  return readableAddChunk(this, state, chunk, encoding, false);
+	};
+	
+	// Unshift should *always* be something directly out of read()
+	Readable.prototype.unshift = function (chunk) {
+	  var state = this._readableState;
+	  return readableAddChunk(this, state, chunk, '', true);
+	};
+	
+	Readable.prototype.isPaused = function () {
+	  return this._readableState.flowing === false;
+	};
+	
+	function readableAddChunk(stream, state, chunk, encoding, addToFront) {
+	  var er = chunkInvalid(state, chunk);
+	  if (er) {
+	    stream.emit('error', er);
+	  } else if (chunk === null) {
+	    state.reading = false;
+	    onEofChunk(stream, state);
+	  } else if (state.objectMode || chunk && chunk.length > 0) {
+	    if (state.ended && !addToFront) {
+	      var e = new Error('stream.push() after EOF');
+	      stream.emit('error', e);
+	    } else if (state.endEmitted && addToFront) {
+	      var _e = new Error('stream.unshift() after end event');
+	      stream.emit('error', _e);
+	    } else {
+	      var skipAdd;
+	      if (state.decoder && !addToFront && !encoding) {
+	        chunk = state.decoder.write(chunk);
+	        skipAdd = !state.objectMode && chunk.length === 0;
+	      }
+	
+	      if (!addToFront) state.reading = false;
+	
+	      // Don't add to the buffer if we've decoded to an empty string chunk and
+	      // we're not in object mode
+	      if (!skipAdd) {
+	        // if we want the data now, just emit it.
+	        if (state.flowing && state.length === 0 && !state.sync) {
+	          stream.emit('data', chunk);
+	          stream.read(0);
+	        } else {
+	          // update the buffer info.
+	          state.length += state.objectMode ? 1 : chunk.length;
+	          if (addToFront) state.buffer.unshift(chunk);else state.buffer.push(chunk);
+	
+	          if (state.needReadable) emitReadable(stream);
+	        }
+	      }
+	
+	      maybeReadMore(stream, state);
+	    }
+	  } else if (!addToFront) {
+	    state.reading = false;
+	  }
+	
+	  return needMoreData(state);
+	}
+	
+	// if it's past the high water mark, we can push in some more.
+	// Also, if we have no data yet, we can stand some
+	// more bytes.  This is to work around cases where hwm=0,
+	// such as the repl.  Also, if the push() triggered a
+	// readable event, and the user called read(largeNumber) such that
+	// needReadable was set, then we ought to push more, so that another
+	// 'readable' event will be triggered.
+	function needMoreData(state) {
+	  return !state.ended && (state.needReadable || state.length < state.highWaterMark || state.length === 0);
+	}
+	
+	// backwards compatibility.
+	Readable.prototype.setEncoding = function (enc) {
+	  if (!StringDecoder) StringDecoder = __webpack_require__(144).StringDecoder;
+	  this._readableState.decoder = new StringDecoder(enc);
+	  this._readableState.encoding = enc;
+	  return this;
+	};
+	
+	// Don't raise the hwm > 8MB
+	var MAX_HWM = 0x800000;
+	function computeNewHighWaterMark(n) {
+	  if (n >= MAX_HWM) {
+	    n = MAX_HWM;
+	  } else {
+	    // Get the next highest power of 2 to prevent increasing hwm excessively in
+	    // tiny amounts
+	    n--;
+	    n |= n >>> 1;
+	    n |= n >>> 2;
+	    n |= n >>> 4;
+	    n |= n >>> 8;
+	    n |= n >>> 16;
+	    n++;
+	  }
+	  return n;
+	}
+	
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function howMuchToRead(n, state) {
+	  if (n <= 0 || state.length === 0 && state.ended) return 0;
+	  if (state.objectMode) return 1;
+	  if (n !== n) {
+	    // Only flow one buffer at a time
+	    if (state.flowing && state.length) return state.buffer.head.data.length;else return state.length;
+	  }
+	  // If we're asking for more than the current hwm, then raise the hwm.
+	  if (n > state.highWaterMark) state.highWaterMark = computeNewHighWaterMark(n);
+	  if (n <= state.length) return n;
+	  // Don't have enough
+	  if (!state.ended) {
+	    state.needReadable = true;
+	    return 0;
+	  }
+	  return state.length;
+	}
+	
+	// you can override either this method, or the async _read(n) below.
+	Readable.prototype.read = function (n) {
+	  debug('read', n);
+	  n = parseInt(n, 10);
+	  var state = this._readableState;
+	  var nOrig = n;
+	
+	  if (n !== 0) state.emittedReadable = false;
+	
+	  // if we're doing read(0) to trigger a readable event, but we
+	  // already have a bunch of data in the buffer, then just trigger
+	  // the 'readable' event and move on.
+	  if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
+	    debug('read: emitReadable', state.length, state.ended);
+	    if (state.length === 0 && state.ended) endReadable(this);else emitReadable(this);
+	    return null;
+	  }
+	
+	  n = howMuchToRead(n, state);
+	
+	  // if we've ended, and we're now clear, then finish it up.
+	  if (n === 0 && state.ended) {
+	    if (state.length === 0) endReadable(this);
+	    return null;
+	  }
+	
+	  // All the actual chunk generation logic needs to be
+	  // *below* the call to _read.  The reason is that in certain
+	  // synthetic stream cases, such as passthrough streams, _read
+	  // may be a completely synchronous operation which may change
+	  // the state of the read buffer, providing enough data when
+	  // before there was *not* enough.
+	  //
+	  // So, the steps are:
+	  // 1. Figure out what the state of things will be after we do
+	  // a read from the buffer.
+	  //
+	  // 2. If that resulting state will trigger a _read, then call _read.
+	  // Note that this may be asynchronous, or synchronous.  Yes, it is
+	  // deeply ugly to write APIs this way, but that still doesn't mean
+	  // that the Readable class should behave improperly, as streams are
+	  // designed to be sync/async agnostic.
+	  // Take note if the _read call is sync or async (ie, if the read call
+	  // has returned yet), so that we know whether or not it's safe to emit
+	  // 'readable' etc.
+	  //
+	  // 3. Actually pull the requested chunks out of the buffer and return.
+	
+	  // if we need a readable event, then we need to do some reading.
+	  var doRead = state.needReadable;
+	  debug('need readable', doRead);
+	
+	  // if we currently have less than the highWaterMark, then also read some
+	  if (state.length === 0 || state.length - n < state.highWaterMark) {
+	    doRead = true;
+	    debug('length less than watermark', doRead);
+	  }
+	
+	  // however, if we've ended, then there's no point, and if we're already
+	  // reading, then it's unnecessary.
+	  if (state.ended || state.reading) {
+	    doRead = false;
+	    debug('reading or ended', doRead);
+	  } else if (doRead) {
+	    debug('do read');
+	    state.reading = true;
+	    state.sync = true;
+	    // if the length is currently zero, then we *need* a readable event.
+	    if (state.length === 0) state.needReadable = true;
+	    // call internal read method
+	    this._read(state.highWaterMark);
+	    state.sync = false;
+	    // If _read pushed data synchronously, then `reading` will be false,
+	    // and we need to re-evaluate how much data we can return to the user.
+	    if (!state.reading) n = howMuchToRead(nOrig, state);
+	  }
+	
+	  var ret;
+	  if (n > 0) ret = fromList(n, state);else ret = null;
+	
+	  if (ret === null) {
+	    state.needReadable = true;
+	    n = 0;
+	  } else {
+	    state.length -= n;
+	  }
+	
+	  if (state.length === 0) {
+	    // If we have nothing in the buffer, then we want to know
+	    // as soon as we *do* get something into the buffer.
+	    if (!state.ended) state.needReadable = true;
+	
+	    // If we tried to read() past the EOF, then emit end on the next tick.
+	    if (nOrig !== n && state.ended) endReadable(this);
+	  }
+	
+	  if (ret !== null) this.emit('data', ret);
+	
+	  return ret;
+	};
+	
+	function chunkInvalid(state, chunk) {
+	  var er = null;
+	  if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
+	    er = new TypeError('Invalid non-string/buffer chunk');
+	  }
+	  return er;
+	}
+	
+	function onEofChunk(stream, state) {
+	  if (state.ended) return;
+	  if (state.decoder) {
+	    var chunk = state.decoder.end();
+	    if (chunk && chunk.length) {
+	      state.buffer.push(chunk);
+	      state.length += state.objectMode ? 1 : chunk.length;
+	    }
+	  }
+	  state.ended = true;
+	
+	  // emit 'readable' now to make sure it gets picked up.
+	  emitReadable(stream);
+	}
+	
+	// Don't emit readable right away in sync mode, because this can trigger
+	// another read() call => stack overflow.  This way, it might trigger
+	// a nextTick recursion warning, but that's not so bad.
+	function emitReadable(stream) {
+	  var state = stream._readableState;
+	  state.needReadable = false;
+	  if (!state.emittedReadable) {
+	    debug('emitReadable', state.flowing);
+	    state.emittedReadable = true;
+	    if (state.sync) processNextTick(emitReadable_, stream);else emitReadable_(stream);
+	  }
+	}
+	
+	function emitReadable_(stream) {
+	  debug('emit readable');
+	  stream.emit('readable');
+	  flow(stream);
+	}
+	
+	// at this point, the user has presumably seen the 'readable' event,
+	// and called read() to consume some data.  that may have triggered
+	// in turn another _read(n) call, in which case reading = true if
+	// it's in progress.
+	// However, if we're not ended, or reading, and the length < hwm,
+	// then go ahead and try to read some more preemptively.
+	function maybeReadMore(stream, state) {
+	  if (!state.readingMore) {
+	    state.readingMore = true;
+	    processNextTick(maybeReadMore_, stream, state);
+	  }
+	}
+	
+	function maybeReadMore_(stream, state) {
+	  var len = state.length;
+	  while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
+	    debug('maybeReadMore read 0');
+	    stream.read(0);
+	    if (len === state.length)
+	      // didn't get any data, stop spinning.
+	      break;else len = state.length;
+	  }
+	  state.readingMore = false;
+	}
+	
+	// abstract method.  to be overridden in specific implementation classes.
+	// call cb(er, data) where data is <= n in length.
+	// for virtual (non-string, non-buffer) streams, "length" is somewhat
+	// arbitrary, and perhaps not very meaningful.
+	Readable.prototype._read = function (n) {
+	  this.emit('error', new Error('_read() is not implemented'));
+	};
+	
+	Readable.prototype.pipe = function (dest, pipeOpts) {
+	  var src = this;
+	  var state = this._readableState;
+	
+	  switch (state.pipesCount) {
+	    case 0:
+	      state.pipes = dest;
+	      break;
+	    case 1:
+	      state.pipes = [state.pipes, dest];
+	      break;
+	    default:
+	      state.pipes.push(dest);
+	      break;
+	  }
+	  state.pipesCount += 1;
+	  debug('pipe count=%d opts=%j', state.pipesCount, pipeOpts);
+	
+	  var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
+	
+	  var endFn = doEnd ? onend : cleanup;
+	  if (state.endEmitted) processNextTick(endFn);else src.once('end', endFn);
+	
+	  dest.on('unpipe', onunpipe);
+	  function onunpipe(readable) {
+	    debug('onunpipe');
+	    if (readable === src) {
+	      cleanup();
+	    }
+	  }
+	
+	  function onend() {
+	    debug('onend');
+	    dest.end();
+	  }
+	
+	  // when the dest drains, it reduces the awaitDrain counter
+	  // on the source.  This would be more elegant with a .once()
+	  // handler in flow(), but adding and removing repeatedly is
+	  // too slow.
+	  var ondrain = pipeOnDrain(src);
+	  dest.on('drain', ondrain);
+	
+	  var cleanedUp = false;
+	  function cleanup() {
+	    debug('cleanup');
+	    // cleanup event handlers once the pipe is broken
+	    dest.removeListener('close', onclose);
+	    dest.removeListener('finish', onfinish);
+	    dest.removeListener('drain', ondrain);
+	    dest.removeListener('error', onerror);
+	    dest.removeListener('unpipe', onunpipe);
+	    src.removeListener('end', onend);
+	    src.removeListener('end', cleanup);
+	    src.removeListener('data', ondata);
+	
+	    cleanedUp = true;
+	
+	    // if the reader is waiting for a drain event from this
+	    // specific writer, then it would cause it to never start
+	    // flowing again.
+	    // So, if this is awaiting a drain, then we just call it now.
+	    // If we don't know, then assume that we are waiting for one.
+	    if (state.awaitDrain && (!dest._writableState || dest._writableState.needDrain)) ondrain();
+	  }
+	
+	  // If the user pushes more data while we're writing to dest then we'll end up
+	  // in ondata again. However, we only want to increase awaitDrain once because
+	  // dest will only emit one 'drain' event for the multiple writes.
+	  // => Introduce a guard on increasing awaitDrain.
+	  var increasedAwaitDrain = false;
+	  src.on('data', ondata);
+	  function ondata(chunk) {
+	    debug('ondata');
+	    increasedAwaitDrain = false;
+	    var ret = dest.write(chunk);
+	    if (false === ret && !increasedAwaitDrain) {
+	      // If the user unpiped during `dest.write()`, it is possible
+	      // to get stuck in a permanently paused state if that write
+	      // also returned false.
+	      // => Check whether `dest` is still a piping destination.
+	      if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
+	        debug('false write response, pause', src._readableState.awaitDrain);
+	        src._readableState.awaitDrain++;
+	        increasedAwaitDrain = true;
+	      }
+	      src.pause();
+	    }
+	  }
+	
+	  // if the dest has an error, then stop piping into it.
+	  // however, don't suppress the throwing behavior for this.
+	  function onerror(er) {
+	    debug('onerror', er);
+	    unpipe();
+	    dest.removeListener('error', onerror);
+	    if (EElistenerCount(dest, 'error') === 0) dest.emit('error', er);
+	  }
+	
+	  // Make sure our error handler is attached before userland ones.
+	  prependListener(dest, 'error', onerror);
+	
+	  // Both close and finish should trigger unpipe, but only once.
+	  function onclose() {
+	    dest.removeListener('finish', onfinish);
+	    unpipe();
+	  }
+	  dest.once('close', onclose);
+	  function onfinish() {
+	    debug('onfinish');
+	    dest.removeListener('close', onclose);
+	    unpipe();
+	  }
+	  dest.once('finish', onfinish);
+	
+	  function unpipe() {
+	    debug('unpipe');
+	    src.unpipe(dest);
+	  }
+	
+	  // tell the dest that it's being piped to
+	  dest.emit('pipe', src);
+	
+	  // start the flow if it hasn't been started already.
+	  if (!state.flowing) {
+	    debug('pipe resume');
+	    src.resume();
+	  }
+	
+	  return dest;
+	};
+	
+	function pipeOnDrain(src) {
+	  return function () {
+	    var state = src._readableState;
+	    debug('pipeOnDrain', state.awaitDrain);
+	    if (state.awaitDrain) state.awaitDrain--;
+	    if (state.awaitDrain === 0 && EElistenerCount(src, 'data')) {
+	      state.flowing = true;
+	      flow(src);
+	    }
+	  };
+	}
+	
+	Readable.prototype.unpipe = function (dest) {
+	  var state = this._readableState;
+	
+	  // if we're not piping anywhere, then do nothing.
+	  if (state.pipesCount === 0) return this;
+	
+	  // just one destination.  most common case.
+	  if (state.pipesCount === 1) {
+	    // passed in one, but it's not the right one.
+	    if (dest && dest !== state.pipes) return this;
+	
+	    if (!dest) dest = state.pipes;
+	
+	    // got a match.
+	    state.pipes = null;
+	    state.pipesCount = 0;
+	    state.flowing = false;
+	    if (dest) dest.emit('unpipe', this);
+	    return this;
+	  }
+	
+	  // slow case. multiple pipe destinations.
+	
+	  if (!dest) {
+	    // remove all.
+	    var dests = state.pipes;
+	    var len = state.pipesCount;
+	    state.pipes = null;
+	    state.pipesCount = 0;
+	    state.flowing = false;
+	
+	    for (var i = 0; i < len; i++) {
+	      dests[i].emit('unpipe', this);
+	    }return this;
+	  }
+	
+	  // try to find the right one.
+	  var index = indexOf(state.pipes, dest);
+	  if (index === -1) return this;
+	
+	  state.pipes.splice(index, 1);
+	  state.pipesCount -= 1;
+	  if (state.pipesCount === 1) state.pipes = state.pipes[0];
+	
+	  dest.emit('unpipe', this);
+	
+	  return this;
+	};
+	
+	// set up data events if they are asked for
+	// Ensure readable listeners eventually get something
+	Readable.prototype.on = function (ev, fn) {
+	  var res = Stream.prototype.on.call(this, ev, fn);
+	
+	  if (ev === 'data') {
+	    // Start flowing on next tick if stream isn't explicitly paused
+	    if (this._readableState.flowing !== false) this.resume();
+	  } else if (ev === 'readable') {
+	    var state = this._readableState;
+	    if (!state.endEmitted && !state.readableListening) {
+	      state.readableListening = state.needReadable = true;
+	      state.emittedReadable = false;
+	      if (!state.reading) {
+	        processNextTick(nReadingNextTick, this);
+	      } else if (state.length) {
+	        emitReadable(this, state);
+	      }
+	    }
+	  }
+	
+	  return res;
+	};
+	Readable.prototype.addListener = Readable.prototype.on;
+	
+	function nReadingNextTick(self) {
+	  debug('readable nexttick read 0');
+	  self.read(0);
+	}
+	
+	// pause() and resume() are remnants of the legacy readable stream API
+	// If the user uses them, then switch into old mode.
+	Readable.prototype.resume = function () {
+	  var state = this._readableState;
+	  if (!state.flowing) {
+	    debug('resume');
+	    state.flowing = true;
+	    resume(this, state);
+	  }
+	  return this;
+	};
+	
+	function resume(stream, state) {
+	  if (!state.resumeScheduled) {
+	    state.resumeScheduled = true;
+	    processNextTick(resume_, stream, state);
+	  }
+	}
+	
+	function resume_(stream, state) {
+	  if (!state.reading) {
+	    debug('resume read 0');
+	    stream.read(0);
+	  }
+	
+	  state.resumeScheduled = false;
+	  state.awaitDrain = 0;
+	  stream.emit('resume');
+	  flow(stream);
+	  if (state.flowing && !state.reading) stream.read(0);
+	}
+	
+	Readable.prototype.pause = function () {
+	  debug('call pause flowing=%j', this._readableState.flowing);
+	  if (false !== this._readableState.flowing) {
+	    debug('pause');
+	    this._readableState.flowing = false;
+	    this.emit('pause');
+	  }
+	  return this;
+	};
+	
+	function flow(stream) {
+	  var state = stream._readableState;
+	  debug('flow', state.flowing);
+	  while (state.flowing && stream.read() !== null) {}
+	}
+	
+	// wrap an old-style stream as the async data source.
+	// This is *not* part of the readable stream interface.
+	// It is an ugly unfortunate mess of history.
+	Readable.prototype.wrap = function (stream) {
+	  var state = this._readableState;
+	  var paused = false;
+	
+	  var self = this;
+	  stream.on('end', function () {
+	    debug('wrapped end');
+	    if (state.decoder && !state.ended) {
+	      var chunk = state.decoder.end();
+	      if (chunk && chunk.length) self.push(chunk);
+	    }
+	
+	    self.push(null);
+	  });
+	
+	  stream.on('data', function (chunk) {
+	    debug('wrapped data');
+	    if (state.decoder) chunk = state.decoder.write(chunk);
+	
+	    // don't skip over falsy values in objectMode
+	    if (state.objectMode && (chunk === null || chunk === undefined)) return;else if (!state.objectMode && (!chunk || !chunk.length)) return;
+	
+	    var ret = self.push(chunk);
+	    if (!ret) {
+	      paused = true;
+	      stream.pause();
+	    }
+	  });
+	
+	  // proxy all the other methods.
+	  // important when wrapping filters and duplexes.
+	  for (var i in stream) {
+	    if (this[i] === undefined && typeof stream[i] === 'function') {
+	      this[i] = function (method) {
+	        return function () {
+	          return stream[method].apply(stream, arguments);
+	        };
+	      }(i);
+	    }
+	  }
+	
+	  // proxy certain important events.
+	  var events = ['error', 'close', 'destroy', 'pause', 'resume'];
+	  forEach(events, function (ev) {
+	    stream.on(ev, self.emit.bind(self, ev));
+	  });
+	
+	  // when we try to consume some more bytes, simply unpause the
+	  // underlying stream.
+	  self._read = function (n) {
+	    debug('wrapped _read', n);
+	    if (paused) {
+	      paused = false;
+	      stream.resume();
+	    }
+	  };
+	
+	  return self;
+	};
+	
+	// exposed for testing purposes only.
+	Readable._fromList = fromList;
+	
+	// Pluck off n bytes from an array of buffers.
+	// Length is the combined lengths of all the buffers in the list.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function fromList(n, state) {
+	  // nothing buffered
+	  if (state.length === 0) return null;
+	
+	  var ret;
+	  if (state.objectMode) ret = state.buffer.shift();else if (!n || n >= state.length) {
+	    // read it all, truncate the list
+	    if (state.decoder) ret = state.buffer.join('');else if (state.buffer.length === 1) ret = state.buffer.head.data;else ret = state.buffer.concat(state.length);
+	    state.buffer.clear();
+	  } else {
+	    // read part of list
+	    ret = fromListPartial(n, state.buffer, state.decoder);
+	  }
+	
+	  return ret;
+	}
+	
+	// Extracts only enough buffered data to satisfy the amount requested.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function fromListPartial(n, list, hasStrings) {
+	  var ret;
+	  if (n < list.head.data.length) {
+	    // slice is the same for buffers and strings
+	    ret = list.head.data.slice(0, n);
+	    list.head.data = list.head.data.slice(n);
+	  } else if (n === list.head.data.length) {
+	    // first chunk is a perfect match
+	    ret = list.shift();
+	  } else {
+	    // result spans more than one buffer
+	    ret = hasStrings ? copyFromBufferString(n, list) : copyFromBuffer(n, list);
+	  }
+	  return ret;
+	}
+	
+	// Copies a specified amount of characters from the list of buffered data
+	// chunks.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function copyFromBufferString(n, list) {
+	  var p = list.head;
+	  var c = 1;
+	  var ret = p.data;
+	  n -= ret.length;
+	  while (p = p.next) {
+	    var str = p.data;
+	    var nb = n > str.length ? str.length : n;
+	    if (nb === str.length) ret += str;else ret += str.slice(0, n);
+	    n -= nb;
+	    if (n === 0) {
+	      if (nb === str.length) {
+	        ++c;
+	        if (p.next) list.head = p.next;else list.head = list.tail = null;
+	      } else {
+	        list.head = p;
+	        p.data = str.slice(nb);
+	      }
+	      break;
+	    }
+	    ++c;
+	  }
+	  list.length -= c;
+	  return ret;
+	}
+	
+	// Copies a specified amount of bytes from the list of buffered data chunks.
+	// This function is designed to be inlinable, so please take care when making
+	// changes to the function body.
+	function copyFromBuffer(n, list) {
+	  var ret = bufferShim.allocUnsafe(n);
+	  var p = list.head;
+	  var c = 1;
+	  p.data.copy(ret);
+	  n -= p.data.length;
+	  while (p = p.next) {
+	    var buf = p.data;
+	    var nb = n > buf.length ? buf.length : n;
+	    buf.copy(ret, ret.length - n, 0, nb);
+	    n -= nb;
+	    if (n === 0) {
+	      if (nb === buf.length) {
+	        ++c;
+	        if (p.next) list.head = p.next;else list.head = list.tail = null;
+	      } else {
+	        list.head = p;
+	        p.data = buf.slice(nb);
+	      }
+	      break;
+	    }
+	    ++c;
+	  }
+	  list.length -= c;
+	  return ret;
+	}
+	
+	function endReadable(stream) {
+	  var state = stream._readableState;
+	
+	  // If we get here before consuming all the bytes, then that is a
+	  // bug in node.  Should never happen.
+	  if (state.length > 0) throw new Error('"endReadable()" called on non-empty stream');
+	
+	  if (!state.endEmitted) {
+	    state.ended = true;
+	    processNextTick(endReadableNT, state, stream);
+	  }
+	}
+	
+	function endReadableNT(state, stream) {
+	  // Check that we didn't get one last unshift.
+	  if (!state.endEmitted && state.length === 0) {
+	    state.endEmitted = true;
+	    stream.readable = false;
+	    stream.emit('end');
+	  }
+	}
+	
+	function forEach(xs, f) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    f(xs[i], i);
+	  }
+	}
+	
+	function indexOf(xs, x) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    if (xs[i] === x) return i;
+	  }
+	  return -1;
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+
+/***/ },
+/* 144 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	
+	var Buffer = __webpack_require__(25).Buffer;
+	
+	var isBufferEncoding = Buffer.isEncoding
+	  || function(encoding) {
+	       switch (encoding && encoding.toLowerCase()) {
+	         case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
+	         default: return false;
+	       }
+	     }
+	
+	
+	function assertEncoding(encoding) {
+	  if (encoding && !isBufferEncoding(encoding)) {
+	    throw new Error('Unknown encoding: ' + encoding);
+	  }
+	}
+	
+	// StringDecoder provides an interface for efficiently splitting a series of
+	// buffers into a series of JS strings without breaking apart multi-byte
+	// characters. CESU-8 is handled as part of the UTF-8 encoding.
+	//
+	// @TODO Handling all encodings inside a single object makes it very difficult
+	// to reason about this code, so it should be split up in the future.
+	// @TODO There should be a utf8-strict encoding that rejects invalid UTF-8 code
+	// points as used by CESU-8.
+	var StringDecoder = exports.StringDecoder = function(encoding) {
+	  this.encoding = (encoding || 'utf8').toLowerCase().replace(/[-_]/, '');
+	  assertEncoding(encoding);
+	  switch (this.encoding) {
+	    case 'utf8':
+	      // CESU-8 represents each of Surrogate Pair by 3-bytes
+	      this.surrogateSize = 3;
+	      break;
+	    case 'ucs2':
+	    case 'utf16le':
+	      // UTF-16 represents each of Surrogate Pair by 2-bytes
+	      this.surrogateSize = 2;
+	      this.detectIncompleteChar = utf16DetectIncompleteChar;
+	      break;
+	    case 'base64':
+	      // Base-64 stores 3 bytes in 4 chars, and pads the remainder.
+	      this.surrogateSize = 3;
+	      this.detectIncompleteChar = base64DetectIncompleteChar;
+	      break;
+	    default:
+	      this.write = passThroughWrite;
+	      return;
+	  }
+	
+	  // Enough space to store all bytes of a single character. UTF-8 needs 4
+	  // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
+	  this.charBuffer = new Buffer(6);
+	  // Number of bytes received for the current incomplete multi-byte character.
+	  this.charReceived = 0;
+	  // Number of bytes expected for the current incomplete multi-byte character.
+	  this.charLength = 0;
+	};
+	
+	
+	// write decodes the given buffer and returns it as JS string that is
+	// guaranteed to not contain any partial multi-byte characters. Any partial
+	// character found at the end of the buffer is buffered up, and will be
+	// returned when calling write again with the remaining bytes.
+	//
+	// Note: Converting a Buffer containing an orphan surrogate to a String
+	// currently works, but converting a String to a Buffer (via `new Buffer`, or
+	// Buffer#write) will replace incomplete surrogates with the unicode
+	// replacement character. See https://codereview.chromium.org/121173009/ .
+	StringDecoder.prototype.write = function(buffer) {
+	  var charStr = '';
+	  // if our last write ended with an incomplete multibyte character
+	  while (this.charLength) {
+	    // determine how many remaining bytes this buffer has to offer for this char
+	    var available = (buffer.length >= this.charLength - this.charReceived) ?
+	        this.charLength - this.charReceived :
+	        buffer.length;
+	
+	    // add the new bytes to the char buffer
+	    buffer.copy(this.charBuffer, this.charReceived, 0, available);
+	    this.charReceived += available;
+	
+	    if (this.charReceived < this.charLength) {
+	      // still not enough chars in this buffer? wait for more ...
+	      return '';
+	    }
+	
+	    // remove bytes belonging to the current character from the buffer
+	    buffer = buffer.slice(available, buffer.length);
+	
+	    // get the character that was split
+	    charStr = this.charBuffer.slice(0, this.charLength).toString(this.encoding);
+	
+	    // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
+	    var charCode = charStr.charCodeAt(charStr.length - 1);
+	    if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+	      this.charLength += this.surrogateSize;
+	      charStr = '';
+	      continue;
+	    }
+	    this.charReceived = this.charLength = 0;
+	
+	    // if there are no more bytes in this buffer, just emit our char
+	    if (buffer.length === 0) {
+	      return charStr;
+	    }
+	    break;
+	  }
+	
+	  // determine and set charLength / charReceived
+	  this.detectIncompleteChar(buffer);
+	
+	  var end = buffer.length;
+	  if (this.charLength) {
+	    // buffer the incomplete character bytes we got
+	    buffer.copy(this.charBuffer, 0, buffer.length - this.charReceived, end);
+	    end -= this.charReceived;
+	  }
+	
+	  charStr += buffer.toString(this.encoding, 0, end);
+	
+	  var end = charStr.length - 1;
+	  var charCode = charStr.charCodeAt(end);
+	  // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
+	  if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+	    var size = this.surrogateSize;
+	    this.charLength += size;
+	    this.charReceived += size;
+	    this.charBuffer.copy(this.charBuffer, size, 0, size);
+	    buffer.copy(this.charBuffer, 0, 0, size);
+	    return charStr.substring(0, end);
+	  }
+	
+	  // or just emit the charStr
+	  return charStr;
+	};
+	
+	// detectIncompleteChar determines if there is an incomplete UTF-8 character at
+	// the end of the given buffer. If so, it sets this.charLength to the byte
+	// length that character, and sets this.charReceived to the number of bytes
+	// that are available for this character.
+	StringDecoder.prototype.detectIncompleteChar = function(buffer) {
+	  // determine how many bytes we have to check at the end of this buffer
+	  var i = (buffer.length >= 3) ? 3 : buffer.length;
+	
+	  // Figure out if one of the last i bytes of our buffer announces an
+	  // incomplete char.
+	  for (; i > 0; i--) {
+	    var c = buffer[buffer.length - i];
+	
+	    // See http://en.wikipedia.org/wiki/UTF-8#Description
+	
+	    // 110XXXXX
+	    if (i == 1 && c >> 5 == 0x06) {
+	      this.charLength = 2;
+	      break;
+	    }
+	
+	    // 1110XXXX
+	    if (i <= 2 && c >> 4 == 0x0E) {
+	      this.charLength = 3;
+	      break;
+	    }
+	
+	    // 11110XXX
+	    if (i <= 3 && c >> 3 == 0x1E) {
+	      this.charLength = 4;
+	      break;
+	    }
+	  }
+	  this.charReceived = i;
+	};
+	
+	StringDecoder.prototype.end = function(buffer) {
+	  var res = '';
+	  if (buffer && buffer.length)
+	    res = this.write(buffer);
+	
+	  if (this.charReceived) {
+	    var cr = this.charReceived;
+	    var buf = this.charBuffer;
+	    var enc = this.encoding;
+	    res += buf.slice(0, cr).toString(enc);
+	  }
+	
+	  return res;
+	};
+	
+	function passThroughWrite(buffer) {
+	  return buffer.toString(this.encoding);
+	}
+	
+	function utf16DetectIncompleteChar(buffer) {
+	  this.charReceived = buffer.length % 2;
+	  this.charLength = this.charReceived ? 2 : 0;
+	}
+	
+	function base64DetectIncompleteChar(buffer) {
+	  this.charReceived = buffer.length % 3;
+	  this.charLength = this.charReceived ? 3 : 0;
+	}
+
+
+/***/ },
+/* 145 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_145__;
+
+/***/ },
+/* 146 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var CommonSetup = (function () {
+	    function CommonSetup() {
+	    }
+	    return CommonSetup;
+	}());
+	exports.CommonSetup = CommonSetup;
+
+
+/***/ },
+/* 147 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var ProcessableObject_1 = __webpack_require__(106);
+	var CommonData = (function (_super) {
+	    __extends(CommonData, _super);
+	    function CommonData(sdk, collectionName, settings) {
+	        _super.call(this, sdk, collectionName);
+	        this.collectionName = collectionName;
+	        this.settings = settings;
+	    }
+	    return CommonData;
+	}(ProcessableObject_1.ProcessableObject));
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = CommonData;
+
+
+/***/ },
+/* 148 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var Processor_1 = __webpack_require__(149);
+	var ErrorProcessor_1 = __webpack_require__(156);
+	var DataQueryBuilder_1 = __webpack_require__(108);
+	var EventEmitterExtended_1 = __webpack_require__(44);
+	var MethodMustBeOverridenError = new Error('Method must be overriden');
+	var Sdk = (function (_super) {
+	    __extends(Sdk, _super);
+	    function Sdk(options) {
+	        _super.call(this);
+	        this.options = options;
+	        this.setup = this._getSetup(options);
+	        this.dataQueryProcessor = this._getDataQueryProcessor();
+	        this.dataQueryBuilder = this._getDataQueryBuilder();
+	        this.authentication = this._getAuthentication();
+	        this.registerErrorProcessor(new ErrorProcessor_1.default());
+	    }
+	    Sdk.prototype.registerDataQueryPreProcessor = function (processor) {
+	        this.dataQueryProcessor.preProcessors.push(processor);
+	    };
+	    Sdk.prototype.registerDataQueryProcessor = function (processor) {
+	        this.dataQueryProcessor.processors.push(processor);
+	    };
+	    Sdk.prototype.registerDataQueryPostProcessor = function (processor) {
+	        this.dataQueryProcessor.postProcessors.push(processor);
+	    };
+	    Sdk.prototype.registerErrorProcessor = function (processor) {
+	        this.dataQueryProcessor.errorProcessors.push(processor);
+	    };
+	    Sdk.prototype.processDataQuery = function (query, data, success, error) {
+	        return this.dataQueryProcessor.process(query, data, success, error);
+	    };
+	    Sdk.prototype.buildDataQuery = function (data, op, meta) {
+	        if (data === void 0) { data = {}; }
+	        return this.dataQueryBuilder.buildDataQuery(data, op, meta);
+	    };
+	    Sdk.prototype.data = function (name) {
+	        return this._getData(name);
+	    };
+	    Sdk.prototype._getDataQueryProcessor = function () {
+	        return new Processor_1.DataQueryProcessor(this);
+	    };
+	    Sdk.prototype._getDataQueryBuilder = function () {
+	        return new DataQueryBuilder_1.DataQueryBuilder();
+	    };
+	    Sdk.prototype._getSetup = function (options) {
+	        throw MethodMustBeOverridenError;
+	    };
+	    Sdk.prototype._getData = function (name) {
+	        throw MethodMustBeOverridenError;
+	    };
+	    Sdk.prototype._getAuthentication = function () {
+	        throw MethodMustBeOverridenError;
+	    };
+	    return Sdk;
+	}(EventEmitterExtended_1.EventEmitterExtended));
+	exports.Sdk = Sdk;
+
+
+/***/ },
+/* 149 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var QueryProcessorIterator_1 = __webpack_require__(150);
+	var errors_1 = __webpack_require__(109);
+	var utils_1 = __webpack_require__(46);
+	var DataQueryProcessor = (function () {
+	    function DataQueryProcessor(sdk) {
+	        this.sdk = sdk;
+	        this.preProcessors = [];
+	        this.processors = [];
+	        this.postProcessors = [];
+	        this.errorProcessors = [];
+	    }
+	    DataQueryProcessor.prototype._iterate = function (query, processors, data, value) {
+	        var _this = this;
+	        return new Promise(function (resolve, reject) {
+	            var iterator = new QueryProcessorIterator_1.QueryProcessorIterator(processors, query);
+	            var iteratorTimeout = null;
+	            var onNext = function (processor, value) {
+	                clearTimeout(iteratorTimeout);
+	                iteratorTimeout = setTimeout(function () {
+	                    return iterator.error(new Error("Iterator timed out. Processor: " + processor.constructor.name + ". Value - " + JSON.stringify(value)));
+	                }, 10 * 6000); //throw error if somewhere the chain hangs for more than 10 seconds
+	                try {
+	                    return processor.processDataQuery(query, iterator, data, value);
+	                }
+	                catch (e) {
+	                    return iterator.error(e);
+	                }
+	            };
+	            var cleanUp = function () {
+	                iterator.removeListener('next', onNext);
+	                clearTimeout(iteratorTimeout);
+	            };
+	            iterator
+	                .on('next', onNext)
+	                .once('end', function (value) {
+	                cleanUp();
+	                return resolve(value);
+	            })
+	                .once('error', function (err) {
+	                cleanUp();
+	                var processedError = _this._processError(query, data, err);
+	                var error = processedError || err;
+	                return reject(error);
+	            })
+	                .once('cancel', function (reason) {
+	                cleanUp();
+	                return reject({
+	                    reason: reason,
+	                    error: errors_1.Errors.cancelled
+	                });
+	            })
+	                .start(value);
+	        });
+	    };
+	    DataQueryProcessor.prototype._preProcess = function (query, data) {
+	        return this._iterate(query, this.preProcessors, data);
+	    };
+	    DataQueryProcessor.prototype._process = function (query, data, value) {
+	        return this._iterate(query, this.processors, data, value);
+	    };
+	    DataQueryProcessor.prototype._postProcess = function (query, data, value) {
+	        return this._iterate(query, this.postProcessors, data, value);
+	    };
+	    DataQueryProcessor.prototype._processError = function (query, data, err) {
+	        var error = err;
+	        this.errorProcessors.forEach(function (p) {
+	            error = p.processError(query, data, error);
+	        });
+	        return error;
+	    };
+	    DataQueryProcessor.prototype.process = function (query, data, success, error) {
+	        var _this = this;
+	        return utils_1.Utils.buildPromise(function (resolve, reject) {
+	            return _this._preProcess(query, data)
+	                .then(function (value) {
+	                return _this._process(query, data, value);
+	            })
+	                .then(function (value) {
+	                return _this._postProcess(query, data, value);
+	            })
+	                .then(function (res) {
+	                resolve(res);
+	            })
+	                .catch(function (err) {
+	                reject(err);
+	            });
+	        }, success, error);
+	    };
+	    return DataQueryProcessor;
+	}());
+	exports.DataQueryProcessor = DataQueryProcessor;
+
+
+/***/ },
+/* 150 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var underscore_1 = __webpack_require__(1);
+	var EventEmitterExtended_1 = __webpack_require__(44);
+	var QueryProcessorIterator = (function (_super) {
+	    __extends(QueryProcessorIterator, _super);
+	    function QueryProcessorIterator(processors, query) {
+	        _super.call(this);
+	        this.done = false;
+	        this.position = -1;
+	        this.processors = processors;
+	        //helps with debugging
+	        this.$id = underscore_1.random(0, 5000);
+	        this.$query = query;
+	        this.$operation = query.operation;
+	        this._initialValue = null;
+	    }
+	    QueryProcessorIterator.prototype.restart = function (value) {
+	        if (value === void 0) { value = this._initialValue; }
+	        return this.start(value);
+	    };
+	    QueryProcessorIterator.prototype.start = function (value) {
+	        this._initialValue = value;
+	        this.position = -1;
+	        this.done = false;
+	        return this.next(value);
+	    };
+	    QueryProcessorIterator.prototype.next = function (value) {
+	        this.position++;
+	        if (this.position >= this.processors.length) {
+	            return this.end(value);
+	        }
+	        var nextProcessor = this.processors[this.position];
+	        return this.emit('next', nextProcessor, value);
+	    };
+	    QueryProcessorIterator.prototype.end = function (value) {
+	        this.done = true;
+	        return this.emit('end', value);
+	    };
+	    QueryProcessorIterator.prototype.cancel = function (reason) {
+	        this.done = true;
+	        return this.emit('cancel', reason);
+	    };
+	    QueryProcessorIterator.prototype.error = function (error) {
+	        return this.emit('error', error);
+	    };
+	    return QueryProcessorIterator;
+	}(EventEmitterExtended_1.EventEmitterExtended));
+	exports.QueryProcessorIterator = QueryProcessorIterator;
+
+
+/***/ },
+/* 151 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	// Registering underscore mixins:
+	__webpack_require__(152);
+
+
+/***/ },
 /* 152 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var _ = __webpack_require__(1);
+	var underscoreDeepExtend_1 = __webpack_require__(154);
+	var underscoreCompactObject_1 = __webpack_require__(153);
+	var underscoreIsObjectEmpty_1 = __webpack_require__(155);
+	_.mixin({ 'deepExtend': underscoreDeepExtend_1.deepExtend });
+	_.mixin({ 'compactObject': underscoreCompactObject_1.compactObject });
+	_.mixin({ 'isEmptyObject': underscoreIsObjectEmpty_1.isEmpty });
+
+
+/***/ },
+/* 153 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var _ = __webpack_require__(1);
+	//http://stackoverflow.com/questions/14058193/remove-empty-properties-falsy-values-from-object-with-underscore-js
+	function compactObject(o) {
+	    var newObject = {};
+	    _.each(o, function (v, k) {
+	        if (v !== null && v !== undefined) {
+	            newObject[k] = v;
+	        }
+	    });
+	    return newObject;
+	}
+	exports.compactObject = compactObject;
+
+
+/***/ },
+/* 154 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*  Copyright (C) 2012-2014  Kurt Milam - http://xioup.com | Source: https://gist.github.com/1868955
+	 *
+	 *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+	 *  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+	 *
+	 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	 **/
+	"use strict";
+	// Based conceptually on the _.extend() function in underscore.js ( see http://documentcloud.github.com/underscore/#extend for more details )
+	var _ = __webpack_require__(1);
+	function deepExtend(obj) {
+	    var parentRE = /#{\s*?_\s*?}/, slice = Array.prototype.slice;
+	    _.each(slice.call(arguments, 1), function (source) {
+	        for (var prop in source) {
+	            if (_.isUndefined(obj[prop]) || _.isFunction(obj[prop]) || _.isNull(source[prop]) || _.isDate(source[prop])) {
+	                obj[prop] = source[prop];
+	            }
+	            else if (_.isString(source[prop]) && parentRE.test(source[prop])) {
+	                if (_.isString(obj[prop])) {
+	                    obj[prop] = source[prop].replace(parentRE, obj[prop]);
+	                }
+	            }
+	            else if (_.isArray(obj[prop]) || _.isArray(source[prop])) {
+	                if (!_.isArray(obj[prop]) || !_.isArray(source[prop])) {
+	                    throw new Error('Trying to combine an array with a non-array (' + prop + ')');
+	                }
+	                else {
+	                    obj[prop] = _.reject(_.deepExtend(_.clone(obj[prop]), source[prop]), function (item) {
+	                        return _.isNull(item);
+	                    });
+	                }
+	            }
+	            else if (_.isObject(obj[prop]) || _.isObject(source[prop])) {
+	                if (!_.isObject(obj[prop]) || !_.isObject(source[prop])) {
+	                    throw new Error('Trying to combine an object with a non-object (' + prop + ')');
+	                }
+	                else {
+	                    obj[prop] = _.deepExtend(_.clone(obj[prop]), source[prop]);
+	                }
+	            }
+	            else {
+	                obj[prop] = source[prop];
+	            }
+	        }
+	    });
+	    return obj;
+	}
+	exports.deepExtend = deepExtend;
+	;
+	/**
+	 * Dependency: underscore.js ( http://documentcloud.github.com/underscore/ )
+	 *
+	 * Mix it in with underscore.js:
+	 * _.mixin({deepExtend: deepExtend});
+	 *
+	 * Call it like this:
+	 * var myObj = _.deepExtend(grandparent, child, grandchild, greatgrandchild)
+	 *
+	 * Notes:
+	 * Keep it DRY.
+	 * This function is especially useful if you're working with JSON config documents. It allows you to create a default
+	 * config document with the most common settings, then override those settings for specific cases. It accepts any
+	 * number of objects as arguments, giving you fine-grained control over your config document hierarchy.
+	 *
+	 * Special Features and Considerations:
+	 * - parentRE allows you to concatenate strings. example:
+	 *   var obj = _.deepExtend({url: "www.example.com"}, {url: "http://#{_}/path/to/file.html"});
+	 *   console.log(obj.url);
+	 *   output: "http://www.example.com/path/to/file.html"
+	 *
+	 * - parentRE also acts as a placeholder, which can be useful when you need to change one value in an array, while
+	 *   leaving the others untouched. example:
+	 *   var arr = _.deepExtend([100,    {id: 1234}, true,  "foo",  [250, 500]],
+	 *                          ["#{_}", "#{_}",     false, "#{_}", "#{_}"]);
+	 *   console.log(arr);
+	 *   output: [100, {id: 1234}, false, "foo", [250, 500]]
+	 *
+	 * - The previous example can also be written like this:
+	 *   var arr = _.deepExtend([100,    {id:1234},   true,  "foo",  [250, 500]],
+	 *                          ["#{_}", {},          false, "#{_}", []]);
+	 *   console.log(arr);
+	 *   output: [100, {id: 1234}, false, "foo", [250, 500]]
+	 *
+	 * - And also like this:
+	 *   var arr = _.deepExtend([100,    {id:1234},   true,  "foo",  [250, 500]],
+	 *                          ["#{_}", {},          false]);
+	 *   console.log(arr);
+	 *   output: [100, {id: 1234}, false, "foo", [250, 500]]
+	 *
+	 * - Array order is important. example:
+	 *   var arr = _.deepExtend([1, 2, 3, 4], [1, 4, 3, 2]);
+	 *   console.log(arr);
+	 *   output: [1, 4, 3, 2]
+	 *
+	 * - You can remove an array element set in a parent object by setting the same index value to null in a child object.
+	 *   example:
+	 *   var obj = _.deepExtend({arr: [1, 2, 3, 4]}, {arr: ["#{_}", null]});
+	 *   console.log(obj.arr);
+	 *   output: [1, 3, 4]
+	 *
+	 **/ 
+
+
+/***/ },
+/* 155 */
+/***/ function(module, exports) {
+
+	"use strict";
+	// http://stackoverflow.com/questions/4994201/is-object-empty
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	function isEmpty(obj) {
+	    // null and undefined are "empty"
+	    if (obj == null)
+	        return true;
+	    // Assume if it has a length property with a non-zero value
+	    // that that property is correct.
+	    if (obj.length > 0)
+	        return false;
+	    if (obj.length === 0)
+	        return true;
+	    // Otherwise, does it have any properties of its own?
+	    // Note that this doesn't handle
+	    // toString and valueOf enumeration bugs in IE < 9
+	    for (var key in obj) {
+	        if (hasOwnProperty.call(obj, key))
+	            return false;
+	    }
+	    return true;
+	}
+	exports.isEmpty = isEmpty;
+
+
+/***/ },
+/* 156 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var utils_1 = __webpack_require__(46);
+	var ErrorProcessor = (function () {
+	    function ErrorProcessor() {
+	    }
+	    ErrorProcessor.prototype.processError = function (query, data, err) {
+	        var setup = data.sdk.setup;
+	        var parseOnlyCompleteDateTimeString = setup && setup.parseOnlyCompleteDateTimeObjects;
+	        var reviver = utils_1.Utils.parseUtilities.getReviver(parseOnlyCompleteDateTimeString);
+	        return utils_1.Utils.parseUtilities.parseXhrError(reviver, err);
+	    };
+	    return ErrorProcessor;
+	}());
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = ErrorProcessor;
+
+
+/***/ },
+/* 157 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/// <reference path="typings/custom.d.ts" />
+	"use strict";
+	var es6_promise_1 = __webpack_require__(159);
+	__webpack_require__(151); //initialize common sdk
+	var index_1 = __webpack_require__(62);
+	es6_promise_1.polyfill();
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = index_1.Everlive;
+	module.exports = index_1.Everlive;
+	module.exports.default = index_1.Everlive;
+
+
+/***/ },
+/* 158 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * This is the common logic for both the Node.js and web browser
+	 * implementations of `debug()`.
+	 *
+	 * Expose `debug()` as the module.
+	 */
+	
+	exports = module.exports = debug.debug = debug;
+	exports.coerce = coerce;
+	exports.disable = disable;
+	exports.enable = enable;
+	exports.enabled = enabled;
+	exports.humanize = __webpack_require__(189);
+	
+	/**
+	 * The currently active debug mode names, and names to skip.
+	 */
+	
+	exports.names = [];
+	exports.skips = [];
+	
+	/**
+	 * Map of special "%n" handling functions, for the debug "format" argument.
+	 *
+	 * Valid key names are a single, lowercased letter, i.e. "n".
+	 */
+	
+	exports.formatters = {};
+	
+	/**
+	 * Previously assigned color.
+	 */
+	
+	var prevColor = 0;
+	
+	/**
+	 * Previous log timestamp.
+	 */
+	
+	var prevTime;
+	
+	/**
+	 * Select a color.
+	 *
+	 * @return {Number}
+	 * @api private
+	 */
+	
+	function selectColor() {
+	  return exports.colors[prevColor++ % exports.colors.length];
+	}
+	
+	/**
+	 * Create a debugger with the given `namespace`.
+	 *
+	 * @param {String} namespace
+	 * @return {Function}
+	 * @api public
+	 */
+	
+	function debug(namespace) {
+	
+	  // define the `disabled` version
+	  function disabled() {
+	  }
+	  disabled.enabled = false;
+	
+	  // define the `enabled` version
+	  function enabled() {
+	
+	    var self = enabled;
+	
+	    // set `diff` timestamp
+	    var curr = +new Date();
+	    var ms = curr - (prevTime || curr);
+	    self.diff = ms;
+	    self.prev = prevTime;
+	    self.curr = curr;
+	    prevTime = curr;
+	
+	    // add the `color` if not set
+	    if (null == self.useColors) self.useColors = exports.useColors();
+	    if (null == self.color && self.useColors) self.color = selectColor();
+	
+	    var args = new Array(arguments.length);
+	    for (var i = 0; i < args.length; i++) {
+	      args[i] = arguments[i];
+	    }
+	
+	    args[0] = exports.coerce(args[0]);
+	
+	    if ('string' !== typeof args[0]) {
+	      // anything else let's inspect with %o
+	      args = ['%o'].concat(args);
+	    }
+	
+	    // apply any `formatters` transformations
+	    var index = 0;
+	    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+	      // if we encounter an escaped % then don't increase the array index
+	      if (match === '%%') return match;
+	      index++;
+	      var formatter = exports.formatters[format];
+	      if ('function' === typeof formatter) {
+	        var val = args[index];
+	        match = formatter.call(self, val);
+	
+	        // now we need to remove `args[index]` since it's inlined in the `format`
+	        args.splice(index, 1);
+	        index--;
+	      }
+	      return match;
+	    });
+	
+	    // apply env-specific formatting
+	    args = exports.formatArgs.apply(self, args);
+	
+	    var logFn = enabled.log || exports.log || console.log.bind(console);
+	    logFn.apply(self, args);
+	  }
+	  enabled.enabled = true;
+	
+	  var fn = exports.enabled(namespace) ? enabled : disabled;
+	
+	  fn.namespace = namespace;
+	
+	  return fn;
+	}
+	
+	/**
+	 * Enables a debug mode by namespaces. This can include modes
+	 * separated by a colon and wildcards.
+	 *
+	 * @param {String} namespaces
+	 * @api public
+	 */
+	
+	function enable(namespaces) {
+	  exports.save(namespaces);
+	
+	  var split = (namespaces || '').split(/[\s,]+/);
+	  var len = split.length;
+	
+	  for (var i = 0; i < len; i++) {
+	    if (!split[i]) continue; // ignore empty strings
+	    namespaces = split[i].replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '.*?');
+	    if (namespaces[0] === '-') {
+	      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+	    } else {
+	      exports.names.push(new RegExp('^' + namespaces + '$'));
+	    }
+	  }
+	}
+	
+	/**
+	 * Disable debug output.
+	 *
+	 * @api public
+	 */
+	
+	function disable() {
+	  exports.enable('');
+	}
+	
+	/**
+	 * Returns true if the given mode name is enabled, false otherwise.
+	 *
+	 * @param {String} name
+	 * @return {Boolean}
+	 * @api public
+	 */
+	
+	function enabled(name) {
+	  var i, len;
+	  for (i = 0, len = exports.skips.length; i < len; i++) {
+	    if (exports.skips[i].test(name)) {
+	      return false;
+	    }
+	  }
+	  for (i = 0, len = exports.names.length; i < len; i++) {
+	    if (exports.names[i].test(name)) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+	
+	/**
+	 * Coerce `val`.
+	 *
+	 * @param {Mixed} val
+	 * @return {Mixed}
+	 * @api private
+	 */
+	
+	function coerce(val) {
+	  if (val instanceof Error) return val.stack || val.message;
+	  return val;
+	}
+
+
+/***/ },
+/* 159 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var require;/* WEBPACK VAR INJECTION */(function(process, global) {/*!
+	 * @overview es6-promise - a tiny implementation of Promises/A+.
+	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+	 * @license   Licensed under MIT license
+	 *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
+	 * @version   4.0.5
+	 */
+	
+	(function (global, factory) {
+	     true ? module.exports = factory() :
+	    typeof define === 'function' && define.amd ? define(factory) :
+	    (global.ES6Promise = factory());
+	}(this, (function () { 'use strict';
+	
+	function objectOrFunction(x) {
+	  return typeof x === 'function' || typeof x === 'object' && x !== null;
+	}
+	
+	function isFunction(x) {
+	  return typeof x === 'function';
+	}
+	
+	var _isArray = undefined;
+	if (!Array.isArray) {
+	  _isArray = function (x) {
+	    return Object.prototype.toString.call(x) === '[object Array]';
+	  };
+	} else {
+	  _isArray = Array.isArray;
+	}
+	
+	var isArray = _isArray;
+	
+	var len = 0;
+	var vertxNext = undefined;
+	var customSchedulerFn = undefined;
+	
+	var asap = function asap(callback, arg) {
+	  queue[len] = callback;
+	  queue[len + 1] = arg;
+	  len += 2;
+	  if (len === 2) {
+	    // If len is 2, that means that we need to schedule an async flush.
+	    // If additional callbacks are queued before the queue is flushed, they
+	    // will be processed by this flush that we are scheduling.
+	    if (customSchedulerFn) {
+	      customSchedulerFn(flush);
+	    } else {
+	      scheduleFlush();
+	    }
+	  }
+	};
+	
+	function setScheduler(scheduleFn) {
+	  customSchedulerFn = scheduleFn;
+	}
+	
+	function setAsap(asapFn) {
+	  asap = asapFn;
+	}
+	
+	var browserWindow = typeof window !== 'undefined' ? window : undefined;
+	var browserGlobal = browserWindow || {};
+	var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+	var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
+	
+	// test for web worker but not in IE10
+	var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
+	
+	// node
+	function useNextTick() {
+	  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+	  // see https://github.com/cujojs/when/issues/410 for details
+	  return function () {
+	    return process.nextTick(flush);
+	  };
+	}
+	
+	// vertx
+	function useVertxTimer() {
+	  if (typeof vertxNext !== 'undefined') {
+	    return function () {
+	      vertxNext(flush);
+	    };
+	  }
+	
+	  return useSetTimeout();
+	}
+	
+	function useMutationObserver() {
+	  var iterations = 0;
+	  var observer = new BrowserMutationObserver(flush);
+	  var node = document.createTextNode('');
+	  observer.observe(node, { characterData: true });
+	
+	  return function () {
+	    node.data = iterations = ++iterations % 2;
+	  };
+	}
+	
+	// web worker
+	function useMessageChannel() {
+	  var channel = new MessageChannel();
+	  channel.port1.onmessage = flush;
+	  return function () {
+	    return channel.port2.postMessage(0);
+	  };
+	}
+	
+	function useSetTimeout() {
+	  // Store setTimeout reference so es6-promise will be unaffected by
+	  // other code modifying setTimeout (like sinon.useFakeTimers())
+	  var globalSetTimeout = setTimeout;
+	  return function () {
+	    return globalSetTimeout(flush, 1);
+	  };
+	}
+	
+	var queue = new Array(1000);
+	function flush() {
+	  for (var i = 0; i < len; i += 2) {
+	    var callback = queue[i];
+	    var arg = queue[i + 1];
+	
+	    callback(arg);
+	
+	    queue[i] = undefined;
+	    queue[i + 1] = undefined;
+	  }
+	
+	  len = 0;
+	}
+	
+	function attemptVertx() {
+	  try {
+	    var r = require;
+	    var vertx = __webpack_require__(224);
+	    vertxNext = vertx.runOnLoop || vertx.runOnContext;
+	    return useVertxTimer();
+	  } catch (e) {
+	    return useSetTimeout();
+	  }
+	}
+	
+	var scheduleFlush = undefined;
+	// Decide what async method to use to triggering processing of queued callbacks:
+	if (isNode) {
+	  scheduleFlush = useNextTick();
+	} else if (BrowserMutationObserver) {
+	  scheduleFlush = useMutationObserver();
+	} else if (isWorker) {
+	  scheduleFlush = useMessageChannel();
+	} else if (browserWindow === undefined && "function" === 'function') {
+	  scheduleFlush = attemptVertx();
+	} else {
+	  scheduleFlush = useSetTimeout();
+	}
+	
+	function then(onFulfillment, onRejection) {
+	  var _arguments = arguments;
+	
+	  var parent = this;
+	
+	  var child = new this.constructor(noop);
+	
+	  if (child[PROMISE_ID] === undefined) {
+	    makePromise(child);
+	  }
+	
+	  var _state = parent._state;
+	
+	  if (_state) {
+	    (function () {
+	      var callback = _arguments[_state - 1];
+	      asap(function () {
+	        return invokeCallback(_state, child, callback, parent._result);
+	      });
+	    })();
+	  } else {
+	    subscribe(parent, child, onFulfillment, onRejection);
+	  }
+	
+	  return child;
+	}
+	
+	/**
+	  `Promise.resolve` returns a promise that will become resolved with the
+	  passed `value`. It is shorthand for the following:
+	
+	  ```javascript
+	  let promise = new Promise(function(resolve, reject){
+	    resolve(1);
+	  });
+	
+	  promise.then(function(value){
+	    // value === 1
+	  });
+	  ```
+	
+	  Instead of writing the above, your code now simply becomes the following:
+	
+	  ```javascript
+	  let promise = Promise.resolve(1);
+	
+	  promise.then(function(value){
+	    // value === 1
+	  });
+	  ```
+	
+	  @method resolve
+	  @static
+	  @param {Any} value value that the returned promise will be resolved with
+	  Useful for tooling.
+	  @return {Promise} a promise that will become fulfilled with the given
+	  `value`
+	*/
+	function resolve(object) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+	
+	  if (object && typeof object === 'object' && object.constructor === Constructor) {
+	    return object;
+	  }
+	
+	  var promise = new Constructor(noop);
+	  _resolve(promise, object);
+	  return promise;
+	}
+	
+	var PROMISE_ID = Math.random().toString(36).substring(16);
+	
+	function noop() {}
+	
+	var PENDING = void 0;
+	var FULFILLED = 1;
+	var REJECTED = 2;
+	
+	var GET_THEN_ERROR = new ErrorObject();
+	
+	function selfFulfillment() {
+	  return new TypeError("You cannot resolve a promise with itself");
+	}
+	
+	function cannotReturnOwn() {
+	  return new TypeError('A promises callback cannot return that same promise.');
+	}
+	
+	function getThen(promise) {
+	  try {
+	    return promise.then;
+	  } catch (error) {
+	    GET_THEN_ERROR.error = error;
+	    return GET_THEN_ERROR;
+	  }
+	}
+	
+	function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+	  try {
+	    then.call(value, fulfillmentHandler, rejectionHandler);
+	  } catch (e) {
+	    return e;
+	  }
+	}
+	
+	function handleForeignThenable(promise, thenable, then) {
+	  asap(function (promise) {
+	    var sealed = false;
+	    var error = tryThen(then, thenable, function (value) {
+	      if (sealed) {
+	        return;
+	      }
+	      sealed = true;
+	      if (thenable !== value) {
+	        _resolve(promise, value);
+	      } else {
+	        fulfill(promise, value);
+	      }
+	    }, function (reason) {
+	      if (sealed) {
+	        return;
+	      }
+	      sealed = true;
+	
+	      _reject(promise, reason);
+	    }, 'Settle: ' + (promise._label || ' unknown promise'));
+	
+	    if (!sealed && error) {
+	      sealed = true;
+	      _reject(promise, error);
+	    }
+	  }, promise);
+	}
+	
+	function handleOwnThenable(promise, thenable) {
+	  if (thenable._state === FULFILLED) {
+	    fulfill(promise, thenable._result);
+	  } else if (thenable._state === REJECTED) {
+	    _reject(promise, thenable._result);
+	  } else {
+	    subscribe(thenable, undefined, function (value) {
+	      return _resolve(promise, value);
+	    }, function (reason) {
+	      return _reject(promise, reason);
+	    });
+	  }
+	}
+	
+	function handleMaybeThenable(promise, maybeThenable, then$$) {
+	  if (maybeThenable.constructor === promise.constructor && then$$ === then && maybeThenable.constructor.resolve === resolve) {
+	    handleOwnThenable(promise, maybeThenable);
+	  } else {
+	    if (then$$ === GET_THEN_ERROR) {
+	      _reject(promise, GET_THEN_ERROR.error);
+	    } else if (then$$ === undefined) {
+	      fulfill(promise, maybeThenable);
+	    } else if (isFunction(then$$)) {
+	      handleForeignThenable(promise, maybeThenable, then$$);
+	    } else {
+	      fulfill(promise, maybeThenable);
+	    }
+	  }
+	}
+	
+	function _resolve(promise, value) {
+	  if (promise === value) {
+	    _reject(promise, selfFulfillment());
+	  } else if (objectOrFunction(value)) {
+	    handleMaybeThenable(promise, value, getThen(value));
+	  } else {
+	    fulfill(promise, value);
+	  }
+	}
+	
+	function publishRejection(promise) {
+	  if (promise._onerror) {
+	    promise._onerror(promise._result);
+	  }
+	
+	  publish(promise);
+	}
+	
+	function fulfill(promise, value) {
+	  if (promise._state !== PENDING) {
+	    return;
+	  }
+	
+	  promise._result = value;
+	  promise._state = FULFILLED;
+	
+	  if (promise._subscribers.length !== 0) {
+	    asap(publish, promise);
+	  }
+	}
+	
+	function _reject(promise, reason) {
+	  if (promise._state !== PENDING) {
+	    return;
+	  }
+	  promise._state = REJECTED;
+	  promise._result = reason;
+	
+	  asap(publishRejection, promise);
+	}
+	
+	function subscribe(parent, child, onFulfillment, onRejection) {
+	  var _subscribers = parent._subscribers;
+	  var length = _subscribers.length;
+	
+	  parent._onerror = null;
+	
+	  _subscribers[length] = child;
+	  _subscribers[length + FULFILLED] = onFulfillment;
+	  _subscribers[length + REJECTED] = onRejection;
+	
+	  if (length === 0 && parent._state) {
+	    asap(publish, parent);
+	  }
+	}
+	
+	function publish(promise) {
+	  var subscribers = promise._subscribers;
+	  var settled = promise._state;
+	
+	  if (subscribers.length === 0) {
+	    return;
+	  }
+	
+	  var child = undefined,
+	      callback = undefined,
+	      detail = promise._result;
+	
+	  for (var i = 0; i < subscribers.length; i += 3) {
+	    child = subscribers[i];
+	    callback = subscribers[i + settled];
+	
+	    if (child) {
+	      invokeCallback(settled, child, callback, detail);
+	    } else {
+	      callback(detail);
+	    }
+	  }
+	
+	  promise._subscribers.length = 0;
+	}
+	
+	function ErrorObject() {
+	  this.error = null;
+	}
+	
+	var TRY_CATCH_ERROR = new ErrorObject();
+	
+	function tryCatch(callback, detail) {
+	  try {
+	    return callback(detail);
+	  } catch (e) {
+	    TRY_CATCH_ERROR.error = e;
+	    return TRY_CATCH_ERROR;
+	  }
+	}
+	
+	function invokeCallback(settled, promise, callback, detail) {
+	  var hasCallback = isFunction(callback),
+	      value = undefined,
+	      error = undefined,
+	      succeeded = undefined,
+	      failed = undefined;
+	
+	  if (hasCallback) {
+	    value = tryCatch(callback, detail);
+	
+	    if (value === TRY_CATCH_ERROR) {
+	      failed = true;
+	      error = value.error;
+	      value = null;
+	    } else {
+	      succeeded = true;
+	    }
+	
+	    if (promise === value) {
+	      _reject(promise, cannotReturnOwn());
+	      return;
+	    }
+	  } else {
+	    value = detail;
+	    succeeded = true;
+	  }
+	
+	  if (promise._state !== PENDING) {
+	    // noop
+	  } else if (hasCallback && succeeded) {
+	      _resolve(promise, value);
+	    } else if (failed) {
+	      _reject(promise, error);
+	    } else if (settled === FULFILLED) {
+	      fulfill(promise, value);
+	    } else if (settled === REJECTED) {
+	      _reject(promise, value);
+	    }
+	}
+	
+	function initializePromise(promise, resolver) {
+	  try {
+	    resolver(function resolvePromise(value) {
+	      _resolve(promise, value);
+	    }, function rejectPromise(reason) {
+	      _reject(promise, reason);
+	    });
+	  } catch (e) {
+	    _reject(promise, e);
+	  }
+	}
+	
+	var id = 0;
+	function nextId() {
+	  return id++;
+	}
+	
+	function makePromise(promise) {
+	  promise[PROMISE_ID] = id++;
+	  promise._state = undefined;
+	  promise._result = undefined;
+	  promise._subscribers = [];
+	}
+	
+	function Enumerator(Constructor, input) {
+	  this._instanceConstructor = Constructor;
+	  this.promise = new Constructor(noop);
+	
+	  if (!this.promise[PROMISE_ID]) {
+	    makePromise(this.promise);
+	  }
+	
+	  if (isArray(input)) {
+	    this._input = input;
+	    this.length = input.length;
+	    this._remaining = input.length;
+	
+	    this._result = new Array(this.length);
+	
+	    if (this.length === 0) {
+	      fulfill(this.promise, this._result);
+	    } else {
+	      this.length = this.length || 0;
+	      this._enumerate();
+	      if (this._remaining === 0) {
+	        fulfill(this.promise, this._result);
+	      }
+	    }
+	  } else {
+	    _reject(this.promise, validationError());
+	  }
+	}
+	
+	function validationError() {
+	  return new Error('Array Methods must be provided an Array');
+	};
+	
+	Enumerator.prototype._enumerate = function () {
+	  var length = this.length;
+	  var _input = this._input;
+	
+	  for (var i = 0; this._state === PENDING && i < length; i++) {
+	    this._eachEntry(_input[i], i);
+	  }
+	};
+	
+	Enumerator.prototype._eachEntry = function (entry, i) {
+	  var c = this._instanceConstructor;
+	  var resolve$$ = c.resolve;
+	
+	  if (resolve$$ === resolve) {
+	    var _then = getThen(entry);
+	
+	    if (_then === then && entry._state !== PENDING) {
+	      this._settledAt(entry._state, i, entry._result);
+	    } else if (typeof _then !== 'function') {
+	      this._remaining--;
+	      this._result[i] = entry;
+	    } else if (c === Promise) {
+	      var promise = new c(noop);
+	      handleMaybeThenable(promise, entry, _then);
+	      this._willSettleAt(promise, i);
+	    } else {
+	      this._willSettleAt(new c(function (resolve$$) {
+	        return resolve$$(entry);
+	      }), i);
+	    }
+	  } else {
+	    this._willSettleAt(resolve$$(entry), i);
+	  }
+	};
+	
+	Enumerator.prototype._settledAt = function (state, i, value) {
+	  var promise = this.promise;
+	
+	  if (promise._state === PENDING) {
+	    this._remaining--;
+	
+	    if (state === REJECTED) {
+	      _reject(promise, value);
+	    } else {
+	      this._result[i] = value;
+	    }
+	  }
+	
+	  if (this._remaining === 0) {
+	    fulfill(promise, this._result);
+	  }
+	};
+	
+	Enumerator.prototype._willSettleAt = function (promise, i) {
+	  var enumerator = this;
+	
+	  subscribe(promise, undefined, function (value) {
+	    return enumerator._settledAt(FULFILLED, i, value);
+	  }, function (reason) {
+	    return enumerator._settledAt(REJECTED, i, reason);
+	  });
+	};
+	
+	/**
+	  `Promise.all` accepts an array of promises, and returns a new promise which
+	  is fulfilled with an array of fulfillment values for the passed promises, or
+	  rejected with the reason of the first passed promise to be rejected. It casts all
+	  elements of the passed iterable to promises as it runs this algorithm.
+	
+	  Example:
+	
+	  ```javascript
+	  let promise1 = resolve(1);
+	  let promise2 = resolve(2);
+	  let promise3 = resolve(3);
+	  let promises = [ promise1, promise2, promise3 ];
+	
+	  Promise.all(promises).then(function(array){
+	    // The array here would be [ 1, 2, 3 ];
+	  });
+	  ```
+	
+	  If any of the `promises` given to `all` are rejected, the first promise
+	  that is rejected will be given as an argument to the returned promises's
+	  rejection handler. For example:
+	
+	  Example:
+	
+	  ```javascript
+	  let promise1 = resolve(1);
+	  let promise2 = reject(new Error("2"));
+	  let promise3 = reject(new Error("3"));
+	  let promises = [ promise1, promise2, promise3 ];
+	
+	  Promise.all(promises).then(function(array){
+	    // Code here never runs because there are rejected promises!
+	  }, function(error) {
+	    // error.message === "2"
+	  });
+	  ```
+	
+	  @method all
+	  @static
+	  @param {Array} entries array of promises
+	  @param {String} label optional string for labeling the promise.
+	  Useful for tooling.
+	  @return {Promise} promise that is fulfilled when all `promises` have been
+	  fulfilled, or rejected if any of them become rejected.
+	  @static
+	*/
+	function all(entries) {
+	  return new Enumerator(this, entries).promise;
+	}
+	
+	/**
+	  `Promise.race` returns a new promise which is settled in the same way as the
+	  first passed promise to settle.
+	
+	  Example:
+	
+	  ```javascript
+	  let promise1 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 1');
+	    }, 200);
+	  });
+	
+	  let promise2 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 2');
+	    }, 100);
+	  });
+	
+	  Promise.race([promise1, promise2]).then(function(result){
+	    // result === 'promise 2' because it was resolved before promise1
+	    // was resolved.
+	  });
+	  ```
+	
+	  `Promise.race` is deterministic in that only the state of the first
+	  settled promise matters. For example, even if other promises given to the
+	  `promises` array argument are resolved, but the first settled promise has
+	  become rejected before the other promises became fulfilled, the returned
+	  promise will become rejected:
+	
+	  ```javascript
+	  let promise1 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      resolve('promise 1');
+	    }, 200);
+	  });
+	
+	  let promise2 = new Promise(function(resolve, reject){
+	    setTimeout(function(){
+	      reject(new Error('promise 2'));
+	    }, 100);
+	  });
+	
+	  Promise.race([promise1, promise2]).then(function(result){
+	    // Code here never runs
+	  }, function(reason){
+	    // reason.message === 'promise 2' because promise 2 became rejected before
+	    // promise 1 became fulfilled
+	  });
+	  ```
+	
+	  An example real-world use case is implementing timeouts:
+	
+	  ```javascript
+	  Promise.race([ajax('foo.json'), timeout(5000)])
+	  ```
+	
+	  @method race
+	  @static
+	  @param {Array} promises array of promises to observe
+	  Useful for tooling.
+	  @return {Promise} a promise which settles in the same way as the first passed
+	  promise to settle.
+	*/
+	function race(entries) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+	
+	  if (!isArray(entries)) {
+	    return new Constructor(function (_, reject) {
+	      return reject(new TypeError('You must pass an array to race.'));
+	    });
+	  } else {
+	    return new Constructor(function (resolve, reject) {
+	      var length = entries.length;
+	      for (var i = 0; i < length; i++) {
+	        Constructor.resolve(entries[i]).then(resolve, reject);
+	      }
+	    });
+	  }
+	}
+	
+	/**
+	  `Promise.reject` returns a promise rejected with the passed `reason`.
+	  It is shorthand for the following:
+	
+	  ```javascript
+	  let promise = new Promise(function(resolve, reject){
+	    reject(new Error('WHOOPS'));
+	  });
+	
+	  promise.then(function(value){
+	    // Code here doesn't run because the promise is rejected!
+	  }, function(reason){
+	    // reason.message === 'WHOOPS'
+	  });
+	  ```
+	
+	  Instead of writing the above, your code now simply becomes the following:
+	
+	  ```javascript
+	  let promise = Promise.reject(new Error('WHOOPS'));
+	
+	  promise.then(function(value){
+	    // Code here doesn't run because the promise is rejected!
+	  }, function(reason){
+	    // reason.message === 'WHOOPS'
+	  });
+	  ```
+	
+	  @method reject
+	  @static
+	  @param {Any} reason value that the returned promise will be rejected with.
+	  Useful for tooling.
+	  @return {Promise} a promise rejected with the given `reason`.
+	*/
+	function reject(reason) {
+	  /*jshint validthis:true */
+	  var Constructor = this;
+	  var promise = new Constructor(noop);
+	  _reject(promise, reason);
+	  return promise;
+	}
+	
+	function needsResolver() {
+	  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+	}
+	
+	function needsNew() {
+	  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+	}
+	
+	/**
+	  Promise objects represent the eventual result of an asynchronous operation. The
+	  primary way of interacting with a promise is through its `then` method, which
+	  registers callbacks to receive either a promise's eventual value or the reason
+	  why the promise cannot be fulfilled.
+	
+	  Terminology
+	  -----------
+	
+	  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+	  - `thenable` is an object or function that defines a `then` method.
+	  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+	  - `exception` is a value that is thrown using the throw statement.
+	  - `reason` is a value that indicates why a promise was rejected.
+	  - `settled` the final resting state of a promise, fulfilled or rejected.
+	
+	  A promise can be in one of three states: pending, fulfilled, or rejected.
+	
+	  Promises that are fulfilled have a fulfillment value and are in the fulfilled
+	  state.  Promises that are rejected have a rejection reason and are in the
+	  rejected state.  A fulfillment value is never a thenable.
+	
+	  Promises can also be said to *resolve* a value.  If this value is also a
+	  promise, then the original promise's settled state will match the value's
+	  settled state.  So a promise that *resolves* a promise that rejects will
+	  itself reject, and a promise that *resolves* a promise that fulfills will
+	  itself fulfill.
+	
+	
+	  Basic Usage:
+	  ------------
+	
+	  ```js
+	  let promise = new Promise(function(resolve, reject) {
+	    // on success
+	    resolve(value);
+	
+	    // on failure
+	    reject(reason);
+	  });
+	
+	  promise.then(function(value) {
+	    // on fulfillment
+	  }, function(reason) {
+	    // on rejection
+	  });
+	  ```
+	
+	  Advanced Usage:
+	  ---------------
+	
+	  Promises shine when abstracting away asynchronous interactions such as
+	  `XMLHttpRequest`s.
+	
+	  ```js
+	  function getJSON(url) {
+	    return new Promise(function(resolve, reject){
+	      let xhr = new XMLHttpRequest();
+	
+	      xhr.open('GET', url);
+	      xhr.onreadystatechange = handler;
+	      xhr.responseType = 'json';
+	      xhr.setRequestHeader('Accept', 'application/json');
+	      xhr.send();
+	
+	      function handler() {
+	        if (this.readyState === this.DONE) {
+	          if (this.status === 200) {
+	            resolve(this.response);
+	          } else {
+	            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+	          }
+	        }
+	      };
+	    });
+	  }
+	
+	  getJSON('/posts.json').then(function(json) {
+	    // on fulfillment
+	  }, function(reason) {
+	    // on rejection
+	  });
+	  ```
+	
+	  Unlike callbacks, promises are great composable primitives.
+	
+	  ```js
+	  Promise.all([
+	    getJSON('/posts'),
+	    getJSON('/comments')
+	  ]).then(function(values){
+	    values[0] // => postsJSON
+	    values[1] // => commentsJSON
+	
+	    return values;
+	  });
+	  ```
+	
+	  @class Promise
+	  @param {function} resolver
+	  Useful for tooling.
+	  @constructor
+	*/
+	function Promise(resolver) {
+	  this[PROMISE_ID] = nextId();
+	  this._result = this._state = undefined;
+	  this._subscribers = [];
+	
+	  if (noop !== resolver) {
+	    typeof resolver !== 'function' && needsResolver();
+	    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+	  }
+	}
+	
+	Promise.all = all;
+	Promise.race = race;
+	Promise.resolve = resolve;
+	Promise.reject = reject;
+	Promise._setScheduler = setScheduler;
+	Promise._setAsap = setAsap;
+	Promise._asap = asap;
+	
+	Promise.prototype = {
+	  constructor: Promise,
+	
+	  /**
+	    The primary way of interacting with a promise is through its `then` method,
+	    which registers callbacks to receive either a promise's eventual value or the
+	    reason why the promise cannot be fulfilled.
+	  
+	    ```js
+	    findUser().then(function(user){
+	      // user is available
+	    }, function(reason){
+	      // user is unavailable, and you are given the reason why
+	    });
+	    ```
+	  
+	    Chaining
+	    --------
+	  
+	    The return value of `then` is itself a promise.  This second, 'downstream'
+	    promise is resolved with the return value of the first promise's fulfillment
+	    or rejection handler, or rejected if the handler throws an exception.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return user.name;
+	    }, function (reason) {
+	      return 'default name';
+	    }).then(function (userName) {
+	      // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+	      // will be `'default name'`
+	    });
+	  
+	    findUser().then(function (user) {
+	      throw new Error('Found user, but still unhappy');
+	    }, function (reason) {
+	      throw new Error('`findUser` rejected and we're unhappy');
+	    }).then(function (value) {
+	      // never reached
+	    }, function (reason) {
+	      // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+	      // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+	    });
+	    ```
+	    If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      throw new PedagogicalException('Upstream error');
+	    }).then(function (value) {
+	      // never reached
+	    }).then(function (value) {
+	      // never reached
+	    }, function (reason) {
+	      // The `PedgagocialException` is propagated all the way down to here
+	    });
+	    ```
+	  
+	    Assimilation
+	    ------------
+	  
+	    Sometimes the value you want to propagate to a downstream promise can only be
+	    retrieved asynchronously. This can be achieved by returning a promise in the
+	    fulfillment or rejection handler. The downstream promise will then be pending
+	    until the returned promise is settled. This is called *assimilation*.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return findCommentsByAuthor(user);
+	    }).then(function (comments) {
+	      // The user's comments are now available
+	    });
+	    ```
+	  
+	    If the assimliated promise rejects, then the downstream promise will also reject.
+	  
+	    ```js
+	    findUser().then(function (user) {
+	      return findCommentsByAuthor(user);
+	    }).then(function (comments) {
+	      // If `findCommentsByAuthor` fulfills, we'll have the value here
+	    }, function (reason) {
+	      // If `findCommentsByAuthor` rejects, we'll have the reason here
+	    });
+	    ```
+	  
+	    Simple Example
+	    --------------
+	  
+	    Synchronous Example
+	  
+	    ```javascript
+	    let result;
+	  
+	    try {
+	      result = findResult();
+	      // success
+	    } catch(reason) {
+	      // failure
+	    }
+	    ```
+	  
+	    Errback Example
+	  
+	    ```js
+	    findResult(function(result, err){
+	      if (err) {
+	        // failure
+	      } else {
+	        // success
+	      }
+	    });
+	    ```
+	  
+	    Promise Example;
+	  
+	    ```javascript
+	    findResult().then(function(result){
+	      // success
+	    }, function(reason){
+	      // failure
+	    });
+	    ```
+	  
+	    Advanced Example
+	    --------------
+	  
+	    Synchronous Example
+	  
+	    ```javascript
+	    let author, books;
+	  
+	    try {
+	      author = findAuthor();
+	      books  = findBooksByAuthor(author);
+	      // success
+	    } catch(reason) {
+	      // failure
+	    }
+	    ```
+	  
+	    Errback Example
+	  
+	    ```js
+	  
+	    function foundBooks(books) {
+	  
+	    }
+	  
+	    function failure(reason) {
+	  
+	    }
+	  
+	    findAuthor(function(author, err){
+	      if (err) {
+	        failure(err);
+	        // failure
+	      } else {
+	        try {
+	          findBoooksByAuthor(author, function(books, err) {
+	            if (err) {
+	              failure(err);
+	            } else {
+	              try {
+	                foundBooks(books);
+	              } catch(reason) {
+	                failure(reason);
+	              }
+	            }
+	          });
+	        } catch(error) {
+	          failure(err);
+	        }
+	        // success
+	      }
+	    });
+	    ```
+	  
+	    Promise Example;
+	  
+	    ```javascript
+	    findAuthor().
+	      then(findBooksByAuthor).
+	      then(function(books){
+	        // found books
+	    }).catch(function(reason){
+	      // something went wrong
+	    });
+	    ```
+	  
+	    @method then
+	    @param {Function} onFulfilled
+	    @param {Function} onRejected
+	    Useful for tooling.
+	    @return {Promise}
+	  */
+	  then: then,
+	
+	  /**
+	    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+	    as the catch block of a try/catch statement.
+	  
+	    ```js
+	    function findAuthor(){
+	      throw new Error('couldn't find that author');
+	    }
+	  
+	    // synchronous
+	    try {
+	      findAuthor();
+	    } catch(reason) {
+	      // something went wrong
+	    }
+	  
+	    // async with promises
+	    findAuthor().catch(function(reason){
+	      // something went wrong
+	    });
+	    ```
+	  
+	    @method catch
+	    @param {Function} onRejection
+	    Useful for tooling.
+	    @return {Promise}
+	  */
+	  'catch': function _catch(onRejection) {
+	    return this.then(null, onRejection);
+	  }
+	};
+	
+	function polyfill() {
+	    var local = undefined;
+	
+	    if (typeof global !== 'undefined') {
+	        local = global;
+	    } else if (typeof self !== 'undefined') {
+	        local = self;
+	    } else {
+	        try {
+	            local = Function('return this')();
+	        } catch (e) {
+	            throw new Error('polyfill failed because global object is unavailable in this environment');
+	        }
+	    }
+	
+	    var P = local.Promise;
+	
+	    if (P) {
+	        var promiseToString = null;
+	        try {
+	            promiseToString = Object.prototype.toString.call(P.resolve());
+	        } catch (e) {
+	            // silently ignored
+	        }
+	
+	        if (promiseToString === '[object Object]' && !P.cast) {
+	            return;
+	        }
+	    }
+	
+	    local.Promise = Promise;
+	}
+	
+	// Strange compat..
+	Promise.polyfill = polyfill;
+	Promise.Promise = Promise;
+	
+	return Promise;
+	
+	})));
+	//# sourceMappingURL=es6-promise.map
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), (function() { return this; }())))
+
+/***/ },
+/* 160 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	
+	var dialectsHash = {
+		base: __webpack_require__(28),
+		mssql: __webpack_require__(169),
+		postgresql: __webpack_require__(172),
+		sqlite: __webpack_require__(178),
+		mysql: __webpack_require__(170)
+	};
+	
+	var Builder = module.exports = function(options) {
+		this.configure(options);
+	};
+	
+	Builder.prototype._reset = function() {
+		if (this.options.separatedValues) {
+			this._placeholderId = 1;
+			this._values = this.options.namedValues ? {} : [];
+		} else {
+			delete this._placeholderId;
+			delete this._values;
+		}
+	
+		this._query = '';
+	};
+	
+	Builder.prototype._getPlaceholder = function() {
+		return (this.options.namedValues ? 'p' : '') + (this._placeholderId++);
+	};
+	
+	Builder.prototype._wrapPlaceholder = function(name) {
+		return this.options.valuesPrefix + name;
+	};
+	
+	Builder.prototype._pushValue = function(value) {
+		if (_.isUndefined(value) || _.isNull(value)) {
+			return 'null';
+		} else if (_.isNumber(value) || _.isBoolean(value)) {
+			return String(value);
+		} else if (_.isString(value)) {
+			if (this.options.separatedValues) {
+				var placeholder = this._getPlaceholder();
+				if (this.options.namedValues) {
+					this._values[placeholder] = value;
+				} else {
+					this._values.push(value);
+				}
+				return this._wrapPlaceholder(placeholder);
+			} else {
+				return '\'' + value + '\'';
+			}
+		} else {
+			throw new Error('Wrong value type "' + (typeof value) + '"');
+		}
+	};
+	
+	Builder.prototype.configure = function(options) {
+		options = options || {};
+	
+		this.options = _.defaults({}, options, {
+			separatedValues: true,
+			namedValues: true,
+			valuesPrefix: '$',
+			dialect: 'base',
+			wrappedIdentifiers: true
+		});
+	
+		this.setDialect(this.options.dialect);
+	
+		this._reset();
+	};
+	
+	Builder.prototype.build = function(params) {
+		var builder = this;
+	
+		this._reset();
+	
+		this._query = this.dialect.buildTemplate('query', {queryBody: params}) + ';';
+	
+		if (this.options.separatedValues) {
+			return {
+				query: this._query,
+				values: this._values,
+				prefixValues: function() {
+					var values = {};
+					_(this.getValuesObject()).each(function(value, name) {
+						values[builder._wrapPlaceholder(name)] = value;
+					});
+					return values;
+				},
+				getValuesArray: function() {
+					return _.isArray(this.values) ? this.values : _(this.values).values();
+				},
+				getValuesObject: function() {
+					return _.isArray(this.values) ? _(_.range(1, this.values.length + 1)).object(this.values) :
+						this.values;
+				}
+			};
+		} else {
+			return {query: this._query};
+		}
+	};
+	
+	Builder.prototype.setDialect = function(name) {
+		if (!dialectsHash[name]) {
+			throw new Error('Unknown dialect "' + name + '"');
+		}
+	
+		this.dialect = new (dialectsHash[name])(this);
+	};
+
+
+/***/ },
+/* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	
+	var removeTopBrackets = function(condition) {
+		if (condition.length && condition[0] === '(' &&
+			condition[condition.length - 1] === ')') {
+			condition = condition.slice(1, condition.length - 1);
+		}
+	
+		return condition;
+	};
+	
+	// check if object contains any of expected keys
+	var hasSome = function(obj, keys) {
+		var objKeys = _(obj).keys();
+		return _(keys).some(function(key) {
+			return _(objKeys).contains(key);
+		});
+	};
+	
+	var termKeys = ['select', 'query', 'field', 'value', 'func', 'expression'];
+	var isTerm = function(obj) {
+		return _.isObject(obj) && !_.isArray(obj) && hasSome(obj, termKeys);
+	};
+	
+	var isSimpleValue = function(value) {
+		return (
+			_.isString(value) ||
+			_.isNumber(value) ||
+			_.isBoolean(value) ||
+			_.isNull(value) ||
+			_.isUndefined(value) ||
+			_.isRegExp(value) ||
+			_.isDate(value)
+		);
+	};
+	
+	module.exports = function(dialect) {
+		dialect.blocks.add('distinct', function() {
+			return 'distinct';
+		});
+	
+		dialect.blocks.add('fields', function(params) {
+			var fields = params.fields || {};
+	
+			if (!_.isObject(fields)) {
+				throw new Error('Invalid `fields` property type "' + (typeof fields) + '"');
+			}
+	
+			if(_.isObject(params.count)){
+				return '';
+			}
+	
+			if (_.isEmpty(fields)) {
+				return '*';
+			}
+	
+			// If fields is array: ['a', {b: 'c'}, {name: '', table: 't', alias: 'r'}]
+			if (_.isArray(fields)) {
+				fields = _(fields).map(function(field) {
+					if (isSimpleValue(field) || isTerm(field) || _.has(field, 'name')) {
+						// if field has simple type or is field object: {name: '', table: 't', alias: 'r'}
+						return dialect.buildBlock('term', {term: field, type: 'field'});
+					} else {
+						// if field is non-field object: {b: 'c'}
+						return dialect.buildBlock('fields', {fields: field});
+					}
+				});
+	
+			// If fields is object: {a: 'u', b: {table: 't', alias: 'c'}}
+			} else {
+				// use keys as field names
+				fields = _(fields).map(function(field, name) {
+					// if field is not an object value, use it as alias
+					if (_.isString(field)) field = {alias: field};
+	
+					// if field does not have name, get it from key
+					if (!_.has(field, 'name')) field = _.defaults({name: name}, field);
+	
+					return dialect.buildBlock('term', {term: field, type: 'field'});
+				});
+			}
+	
+			return _(fields).compact().join(', ');
+		});
+	
+		dialect.blocks.add('count', function(params) {
+			return 'COUNT(*) as Count';
+		});
+	
+		dialect.blocks.add('term', function(params) {
+			var term = params.term;
+			var type = params.type || 'field';
+	
+			var notObject = isSimpleValue(term) || _.isArray(term);
+	
+			if (notObject && !_.isString(term)) type = 'value';
+	
+			if (notObject || !isTerm(term)) {
+				term = _(term).chain().pick('cast', 'alias').extend(_.object([type], [term])).value();
+			}
+	
+			type = _(termKeys).find(function(key) {
+				return _.has(term, key);
+			});
+	
+			var result = dialect.buildBlock(type, _(term).pick(type));
+	
+			if (_.has(term, 'cast')) {
+				result = 'cast(' + result + ' as ' + term.cast + ')';
+			}
+	
+			if (_.has(term, 'alias')) {
+				result += ' ' + dialect.buildBlock('alias', {alias: term.alias});
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('table', function(params) {
+			return dialect.buildBlock('name', {name: params.table});
+		});
+	
+		dialect.blocks.add('func', function(params) {
+			var func = params.func;
+	
+			if (_.isString(func)) func = {name: func};
+	
+			if (!_.isObject(func)) {
+				throw new Error('Invalid `func` property type "' + (typeof func) + '"');
+			}
+	
+			if (!_.has(func, 'name')) {
+				throw new Error('`func.name` property is required');
+			}
+	
+			var args = '';
+	
+			if (_.isArray(func.args)) {
+				args = _(func.args).map(function(arg) {
+					return dialect.buildBlock('term', {term: arg, type: 'value'});
+				}).join(', ');
+			}
+	
+			return func.name + '(' + args + ')';
+		});
+	
+		dialect.blocks.add('expression', function(params) {
+			var expression = params.expression;
+	
+			if (_.isString(expression)) expression = {pattern: expression};
+	
+			if (!_.isObject(expression)) {
+				throw new Error('Invalid `expression` property type "' + (typeof expression) + '"');
+			}
+	
+			if (!_.has(expression, 'pattern')) {
+				throw new Error('`expression.pattern` property is required');
+			}
+	
+			var values = expression.values || {};
+	
+			return expression.pattern.replace(/\{([a-z0-9]+)\}/ig, function(fullMatch, block) {
+				if (!_.has(values, block)) {
+					throw new Error('Field `' + block + '` is required in `expression.values` property');
+				}
+	
+				return dialect.buildBlock('term', {term: values[block], type: 'value'});
+			}).trim();
+		});
+	
+		dialect.blocks.add('field', function(params) {
+			var field = params.field;
+	
+			if (_.isString(field)) field = {name: field};
+	
+			if (!_.isObject(field)) {
+				throw new Error('Invalid `field` property type "' + (typeof field) + '"');
+			}
+	
+			if (!_.has(field, 'name')) {
+				throw new Error('`field.name` property is required');
+			}
+	
+			var result = dialect.buildBlock('name', {name: field.name});
+	
+			if (_.has(field, 'table')) {
+				result = dialect.buildBlock('table', {table: field.table}) + '.' + result;
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('value', function(params) {
+			var value = params.value;
+			if (_.isRegExp(value)) value = value.source;
+			return dialect.builder._pushValue(value);
+		});
+	
+		dialect.blocks.add('name', function(params) {
+			return dialect._wrapIdentifier(params.name);
+		});
+	
+		dialect.blocks.add('alias', function(params) {
+			var alias = params.alias;
+	
+			if (_.isString(alias)) alias = {name: alias};
+	
+			if (!_.isObject(alias)) {
+				throw new Error('Invalid `alias` property type "' + (typeof alias) + '"');
+			}
+			if (!_.has(alias, 'name')) {
+				throw new Error('`alias.name` property is required');
+			}
+	
+			var result = 'as ' + dialect._wrapIdentifier(alias.name);
+	
+			if (_.isArray(alias.columns)) {
+				result += '(' + _(alias.columns).map(function(column) {
+					return dialect._wrapIdentifier(column);
+				}).join(', ') + ')';
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('condition', function(params) {
+			var result = dialect.buildCondition({
+				value: params.condition,
+				defaultFetchingOperator: '$value'
+			});
+	
+			if (result) {
+				result = 'where ' + removeTopBrackets(result);
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('modifier', function(params) {
+			var result = dialect.buildModifier({
+				modifier: params.modifier
+			});
+	
+			if (result) {
+				result = 'set ' + result;
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('join', function(params) {
+			var join = params.join;
+			var result = '';
+	
+			// if join is array -> make each joinItem
+			if (_.isArray(join)) {
+				result = _(join).map(function(joinItem) {
+					return dialect.buildTemplate('joinItem', joinItem);
+				}).join(' ');
+	
+			// if join is object -> set table name from key and make each joinItem
+			} else if (_.isObject(join)) {
+				result = _(join).map(function(joinItem, table) {
+					if (!hasSome(joinItem, ['table', 'query', 'select', 'expression'])) {
+						joinItem = _.defaults({table: table}, joinItem);
+					}
+	
+					return dialect.buildTemplate('joinItem', joinItem);
+				}).join(' ');
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('joinItem:type', function(params) {
+			return params.type.toLowerCase();
+		});
+	
+		dialect.blocks.add('joinItem:on', function(params) {
+			// `on` block is use `$field` as default query operator because it most used case
+			var result = dialect.buildCondition({
+				value: params.on,
+				defaultFetchingOperator: '$field'
+			});
+	
+			if (result) {
+				result = 'on ' + removeTopBrackets(result);
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('group', function(params) {
+			var group = params.group;
+			var result = '';
+	
+			if (_.isString(group)) group = [group];
+	
+			if (_.isArray(group)) {
+				result = _(group).map(function(field) {
+					return dialect._wrapIdentifier(field);
+				}).join(', ');
+			}
+	
+			if (result) {
+				result = 'group by ' + result;
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('having', function(params) {
+			var result = dialect.buildCondition({
+				value: params.having,
+				defaultFetchingOperator: '$value'
+			});
+	
+			if (result) {
+				result = 'having ' + removeTopBrackets(result);
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('sort', function(params) {
+			var sort = params.sort;
+			var result = '';
+	
+			if (_.isString(sort)) sort = [sort];
+	
+			if (_.isArray(sort)) {
+				result = _(sort).map(function(sortField) {
+					return dialect._wrapIdentifier(sortField);
+				}).join(', ');
+			} else if (_.isObject(sort)) {
+				result = _(sort).map(function(direction, field) {
+					return dialect._wrapIdentifier(field) + ' ' + (direction > 0 ? 'asc' : 'desc');
+				}).join(', ');
+			}
+	
+			if (result) {
+				result = 'order by ' + result;
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('limit', function(params) {
+			return 'limit ' + dialect.builder._pushValue(params.limit);
+		});
+	
+		dialect.blocks.add('offset', function(params) {
+			return 'offset ' + dialect.builder._pushValue(params.offset);
+		});
+	
+		dialect.blocks.add('or', function(params) {
+			return 'or ' + params.or;
+		});
+	
+		dialect.blocks.add('insert:values', function(params) {
+			var values = params.values;
+	
+			if (!_.isArray(values)) values = [values];
+	
+			var fields = params.fields || _(values)
+				.chain()
+				.map(function(row) {
+					return _(row).keys();
+				})
+				.flatten()
+				.uniq()
+				.value();
+	
+			return dialect.buildTemplate('insertValues', {
+				fields: fields,
+				values: _(values).map(function(row) {
+					return _(fields).map(function(field) {
+						return dialect.buildBlock('value', {value: row[field]});
+					});
+				})
+			});
+		});
+	
+		dialect.blocks.add('insertValues:values', function(params) {
+			return _(params.values).map(function(row) {
+				return '(' + row.join(', ') + ')';
+			}).join(', ');
+		});
+	
+		dialect.blocks.add('queryBody', function(params) {
+			var queryBody = params.queryBody || {};
+	
+			return dialect.buildTemplate(queryBody.type || 'select', queryBody);
+		});
+	
+		dialect.blocks.add('query', function(params) {
+			return dialect.buildTemplate('subQuery', {queryBody: params.query});
+		});
+	
+		dialect.blocks.add('select', function(params) {
+			return dialect.buildTemplate('subQuery', {queryBody: params.select});
+		});
+	
+		dialect.blocks.add('queries', function(params) {
+			return _(params.queries).map(function(query) {
+				return dialect.buildTemplate('subQuery', {queryBody: query});
+			}).join(' ' + params.type + (params.all ? ' all' : '') + ' ');
+		});
+	
+		function buildWith(withList) {
+			var result = '';
+	
+			// if with clause is array -> make each withItem
+			if (_.isArray(withList)) {
+				result = _(withList).map(function(withItem) {
+					return dialect.buildTemplate('withItem', withItem);
+				}).join(', ');
+	
+			// if with clause is object -> set name from key and make each withItem
+			} else if (_.isObject(withList)) {
+				result = _(withList).map(function(withItem, name) {
+					if (!withItem.name) {
+						withItem = _.clone(withItem);
+						withItem.name = name;
+					}
+					return dialect.buildTemplate('withItem', withItem);
+				}).join(', ');
+			}
+	
+			return result;
+		}
+	
+		dialect.blocks.add('with', function(params) {
+			var result = buildWith(params['with']);
+	
+			if (result) result = 'with ' + result;
+	
+			return result;
+		});
+	
+		dialect.blocks.add('withRecursive', function(params) {
+			var result = buildWith(params.withRecursive);
+	
+			if (result) result = 'with recursive ' + result;
+	
+			return result;
+		});
+	
+		dialect.blocks.add('returning', function(params) {
+			var result = dialect.buildBlock('fields', {fields: params.returning});
+	
+			if (result) result = 'returning ' + result;
+	
+			return result;
+		});
+	};
+
+
+/***/ },
+/* 162 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = function(dialect) {
+		dialect.modifiers.add('$set', function(field, value) {
+			return [field, '=', value].join(' ');
+		});
+	
+		dialect.modifiers.add('$inc', function(field, value) {
+			return [field, '=', field, '+', value].join(' ');
+		});
+	
+		dialect.modifiers.add('$dec', function(field, value) {
+			return [field, '=', field, '-', value].join(' ');
+		});
+	
+		dialect.modifiers.add('$mul', function(field, value) {
+			return [field, '=', field, '*', value].join(' ');
+		});
+	
+		dialect.modifiers.add('$div', function(field, value) {
+			return [field, '=', field, '/', value].join(' ');
+		});
+	
+		dialect.modifiers.add('$default', function(field) {
+			return [field, '=', 'default'].join(' ');
+		});
+	};
+
+
+/***/ },
+/* 163 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	var buildComparisonOperator = function(field, operator, value) {
+		return [field, operator, value].join(' ');
+	};
+	
+	var buildBooleanOperator = function(field, operator, value) {
+		return buildComparisonOperator(field, 'is' + (value ? '' : ' not'), operator);
+	};
+	
+	module.exports = function(dialect) {
+		dialect.operators.comparison.add('$eq', {
+			inversedOperator: '$ne',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '=', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$ne', {
+			inversedOperator: '$eq',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '!=', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$gt', {
+			inversedOperator: '$lte',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '>', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$lt', {
+			inversedOperator: '$gte',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '<', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$gte', {
+			inversedOperator: '$lt',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '>=', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$lte', {
+			inversedOperator: '$gt',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '<=', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$is', {
+			inversedOperator: '$isNot',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'is', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$isNot', {
+			inversedOperator: '$is',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'is not', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$isDistinct', {
+			inversedOperator: '$isNotDistinct',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'is distinct from', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$isNotDistinct', {
+			inversedOperator: '$isDistinct',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'is not distinct from', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$like', {
+			inversedOperator: '$nlike',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'like', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nlike', {
+			inversedOperator: '$like',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'not like', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$similarTo', {
+			inversedOperator: '$nsimilarTo',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'similar to', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nsimilarTo', {
+			inversedOperator: '$similarTo',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'not similar to', value);
+			}
+		});
+	
+	
+		dialect.operators.comparison.add('$match', {
+			inversedOperator: '$nmatch',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '~', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nmatch', {
+			inversedOperator: '$match',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '!~', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$imatch', {
+			inversedOperator: '$nimatch',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '~*', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nimatch', {
+			inversedOperator: '$imatch',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, '!~*', value);
+			}
+		});
+	
+	
+		dialect.operators.comparison.add('$null', {
+			inversedOperator: '$nnull',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'null', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nnull', {
+			inversedOperator: '$null',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'null', !value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$true', {
+			inversedOperator: '$ntrue',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'true', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$ntrue', {
+			inversedOperator: '$true',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'true', !value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$false', {
+			inversedOperator: '$nfalse',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'false', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nfalse', {
+			inversedOperator: '$false',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'false', !value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$unknown', {
+			inversedOperator: '$nunknown',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'unknown', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nunknown', {
+			inversedOperator: '$unknown',
+			defaultFetchingOperator: '$boolean',
+			fn: function(field, value) {
+				return buildBooleanOperator(field, 'unknown', !value);
+			}
+		});
+	
+	
+		dialect.operators.comparison.add('$in', {
+			inversedOperator: '$nin',
+			defaultFetchingOperator: '$inValues',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'in', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nin', {
+			inversedOperator: '$in',
+			defaultFetchingOperator: '$inValues',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'not in', value);
+			}
+		});
+	
+	
+		dialect.operators.comparison.add('$between', {
+			inversedOperator: '$nbetween',
+			defaultFetchingOperator: '$betweenValues',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'between', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nbetween', {
+			inversedOperator: '$between',
+			defaultFetchingOperator: '$betweenValues',
+			fn: function(field, value) {
+				return buildComparisonOperator(field, 'not between', value);
+			}
+		});
+	};
+
+
+/***/ },
+/* 164 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	
+	module.exports = function(dialect) {
+		dialect.operators.fetching.add('$field', {
+			fn: function(value) {
+				return dialect.buildBlock('term', {term: value, type: 'field'});
+			}
+		});
+	
+		dialect.operators.fetching.add('$value', {
+			fn: function(value) {
+				return dialect.buildBlock('term', {term: value, type: 'value'});
+			}
+		});
+	
+		dialect.operators.fetching.add('$func', {
+			fn: function(value) {
+				return dialect.buildBlock('term', {term: value, type: 'func'});
+			}
+		});
+	
+		dialect.operators.fetching.add('$expression', {
+			fn: function(value) {
+				return dialect.buildBlock('term', {term: value, type: 'expression'});
+			}
+		});
+	
+		dialect.operators.fetching.add('$select', {
+			fn: function(value) {
+				return dialect.buildTemplate('subQuery', {queryBody: value});
+			}
+		});
+	
+		dialect.operators.fetching.add('$query', {
+			fn: function(value) {
+				return dialect.buildTemplate('subQuery', {queryBody: value});
+			}
+		});
+	
+		dialect.operators.fetching.add('$boolean', {
+			fn: function(value) {
+				return Boolean(value);
+			}
+		});
+	
+		dialect.operators.fetching.add('$inValues', {
+			fn: function(value) {
+				if (!_.isObject(value)) {
+					throw new Error('Invalid `$in/$nin` value type "' + (typeof value) + '"');
+				}
+	
+				if (_.isArray(value)) {
+					if (!value.length) value = [null];
+	
+					return '(' + _(value).map(function(item) {
+						return dialect.builder._pushValue(item);
+					}).join(', ') + ')';
+				} else {
+					return dialect.buildTemplate('subQuery', {queryBody: value});
+				}
+			}
+		});
+	
+		dialect.operators.fetching.add('$betweenValues', {
+			fn: function(value) {
+				if (!_.isArray(value)) {
+					throw new Error('Invalid `$between` value type "' + (typeof value) + '"');
+				}
+	
+				if (value.length < 2) {
+					throw new Error('`$between` array length should be 2 or greater');
+				}
+	
+				return dialect.builder._pushValue(value[0]) + ' and ' + dialect.builder._pushValue(value[1]);
+			}
+		});
+	};
+
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var comparisonOperatorsInit = __webpack_require__(163);
+	var logicalOperatorsInit = __webpack_require__(166);
+	var fetchingOperatorsInit = __webpack_require__(164);
+	var stateOperatorsInit = __webpack_require__(167);
+	
+	module.exports = function(dialect) {
+		comparisonOperatorsInit(dialect);
+		logicalOperatorsInit(dialect);
+		fetchingOperatorsInit(dialect);
+		stateOperatorsInit(dialect);
+	};
+
+
+/***/ },
+/* 166 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	function buildLogicalOperator(operator, values) {
+		if (!values.length) return '';
+	
+		var result = values.join(' ' + operator + ' ');
+		if (values.length > 1) result = '(' + result + ')';
+	
+		return result;
+	}
+	
+	module.exports = function(dialect) {
+		dialect.operators.logical.add('$and', {
+			fn: function(values) {
+				return buildLogicalOperator('and', values);
+			}
+		});
+	
+		dialect.operators.logical.add('$or', {
+			fn: function(values) {
+				return buildLogicalOperator('or', values);
+			}
+		});
+	
+		dialect.operators.logical.add('$not', {
+			fn: function(values) {
+				return 'not ' + buildLogicalOperator('and', values);
+			}
+		});
+	
+		dialect.operators.logical.add('$nor', {
+			fn: function(values) {
+				return 'not ' + buildLogicalOperator('or', values);
+			}
+		});
+	};
+
+
+/***/ },
+/* 167 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = function(dialect) {
+		dialect.operators.state.add('$not', {
+			getOperator: function(operator) {
+				var operatorParams = dialect.operators.comparison.get(operator);
+	
+				if (!operatorParams || !operatorParams.inversedOperator) {
+					throw new Error('Cannot get inversed operator for operator `' + operator +'`');
+				}
+	
+				return operatorParams.inversedOperator;
+			}
+		});
+	};
+
+/***/ },
+/* 168 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	var templateChecks = __webpack_require__(138);
+	
+	module.exports = function(dialect) {
+		var availableJoinTypes = ['natural', 'cross', 'inner', 'outer', 'left', 'right', 'full', 'self'];
+		var orRegExp = /^(rollback|abort|replace|fail|ignore)$/i;
+	
+		// private templates
+	
+		dialect.templates.add('query', {
+			pattern: '{queryBody}',
+			validate: function(type, params) {
+				templateChecks.requiredProp(type, params, 'queryBody');
+				templateChecks.propType(type, params, 'queryBody', 'object');
+			}
+		});
+	
+	
+		dialect.templates.add('subQuery', {
+			pattern: '({queryBody})',
+			validate: function(type, params) {
+				templateChecks.requiredProp(type, params, 'queryBody');
+				templateChecks.propType(type, params, 'queryBody', 'object');
+			}
+		});
+	
+	
+		dialect.templates.add('queriesCombination', {
+			pattern: '{with} {withRecursive} {queries} {sort} {limit} {offset}',
+			validate: function(type, params) {
+				templateChecks.onlyOneOfProps(type, params, ['with', 'withRecursive']);
+				templateChecks.propType(type, params, 'with', 'object');
+				templateChecks.propType(type, params, 'withRecursive', 'object');
+	
+				templateChecks.requiredProp(type, params, 'queries');
+				templateChecks.propType(type, params, 'queries', 'array');
+				templateChecks.minPropLength(type, params, 'queries', 2);
+	
+				templateChecks.propType(type, params, 'sort', ['string', 'array', 'object']);
+	
+				templateChecks.propType(type, params, 'limit', ['number', 'string']);
+	
+				templateChecks.propType(type, params, 'offset', ['number', 'string']);
+			}
+		});
+	
+	
+		dialect.templates.add('insertValues', {
+			pattern: '({fields}) values {values}',
+			validate: function(type, params) {
+				templateChecks.requiredProp('values', params, 'fields');
+				templateChecks.propType('values', params, 'fields', 'array');
+				templateChecks.minPropLength('values', params, 'fields', 1);
+	
+				templateChecks.requiredProp('values', params, 'values');
+				templateChecks.propType('values', params, 'values', 'array');
+				templateChecks.minPropLength('values', params, 'values', 1);
+			}
+		});
+	
+	
+		dialect.templates.add('joinItem', {
+			pattern: '{type} join {table} {query} {select} {expression} {alias} {on}',
+			validate: function(type, params) {
+				templateChecks.propType('join', params, 'type', 'string');
+				templateChecks.customProp('join', params, 'type', function(value) {
+					var splitType = _(value.toLowerCase().split(' ')).compact();
+					return !_.difference(splitType, availableJoinTypes).length;
+				});
+	
+				templateChecks.atLeastOneOfProps('join', params, ['table', 'query', 'select', 'expression']);
+				templateChecks.onlyOneOfProps('join', params, ['table', 'query', 'select', 'expression']);
+	
+				templateChecks.propType('join', params, 'table', 'string');
+				templateChecks.propType('join', params, 'query', 'object');
+				templateChecks.propType('join', params, 'select', 'object');
+				templateChecks.propType('join', params, 'expression', ['string', 'object']);
+	
+				templateChecks.propType('join', params, 'alias', ['string', 'object']);
+	
+				templateChecks.propType('join', params, 'on', ['array', 'object']);
+			}
+		});
+	
+	
+		dialect.templates.add('withItem', {
+			pattern: '{name} {fields} as {query} {select} {expression}',
+			validate: function(type, params) {
+				templateChecks.requiredProp('with', params, 'name');
+				templateChecks.propType('with', params, 'name', 'string');
+	
+				templateChecks.propType(type, params, 'fields', ['array', 'object']);
+	
+				templateChecks.atLeastOneOfProps('with', params, ['query', 'select', 'expression']);
+				templateChecks.onlyOneOfProps('with', params, ['query', 'select', 'expression']);
+	
+				templateChecks.propType('with', params, 'query', 'object');
+				templateChecks.propType('with', params, 'select', 'object');
+				templateChecks.propType('with', params, 'expression', ['string', 'object']);
+			}
+		});
+	
+	
+		dialect.templates.add('fromItem', {
+			pattern: '{table} {query} {select} {expression} {alias}',
+			validate: function(type, params) {
+				templateChecks.atLeastOneOfProps('from', params, ['table', 'query', 'select', 'expression']);
+				templateChecks.onlyOneOfProps('from', params, ['table', 'query', 'select', 'expression']);
+	
+				templateChecks.propType('from', params, 'table', 'string');
+				templateChecks.propType('from', params, 'query', 'object');
+				templateChecks.propType('from', params, 'select', 'object');
+				templateChecks.propType('from', params, 'expression', ['string', 'object']);
+	
+				templateChecks.propType('from', params, 'alias', ['string', 'object']);
+			}
+		});
+	
+	
+		// public templates
+	
+		dialect.templates.add('select', {
+			pattern: '{with} {withRecursive} select {distinct} {fields} {count} ' +
+				'from {from} {table} {query} {select} {expression} {alias} ' +
+				'{join} {condition} {group} {having} {sort} {limit} {offset}',
+			defaults: {
+				fields: {}
+			},
+			validate: function(type, params) {
+				templateChecks.onlyOneOfProps(type, params, ['with', 'withRecursive']);
+				templateChecks.propType(type, params, 'with', 'object');
+				templateChecks.propType(type, params, 'withRecursive', 'object');
+	
+				templateChecks.propType(type, params, 'distinct', 'boolean');
+	
+				templateChecks.propType(type, params, 'fields', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'count', 'object');
+	
+				templateChecks.propType(type, params, 'from', ['string', 'array', 'object']);
+	
+				templateChecks.atLeastOneOfProps(type, params, ['table', 'query', 'select', 'expression']);
+				templateChecks.onlyOneOfProps(type, params, ['table', 'query', 'select', 'expression']);
+	
+				templateChecks.propType(type, params, 'table', 'string');
+				templateChecks.propType(type, params, 'query', 'object');
+				templateChecks.propType(type, params, 'select', 'object');
+				templateChecks.propType(type, params, 'expression', ['string', 'object']);
+	
+				templateChecks.propType(type, params, 'alias', ['string', 'object']);
+	
+				templateChecks.propType(type, params, 'join', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'condition', ['array', 'object']);
+				templateChecks.propType(type, params, 'having', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'group', ['string', 'array']);
+	
+				templateChecks.propType(type, params, 'sort', ['string', 'array', 'object']);
+	
+				templateChecks.propType(type, params, 'limit', ['number', 'string']);
+	
+				templateChecks.propType(type, params, 'offset', ['number', 'string']);
+			}
+		});
+	
+	
+		dialect.templates.add('insert', {
+			pattern: '{with} {withRecursive} insert {or} into {table} {values} {condition} ' +
+				'{returning}',
+			validate: function(type, params) {
+				templateChecks.onlyOneOfProps(type, params, ['with', 'withRecursive']);
+				templateChecks.propType(type, params, 'with', 'object');
+				templateChecks.propType(type, params, 'withRecursive', 'object');
+	
+				templateChecks.propType(type, params, 'or', 'string');
+				templateChecks.propMatch(type, params, 'or', orRegExp);
+	
+				templateChecks.requiredProp(type, params, 'table');
+				templateChecks.propType(type, params, 'table', 'string');
+	
+				templateChecks.requiredProp(type, params, 'values');
+				templateChecks.propType(type, params, 'values', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'condition', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'returning', ['array', 'object']);
+			}
+		});
+	
+	
+		dialect.templates.add('update', {
+			pattern: '{with} {withRecursive} update {or} {table} {alias} {modifier} {condition} {returning}',
+			validate: function(type, params) {
+				templateChecks.onlyOneOfProps(type, params, ['with', 'withRecursive']);
+				templateChecks.propType(type, params, 'with', 'object');
+				templateChecks.propType(type, params, 'withRecursive', 'object');
+	
+				templateChecks.propType(type, params, 'or', 'string');
+				templateChecks.propMatch(type, params, 'or', orRegExp);
+	
+				templateChecks.requiredProp(type, params, 'table');
+				templateChecks.propType(type, params, 'table', 'string');
+	
+				templateChecks.propType(type, params, 'alias', 'string');
+	
+				templateChecks.requiredProp(type, params, 'modifier');
+				templateChecks.propType(type, params, 'modifier', 'object');
+	
+				templateChecks.propType(type, params, 'condition', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'returning', ['array', 'object']);
+			}
+		});
+	
+	
+		dialect.templates.add('remove', {
+			pattern: '{with} {withRecursive} delete from {table} {alias} {condition} {returning}',
+			validate: function(type, params) {
+				templateChecks.onlyOneOfProps(type, params, ['with', 'withRecursive']);
+				templateChecks.propType(type, params, 'with', 'object');
+				templateChecks.propType(type, params, 'withRecursive', 'object');
+	
+				templateChecks.requiredProp(type, params, 'table');
+				templateChecks.propType(type, params, 'table', 'string');
+	
+				templateChecks.propType(type, params, 'alias', 'string');
+	
+				templateChecks.propType(type, params, 'condition', ['array', 'object']);
+	
+				templateChecks.propType(type, params, 'returning', ['array', 'object']);
+			}
+		});
+	
+	
+		dialect.templates.add('union', dialect.templates.get('queriesCombination'));
+	
+	
+		dialect.templates.add('intersect', dialect.templates.get('queriesCombination'));
+	
+	
+		dialect.templates.add('except', dialect.templates.get('queriesCombination'));
+	};
+
+
+/***/ },
+/* 169 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var BaseDialect = __webpack_require__(28);
+	var _ = __webpack_require__(1);
+	var util = __webpack_require__(29);
+	
+	var Dialect = module.exports = function(builder) {
+		BaseDialect.call(this, builder);
+	};
+	
+	util.inherits(Dialect, BaseDialect);
+	
+	Dialect.prototype.config = _({}).extend(BaseDialect.prototype.config, {});
+
+
+/***/ },
+/* 170 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var BaseDialect = __webpack_require__(28);
+	var _ = __webpack_require__(1);
+	var util = __webpack_require__(29);
+	
+	var Dialect = module.exports = function(builder) {
+		BaseDialect.call(this, builder);
+	};
+	
+	util.inherits(Dialect, BaseDialect);
+	
+	Dialect.prototype.config = _({}).extend(BaseDialect.prototype.config, {
+		identifierPrefix: '`',
+		identifierSuffix: '`'
+	});
+
+
+/***/ },
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	
+	module.exports = function(dialect) {
+		var parentValueBlock = dialect.blocks.get('value');
+		dialect.blocks.set('value', function(params) {
+			var value = params.value;
+	
+			var result;
+			if (_.isArray(value)) {
+				result = 'array[' + _(value).map(function(item) {
+					return dialect.builder._pushValue(item);
+				}).join(', ') + ']';
+			} else if (_.isObject(value)) {
+				result = dialect.builder._pushValue(JSON.stringify(value));
+			} else {
+				result = parentValueBlock(params);
+			}
+	
+			return result;
+		});
+	
+		dialect.blocks.add('explain:options', function(params) {
+			return '(' +
+				_(params.options)
+					.chain()
+					.pick(['analyze', 'verbose', 'costs', 'buffers', 'timing', 'format'])
+					.map(function(value, key) {
+						return key + ' ' + value;
+					})
+					.value()
+					.join(', ') +
+				')';
+		});
+	
+		dialect.blocks.add('explain:analyze', function() {
+			return 'analyze';
+		});
+	
+		dialect.blocks.add('explain:verbose', function() {
+			return 'verbose';
+		});
+	
+		dialect.blocks.add('distinctOn', function(params) {
+			var distinctOn = params.distinctOn;
+			var result = '';
+	
+			if (_.isString(distinctOn)) distinctOn = [distinctOn];
+	
+			if (_.isArray(distinctOn)) {
+				result = _(distinctOn).map(function(distinctOnField) {
+					return dialect._wrapIdentifier(distinctOnField);
+				}).join(', ');
+			}
+	
+			if (result) {
+				result = 'distinct on (' + result + ')';
+			}
+	
+			return result;
+		});
+	};
+
+
+/***/ },
+/* 172 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var BaseDialect = __webpack_require__(28);
+	var	_ = __webpack_require__(1);
+	var	util = __webpack_require__(29);
+	
+	var templatesInit = __webpack_require__(176);
+	var blocksInit = __webpack_require__(171);
+	var operatorsInit = __webpack_require__(175);
+	
+	var Dialect = module.exports = function(builder) {
+		BaseDialect.call(this, builder);
+	
+		// init templates
+		templatesInit(this);
+	
+		// init blocks
+		blocksInit(this);
+	
+		// init operators
+		operatorsInit(this);
+	};
+	
+	util.inherits(Dialect, BaseDialect);
+	
+	Dialect.prototype.config = _({
+		jsonSeparatorRegexp: /->>?/g
+	}).extend(BaseDialect.prototype.config);
+	
+	Dialect.prototype._wrapIdentifier = function(name) {
+		// split by json separator
+		var nameParts = name.split(this.config.jsonSeparatorRegexp);
+		var separators = name.match(this.config.jsonSeparatorRegexp);
+	
+		// wrap base identifier
+		var identifier = BaseDialect.prototype._wrapIdentifier.call(this, nameParts[0]);
+	
+		// wrap all json identifier and join them with separators
+		identifier += _(separators).reduce(function(memo, separator, index) {
+			return memo + separator + '\'' + nameParts[index + 1] + '\'';
+		}, '');
+	
+		return identifier;
+	};
+
+
+/***/ },
+/* 173 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = function(dialect) {
+		var buildComparisonCondition = function(field, operator, value) {
+			return [field, operator, value].join(' ');
+		};
+	
+		dialect.operators.comparison.add('$jsonContains', {
+			defaultFetchingOperator: '$json',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, '@>', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$jsonIn', {
+			defaultFetchingOperator: '$json',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, '<@', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$jsonHas', {
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, '?', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$jsonHasAny', {
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, '?|', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$jsonHasAll', {
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, '?&', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$ilike', {
+			inversedOperator: '$nilike',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, 'ilike', value);
+			}
+		});
+	
+		dialect.operators.comparison.add('$nilike', {
+			inversedOperator: '$ilike',
+			defaultFetchingOperator: '$value',
+			fn: function(field, value) {
+				return buildComparisonCondition(field, 'not ilike', value);
+			}
+		});
+	};
+
+
+/***/ },
+/* 174 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = function(dialect) {
+		dialect.operators.fetching.add('$json', {
+			fn: function(value, end) {
+				if (end) value = {value: value};
+				return dialect.buildBlock('term', {term: value, type: 'value'});
+			}
+		});
+	};
+
+
+/***/ },
+/* 175 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var comparisonOperatorsInit = __webpack_require__(173);
+	var fetchingOperatorsInit = __webpack_require__(174);
+	
+	module.exports = function(dialect) {
+		comparisonOperatorsInit(dialect);
+		fetchingOperatorsInit(dialect);
+	};
+
+
+/***/ },
+/* 176 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _ = __webpack_require__(1);
+	var templateChecks = __webpack_require__(138);
+	
+	module.exports = function(dialect) {
+		var explainFormatRegExp = /^(text|xml|json|yaml)$/i;
+	
+		dialect.templates.add('explain', {
+			pattern: 'explain {options} {analyze} {verbose} {query} {select} {expression}',
+			validate: function(type, params) {
+				templateChecks.atLeastOneOfProps(type, params, ['query', 'select', 'expression']);
+				templateChecks.onlyOneOfProps(type, params, ['query', 'select', 'expression']);
+	
+				templateChecks.propType(type, params, 'options', 'object');
+	
+				if (!_.isUndefined(params.options)) {
+					templateChecks.atLeastOneOfProps(
+						'explain:options',
+						params.options,
+						['analyze', 'verbose', 'costs', 'buffers', 'timing', 'format']
+					);
+					templateChecks.propType('explain:options', params.options, 'analyze', 'boolean');
+					templateChecks.propType('explain:options', params.options, 'verbose', 'boolean');
+					templateChecks.propType('explain:options', params.options, 'costs', 'boolean');
+					templateChecks.propType('explain:options', params.options, 'buffers', 'boolean');
+					templateChecks.propType('explain:options', params.options, 'timing', 'boolean');
+					templateChecks.propType('explain:options', params.options, 'format', 'string');
+					templateChecks.propMatch('explain:options', params.options, 'format', explainFormatRegExp);
+				}
+	
+				templateChecks.propType(type, params, 'analyze', 'boolean');
+				templateChecks.propType(type, params, 'verbose', 'boolean');
+			}
+		});
+	
+		// patch parent select template to add some blocks
+		var selectTemplate = dialect.templates.get('select');
+		selectTemplate.pattern = selectTemplate.pattern.replace('{distinct}', '{distinct} {distinctOn}');
+	
+		var parentSelectValidate = selectTemplate.validate;
+		selectTemplate.validate = function(type, params) {
+			parentSelectValidate(type, params);
+	
+			templateChecks.propType(type, params, 'distinctOn', ['string', 'array']);
+		};
+	
+		dialect.templates.set('select', selectTemplate);
+	};
+
+
+/***/ },
+/* 177 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var	_ = __webpack_require__(1);
+	
+	module.exports = function(dialect) {
+		dialect.blocks.add('offset', function(params) {
+			var limit = '';
+	
+			if (_.isUndefined(params.limit)) {
+				limit = dialect.buildBlock('limit', {limit: -1}) + ' ';
+			}
+	
+			return limit + 'offset ' + dialect.builder._pushValue(params.offset);
+		});
+	};
+
+
+/***/ },
+/* 178 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var BaseDialect = __webpack_require__(28);
+	var _ = __webpack_require__(1);
+	var util = __webpack_require__(29);
+	var blocksInit = __webpack_require__(177);
+	
+	var Dialect = module.exports = function(builder) {
+		BaseDialect.call(this, builder);
+	
+		// init blocks
+		blocksInit(this);
+	};
+	
+	util.inherits(Dialect, BaseDialect);
+	
+	Dialect.prototype.config = _({}).extend(BaseDialect.prototype.config);
+
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var Builder = __webpack_require__(160);
+	
+	module.exports = function(options) {
+		return new Builder(options);
+	};
+	module.exports.Builder = Builder;
+
+
+/***/ },
+/* 180 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = ValuesStore;
+	
+	function ValuesStore(options) {
+		options = options || {};
+		this._values = options.values || {};
+	}
+	
+	ValuesStore.prototype.add = ValuesStore.prototype.set = function(name, value) {
+		this._values[name] = value;
+	};
+	
+	ValuesStore.prototype.get = function(name) {
+		return this._values[name] || null;
+	};
+	
+	ValuesStore.prototype.remove = function(name) {
+		delete this._values[name];
+	};
+	
+	ValuesStore.prototype.has = function(name) {
+		return this._values.hasOwnProperty(name);
+	};
+
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var json = typeof JSON !== 'undefined' ? JSON : __webpack_require__(182);
+	
+	module.exports = function (obj, opts) {
+	    if (!opts) opts = {};
+	    if (typeof opts === 'function') opts = { cmp: opts };
+	    var space = opts.space || '';
+	    if (typeof space === 'number') space = Array(space+1).join(' ');
+	    var cycles = (typeof opts.cycles === 'boolean') ? opts.cycles : false;
+	    var replacer = opts.replacer || function(key, value) { return value; };
+	
+	    var cmp = opts.cmp && (function (f) {
+	        return function (node) {
+	            return function (a, b) {
+	                var aobj = { key: a, value: node[a] };
+	                var bobj = { key: b, value: node[b] };
+	                return f(aobj, bobj);
+	            };
+	        };
+	    })(opts.cmp);
+	
+	    var seen = [];
+	    return (function stringify (parent, key, node, level) {
+	        var indent = space ? ('\n' + new Array(level + 1).join(space)) : '';
+	        var colonSeparator = space ? ': ' : ':';
+	
+	        if (node && node.toJSON && typeof node.toJSON === 'function') {
+	            node = node.toJSON();
+	        }
+	
+	        node = replacer.call(parent, key, node);
+	
+	        if (node === undefined) {
+	            return;
+	        }
+	        if (typeof node !== 'object' || node === null) {
+	            return json.stringify(node);
+	        }
+	        if (isArray(node)) {
+	            var out = [];
+	            for (var i = 0; i < node.length; i++) {
+	                var item = stringify(node, i, node[i], level+1) || json.stringify(null);
+	                out.push(indent + space + item);
+	            }
+	            return '[' + out.join(',') + indent + ']';
+	        }
+	        else {
+	            if (seen.indexOf(node) !== -1) {
+	                if (cycles) return json.stringify('__cycle__');
+	                throw new TypeError('Converting circular structure to JSON');
+	            }
+	            else seen.push(node);
+	
+	            var keys = objectKeys(node).sort(cmp && cmp(node));
+	            var out = [];
+	            for (var i = 0; i < keys.length; i++) {
+	                var key = keys[i];
+	                var value = stringify(node, key, node[key], level+1);
+	
+	                if(!value) continue;
+	
+	                var keyValue = json.stringify(key)
+	                    + colonSeparator
+	                    + value;
+	                ;
+	                out.push(indent + space + keyValue);
+	            }
+	            return '{' + out.join(',') + indent + '}';
+	        }
+	    })({ '': obj }, '', obj, 0);
+	};
+	
+	var isArray = Array.isArray || function (x) {
+	    return {}.toString.call(x) === '[object Array]';
+	};
+	
+	var objectKeys = Object.keys || function (obj) {
+	    var has = Object.prototype.hasOwnProperty || function () { return true };
+	    var keys = [];
+	    for (var key in obj) {
+	        if (has.call(obj, key)) keys.push(key);
+	    }
+	    return keys;
+	};
+
+
+/***/ },
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports.parse = __webpack_require__(183);
+	exports.stringify = __webpack_require__(184);
+
+
+/***/ },
+/* 183 */
+/***/ function(module, exports) {
+
+	var at, // The index of the current character
+	    ch, // The current character
+	    escapee = {
+	        '"':  '"',
+	        '\\': '\\',
+	        '/':  '/',
+	        b:    '\b',
+	        f:    '\f',
+	        n:    '\n',
+	        r:    '\r',
+	        t:    '\t'
+	    },
+	    text,
+	
+	    error = function (m) {
+	        // Call error when something is wrong.
+	        throw {
+	            name:    'SyntaxError',
+	            message: m,
+	            at:      at,
+	            text:    text
+	        };
+	    },
+	    
+	    next = function (c) {
+	        // If a c parameter is provided, verify that it matches the current character.
+	        if (c && c !== ch) {
+	            error("Expected '" + c + "' instead of '" + ch + "'");
+	        }
+	        
+	        // Get the next character. When there are no more characters,
+	        // return the empty string.
+	        
+	        ch = text.charAt(at);
+	        at += 1;
+	        return ch;
+	    },
+	    
+	    number = function () {
+	        // Parse a number value.
+	        var number,
+	            string = '';
+	        
+	        if (ch === '-') {
+	            string = '-';
+	            next('-');
+	        }
+	        while (ch >= '0' && ch <= '9') {
+	            string += ch;
+	            next();
+	        }
+	        if (ch === '.') {
+	            string += '.';
+	            while (next() && ch >= '0' && ch <= '9') {
+	                string += ch;
+	            }
+	        }
+	        if (ch === 'e' || ch === 'E') {
+	            string += ch;
+	            next();
+	            if (ch === '-' || ch === '+') {
+	                string += ch;
+	                next();
+	            }
+	            while (ch >= '0' && ch <= '9') {
+	                string += ch;
+	                next();
+	            }
+	        }
+	        number = +string;
+	        if (!isFinite(number)) {
+	            error("Bad number");
+	        } else {
+	            return number;
+	        }
+	    },
+	    
+	    string = function () {
+	        // Parse a string value.
+	        var hex,
+	            i,
+	            string = '',
+	            uffff;
+	        
+	        // When parsing for string values, we must look for " and \ characters.
+	        if (ch === '"') {
+	            while (next()) {
+	                if (ch === '"') {
+	                    next();
+	                    return string;
+	                } else if (ch === '\\') {
+	                    next();
+	                    if (ch === 'u') {
+	                        uffff = 0;
+	                        for (i = 0; i < 4; i += 1) {
+	                            hex = parseInt(next(), 16);
+	                            if (!isFinite(hex)) {
+	                                break;
+	                            }
+	                            uffff = uffff * 16 + hex;
+	                        }
+	                        string += String.fromCharCode(uffff);
+	                    } else if (typeof escapee[ch] === 'string') {
+	                        string += escapee[ch];
+	                    } else {
+	                        break;
+	                    }
+	                } else {
+	                    string += ch;
+	                }
+	            }
+	        }
+	        error("Bad string");
+	    },
+	
+	    white = function () {
+	
+	// Skip whitespace.
+	
+	        while (ch && ch <= ' ') {
+	            next();
+	        }
+	    },
+	
+	    word = function () {
+	
+	// true, false, or null.
+	
+	        switch (ch) {
+	        case 't':
+	            next('t');
+	            next('r');
+	            next('u');
+	            next('e');
+	            return true;
+	        case 'f':
+	            next('f');
+	            next('a');
+	            next('l');
+	            next('s');
+	            next('e');
+	            return false;
+	        case 'n':
+	            next('n');
+	            next('u');
+	            next('l');
+	            next('l');
+	            return null;
+	        }
+	        error("Unexpected '" + ch + "'");
+	    },
+	
+	    value,  // Place holder for the value function.
+	
+	    array = function () {
+	
+	// Parse an array value.
+	
+	        var array = [];
+	
+	        if (ch === '[') {
+	            next('[');
+	            white();
+	            if (ch === ']') {
+	                next(']');
+	                return array;   // empty array
+	            }
+	            while (ch) {
+	                array.push(value());
+	                white();
+	                if (ch === ']') {
+	                    next(']');
+	                    return array;
+	                }
+	                next(',');
+	                white();
+	            }
+	        }
+	        error("Bad array");
+	    },
+	
+	    object = function () {
+	
+	// Parse an object value.
+	
+	        var key,
+	            object = {};
+	
+	        if (ch === '{') {
+	            next('{');
+	            white();
+	            if (ch === '}') {
+	                next('}');
+	                return object;   // empty object
+	            }
+	            while (ch) {
+	                key = string();
+	                white();
+	                next(':');
+	                if (Object.hasOwnProperty.call(object, key)) {
+	                    error('Duplicate key "' + key + '"');
+	                }
+	                object[key] = value();
+	                white();
+	                if (ch === '}') {
+	                    next('}');
+	                    return object;
+	                }
+	                next(',');
+	                white();
+	            }
+	        }
+	        error("Bad object");
+	    };
+	
+	value = function () {
+	
+	// Parse a JSON value. It could be an object, an array, a string, a number,
+	// or a word.
+	
+	    white();
+	    switch (ch) {
+	    case '{':
+	        return object();
+	    case '[':
+	        return array();
+	    case '"':
+	        return string();
+	    case '-':
+	        return number();
+	    default:
+	        return ch >= '0' && ch <= '9' ? number() : word();
+	    }
+	};
+	
+	// Return the json_parse function. It will have access to all of the above
+	// functions and variables.
+	
+	module.exports = function (source, reviver) {
+	    var result;
+	    
+	    text = source;
+	    at = 0;
+	    ch = ' ';
+	    result = value();
+	    white();
+	    if (ch) {
+	        error("Syntax error");
+	    }
+	
+	    // If there is a reviver function, we recursively walk the new structure,
+	    // passing each name/value pair to the reviver function for possible
+	    // transformation, starting with a temporary root object that holds the result
+	    // in an empty key. If there is not a reviver function, we simply return the
+	    // result.
+	
+	    return typeof reviver === 'function' ? (function walk(holder, key) {
+	        var k, v, value = holder[key];
+	        if (value && typeof value === 'object') {
+	            for (k in value) {
+	                if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                    v = walk(value, k);
+	                    if (v !== undefined) {
+	                        value[k] = v;
+	                    } else {
+	                        delete value[k];
+	                    }
+	                }
+	            }
+	        }
+	        return reviver.call(holder, key, value);
+	    }({'': result}, '')) : result;
+	};
+
+
+/***/ },
+/* 184 */
+/***/ function(module, exports) {
+
+	var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+	    escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+	    gap,
+	    indent,
+	    meta = {    // table of character substitutions
+	        '\b': '\\b',
+	        '\t': '\\t',
+	        '\n': '\\n',
+	        '\f': '\\f',
+	        '\r': '\\r',
+	        '"' : '\\"',
+	        '\\': '\\\\'
+	    },
+	    rep;
+	
+	function quote(string) {
+	    // If the string contains no control characters, no quote characters, and no
+	    // backslash characters, then we can safely slap some quotes around it.
+	    // Otherwise we must also replace the offending characters with safe escape
+	    // sequences.
+	    
+	    escapable.lastIndex = 0;
+	    return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+	        var c = meta[a];
+	        return typeof c === 'string' ? c :
+	            '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+	    }) + '"' : '"' + string + '"';
+	}
+	
+	function str(key, holder) {
+	    // Produce a string from holder[key].
+	    var i,          // The loop counter.
+	        k,          // The member key.
+	        v,          // The member value.
+	        length,
+	        mind = gap,
+	        partial,
+	        value = holder[key];
+	    
+	    // If the value has a toJSON method, call it to obtain a replacement value.
+	    if (value && typeof value === 'object' &&
+	            typeof value.toJSON === 'function') {
+	        value = value.toJSON(key);
+	    }
+	    
+	    // If we were called with a replacer function, then call the replacer to
+	    // obtain a replacement value.
+	    if (typeof rep === 'function') {
+	        value = rep.call(holder, key, value);
+	    }
+	    
+	    // What happens next depends on the value's type.
+	    switch (typeof value) {
+	        case 'string':
+	            return quote(value);
+	        
+	        case 'number':
+	            // JSON numbers must be finite. Encode non-finite numbers as null.
+	            return isFinite(value) ? String(value) : 'null';
+	        
+	        case 'boolean':
+	        case 'null':
+	            // If the value is a boolean or null, convert it to a string. Note:
+	            // typeof null does not produce 'null'. The case is included here in
+	            // the remote chance that this gets fixed someday.
+	            return String(value);
+	            
+	        case 'object':
+	            if (!value) return 'null';
+	            gap += indent;
+	            partial = [];
+	            
+	            // Array.isArray
+	            if (Object.prototype.toString.apply(value) === '[object Array]') {
+	                length = value.length;
+	                for (i = 0; i < length; i += 1) {
+	                    partial[i] = str(i, value) || 'null';
+	                }
+	                
+	                // Join all of the elements together, separated with commas, and
+	                // wrap them in brackets.
+	                v = partial.length === 0 ? '[]' : gap ?
+	                    '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' :
+	                    '[' + partial.join(',') + ']';
+	                gap = mind;
+	                return v;
+	            }
+	            
+	            // If the replacer is an array, use it to select the members to be
+	            // stringified.
+	            if (rep && typeof rep === 'object') {
+	                length = rep.length;
+	                for (i = 0; i < length; i += 1) {
+	                    k = rep[i];
+	                    if (typeof k === 'string') {
+	                        v = str(k, value);
+	                        if (v) {
+	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+	                        }
+	                    }
+	                }
+	            }
+	            else {
+	                // Otherwise, iterate through all of the keys in the object.
+	                for (k in value) {
+	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                        v = str(k, value);
+	                        if (v) {
+	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+	                        }
+	                    }
+	                }
+	            }
+	            
+	        // Join all of the member texts together, separated with commas,
+	        // and wrap them in braces.
+	
+	        v = partial.length === 0 ? '{}' : gap ?
+	            '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' :
+	            '{' + partial.join(',') + '}';
+	        gap = mind;
+	        return v;
+	    }
+	}
+	
+	module.exports = function (value, replacer, space) {
+	    var i;
+	    gap = '';
+	    indent = '';
+	    
+	    // If the space parameter is a number, make an indent string containing that
+	    // many spaces.
+	    if (typeof space === 'number') {
+	        for (i = 0; i < space; i += 1) {
+	            indent += ' ';
+	        }
+	    }
+	    // If the space parameter is a string, it will be used as the indent string.
+	    else if (typeof space === 'string') {
+	        indent = space;
+	    }
+	
+	    // If there is a replacer, it must be a function or an array.
+	    // Otherwise, throw an error.
+	    rep = replacer;
+	    if (replacer && typeof replacer !== 'function'
+	    && (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
+	        throw new Error('JSON.stringify');
+	    }
+	    
+	    // Make a fake root object containing our value under the key of ''.
+	    // Return the result of stringifying the value.
+	    return str('', {'': value});
+	};
+
+
+/***/ },
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -33729,12 +37670,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 	
-	var ops = __webpack_require__(155);
-	var eql = __webpack_require__(89);
-	var dot = __webpack_require__(87);
-	var type = __webpack_require__(25);
-	var object = __webpack_require__(90);
-	var debug = __webpack_require__(86)('mongo-query');
+	var ops = __webpack_require__(188);
+	var eql = __webpack_require__(99);
+	var dot = __webpack_require__(97);
+	var type = __webpack_require__(26);
+	var object = __webpack_require__(100);
+	var debug = __webpack_require__(96)('mongo-query');
 	
 	/**
 	 * Module exports.
@@ -33869,7 +37810,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 153 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -33877,12 +37818,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 	
-	var mods = __webpack_require__(154);
-	var filter = __webpack_require__(152);
-	var dot = __webpack_require__(87);
-	var type = __webpack_require__(25);
-	var object = __webpack_require__(90);
-	var debug = __webpack_require__(86)('mongo-query');
+	var mods = __webpack_require__(187);
+	var filter = __webpack_require__(185);
+	var dot = __webpack_require__(97);
+	var type = __webpack_require__(26);
+	var object = __webpack_require__(100);
+	var debug = __webpack_require__(96)('mongo-query');
 	
 	/**
 	 * Module exports.
@@ -33989,7 +37930,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 154 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -33997,11 +37938,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 	
-	var eql = __webpack_require__(89);
-	var dot = __webpack_require__(87);
-	var type = __webpack_require__(25);
-	var keys = __webpack_require__(90).keys;
-	var debug = __webpack_require__(86)('mongo-query');
+	var eql = __webpack_require__(99);
+	var dot = __webpack_require__(97);
+	var type = __webpack_require__(26);
+	var keys = __webpack_require__(100).keys;
+	var debug = __webpack_require__(96)('mongo-query');
 	
 	/**
 	 * Performs a `$set`.
@@ -34610,7 +38551,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 155 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -34618,8 +38559,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 	
-	var eql = __webpack_require__(89);
-	var type = __webpack_require__(25);
+	var eql = __webpack_require__(99);
+	var type = __webpack_require__(26);
 	
 	/**
 	 * $ne: not equal.
@@ -34713,7 +38654,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 156 */
+/* 189 */
 /***/ function(module, exports) {
 
 	/**
@@ -34868,10 +38809,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 157 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CryptoJS = __webpack_require__(12).CryptoJS;
+	var CryptoJS = __webpack_require__(13).CryptoJS;
 	
 	/*
 	CryptoJS v3.1.2
@@ -35089,10 +39030,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 158 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CryptoJS = __webpack_require__(12).CryptoJS;
+	var CryptoJS = __webpack_require__(13).CryptoJS;
 	
 	/*
 	CryptoJS v3.1.2
@@ -35960,10 +39901,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 159 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CryptoJS = __webpack_require__(12).CryptoJS;
+	var CryptoJS = __webpack_require__(13).CryptoJS;
 	
 	/*
 	CryptoJS v3.1.2
@@ -36077,10 +40018,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 160 */
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CryptoJS = __webpack_require__(12).CryptoJS;
+	var CryptoJS = __webpack_require__(13).CryptoJS;
 	
 	/*
 	CryptoJS v3.1.2
@@ -36203,10 +40144,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 161 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CryptoJS = __webpack_require__(12).CryptoJS;
+	var CryptoJS = __webpack_require__(13).CryptoJS;
 	
 	// create custom json serialization format
 	var JsonFormatter = {
@@ -36254,10 +40195,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.JsonFormatter = JsonFormatter;
 
 /***/ },
-/* 162 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CryptoJS = __webpack_require__(12).CryptoJS;
+	var CryptoJS = __webpack_require__(13).CryptoJS;
 	
 	/*
 	CryptoJS v3.1.2
@@ -36516,21 +40457,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 163 */
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(14)
 
 
 /***/ },
-/* 164 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var Buffer = __webpack_require__(24).Buffer;
+	var Buffer = __webpack_require__(25).Buffer;
 	/*<replacement>*/
-	var bufferShim = __webpack_require__(85);
+	var bufferShim = __webpack_require__(95);
 	/*</replacement>*/
 	
 	module.exports = BufferList;
@@ -36592,28 +40533,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 165 */
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(129)
+	module.exports = __webpack_require__(142)
 
 
 /***/ },
-/* 166 */
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {var Stream = (function (){
 	  try {
-	    return __webpack_require__(37); // hack to fix a circular dependency issue when used with browserify
+	    return __webpack_require__(41); // hack to fix a circular dependency issue when used with browserify
 	  } catch(_){}
 	}());
-	exports = module.exports = __webpack_require__(130);
+	exports = module.exports = __webpack_require__(143);
 	exports.Stream = Stream || exports;
 	exports.Readable = exports;
-	exports.Writable = __webpack_require__(93);
+	exports.Writable = __webpack_require__(103);
 	exports.Duplex = __webpack_require__(14);
-	exports.Transform = __webpack_require__(92);
-	exports.PassThrough = __webpack_require__(129);
+	exports.Transform = __webpack_require__(102);
+	exports.PassThrough = __webpack_require__(142);
 	
 	if (!process.browser && process.env.READABLE_STREAM === 'disable' && Stream) {
 	  module.exports = Stream;
@@ -36622,21 +40563,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ },
-/* 167 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(92)
+	module.exports = __webpack_require__(102)
 
 
 /***/ },
-/* 168 */
+/* 201 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(93)
+	module.exports = __webpack_require__(103)
 
 
 /***/ },
-/* 169 */
+/* 202 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -37257,7 +41198,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 170 */
+/* 203 */
 /***/ function(module, exports) {
 
 	
@@ -37293,7 +41234,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 171 */
+/* 204 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -37367,7 +41308,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 172 */
+/* 205 */
 /***/ function(module, exports) {
 
 	module.exports = function isBuffer(arg) {
@@ -37378,600 +41319,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 173 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-	
-	var formatRegExp = /%[sdj%]/g;
-	exports.format = function(f) {
-	  if (!isString(f)) {
-	    var objects = [];
-	    for (var i = 0; i < arguments.length; i++) {
-	      objects.push(inspect(arguments[i]));
-	    }
-	    return objects.join(' ');
-	  }
-	
-	  var i = 1;
-	  var args = arguments;
-	  var len = args.length;
-	  var str = String(f).replace(formatRegExp, function(x) {
-	    if (x === '%%') return '%';
-	    if (i >= len) return x;
-	    switch (x) {
-	      case '%s': return String(args[i++]);
-	      case '%d': return Number(args[i++]);
-	      case '%j':
-	        try {
-	          return JSON.stringify(args[i++]);
-	        } catch (_) {
-	          return '[Circular]';
-	        }
-	      default:
-	        return x;
-	    }
-	  });
-	  for (var x = args[i]; i < len; x = args[++i]) {
-	    if (isNull(x) || !isObject(x)) {
-	      str += ' ' + x;
-	    } else {
-	      str += ' ' + inspect(x);
-	    }
-	  }
-	  return str;
-	};
-	
-	
-	// Mark that a method should not be used.
-	// Returns a modified function which warns once by default.
-	// If --no-deprecation is set, then it is a no-op.
-	exports.deprecate = function(fn, msg) {
-	  // Allow for deprecating things in the process of starting up.
-	  if (isUndefined(global.process)) {
-	    return function() {
-	      return exports.deprecate(fn, msg).apply(this, arguments);
-	    };
-	  }
-	
-	  if (process.noDeprecation === true) {
-	    return fn;
-	  }
-	
-	  var warned = false;
-	  function deprecated() {
-	    if (!warned) {
-	      if (process.throwDeprecation) {
-	        throw new Error(msg);
-	      } else if (process.traceDeprecation) {
-	        console.trace(msg);
-	      } else {
-	        console.error(msg);
-	      }
-	      warned = true;
-	    }
-	    return fn.apply(this, arguments);
-	  }
-	
-	  return deprecated;
-	};
-	
-	
-	var debugs = {};
-	var debugEnviron;
-	exports.debuglog = function(set) {
-	  if (isUndefined(debugEnviron))
-	    debugEnviron = process.env.NODE_DEBUG || '';
-	  set = set.toUpperCase();
-	  if (!debugs[set]) {
-	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
-	      var pid = process.pid;
-	      debugs[set] = function() {
-	        var msg = exports.format.apply(exports, arguments);
-	        console.error('%s %d: %s', set, pid, msg);
-	      };
-	    } else {
-	      debugs[set] = function() {};
-	    }
-	  }
-	  return debugs[set];
-	};
-	
-	
-	/**
-	 * Echos the value of a value. Trys to print the value out
-	 * in the best way possible given the different types.
-	 *
-	 * @param {Object} obj The object to print out.
-	 * @param {Object} opts Optional options object that alters the output.
-	 */
-	/* legacy: obj, showHidden, depth, colors*/
-	function inspect(obj, opts) {
-	  // default options
-	  var ctx = {
-	    seen: [],
-	    stylize: stylizeNoColor
-	  };
-	  // legacy...
-	  if (arguments.length >= 3) ctx.depth = arguments[2];
-	  if (arguments.length >= 4) ctx.colors = arguments[3];
-	  if (isBoolean(opts)) {
-	    // legacy...
-	    ctx.showHidden = opts;
-	  } else if (opts) {
-	    // got an "options" object
-	    exports._extend(ctx, opts);
-	  }
-	  // set default options
-	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-	  if (isUndefined(ctx.depth)) ctx.depth = 2;
-	  if (isUndefined(ctx.colors)) ctx.colors = false;
-	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-	  if (ctx.colors) ctx.stylize = stylizeWithColor;
-	  return formatValue(ctx, obj, ctx.depth);
-	}
-	exports.inspect = inspect;
-	
-	
-	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-	inspect.colors = {
-	  'bold' : [1, 22],
-	  'italic' : [3, 23],
-	  'underline' : [4, 24],
-	  'inverse' : [7, 27],
-	  'white' : [37, 39],
-	  'grey' : [90, 39],
-	  'black' : [30, 39],
-	  'blue' : [34, 39],
-	  'cyan' : [36, 39],
-	  'green' : [32, 39],
-	  'magenta' : [35, 39],
-	  'red' : [31, 39],
-	  'yellow' : [33, 39]
-	};
-	
-	// Don't use 'blue' not visible on cmd.exe
-	inspect.styles = {
-	  'special': 'cyan',
-	  'number': 'yellow',
-	  'boolean': 'yellow',
-	  'undefined': 'grey',
-	  'null': 'bold',
-	  'string': 'green',
-	  'date': 'magenta',
-	  // "name": intentionally not styling
-	  'regexp': 'red'
-	};
-	
-	
-	function stylizeWithColor(str, styleType) {
-	  var style = inspect.styles[styleType];
-	
-	  if (style) {
-	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-	           '\u001b[' + inspect.colors[style][1] + 'm';
-	  } else {
-	    return str;
-	  }
-	}
-	
-	
-	function stylizeNoColor(str, styleType) {
-	  return str;
-	}
-	
-	
-	function arrayToHash(array) {
-	  var hash = {};
-	
-	  array.forEach(function(val, idx) {
-	    hash[val] = true;
-	  });
-	
-	  return hash;
-	}
-	
-	
-	function formatValue(ctx, value, recurseTimes) {
-	  // Provide a hook for user-specified inspect functions.
-	  // Check that value is an object with an inspect function on it
-	  if (ctx.customInspect &&
-	      value &&
-	      isFunction(value.inspect) &&
-	      // Filter out the util module, it's inspect function is special
-	      value.inspect !== exports.inspect &&
-	      // Also filter out any prototype objects using the circular check.
-	      !(value.constructor && value.constructor.prototype === value)) {
-	    var ret = value.inspect(recurseTimes, ctx);
-	    if (!isString(ret)) {
-	      ret = formatValue(ctx, ret, recurseTimes);
-	    }
-	    return ret;
-	  }
-	
-	  // Primitive types cannot have properties
-	  var primitive = formatPrimitive(ctx, value);
-	  if (primitive) {
-	    return primitive;
-	  }
-	
-	  // Look up the keys of the object.
-	  var keys = Object.keys(value);
-	  var visibleKeys = arrayToHash(keys);
-	
-	  if (ctx.showHidden) {
-	    keys = Object.getOwnPropertyNames(value);
-	  }
-	
-	  // IE doesn't make error fields non-enumerable
-	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-	  if (isError(value)
-	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-	    return formatError(value);
-	  }
-	
-	  // Some type of object without properties can be shortcutted.
-	  if (keys.length === 0) {
-	    if (isFunction(value)) {
-	      var name = value.name ? ': ' + value.name : '';
-	      return ctx.stylize('[Function' + name + ']', 'special');
-	    }
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    }
-	    if (isDate(value)) {
-	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
-	    }
-	    if (isError(value)) {
-	      return formatError(value);
-	    }
-	  }
-	
-	  var base = '', array = false, braces = ['{', '}'];
-	
-	  // Make Array say that they are Array
-	  if (isArray(value)) {
-	    array = true;
-	    braces = ['[', ']'];
-	  }
-	
-	  // Make functions say that they are functions
-	  if (isFunction(value)) {
-	    var n = value.name ? ': ' + value.name : '';
-	    base = ' [Function' + n + ']';
-	  }
-	
-	  // Make RegExps say that they are RegExps
-	  if (isRegExp(value)) {
-	    base = ' ' + RegExp.prototype.toString.call(value);
-	  }
-	
-	  // Make dates with properties first say the date
-	  if (isDate(value)) {
-	    base = ' ' + Date.prototype.toUTCString.call(value);
-	  }
-	
-	  // Make error with message first say the error
-	  if (isError(value)) {
-	    base = ' ' + formatError(value);
-	  }
-	
-	  if (keys.length === 0 && (!array || value.length == 0)) {
-	    return braces[0] + base + braces[1];
-	  }
-	
-	  if (recurseTimes < 0) {
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    } else {
-	      return ctx.stylize('[Object]', 'special');
-	    }
-	  }
-	
-	  ctx.seen.push(value);
-	
-	  var output;
-	  if (array) {
-	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-	  } else {
-	    output = keys.map(function(key) {
-	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-	    });
-	  }
-	
-	  ctx.seen.pop();
-	
-	  return reduceToSingleString(output, base, braces);
-	}
-	
-	
-	function formatPrimitive(ctx, value) {
-	  if (isUndefined(value))
-	    return ctx.stylize('undefined', 'undefined');
-	  if (isString(value)) {
-	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-	                                             .replace(/'/g, "\\'")
-	                                             .replace(/\\"/g, '"') + '\'';
-	    return ctx.stylize(simple, 'string');
-	  }
-	  if (isNumber(value))
-	    return ctx.stylize('' + value, 'number');
-	  if (isBoolean(value))
-	    return ctx.stylize('' + value, 'boolean');
-	  // For some reason typeof null is "object", so special case here.
-	  if (isNull(value))
-	    return ctx.stylize('null', 'null');
-	}
-	
-	
-	function formatError(value) {
-	  return '[' + Error.prototype.toString.call(value) + ']';
-	}
-	
-	
-	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-	  var output = [];
-	  for (var i = 0, l = value.length; i < l; ++i) {
-	    if (hasOwnProperty(value, String(i))) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          String(i), true));
-	    } else {
-	      output.push('');
-	    }
-	  }
-	  keys.forEach(function(key) {
-	    if (!key.match(/^\d+$/)) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          key, true));
-	    }
-	  });
-	  return output;
-	}
-	
-	
-	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-	  var name, str, desc;
-	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-	  if (desc.get) {
-	    if (desc.set) {
-	      str = ctx.stylize('[Getter/Setter]', 'special');
-	    } else {
-	      str = ctx.stylize('[Getter]', 'special');
-	    }
-	  } else {
-	    if (desc.set) {
-	      str = ctx.stylize('[Setter]', 'special');
-	    }
-	  }
-	  if (!hasOwnProperty(visibleKeys, key)) {
-	    name = '[' + key + ']';
-	  }
-	  if (!str) {
-	    if (ctx.seen.indexOf(desc.value) < 0) {
-	      if (isNull(recurseTimes)) {
-	        str = formatValue(ctx, desc.value, null);
-	      } else {
-	        str = formatValue(ctx, desc.value, recurseTimes - 1);
-	      }
-	      if (str.indexOf('\n') > -1) {
-	        if (array) {
-	          str = str.split('\n').map(function(line) {
-	            return '  ' + line;
-	          }).join('\n').substr(2);
-	        } else {
-	          str = '\n' + str.split('\n').map(function(line) {
-	            return '   ' + line;
-	          }).join('\n');
-	        }
-	      }
-	    } else {
-	      str = ctx.stylize('[Circular]', 'special');
-	    }
-	  }
-	  if (isUndefined(name)) {
-	    if (array && key.match(/^\d+$/)) {
-	      return str;
-	    }
-	    name = JSON.stringify('' + key);
-	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-	      name = name.substr(1, name.length - 2);
-	      name = ctx.stylize(name, 'name');
-	    } else {
-	      name = name.replace(/'/g, "\\'")
-	                 .replace(/\\"/g, '"')
-	                 .replace(/(^"|"$)/g, "'");
-	      name = ctx.stylize(name, 'string');
-	    }
-	  }
-	
-	  return name + ': ' + str;
-	}
-	
-	
-	function reduceToSingleString(output, base, braces) {
-	  var numLinesEst = 0;
-	  var length = output.reduce(function(prev, cur) {
-	    numLinesEst++;
-	    if (cur.indexOf('\n') >= 0) numLinesEst++;
-	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-	  }, 0);
-	
-	  if (length > 60) {
-	    return braces[0] +
-	           (base === '' ? '' : base + '\n ') +
-	           ' ' +
-	           output.join(',\n  ') +
-	           ' ' +
-	           braces[1];
-	  }
-	
-	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-	}
-	
-	
-	// NOTE: These type checking functions intentionally don't use `instanceof`
-	// because it is fragile and can be easily faked with `Object.create()`.
-	function isArray(ar) {
-	  return Array.isArray(ar);
-	}
-	exports.isArray = isArray;
-	
-	function isBoolean(arg) {
-	  return typeof arg === 'boolean';
-	}
-	exports.isBoolean = isBoolean;
-	
-	function isNull(arg) {
-	  return arg === null;
-	}
-	exports.isNull = isNull;
-	
-	function isNullOrUndefined(arg) {
-	  return arg == null;
-	}
-	exports.isNullOrUndefined = isNullOrUndefined;
-	
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-	exports.isNumber = isNumber;
-	
-	function isString(arg) {
-	  return typeof arg === 'string';
-	}
-	exports.isString = isString;
-	
-	function isSymbol(arg) {
-	  return typeof arg === 'symbol';
-	}
-	exports.isSymbol = isSymbol;
-	
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
-	exports.isUndefined = isUndefined;
-	
-	function isRegExp(re) {
-	  return isObject(re) && objectToString(re) === '[object RegExp]';
-	}
-	exports.isRegExp = isRegExp;
-	
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-	exports.isObject = isObject;
-	
-	function isDate(d) {
-	  return isObject(d) && objectToString(d) === '[object Date]';
-	}
-	exports.isDate = isDate;
-	
-	function isError(e) {
-	  return isObject(e) &&
-	      (objectToString(e) === '[object Error]' || e instanceof Error);
-	}
-	exports.isError = isError;
-	
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-	exports.isFunction = isFunction;
-	
-	function isPrimitive(arg) {
-	  return arg === null ||
-	         typeof arg === 'boolean' ||
-	         typeof arg === 'number' ||
-	         typeof arg === 'string' ||
-	         typeof arg === 'symbol' ||  // ES6 symbol
-	         typeof arg === 'undefined';
-	}
-	exports.isPrimitive = isPrimitive;
-	
-	exports.isBuffer = __webpack_require__(172);
-	
-	function objectToString(o) {
-	  return Object.prototype.toString.call(o);
-	}
-	
-	
-	function pad(n) {
-	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
-	}
-	
-	
-	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-	              'Oct', 'Nov', 'Dec'];
-	
-	// 26 Feb 16:19:34
-	function timestamp() {
-	  var d = new Date();
-	  var time = [pad(d.getHours()),
-	              pad(d.getMinutes()),
-	              pad(d.getSeconds())].join(':');
-	  return [d.getDate(), months[d.getMonth()], time].join(' ');
-	}
-	
-	
-	// log is just a thin wrapper to console.log that prepends a timestamp
-	exports.log = function() {
-	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
-	};
-	
-	
-	/**
-	 * Inherit the prototype methods from one constructor into another.
-	 *
-	 * The Function.prototype.inherits from lang.js rewritten as a standalone
-	 * function (not on Function.prototype). NOTE: If this file is to be loaded
-	 * during bootstrapping this function needs to be rewritten using some native
-	 * functions as prototype setup using normal JavaScript does not work as
-	 * expected during bootstrapping (see mirror.js in r114903).
-	 *
-	 * @param {function} ctor Constructor function which needs to inherit the
-	 *     prototype.
-	 * @param {function} superCtor Constructor function to inherit prototype from.
-	 */
-	exports.inherits = __webpack_require__(11);
-	
-	exports._extend = function(origin, add) {
-	  // Don't do anything if add isn't an object
-	  if (!add || !isObject(add)) return origin;
-	
-	  var keys = Object.keys(add);
-	  var i = keys.length;
-	  while (i--) {
-	    origin[keys[i]] = add[keys[i]];
-	  }
-	  return origin;
-	};
-	
-	function hasOwnProperty(obj, prop) {
-	  return Object.prototype.hasOwnProperty.call(obj, prop);
-	}
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(7)))
-
-/***/ },
-/* 174 */
+/* 206 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -37979,7 +41327,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 175 */
+/* 207 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -37995,188 +41343,206 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 176 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./AutoQueue": 43,
-		"./AutoQueue.ts": 43,
-		"./Everlive": 27,
-		"./Everlive.ts": 27,
+		"./AutoQueue": 47,
+		"./AutoQueue.ts": 47,
+		"./Everlive": 30,
+		"./Everlive.ts": 30,
 		"./EverliveError": 3,
 		"./EverliveError.ts": 3,
-		"./ExpandProcessor": 44,
-		"./ExpandProcessor.ts": 44,
-		"./Expression": 18,
-		"./Expression.ts": 18,
-		"./GeoPoint": 28,
-		"./GeoPoint.ts": 28,
-		"./Push": 45,
-		"./Push.ts": 45,
-		"./Request": 9,
-		"./Request.ts": 9,
-		"./Setup": 46,
-		"./Setup.ts": 46,
-		"./auth/Authentication": 47,
-		"./auth/Authentication.ts": 47,
-		"./auth/AuthenticationSetup": 48,
-		"./auth/AuthenticationSetup.ts": 48,
-		"./business-logic/BusinessLogic": 49,
-		"./business-logic/BusinessLogic.ts": 49,
-		"./caching/CacheModule": 50,
-		"./caching/CacheModule.ts": 50,
-		"./caching/caching": 51,
-		"./caching/caching.ts": 51,
+		"./ExpandProcessor": 48,
+		"./ExpandProcessor.ts": 48,
+		"./Expression": 20,
+		"./Expression.ts": 20,
+		"./GeoPoint": 31,
+		"./GeoPoint.ts": 31,
+		"./Push": 49,
+		"./Push.ts": 49,
+		"./Request": 10,
+		"./Request.ts": 10,
+		"./Setup": 50,
+		"./Setup.ts": 50,
+		"./auth/Authentication": 51,
+		"./auth/Authentication.ts": 51,
+		"./auth/AuthenticationSetup": 52,
+		"./auth/AuthenticationSetup.ts": 52,
+		"./business-logic/BusinessLogic": 53,
+		"./business-logic/BusinessLogic.ts": 53,
+		"./caching/CacheModule": 54,
+		"./caching/CacheModule.ts": 54,
+		"./caching/caching": 55,
+		"./caching/caching.ts": 55,
 		"./constants": 2,
 		"./constants.ts": 2,
 		"./dataQuery/DataQuery": 15,
 		"./dataQuery/DataQuery.ts": 15,
-		"./dataQuery/DataQueryBuilder": 52,
-		"./dataQuery/DataQueryBuilder.ts": 52,
-		"./docs/callbacks": 100,
-		"./docs/callbacks.ts": 100,
-		"./docs/resultTypes": 101,
-		"./docs/resultTypes.ts": 101,
-		"./encryption/CryptographicProvider": 53,
-		"./encryption/CryptographicProvider.ts": 53,
-		"./helpers/helpers": 54,
-		"./helpers/helpers.ts": 54,
-		"./helpers/html/htmlHelper": 55,
-		"./helpers/html/htmlHelper.ts": 55,
-		"./helpers/html/htmlHelperOfflineModule": 56,
-		"./helpers/html/htmlHelperOfflineModule.ts": 56,
-		"./helpers/html/htmlHelperResponsiveModule": 57,
-		"./helpers/html/htmlHelperResponsiveModule.ts": 57,
-		"./index": 58,
-		"./index.ts": 58,
-		"./interfaces/AuthInfoResult": 102,
-		"./interfaces/AuthInfoResult.ts": 102,
-		"./interfaces/CloudFunctionInvocationParameters": 103,
-		"./interfaces/CloudFunctionInvocationParameters.ts": 103,
-		"./interfaces/CordovaFileEntry": 104,
-		"./interfaces/CordovaFileEntry.ts": 104,
-		"./interfaces/CordovaFileUploadOptions": 105,
-		"./interfaces/CordovaFileUploadOptions.ts": 105,
-		"./interfaces/CreateItemResult": 106,
-		"./interfaces/CreateItemResult.ts": 106,
-		"./interfaces/ErrorCallback": 107,
-		"./interfaces/ErrorCallback.ts": 107,
-		"./interfaces/File": 108,
-		"./interfaces/File.ts": 108,
-		"./interfaces/FileContent": 109,
-		"./interfaces/FileContent.ts": 109,
-		"./interfaces/Item": 110,
-		"./interfaces/Item.ts": 110,
-		"./interfaces/MultipleResult": 111,
-		"./interfaces/MultipleResult.ts": 111,
-		"./interfaces/RequestOptions": 112,
-		"./interfaces/RequestOptions.ts": 112,
-		"./interfaces/SaveItemResult": 113,
-		"./interfaces/SaveItemResult.ts": 113,
-		"./interfaces/SetUserPasswordByResetCodePayload": 114,
-		"./interfaces/SetUserPasswordByResetCodePayload.ts": 114,
-		"./interfaces/SetUserPasswordBySecretAnswerPayload": 115,
-		"./interfaces/SetUserPasswordBySecretAnswerPayload.ts": 115,
-		"./interfaces/SingleResult": 116,
-		"./interfaces/SingleResult.ts": 116,
-		"./interfaces/SocialLoginResult": 117,
-		"./interfaces/SocialLoginResult.ts": 117,
-		"./interfaces/SuccessCallback": 118,
-		"./interfaces/SuccessCallback.ts": 118,
-		"./interfaces/UpdateItemResult": 119,
-		"./interfaces/UpdateItemResult.ts": 119,
-		"./interfaces/User": 120,
-		"./interfaces/User.ts": 120,
-		"./interfaces/UserInfo": 121,
-		"./interfaces/UserInfo.ts": 121,
-		"./interfaces/UserLoginResult": 122,
-		"./interfaces/UserLoginResult.ts": 122,
-		"./interfaces/UserSocialIdentity": 123,
-		"./interfaces/UserSocialIdentity.ts": 123,
-		"./kendo/kendo.everlive": 59,
-		"./kendo/kendo.everlive.ts": 59,
-		"./offline/OfflineFilesModule": 60,
-		"./offline/OfflineFilesModule.ts": 60,
-		"./offline/OfflineFilesProcessor": 61,
-		"./offline/OfflineFilesProcessor.ts": 61,
-		"./offline/OfflineQueryProcessor": 62,
-		"./offline/OfflineQueryProcessor.ts": 62,
-		"./offline/OfflineStorageModule": 63,
-		"./offline/OfflineStorageModule.ts": 63,
-		"./offline/offline": 29,
-		"./offline/offline.ts": 29,
-		"./offline/offlinePersisters": 19,
-		"./offline/offlinePersisters.ts": 19,
-		"./offline/offlineTransformations": 30,
-		"./offline/offlineTransformations.ts": 30,
-		"./offline/persisters/BasePersister": 20,
-		"./offline/persisters/BasePersister.ts": 20,
-		"./offline/persisters/FileSystemPersister": 64,
-		"./offline/persisters/FileSystemPersister.ts": 64,
-		"./offline/persisters/LocalStoragePersister": 65,
-		"./offline/persisters/LocalStoragePersister.ts": 65,
-		"./offline/persisters/Persister": 124,
-		"./offline/persisters/Persister.ts": 124,
-		"./push/CordovaCurrentDevice": 31,
-		"./push/CordovaCurrentDevice.ts": 31,
-		"./push/CurrentDevice": 66,
-		"./push/CurrentDevice.ts": 66,
-		"./push/NativeScriptCurrentDevice": 32,
-		"./push/NativeScriptCurrentDevice.ts": 32,
-		"./query/AggregateQuery": 21,
-		"./query/AggregateQuery.ts": 21,
-		"./query/EventQuery": 67,
-		"./query/EventQuery.ts": 67,
+		"./dataQuery/DataQueryBuilder": 56,
+		"./dataQuery/DataQueryBuilder.ts": 56,
+		"./docs/callbacks": 110,
+		"./docs/callbacks.ts": 110,
+		"./docs/resultTypes": 111,
+		"./docs/resultTypes.ts": 111,
+		"./encryption/CryptographicProvider": 57,
+		"./encryption/CryptographicProvider.ts": 57,
+		"./helpers/helpers": 58,
+		"./helpers/helpers.ts": 58,
+		"./helpers/html/htmlHelper": 59,
+		"./helpers/html/htmlHelper.ts": 59,
+		"./helpers/html/htmlHelperOfflineModule": 60,
+		"./helpers/html/htmlHelperOfflineModule.ts": 60,
+		"./helpers/html/htmlHelperResponsiveModule": 61,
+		"./helpers/html/htmlHelperResponsiveModule.ts": 61,
+		"./index": 62,
+		"./index.ts": 62,
+		"./interfaces/AuthInfoResult": 112,
+		"./interfaces/AuthInfoResult.ts": 112,
+		"./interfaces/CloudFunctionInvocationParameters": 113,
+		"./interfaces/CloudFunctionInvocationParameters.ts": 113,
+		"./interfaces/CordovaFileEntry": 114,
+		"./interfaces/CordovaFileEntry.ts": 114,
+		"./interfaces/CordovaFileUploadOptions": 115,
+		"./interfaces/CordovaFileUploadOptions.ts": 115,
+		"./interfaces/CreateItemResult": 116,
+		"./interfaces/CreateItemResult.ts": 116,
+		"./interfaces/ErrorCallback": 117,
+		"./interfaces/ErrorCallback.ts": 117,
+		"./interfaces/File": 118,
+		"./interfaces/File.ts": 118,
+		"./interfaces/FileContent": 119,
+		"./interfaces/FileContent.ts": 119,
+		"./interfaces/Item": 120,
+		"./interfaces/Item.ts": 120,
+		"./interfaces/MultipleResult": 121,
+		"./interfaces/MultipleResult.ts": 121,
+		"./interfaces/RequestOptions": 122,
+		"./interfaces/RequestOptions.ts": 122,
+		"./interfaces/SQLiteStore": 123,
+		"./interfaces/SQLiteStore.ts": 123,
+		"./interfaces/SaveItemResult": 124,
+		"./interfaces/SaveItemResult.ts": 124,
+		"./interfaces/SetUserPasswordByResetCodePayload": 125,
+		"./interfaces/SetUserPasswordByResetCodePayload.ts": 125,
+		"./interfaces/SetUserPasswordBySecretAnswerPayload": 126,
+		"./interfaces/SetUserPasswordBySecretAnswerPayload.ts": 126,
+		"./interfaces/SingleResult": 127,
+		"./interfaces/SingleResult.ts": 127,
+		"./interfaces/SocialLoginResult": 128,
+		"./interfaces/SocialLoginResult.ts": 128,
+		"./interfaces/SuccessCallback": 129,
+		"./interfaces/SuccessCallback.ts": 129,
+		"./interfaces/UpdateItemResult": 130,
+		"./interfaces/UpdateItemResult.ts": 130,
+		"./interfaces/User": 131,
+		"./interfaces/User.ts": 131,
+		"./interfaces/UserInfo": 132,
+		"./interfaces/UserInfo.ts": 132,
+		"./interfaces/UserLoginResult": 133,
+		"./interfaces/UserLoginResult.ts": 133,
+		"./interfaces/UserSocialIdentity": 134,
+		"./interfaces/UserSocialIdentity.ts": 134,
+		"./kendo/kendo.everlive": 63,
+		"./kendo/kendo.everlive.ts": 63,
+		"./offline/OfflineFilesModule": 64,
+		"./offline/OfflineFilesModule.ts": 64,
+		"./offline/OfflineFilesProcessor": 65,
+		"./offline/OfflineFilesProcessor.ts": 65,
+		"./offline/OfflineStorageModule": 66,
+		"./offline/OfflineStorageModule.ts": 66,
+		"./offline/offline": 32,
+		"./offline/offline.ts": 32,
+		"./offline/offlinePersisters": 21,
+		"./offline/offlinePersisters.ts": 21,
+		"./offline/offlineTransformations": 16,
+		"./offline/offlineTransformations.ts": 16,
+		"./offline/persisters/BasePersister": 17,
+		"./offline/persisters/BasePersister.ts": 17,
+		"./offline/persisters/FileSystemPersister": 67,
+		"./offline/persisters/FileSystemPersister.ts": 67,
+		"./offline/persisters/LocalStoragePersister": 68,
+		"./offline/persisters/LocalStoragePersister.ts": 68,
+		"./offline/persisters/Persister": 135,
+		"./offline/persisters/Persister.ts": 135,
+		"./offline/persisters/SQLitePersister": 69,
+		"./offline/persisters/SQLitePersister.ts": 69,
+		"./offline/persisters/sqlite/FieldDefinition": 70,
+		"./offline/persisters/sqlite/FieldDefinition.ts": 70,
+		"./offline/persisters/sqlite/SystemDefinitions": 71,
+		"./offline/persisters/sqlite/SystemDefinitions.ts": 71,
+		"./offline/processors/OfflineInMemoryQueryProcessor": 72,
+		"./offline/processors/OfflineInMemoryQueryProcessor.ts": 72,
+		"./offline/processors/OfflineQueryProcessor": 33,
+		"./offline/processors/OfflineQueryProcessor.ts": 33,
+		"./offline/processors/OfflineSQLiteQueryProcessor": 73,
+		"./offline/processors/OfflineSQLiteQueryProcessor.ts": 73,
+		"./push/CordovaCurrentDevice": 34,
+		"./push/CordovaCurrentDevice.ts": 34,
+		"./push/CurrentDevice": 74,
+		"./push/CurrentDevice.ts": 74,
+		"./push/NativeScriptCurrentDevice": 35,
+		"./push/NativeScriptCurrentDevice.ts": 35,
+		"./query/AggregateQuery": 22,
+		"./query/AggregateQuery.ts": 22,
+		"./query/EventQuery": 75,
+		"./query/EventQuery.ts": 75,
 		"./query/Query": 6,
 		"./query/Query.ts": 6,
-		"./query/QueryBuilder": 22,
-		"./query/QueryBuilder.ts": 22,
-		"./query/RequestOptionsBuilder": 33,
-		"./query/RequestOptionsBuilder.ts": 33,
-		"./query/WhereQuery": 68,
-		"./query/WhereQuery.ts": 68,
-		"./reqwest.everlive": 23,
-		"./reqwest.everlive.ts": 23,
-		"./reqwest.nativescript": 69,
-		"./reqwest.nativescript.ts": 69,
-		"./reqwest.nodejs": 70,
-		"./reqwest.nodejs.ts": 70,
-		"./response/ResponseParserProcessor": 71,
-		"./response/ResponseParserProcessor.ts": 71,
-		"./response/ResponseTransformProcessor": 72,
-		"./response/ResponseTransformProcessor.ts": 72,
-		"./services/RequestService": 10,
-		"./services/RequestService.ts": 10,
-		"./storages/FileStore": 34,
-		"./storages/FileStore.ts": 34,
-		"./storages/LocalStore": 35,
-		"./storages/LocalStore.ts": 35,
-		"./storages/NativeScriptFileStore": 73,
-		"./storages/NativeScriptFileStore.ts": 73,
-		"./storages/WebFileStore": 74,
-		"./storages/WebFileStore.ts": 74,
-		"./types/Data": 16,
-		"./types/Data.ts": 16,
-		"./types/Files": 75,
-		"./types/Files.ts": 75,
-		"./types/Users": 76,
-		"./types/Users.ts": 76,
-		"./types/preProcessors/DataPreprocessor": 77,
-		"./types/preProcessors/DataPreprocessor.ts": 77,
-		"./types/preProcessors/OfflineQueryPreprocessor": 78,
-		"./types/preProcessors/OfflineQueryPreprocessor.ts": 78,
-		"./types/processors/AuthenticationProcessor": 79,
-		"./types/processors/AuthenticationProcessor.ts": 79,
-		"./types/processors/BusinessLogicQueryProcessor": 80,
-		"./types/processors/BusinessLogicQueryProcessor.ts": 80,
-		"./types/processors/CacheQueryProcessor": 81,
-		"./types/processors/CacheQueryProcessor.ts": 81,
-		"./types/processors/EventQueryProcessor": 82,
-		"./types/processors/EventQueryProcessor.ts": 82,
-		"./types/processors/OfflineQueryProcessor": 83,
-		"./types/processors/OfflineQueryProcessor.ts": 83,
-		"./types/processors/OnlineQueryProcessor": 84,
-		"./types/processors/OnlineQueryProcessor.ts": 84,
+		"./query/QueryBuilder": 23,
+		"./query/QueryBuilder.ts": 23,
+		"./query/RequestOptionsBuilder": 36,
+		"./query/RequestOptionsBuilder.ts": 36,
+		"./query/WhereQuery": 76,
+		"./query/WhereQuery.ts": 76,
+		"./reqwest.everlive": 24,
+		"./reqwest.everlive.ts": 24,
+		"./reqwest.nativescript": 77,
+		"./reqwest.nativescript.ts": 77,
+		"./reqwest.nodejs": 78,
+		"./reqwest.nodejs.ts": 78,
+		"./response/ResponseParserProcessor": 79,
+		"./response/ResponseParserProcessor.ts": 79,
+		"./response/ResponseTransformProcessor": 80,
+		"./response/ResponseTransformProcessor.ts": 80,
+		"./services/RequestService": 11,
+		"./services/RequestService.ts": 11,
+		"./storages/CordovaSQLiteStore": 81,
+		"./storages/CordovaSQLiteStore.ts": 81,
+		"./storages/FileStore": 37,
+		"./storages/FileStore.ts": 37,
+		"./storages/LocalStore": 38,
+		"./storages/LocalStore.ts": 38,
+		"./storages/NativeScriptFileStore": 82,
+		"./storages/NativeScriptFileStore.ts": 82,
+		"./storages/NativeScriptSQLiteStore": 83,
+		"./storages/NativeScriptSQLiteStore.ts": 83,
+		"./storages/SQLiteStore": 39,
+		"./storages/SQLiteStore.ts": 39,
+		"./storages/WebFileStore": 84,
+		"./storages/WebFileStore.ts": 84,
+		"./types/Data": 18,
+		"./types/Data.ts": 18,
+		"./types/Files": 85,
+		"./types/Files.ts": 85,
+		"./types/Users": 86,
+		"./types/Users.ts": 86,
+		"./types/preProcessors/DataPreprocessor": 87,
+		"./types/preProcessors/DataPreprocessor.ts": 87,
+		"./types/preProcessors/OfflineQueryPreprocessor": 88,
+		"./types/preProcessors/OfflineQueryPreprocessor.ts": 88,
+		"./types/processors/AuthenticationProcessor": 89,
+		"./types/processors/AuthenticationProcessor.ts": 89,
+		"./types/processors/BusinessLogicQueryProcessor": 90,
+		"./types/processors/BusinessLogicQueryProcessor.ts": 90,
+		"./types/processors/CacheQueryProcessor": 91,
+		"./types/processors/CacheQueryProcessor.ts": 91,
+		"./types/processors/EventQueryProcessor": 92,
+		"./types/processors/EventQueryProcessor.ts": 92,
+		"./types/processors/OfflineQueryProcessor": 93,
+		"./types/processors/OfflineQueryProcessor.ts": 93,
+		"./types/processors/OnlineQueryProcessor": 94,
+		"./types/processors/OnlineQueryProcessor.ts": 94,
 		"./utils": 4,
 		"./utils.ts": 4
 	};
@@ -38191,11 +41557,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 176;
+	webpackContext.id = 208;
 
 
 /***/ },
-/* 177 */
+/* 209 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -38320,11 +41686,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = AggregationTranslator;
 
 /***/ },
-/* 178 */
+/* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var Constants = __webpack_require__(39);
+	var Constants = __webpack_require__(43);
 	
 	/**
 	 * A class that is used to get all required information in order to process a set of relations.
@@ -38625,15 +41991,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 179 */
+/* 211 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var async = __webpack_require__(95);
-	var RelationTreeBuilder = __webpack_require__(181);
-	var ExecutionTree = __webpack_require__(178);
-	var Constants = __webpack_require__(39);
-	var ExpandError = __webpack_require__(94);
+	var async = __webpack_require__(105);
+	var RelationTreeBuilder = __webpack_require__(213);
+	var ExecutionTree = __webpack_require__(210);
+	var Constants = __webpack_require__(43);
+	var ExpandError = __webpack_require__(104);
 	
 	function Processor(options) {
 	    this._executionNodeFunction = options.executionNodeFunction;
@@ -39121,13 +42487,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 180 */
+/* 212 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var Constants = __webpack_require__(39);
+	var Constants = __webpack_require__(43);
 	var _ = __webpack_require__(1);
-	var ExpandError = __webpack_require__(94);
+	var ExpandError = __webpack_require__(104);
 	
 	function RelationNode(options) {
 	    this.parentPath = options.parent;
@@ -39243,14 +42609,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 181 */
+/* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var RelationNode = __webpack_require__(180);
+	var RelationNode = __webpack_require__(212);
 	var _ = __webpack_require__(1);
-	var Constants = __webpack_require__(39);
-	var ExpandError = __webpack_require__(94);
+	var Constants = __webpack_require__(43);
+	var ExpandError = __webpack_require__(104);
 	
 	//var relationFieldPropertyName = Constants.RelationExpressionName;
 	
@@ -39333,7 +42699,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return done(e);
 	    }
 	    var self = this;
-	    __webpack_require__(95).series([
+	    __webpack_require__(105).series([
 	        this.configureRelationTree.bind(this),
 	        this.validateRelationTree.bind(this)
 	    ], function (err) {
@@ -39643,77 +43009,84 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 182 */
+/* 214 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_182__ === 'undefined') {var e = new Error("Cannot find module \"application-settings\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_182__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_214__ === 'undefined') {var e = new Error("Cannot find module \"application-settings\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_214__;
 
 /***/ },
-/* 183 */
+/* 215 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_183__ === 'undefined') {var e = new Error("Cannot find module \"file-system\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_183__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_215__ === 'undefined') {var e = new Error("Cannot find module \"file-system\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_215__;
 
 /***/ },
-/* 184 */
+/* 216 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_184__ === 'undefined') {var e = new Error("Cannot find module \"https\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_184__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_216__ === 'undefined') {var e = new Error("Cannot find module \"https\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_216__;
 
 /***/ },
-/* 185 */
+/* 217 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_185__ === 'undefined') {var e = new Error("Cannot find module \"local-settings\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_185__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_217__ === 'undefined') {var e = new Error("Cannot find module \"local-settings\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_217__;
 
 /***/ },
-/* 186 */
+/* 218 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_186__ === 'undefined') {var e = new Error("Cannot find module \"nativescript-push-notifications\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_186__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_218__ === 'undefined') {var e = new Error("Cannot find module \"nativescript-push-notifications\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_218__;
 
 /***/ },
-/* 187 */
+/* 219 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_187__ === 'undefined') {var e = new Error("Cannot find module \"node-localstorage\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_187__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_219__ === 'undefined') {var e = new Error("Cannot find module \"nativescript-sqlite\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_219__;
 
 /***/ },
-/* 188 */
+/* 220 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_188__ === 'undefined') {var e = new Error("Cannot find module \"platform\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_188__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_220__ === 'undefined') {var e = new Error("Cannot find module \"node-localstorage\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_220__;
 
 /***/ },
-/* 189 */
+/* 221 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_189__ === 'undefined') {var e = new Error("Cannot find module \"url\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_189__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_221__ === 'undefined') {var e = new Error("Cannot find module \"platform\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_221__;
 
 /***/ },
-/* 190 */
+/* 222 */
 /***/ function(module, exports) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_190__ === 'undefined') {var e = new Error("Cannot find module \"zlib\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_190__;
+	if(typeof __WEBPACK_EXTERNAL_MODULE_222__ === 'undefined') {var e = new Error("Cannot find module \"url\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_222__;
 
 /***/ },
-/* 191 */
+/* 223 */
+/***/ function(module, exports) {
+
+	if(typeof __WEBPACK_EXTERNAL_MODULE_223__ === 'undefined') {var e = new Error("Cannot find module \"zlib\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_223__;
+
+/***/ },
+/* 224 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 192 */
-191
+/* 225 */
+224
 /******/ ])))
 });
 ;
