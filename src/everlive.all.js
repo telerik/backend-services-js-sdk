@@ -22,8 +22,8 @@
  * THE SOFTWARE.y distributed under the MIT license.
  * 
  * Everlive SDK 
- *     Version: 1.9.0
- *     Commit: 88db77e82a97af4862aa61b30a7a9776ba23dac9
+ *     Version: 1.9.1
+ *     Commit: 45f5b9cb96fcad6097f25f0a90ff0ec99c5ab1ed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -9142,8 +9142,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        LocalStorage: offlinePersisters_1.LocalStoragePersister,
 	        FileSystem: offlinePersisters_1.FileSystemPersister
 	    };
-	    Everlive.version = '1.9.0';
-	    Everlive.commit = '88db77e82a97af4862aa61b30a7a9776ba23dac9';
+	    Everlive.version = '1.9.1';
+	    Everlive.commit = '45f5b9cb96fcad6097f25f0a90ff0ec99c5ab1ed';
 	    Everlive.idField = constants_1.Constants.idField;
 	    /** An array of functions that are invoked during instantiation of the {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
 	     * @memberOf Everlive
@@ -21086,9 +21086,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (batchInsertQueries.length === 0) {
 	            return success();
 	        }
-	        var insertPromises = _.map(batchInsertQueries, function (currentBatchList) {
-	            var _loop_1 = function(insertQuery) {
-	                return { value: new Promise(function (resolve, reject) {
+	        var insertPromises = [];
+	        _.each(batchInsertQueries, function (query) {
+	            _.each(query, function (insertQuery) {
+	                insertPromises.push(new Promise(function (resolve, reject) {
 	                    // nativescript sqlite driver need the INSERT statement and the values array as two separate parameters
 	                    // check sample reuslt from buildSqlBatchInsert
 	                    _this.sqliteDb.execSQL(insertQuery[0], insertQuery[1], function (err, dbResult) {
@@ -21099,14 +21100,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            resolve();
 	                        }
 	                    });
-	                }) };
-	            };
-	            for (var _i = 0, currentBatchList_1 = currentBatchList; _i < currentBatchList_1.length; _i++) {
-	                var insertQuery = currentBatchList_1[_i];
-	                var state_1 = _loop_1(insertQuery);
-	                if (typeof state_1 === "object") return state_1.value;
-	            }
-	            ;
+	                }));
+	            });
 	        });
 	        return Promise.all(insertPromises).then(success, error);
 	    };
@@ -34065,9 +34060,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	/// <reference path="typings/custom.d.ts" />
 	"use strict";
 	var es6_promise_1 = __webpack_require__(159);
+	es6_promise_1.polyfill();
 	__webpack_require__(151); //initialize common sdk
 	var index_1 = __webpack_require__(62);
-	es6_promise_1.polyfill();
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = index_1.Everlive;
 	module.exports = index_1.Everlive;
@@ -35418,14 +35413,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var P = local.Promise;
 	
 	    if (P) {
-	        var promiseToString = null;
+	        var promiseToString = null,
+	            promiseInstance = null;
 	        try {
-	            promiseToString = Object.prototype.toString.call(P.resolve());
+	            promiseInstance = P.resolve();
+	            promiseToString = Object.prototype.toString.call(promiseInstance);
 	        } catch (e) {
 	            // silently ignored
 	        }
 	
-	        if (promiseToString === '[object Object]' && !P.cast) {
+	        if (!P.cast && (promiseToString === '[object Promise]' || (typeof promiseInstance === 'object'))) {
 	            return;
 	        }
 	    }
