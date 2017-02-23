@@ -22,8 +22,8 @@
  * THE SOFTWARE.y distributed under the MIT license.
  * 
  * Everlive SDK 
- *     Version: 1.9.2
- *     Commit: 6d0e871de75105125436abdeaa96392137bc09eb
+ *     Version: 1.9.3
+ *     Commit: fab839ad2228d8164cf642bc173b3605c6bf9d60
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -9142,8 +9142,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        LocalStorage: offlinePersisters_1.LocalStoragePersister,
 	        FileSystem: offlinePersisters_1.FileSystemPersister
 	    };
-	    Everlive.version = '1.9.2';
-	    Everlive.commit = '6d0e871de75105125436abdeaa96392137bc09eb';
+	    Everlive.version = '1.9.3';
+	    Everlive.commit = 'fab839ad2228d8164cf642bc173b3605c6bf9d60';
 	    Everlive.idField = constants_1.Constants.idField;
 	    /** An array of functions that are invoked during instantiation of the {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
 	     * @memberOf Everlive
@@ -14629,7 +14629,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.options = options;
 	        this._everlive = _everlive;
 	        this.typeSettings = this.options.typeSettings;
-	        this.maxAgeInMs = this.options.maxAgeInMs;
+	        this.maxAgeInMs = this.options.maxAge * 60 * 1000;
 	    }
 	    CacheModule.prototype._hash = function (obj) {
 	        return jsonStringify(obj);
@@ -24061,7 +24061,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var go = initialParams(function (args, callback) {
 	            var that = this;
 	            return eachfn(fns, function (fn, cb) {
-	                fn.apply(that, args.concat([cb]));
+	                fn.apply(that, args.concat(cb));
 	            }, callback);
 	        });
 	        if (args.length) {
@@ -24166,8 +24166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (value == null) {
 	    return value === undefined ? undefinedTag : nullTag;
 	  }
-	  value = Object(value);
-	  return (symToStringTag && symToStringTag in value)
+	  return (symToStringTag && symToStringTag in Object(value))
 	    ? getRawTag(value)
 	    : objectToString(value);
 	}
@@ -24297,6 +24296,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	function isArrayLike(value) {
 	  return value != null && isLength(value.length) && !isFunction(value);
 	}
+	
+	// A temporary value used to identify if the loop should be broken.
+	// See #1064, #1293
+	var breakLoop = {};
 	
 	/**
 	 * This method returns `undefined`.
@@ -24602,7 +24605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/** Used to access faster Node.js helpers. */
 	var nodeUtil = (function() {
 	  try {
-	    return freeProcess && freeProcess.binding('util');
+	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
 	  } catch (e) {}
 	}());
 	
@@ -24807,10 +24810,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	}
 	
-	// A temporary value used to identify if the loop should be broken.
-	// See #1064, #1293
-	var breakLoop = {};
-	
 	function _eachOfLimit(limit) {
 	    return function (obj, iteratee, callback) {
 	        callback = once(callback || noop);
@@ -24895,10 +24894,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        callback(null);
 	    }
 	
-	    function iteratorCallback(err) {
+	    function iteratorCallback(err, value) {
 	        if (err) {
 	            callback(err);
-	        } else if (++completed === length) {
+	        } else if (++completed === length || value === breakLoop) {
 	            callback(null);
 	        }
 	    }
@@ -25487,7 +25486,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var runningTasks = 0;
 	    var hasError = false;
 	
-	    var listeners = {};
+	    var listeners = Object.create(null);
 	
 	    var readyTasks = [];
 	
@@ -25515,7 +25514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        arrayEach(dependencies, function (dependencyName) {
 	            if (!tasks[dependencyName]) {
-	                throw new Error('async.auto task `' + key + '` has a non-existent dependency in ' + dependencies.join(', '));
+	                throw new Error('async.auto task `' + key + '` has a non-existent dependency `' + dependencyName + '` in ' + dependencies.join(', '));
 	            }
 	            addListener(dependencyName, function () {
 	                remainingDependencies--;
@@ -25577,7 +25576,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                });
 	                safeResults[key] = args;
 	                hasError = true;
-	                listeners = [];
+	                listeners = Object.create(null);
 	
 	                callback(err, safeResults);
 	            } else {
@@ -25794,15 +25793,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	/** Used to compose unicode character classes. */
 	var rsAstralRange = '\\ud800-\\udfff';
-	var rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23';
-	var rsComboSymbolsRange = '\\u20d0-\\u20f0';
+	var rsComboMarksRange = '\\u0300-\\u036f';
+	var reComboHalfMarksRange = '\\ufe20-\\ufe2f';
+	var rsComboSymbolsRange = '\\u20d0-\\u20ff';
+	var rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange;
 	var rsVarRange = '\\ufe0e\\ufe0f';
 	
 	/** Used to compose unicode capture groups. */
 	var rsZWJ = '\\u200d';
 	
 	/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
-	var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
+	var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
 	
 	/**
 	 * Checks if `string` contains Unicode symbols.
@@ -25817,13 +25818,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	/** Used to compose unicode character classes. */
 	var rsAstralRange$1 = '\\ud800-\\udfff';
-	var rsComboMarksRange$1 = '\\u0300-\\u036f\\ufe20-\\ufe23';
-	var rsComboSymbolsRange$1 = '\\u20d0-\\u20f0';
+	var rsComboMarksRange$1 = '\\u0300-\\u036f';
+	var reComboHalfMarksRange$1 = '\\ufe20-\\ufe2f';
+	var rsComboSymbolsRange$1 = '\\u20d0-\\u20ff';
+	var rsComboRange$1 = rsComboMarksRange$1 + reComboHalfMarksRange$1 + rsComboSymbolsRange$1;
 	var rsVarRange$1 = '\\ufe0e\\ufe0f';
 	
 	/** Used to compose unicode capture groups. */
 	var rsAstral = '[' + rsAstralRange$1 + ']';
-	var rsCombo = '[' + rsComboMarksRange$1 + rsComboSymbolsRange$1 + ']';
+	var rsCombo = '[' + rsComboRange$1 + ']';
 	var rsFitz = '\\ud83c[\\udffb-\\udfff]';
 	var rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')';
 	var rsNonAstral = '[^' + rsAstralRange$1 + ']';
@@ -26217,6 +26220,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    var workers = 0;
 	    var workersList = [];
+	    var isProcessing = false;
 	    var q = {
 	        _tasks: new DLL(),
 	        concurrency: concurrency,
@@ -26240,6 +26244,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _insert(data, true, callback);
 	        },
 	        process: function () {
+	            // Avoid trying to start too many processing operations. This can occur
+	            // when callbacks resolve synchronously (#1267).
+	            if (isProcessing) {
+	                return;
+	            }
+	            isProcessing = true;
 	            while (!q.paused && workers < q.concurrency && q._tasks.length) {
 	                var tasks = [],
 	                    data = [];
@@ -26264,6 +26274,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var cb = onlyOnce(_next(tasks));
 	                worker(data, cb);
 	            }
+	            isProcessing = false;
 	        },
 	        length: function () {
 	            return q._tasks.length;
@@ -26285,12 +26296,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return;
 	            }
 	            q.paused = false;
-	            var resumeCount = Math.min(q.concurrency, q._tasks.length);
-	            // Need to call q.process once per concurrent
-	            // worker to preserve full concurrency after pause
-	            for (var w = 1; w <= resumeCount; w++) {
-	                setImmediate$1(q.process);
-	            }
+	            setImmediate$1(q.process);
 	        }
 	    };
 	    return q;
@@ -26501,9 +26507,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	
 	        reduce(functions, args, function (newargs, fn, cb) {
-	            fn.apply(that, newargs.concat([rest(function (err, nextargs) {
+	            fn.apply(that, newargs.concat(rest(function (err, nextargs) {
 	                cb(err, nextargs);
-	            })]));
+	            })));
 	        }, function (err, results) {
 	            cb.apply(that, [err].concat(results));
 	        });
@@ -26666,36 +26672,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	});
 	
-	function _createTester(eachfn, check, getResult) {
-	    return function (arr, limit, iteratee, cb) {
-	        function done() {
-	            if (cb) {
-	                cb(null, getResult(false));
-	            }
-	        }
-	        function wrappedIteratee(x, _, callback) {
-	            if (!cb) return callback();
-	            iteratee(x, function (err, v) {
-	                // Check cb as another iteratee may have resolved with a
-	                // value or error since we started this iteratee
-	                if (cb && (err || check(v))) {
-	                    if (err) cb(err);else cb(err, getResult(true, x));
-	                    cb = iteratee = false;
-	                    callback(err, breakLoop);
+	function _createTester(check, getResult) {
+	    return function (eachfn, arr, iteratee, cb) {
+	        cb = cb || noop;
+	        var testPassed = false;
+	        var testResult;
+	        eachfn(arr, function (value, _, callback) {
+	            iteratee(value, function (err, result) {
+	                if (err) {
+	                    callback(err);
+	                } else if (check(result) && !testResult) {
+	                    testPassed = true;
+	                    testResult = getResult(true, value);
+	                    callback(null, breakLoop);
 	                } else {
 	                    callback();
 	                }
 	            });
-	        }
-	        if (arguments.length > 3) {
-	            cb = cb || noop;
-	            eachfn(arr, limit, wrappedIteratee, done);
-	        } else {
-	            cb = iteratee;
-	            cb = cb || noop;
-	            iteratee = limit;
-	            eachfn(arr, wrappedIteratee, done);
-	        }
+	        }, function (err) {
+	            if (err) {
+	                cb(err);
+	            } else {
+	                cb(null, testPassed ? testResult : getResult(false));
+	            }
+	        });
 	    };
 	}
 	
@@ -26738,7 +26738,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *     // result now equals the first file in the list that exists
 	 * });
 	 */
-	var detect = _createTester(eachOf, identity, _findGetResult);
+	var detect = doParallel(_createTester(identity, _findGetResult));
 	
 	/**
 	 * The same as [`detect`]{@link module:Collections.detect} but runs a maximum of `limit` async operations at a
@@ -26762,7 +26762,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * (iteratee) or the value `undefined` if none passed. Invoked with
 	 * (err, result).
 	 */
-	var detectLimit = _createTester(eachOfLimit, identity, _findGetResult);
+	var detectLimit = doParallelLimit(_createTester(identity, _findGetResult));
 	
 	/**
 	 * The same as [`detect`]{@link module:Collections.detect} but runs only a single async operation at a time.
@@ -26784,11 +26784,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * (iteratee) or the value `undefined` if none passed. Invoked with
 	 * (err, result).
 	 */
-	var detectSeries = _createTester(eachOfSeries, identity, _findGetResult);
+	var detectSeries = doLimit(detectLimit, 1);
 	
 	function consoleFunc(name) {
 	    return rest(function (fn, args) {
-	        fn.apply(null, args.concat([rest(function (err, args) {
+	        fn.apply(null, args.concat(rest(function (err, args) {
 	            if (typeof console === 'object') {
 	                if (err) {
 	                    if (console.error) {
@@ -26800,7 +26800,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    });
 	                }
 	            }
-	        })]));
+	        })));
 	    });
 	}
 	
@@ -27186,7 +27186,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *     // if result is true then every file exists
 	 * });
 	 */
-	var every = _createTester(eachOf, notId, notId);
+	var every = doParallel(_createTester(notId, notId));
 	
 	/**
 	 * The same as [`every`]{@link module:Collections.every} but runs a maximum of `limit` async operations at a time.
@@ -27208,7 +27208,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * `iteratee` functions have finished. Result will be either `true` or `false`
 	 * depending on the values of the async tests. Invoked with (err, result).
 	 */
-	var everyLimit = _createTester(eachOfLimit, notId, notId);
+	var everyLimit = doParallelLimit(_createTester(notId, notId));
 	
 	/**
 	 * The same as [`every`]{@link module:Collections.every} but runs only a single async operation at a time.
@@ -27586,14 +27586,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            queues[key].push(callback);
 	        } else {
 	            queues[key] = [callback];
-	            fn.apply(null, args.concat([rest(function (args) {
+	            fn.apply(null, args.concat(rest(function (args) {
 	                memo[key] = args;
 	                var q = queues[key];
 	                delete queues[key];
 	                for (var i = 0, l = q.length; i < l; i++) {
 	                    q[i].apply(null, args);
 	                }
-	            })]));
+	            })));
 	        }
 	    });
 	    memoized.memo = memo;
@@ -28416,7 +28416,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return initialParams(function (args, callback) {
 	        function taskFn(cb) {
-	            task.apply(null, args.concat([cb]));
+	            task.apply(null, args.concat(cb));
 	        }
 	
 	        if (opts) retry(opts, taskFn, callback);else retry(taskFn, callback);
@@ -28521,7 +28521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *     // if result is true then at least one of the files exists
 	 * });
 	 */
-	var some = _createTester(eachOf, Boolean, identity);
+	var some = doParallel(_createTester(Boolean, identity));
 	
 	/**
 	 * The same as [`some`]{@link module:Collections.some} but runs a maximum of `limit` async operations at a time.
@@ -28544,7 +28544,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Result will be either `true` or `false` depending on the values of the async
 	 * tests. Invoked with (err, result).
 	 */
-	var someLimit = _createTester(eachOfLimit, Boolean, identity);
+	var someLimit = doParallelLimit(_createTester(Boolean, identity));
 	
 	/**
 	 * The same as [`some`]{@link module:Collections.some} but runs only a single async operation at a time.
