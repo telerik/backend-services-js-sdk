@@ -22,8 +22,8 @@
  * THE SOFTWARE.y distributed under the MIT license.
  * 
  * Everlive SDK 
- *     Version: 1.9.3
- *     Commit: fab839ad2228d8164cf642bc173b3605c6bf9d60
+ *     Version: 1.9.4
+ *     Commit: 7ea170b06b9179ed6f83c24742abff71b2af76ce
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -1779,7 +1779,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        expand: 402
 	    };
 	    /**
-	     * A class used to represent the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+	     * A class used to represent the current authentication status of the {{site.bs}} JavaScript SDK instance.
 	     * @property {string} unauthenticated Indicates that no user is authenticated.
 	     * @property {string} masterKey Indicates that a master key authentication is used.
 	     * @property {string} invalidAuthentication Indicates an authentication has been attempted, but it was invalid.
@@ -2267,7 +2267,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Utils.callbackAndPromiseErrorResponse = function (err, errorHandler) {
 	        errorHandler = errorHandler || _.noop;
 	        errorHandler(err);
-	        return Utils.rejectedPromise(err);
+	        return Promise.reject(err);
 	    };
 	    Utils.toQueryString = function (obj) {
 	        var queryString = '', encode = encodeURIComponent, append = function (k, v) {
@@ -2474,7 +2474,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    __extends(Query, _super);
 	    /**
 	     * @class Query
-	     * @classdesc A query class used to describe a request that will be made to the {{site.TelerikBackendServices}} JavaScript API.
+	     * @classdesc A query class used to describe a request that will be made to the {{site.bs}} JavaScript SDK.
 	     * @param {object} [filter] A [filter expression](http://docs.telerik.com/platform/backend-services/rest/queries/queries-filtering) definition.
 	     * @param {object} [fields] A [fields expression](http://docs.telerik.com/platform/backend-services/rest/queries/queries-subset-fields) definition.
 	     * @param {object} [sort] A [sort expression](http://docs.telerik.com/platform/backend-services/rest/queries/queries-sorting) definition.
@@ -2568,7 +2568,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Query.prototype.take = function (value) {
 	        return this._simple(OperatorType.take, [value]);
 	    };
-	    /** Builds an object containing the different expressions that will be sent to {{site.TelerikBackendServices}}. It basically translates any previously specified expressions into standard queries that {{site.bs}} can understand.
+	    /** Builds an object containing the different expressions that will be sent to {{site.tap}}. It basically translates any previously specified expressions into standard queries that {{site.tap}} can understand.
 	     * @memberOf Query.prototype
 	     * @method build
 	     * @returns {{$where,$select,$sort,$skip,$take,$expand}}
@@ -4582,7 +4582,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Data_1 = __webpack_require__(147);
 	/**
 	 * @class Data
-	 * @classdesc A class that provides methods for all CRUD operations to a given {{site.bs}} data type. Covers advanced scenarios with custom headers and special server-side functionality.
+	 * @classdesc A class that provides methods for all CRUD operations to a given {{site.tap}} data type. Covers advanced scenarios with custom headers and special server-side functionality.
 	 * @param {object} collectionName
 	 * @param {object} sdk
 	 * @protected
@@ -5550,7 +5550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var EverliveError_1 = __webpack_require__(3);
 	/**
 	 * @class AggregateQuery
-	 * @classdesc A query class used to describe a aggregation request that will be made to the {{site.TelerikBackendServices}} JavaScript API. Inherits from Query.
+	 * @classdesc A query class used to describe a aggregation request that will be made to the {{site.bs}} JavaScript SDK. Inherits from Query.
 	 */
 	var AggregateQuery = (function (_super) {
 	    __extends(AggregateQuery, _super);
@@ -8914,7 +8914,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return utils_1.Utils.buildAuthHeader(this.setup);
 	    };
 	    /**
-	     * Gets the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+	     * Gets the current authentication status of the {{site.bs}} JavaScript SDK instance.
 	     * @memberOf Everlive.prototype
 	     * @method authInfo
 	     * @name authInfo
@@ -8923,7 +8923,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Promise} A promise to the authentication status.
 	     */
 	    /**
-	     * Gets the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+	     * Gets the current authentication status of the {{site.bs}} JavaScript SDK instance.
 	     * @memberOf Everlive.prototype
 	     * @method authInfo
 	     * @name authInfo
@@ -9142,8 +9142,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        LocalStorage: offlinePersisters_1.LocalStoragePersister,
 	        FileSystem: offlinePersisters_1.FileSystemPersister
 	    };
-	    Everlive.version = '1.9.3';
-	    Everlive.commit = 'fab839ad2228d8164cf642bc173b3605c6bf9d60';
+	    Everlive.version = '1.9.4';
+	    Everlive.commit = '7ea170b06b9179ed6f83c24742abff71b2af76ce';
 	    Everlive.idField = constants_1.Constants.idField;
 	    /** An array of functions that are invoked during instantiation of the {{site.TelerikBackendServices}} (Everlive) JavaScript SDK.
 	     * @memberOf Everlive
@@ -9245,7 +9245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	/**
-	 * @classdesc A class representing a value for the {{site.TelerikBackendServices}} GeoPoint field.
+	 * @classdesc A class representing a value of the Geo Point field type.
 	 * @class GeoPoint
 	 * @param longitude Longitude of the GeoPoint in decimal degrees (range: -180 to 180). Example: `123.3239467`
 	 * @param latitude Latitude of the GeoPoint in decimal degrees (range: -90 to 90). Example: `42.6954322`
@@ -9314,7 +9314,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	};
 	var initStoragePersister = function initStoragePersister(options, sdk) {
-	    var storageKey = options.storage.name || 'everliveOfflineStorage_' + sdk.setup.appId;
+	    var storageKey = options.storage.name || ('everliveOfflineStorage_' + sdk.setup.appId);
 	    var persister = offlinePersisters_1.getPersister(storageKey, options);
 	    options.storage.implementation = persister;
 	    return persister;
@@ -9719,6 +9719,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return withoutDeletedFilter;
 	        var _a, _b;
 	    };
+	    OfflineQueryProcessor.prototype._setLocalFileUri = function (fileToCreate, localUri) {
+	        if (fileToCreate.Uri === undefined) {
+	            fileToCreate.Uri = localUri;
+	        }
+	        return fileToCreate;
+	    };
+	    OfflineQueryProcessor.prototype._setItemState = function (item, state) {
+	        if (state) {
+	            item[constants_1.Constants.offlineItemsStateMarker] = state;
+	        }
+	        else {
+	            delete item[constants_1.Constants.offlineItemsStateMarker];
+	        }
+	    };
 	    return OfflineQueryProcessor;
 	}());
 	exports.OfflineQueryProcessor = OfflineQueryProcessor;
@@ -9768,7 +9782,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    /**
-	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device in {{site.TelerikBackendServices}} using the register() method.
+	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device with {{site.tap}} using the `register()` method.
 	     * @method enableNotifications
 	     * @name enableNotifications
 	     * @memberOf CurrentDevice.prototype
@@ -9776,7 +9790,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Object} The promise for the request.
 	     */
 	    /**
-	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device in Everlive using the register() method.
+	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device with {{site.tap}} using the `register()` method.
 	     * @method enableNotifications
 	     * @name enableNotifications
 	     * @memberOf CurrentDevice.prototype
@@ -9845,7 +9859,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._pushHandler.devices.getById('HardwareId/' + deviceId, success, error);
 	    };
 	    /**
-	     * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
+	     * Registers the current device for push notifications with {{site.tap}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
 	     * @memberOf CurrentDevice.prototype
 	     * @method register
 	     * @name register
@@ -9853,7 +9867,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Object} The promise for the request.
 	     */
 	    /**
-	     * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
+	     * Registers the current device for push notifications with {{site.tap}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
 	     * @memberOf CurrentDevice.prototype
 	     * @method register
 	     * @name register
@@ -9872,14 +9886,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }, error);
 	    };
 	    /**
-	     * Unregisters the current device from push notifications in {{site.TelerikBackendServices}}. After this call completes successfully, {{site.bs}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
+	     * Unregisters the current device for push notifications from {{site.tap}}. After this call completes successfully, {{site.tap}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
 	     * @memberOf CurrentDevice.prototype
 	     * @method unregister
 	     * @name unregister
 	     * @returns {Object} The promise for the request.
 	     */
 	    /**
-	     * Unregisters the current device from push notifications in {{site.TelerikBackendServices}}. After this call completes successfully, {{site.bs}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
+	     * Unregisters the current device for push notifications from {{site.tap}}. After this call completes successfully, {{site.tap}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
 	     * @memberOf CurrentDevice.prototype
 	     * @method unregister
 	     * @name unregister
@@ -10325,7 +10339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    ;
 	    /**
-	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device in {{site.TelerikBackendServices}} using the register() method.
+	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device with {{site.tap}} using the `register()` method.
 	     * @method enableNotifications
 	     * @name enableNotifications
 	     * @memberOf CurrentDevice.prototype
@@ -10333,7 +10347,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Object} The promise for the request.
 	     */
 	    /**
-	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device in Everlive using the register() method.
+	     * Initializes the current device for push notifications. This method requests a push token from the device vendor and enables the push notification functionality on the device. Once this is done, you can register the device with {{site.tap}} using the `register()` method.
 	     * @method enableNotifications
 	     * @name enableNotifications
 	     * @memberOf CurrentDevice.prototype
@@ -10396,7 +10410,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._pushHandler.devices.getById('HardwareId/' + deviceId, success, error);
 	    };
 	    /**
-	     * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
+	     * Registers the current device for push notifications with {{site.tap}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
 	     * @memberOf CurrentDevice.prototype
 	     * @method register
 	     * @name register
@@ -10404,7 +10418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Object} The promise for the request.
 	     */
 	    /**
-	     * Registers the current device for push notifications in {{site.TelerikBackendServices}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
+	     * Registers the current device for push notifications with {{site.tap}}. This method can be called only after [enableNotifications()]{@link currentDevice.enableNotifications} has completed successfully.
 	     * @memberOf CurrentDevice.prototype
 	     * @method register
 	     * @name register
@@ -10423,14 +10437,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }, error);
 	    };
 	    /**
-	     * Unregisters the current device from push notifications in {{site.TelerikBackendServices}}. After this call completes successfully, {{site.bs}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
+	     * Unregisters the current device for push notifications from {{site.tap}}. After this call completes successfully, {{site.tap}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
 	     * @memberOf CurrentDevice.prototype
 	     * @method unregister
 	     * @name unregister
 	     * @returns {Object} The promise for the request.
 	     */
 	    /**
-	     * Unregisters the current device from push notifications in {{site.TelerikBackendServices}}. After this call completes successfully, {{site.bs}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
+	     * Unregisters the current device for push notifications from {{site.tap}}. After this call completes successfully, {{site.tap}} will no longer send notifications to this device. Note that this does not prevent the device from receiving notifications and does not invalidate push tokens.
 	     * @memberOf CurrentDevice.prototype
 	     * @method unregister
 	     * @name unregister
@@ -13354,16 +13368,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Utils.isDate = function (date) {
 	        return date && (date instanceof Date || !_.isNaN(Date.parse(date)));
 	    };
-	    Utils.successfulPromise = function (data) {
-	        return new Promise(function (resolve) {
-	            resolve(data);
-	        });
-	    };
-	    Utils.rejectedPromise = function (err) {
-	        return new Promise(function (resolve, reject) {
-	            reject(err);
-	        });
-	    };
 	    Utils.uuid = function () {
 	        //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
 	        var d = new Date().getTime();
@@ -13693,11 +13697,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._currentDevice;
 	    };
 	    /**
-	     * Enables push notifications on the device and registers it for the feature with {{site.TelerikBackendServices}} if it hasn't already been registered. If it has been registered, the registration details are updated.
+	     * Enables push notifications on the device and registers it for the feature with {{site.tap}} if it hasn't already been registered. If it has been registered, the registration details are updated.
 	     * @method register
 	     * @name register
 	     * @memberOf Push.prototype
-	     * @param {Object} settings An object containing settings for the registration. It can include custom parameters to be stored by {{site.bs}}.
+	     * @param {Object} settings An object containing settings for the registration. It can include custom parameters to be stored by {{site.tap}}.
 	     * @param {Object} settings.iOS=null iOS-specific settings.
 	     * @param {Boolean} settings.iOS.alert=true If set to true, the push notification will display as a standard iOS alert.
 	     * @param {String|Number} settings.iOS.badge='+1' Specifies the badge counter to be displayed on the device.
@@ -13711,17 +13715,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Function} settings.notificationCallbackIOS Specifies a custom callback to be used when a push notification is received on iOS.
 	     * @param {Function} settings.notificationCallbackAndroid Specifies a custom callback to be used when a push notification is received on Android.
 	     * @param {Function} settings.notificationCallbackWP8 Specifies a custom callback to be used when a push notification is received on Windows Phone 8.
-	     * @param {Object} settings.customParameters=null Specifies optional custom registration parameters that will be saved in Telerik Backend Services.
+	     * @param {Object} settings.customParameters=null Specifies optional custom registration parameters that will be saved with {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Enables push notifications on the device and registers it for the feature with {{site.TelerikBackendServices}} if it hasn't already been registered. If it has been registered, the registration details are updated.
-	     * Telerik Backend Services if it hasn't already been registered.
-	     * If it was registered the registration details are updated.
+	     * Enables push notifications on the device and registers it for the feature with {{site.tap}} if it hasn't already been registered. If it has been registered, the registration details are updated.
 	     * @method register
 	     * @name register
 	     * @memberOf Push.prototype
-	     * @param {Object} settings Settings for the registration. Can include custom parameters to be saved in backend services.
+	     * @param {Object} settings Settings for the registration. Can include custom parameters to be saved with {{site.tap}}.
 	     * @param {Object} settings.iOS=null iOS specific settings
 	     * @param {Boolean} settings.iOS.alert=true Specifies whether the device will display an alert message.
 	     * @param {String|Number} settings.iOS.badge='+1' Specifies the badge counter to be displayed on the device.
@@ -13735,7 +13737,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Function} settings.notificationCallbackIOS Specifies a custom callback to be used when a push notification is received on iOS.
 	     * @param {Function} settings.notificationCallbackAndroid Specifies a custom callback to be used when a push notification is received on Android.
 	     * @param {Function} settings.notificationCallbackWP8 Specifies a custom callback to be used when a push notification is received on Windows Phone 8.
-	     * @param {Object} settings.customParameters=null Specifies optional custom registration parameters that will be saved in Telerik Backend Services.
+	     * @param {Object} settings.customParameters=null Specifies optional custom registration parameters that will be saved with {{site.tap}}.
 	     * @param {Function} [success] Callback to invoke on success.
 	     * @param {Function} [error] Callback to invoke on error.
 	     */
@@ -13800,16 +13802,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }, success, error);
 	    };
 	    /**
-	     * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application. The device will also be unregistered from {{site.TelerikBackendServices}}.
+	     * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application. The device will also be unregistered from {{site.tap}}.
 	     * @method unregister
 	     * @name unregister
 	     * @memberOf Push.prototype
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application. The device will also be unregistered from {{site.TelerikBackendServices}}.
+	     * Disables push notifications for the current device. This method invalidates any push tokens that were obtained for the device from the current application. The device will also be unregistered from {{site.tap}}.
 	     * This method invalidates any push tokens that were obtained for the device from the current application.
-	     * The device will also be unregistered from Telerik Backend Services.
+	     * The device will also be unregistered from {{site.tap}}.
 	     * @method unregister
 	     * @name unregister
 	     * @memberOf Push.prototype
@@ -13868,7 +13870,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }, onSuccess, onError);
 	    };
 	    /**
-	     * Resets the badge number on the {{site.TelerikBackendServices}} server to 0.
+	     * Resets the badge number to 0 on the device and on the {{site.tap}} server. iOS only.
 	     * @method clearBadgeNumber
 	     * @name clearBadgeNumber
 	     * @memberOf Push.prototype
@@ -14332,7 +14334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._loginWithProvider(identity, success, error);
 	    };
 	    /**
-	     * Sets the token and token type that the {{site.TelerikBackendServices}} JavaScript SDK will use for authorization.
+	     * Sets the token and token type that the {{site.bs}} JavaScript SDK will use for authorization.
 	     * @memberOf Authentication.prototype
 	     * @method setAuthorization
 	     * @param {string} token Token that will be used for authorization.
@@ -14392,14 +14394,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.sdk.authentication.setAuthorization(authentication.access_token, authentication.token_type, authentication.principal_id);
 	    };
 	    /**
-	     * Gets the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+	     * Gets the current authentication status of the {{site.bs}} JavaScript SDK instance.
 	     * @memberOf Authentication.prototype
 	     * @method getAuthenticationStatus
 	     * @name getAuthenticationStatus
 	     * @returns {Promise} A promise to the authentication status.
 	     */
 	    /**
-	     * Gets the current authentication status of the {{site.TelerikBackendServices}} JavaScript SDK instance.
+	     * Gets the current authentication status of the {{site.bs}} JavaScript SDK instance.
 	     * @memberOf Authentication.prototype
 	     * @method getAuthenticationStatus
 	     * @name getAuthenticationStatus
@@ -14440,7 +14442,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        }, success, error);
 	    };
-	    /** Returns whether the {{site.TelerikBackendServices}} is currently waiting for authentication to be completed. See {{@link Everlive.prototype.completeAuthentication}}.
+	    /** Returns whether the {{site.tap}} is currently waiting for authentication to be completed. See {{@link Everlive.prototype.completeAuthentication}}.
 	     * @memberOf Everlive.prototype
 	     * @returns {boolean}
 	     */
@@ -14650,7 +14652,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return self.cacheData;
 	            });
 	        }
-	        return utils_1.Utils.successfulPromise(this.cacheData);
+	        return Promise.resolve(this.cacheData);
 	    };
 	    CacheModule.prototype._persisterGetAllDataWrap = function () {
 	        var self = this;
@@ -15217,7 +15219,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    HtmlHelper.prototype._setLoadingUrl = function (element) {
 	        var loadingImageUri = element.getAttribute(this.options.attributes.loadingImage) || this.options.loadingImageUrl;
 	        if (!loadingImageUri || utils_1.Utils.isElement.anchor(element)) {
-	            return utils_1.Utils.successfulPromise();
+	            return Promise.resolve();
 	        }
 	        return this._setUrl(element, loadingImageUri, true);
 	    };
@@ -15233,7 +15235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    HtmlHelper.prototype._setErrorUrl = function (element) {
 	        var errorImageUrl = element.getAttribute(this.options.attributes.errorImage) || this.options.errorImageUrl;
 	        if (!errorImageUrl || utils_1.Utils.isElement.anchor(element)) {
-	            return utils_1.Utils.successfulPromise();
+	            return Promise.resolve();
 	        }
 	        return this._setUrl(element, errorImageUrl, true);
 	    };
@@ -15381,7 +15383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                };
 	                var dataUrl = self._getUrl(result.element);
 	                if (!dataUrl) {
-	                    return promises.push(utils_1.Utils.successfulPromise(result));
+	                    return promises.push(Promise.resolve(result));
 	                }
 	                var canResponsive = settings.responsive ? element.operations.responsive : false;
 	                var canOffline = settings.offline ? element.operations.offline : false;
@@ -15492,7 +15494,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var path = __webpack_require__(9);
 	var _ = __webpack_require__(1);
-	var utils_1 = __webpack_require__(4);
 	var EverliveError_1 = __webpack_require__(3);
 	var HtmlHelperOfflineModule = (function () {
 	    function HtmlHelperOfflineModule(htmlHelper) {
@@ -15501,7 +15502,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    HtmlHelperOfflineModule.prototype.processOffline = function (url) {
 	        var self = this;
 	        if (!self.htmlHelper.sdk.offlineStorage.files) {
-	            return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError({ message: 'Offline storage must be enabled in order to use the offline features of the images component.' }));
+	            return Promise.reject(new EverliveError_1.EverliveError({ message: 'Offline storage must be enabled in order to use the offline features of the images component.' }));
 	        }
 	        return self.htmlHelper.sdk.offlineStorage.files.downloadOffline(url)
 	            .then(function (localUrl) {
@@ -16069,11 +16070,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 	/**
-	 * Creates a new Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) that manages a certain Backend Services content type.
-	 * Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) is used in conjunction with other Kendo UI widgets (such as [ListView](http://docs.telerik.com/kendo-ui/web/listview/overview) and [Grid](http://docs.telerik.com/kendo-ui/web/grid/overview)) to provide an easy way to render data from Backend Services.
+	 * Creates a new Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) that manages a certain {{site.tap}} content type.
+	 * Kendo UI [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) is used in conjunction with other Kendo UI widgets (such as [ListView](http://docs.telerik.com/kendo-ui/web/listview/overview) and [Grid](http://docs.telerik.com/kendo-ui/web/grid/overview)) to provide an easy way to render data from {{site.tap}}.
 	 * *including Kendo UI scripts is required*.
 	 * @param options data source options. See the Kendo UI documentation for [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more information.
-	 * @param options.transport.typeName The content type name in Backend Services that will be managed.
+	 * @param options.transport.typeName The content type name in {{site.tap}} that will be managed.
 	 * @returns {DataSource} A new instance of Kendo UI DataSource. See the Kendo UI documentation for [DataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/datasource) for more information.
 	 * @example ```js
 	 * var booksDataSource = Everlive.createDataSource({
@@ -16089,8 +16090,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	exports.createDataSource = createDataSource;
 	/**
-	 * Creates a new Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) that manages a certain Backend Services content type and can expand a chain of relations.
-	 * Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) is used in conjunction with other Kendo UI widgets (such as [TreeView](http://docs.telerik.com/kendo-ui/web/treeview/overview)) to render data from Backend Services in a structured way.
+	 * Creates a new Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) that manages a certain {{site.tap}} content type and can expand a chain of relations.
+	 * Kendo UI [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource) is used in conjunction with other Kendo UI widgets (such as [TreeView](http://docs.telerik.com/kendo-ui/web/treeview/overview)) to render data from {{site.tap}} in a structured way.
 	 * The chain of relations is defined by specifying the field names that contain the relation on each level. For example a generic hierarchy chain is a content type 'Continents' with relation to 'Countries', which in turn contains a relation to 'Towns'.
 	 * *including Kendo UI scripts is required*.
 	 * @param options data source Options for [HierarchicalDataSource](http://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource).
@@ -16402,7 +16403,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * Updates a file's content.
 	     * @memberof OfflineFilesModule.prototype
 	     * @method downloadOffline
-	     * @param {string} location A file location or the id of a file stored in Backend Services.
+	     * @param {string} location A file location or the id of a file stored in {{site.tap}}.
 	     * @param {boolean} overwrite Boolean option that indicates whether the file should be overwritten if it already exists offline.
 	     * @returns {Promise} The promise for the request
 	     */
@@ -16410,7 +16411,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * Updates a file's content.
 	     * @memberof OfflineFilesModule.prototype
 	     * @method downloadOffline
-	     * @param {string} location A file location or the id of a file stored in Backend Services.
+	     * @param {string} location A file location or the id of a file stored in {{site.tap}}.
 	     * @param {boolean} overwrite Boolean option that indicates whether the file should be overwritten if it already exists offline.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
@@ -16431,7 +16432,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    .then(function (exists) {
 	                    if (!exists) {
 	                        if (self._everlive.isOnline()) {
-	                            return utils_1.Utils.successfulPromise()
+	                            return Promise.resolve()
 	                                .then(function () {
 	                                if (!offlineFileInfo.filename) {
 	                                    return self._getFilenameMetadata(location, offlineFileInfo);
@@ -16822,28 +16823,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	        //TODO: make separate offline files processors when we start supporting nativescript
 	        if (platform.isDesktop || platform.isNativeScript) {
 	            //we will not support files in desktop and nativescript, only their metadata
-	            return utils_1.Utils.successfulPromise();
+	            return Promise.resolve();
 	        }
 	        var self = this;
 	        if (!isSync) {
 	            if (isCreate) {
 	                if (!obj.base64) {
-	                    return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.missingOrInvalidFileContent));
+	                    return Promise.reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.missingOrInvalidFileContent));
 	                }
 	                if (!obj.ContentType) {
-	                    return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.missingContentType));
+	                    return Promise.reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.missingContentType));
 	                }
 	            }
 	            else {
 	                if (!obj.base64) {
-	                    return utils_1.Utils.successfulPromise();
+	                    return Promise.resolve();
 	                }
 	            }
 	        }
 	        if (!obj.base64) {
 	            var id = utils_1.Utils.getId(obj);
 	            var uri;
-	            var downloadFilePromise = obj.Uri ? utils_1.Utils.successfulPromise(obj.Uri) :
+	            var downloadFilePromise = obj.Uri ? Promise.resolve(obj.Uri) :
 	                self._everlive.files
 	                    .isSync(isSync)
 	                    .applyOffline(false)
@@ -16858,7 +16859,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        }
 	        obj.Storage = 'internal';
-	        return utils_1.Utils.successfulPromise().then(function () {
+	        return Promise.resolve().then(function () {
 	            if (!isSync) {
 	                return self.validateFileCreateObject(obj, isSync);
 	            }
@@ -16882,7 +16883,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                });
 	                obj.Length = offlineFileInfo.size;
 	                return self.saveOfflineFilesData();
-	            });
+	            })
+	                .then(function () { return offlineFileInfo.offlineLocation; });
 	        });
 	    };
 	    OfflineFilesProcessor.prototype.purge = function (localLocation) {
@@ -17183,7 +17185,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function (resolve, reject) {
 	            var self = this;
 	            var uploadUrl = sdk.files.getUploadUrl();
-	            var fileExistsPromise = utils_1.Utils.successfulPromise();
+	            var fileExistsPromise = Promise.resolve();
 	            if (isUpdate) {
 	                fileExistsPromise = new Promise(function (resolve) {
 	                    sdk.files
@@ -18178,7 +18180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                itemsForDeleteIds.push(itemId);
 	            }
 	        });
-	        return utils_1.Utils.successfulPromise()
+	        return Promise.resolve()
 	            .then(function () {
 	            if (itemsForDeleteIds.length !== 0) {
 	                var deleteQuery = new DataQuery_1.DataQuery({
@@ -18381,7 +18383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        .then(function (res) {
 	                        return self._onItemProcessed(item, collectionName, syncLocation.client, constants_1.Constants.offlineItemStates.modified);
 	                    }, function (err) {
-	                        return utils_1.Utils.rejectedPromise({
+	                        return Promise.reject({
 	                            type: constants_1.Constants.offlineItemStates.modified,
 	                            itemId: item.Id,
 	                            contentType: collectionName,
@@ -19061,10 +19063,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var collectionName = dataQuery.collectionName;
 	        if (utils_1.Utils.isContentType.pushDevices(collectionName) || utils_1.Utils.isContentType.pushNotifications(collectionName)) {
 	            if (this.everlive.isOnline()) {
-	                return utils_1.Utils.successfulPromise();
+	                return Promise.resolve();
 	            }
 	            else {
-	                return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
+	                return Promise.reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
 	            }
 	        }
 	        var queryNotSupportedError = this.checkSupportedQuery(dataQuery);
@@ -19268,12 +19270,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                state = isSync ? undefined : constants_1.Constants.offlineItemStates.created; // set the state to created only if not syncing
 	            }
 	        }
-	        function processItemResult() {
+	        var itemIsFile = utils_1.Utils.isContentType.files(contentType);
+	        function processItemResult(localItemUri) {
+	            if (itemIsFile) {
+	                self._setLocalFileUri(itemToCreate, localItemUri);
+	            }
 	            self._setItemDates(currentItem, itemToCreate, contentType);
 	            self._setItem(collection, _.extend({}, itemToCreate), state);
 	            return itemToCreate;
 	        }
-	        if (utils_1.Utils.isContentType.files(contentType)) {
+	        if (itemIsFile) {
 	            return self.offlineFilesProcessor.upsertFileFromObject(itemToCreate, true, isSync).then(processItemResult);
 	        }
 	        else {
@@ -19338,7 +19344,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    OfflineInMemoryQueryProcessor.prototype.updateFileContent = function (dataQuery) {
 	        if (platform.isDesktop) {
-	            return utils_1.Utils.successfulPromise();
+	            return Promise.resolve();
 	        }
 	        var isSync = dataQuery.isSync;
 	        var updateExpression = dataQuery.data;
@@ -19389,9 +19395,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
 	                        return self._persistData(collectionName);
 	                    })
-	                        .then(function () {
-	                        return updateItems;
-	                    });
+	                        .then(function () { return updateItems; });
 	                }
 	                else {
 	                    self._applyUpdateOperation(updateExpression, singleItemForUpdate, collection, isSync, dataQuery.ModifiedAt);
@@ -19410,9 +19414,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	            return self._persistData(collectionName)
-	                .then(function () {
-	                return updateItems;
-	            });
+	                .then(function () { return updateItems; });
 	        });
 	    };
 	    OfflineInMemoryQueryProcessor.prototype._getAllCollections = function () {
@@ -19445,12 +19447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	    };
 	    OfflineInMemoryQueryProcessor.prototype._setItem = function (collection, item, state) {
-	        if (!state) {
-	            delete item[constants_1.Constants.offlineItemsStateMarker];
-	        }
-	        else {
-	            item[constants_1.Constants.offlineItemsStateMarker] = state;
-	        }
+	        this._setItemState(item, state);
 	        collection[item._id] = item;
 	    };
 	    OfflineInMemoryQueryProcessor.prototype._persistData = function (contentType, items) {
@@ -19583,10 +19580,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var collectionName = dataQuery.collectionName;
 	        if (utils_1.Utils.isContentType.pushDevices(collectionName) || utils_1.Utils.isContentType.pushNotifications(collectionName)) {
 	            if (this.everlive.isOnline()) {
-	                return utils_1.Utils.successfulPromise();
+	                return Promise.resolve();
 	            }
 	            else {
-	                return utils_1.Utils.rejectedPromise(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
+	                return Promise.reject(new EverliveError_1.EverliveError(EverliveError_1.EverliveErrors.pushNotSupportedOffline));
 	            }
 	        }
 	        var queryNotSupportedError = this.checkSupportedQuery(dataQuery);
@@ -19666,7 +19663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    OfflineSQLiteQueryProcessor.prototype.updateFileContent = function (dataQuery) {
 	        var _this = this;
 	        if (platform.isDesktop) {
-	            return utils_1.Utils.successfulPromise();
+	            return Promise.resolve();
 	        }
 	        var isSync = dataQuery.isSync;
 	        var updateExpression = dataQuery.data;
@@ -20000,17 +19997,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                else {
 	                    state = isSync ? undefined : constants_1.Constants.offlineItemStates.created; // set the state to created only if not syncing
 	                }
-	                var processItemResult = function () {
+	                var isFileItem = utils_1.Utils.isContentType.files(contentType);
+	                var processItemResult = function (localItemUri) {
+	                    if (isFileItem) {
+	                        _this._setLocalFileUri(itemToCreate, localItemUri);
+	                    }
 	                    _this._setItemDates(currentItem, itemToCreate, contentType);
-	                    if (!state) {
-	                        delete itemToCreate[constants_1.Constants.offlineItemsStateMarker];
-	                    }
-	                    else {
-	                        itemToCreate[constants_1.Constants.offlineItemsStateMarker] = state;
-	                    }
+	                    _this._setItemState(itemToCreate, state);
 	                    return itemToCreate;
 	                };
-	                if (utils_1.Utils.isContentType.files(contentType)) {
+	                if (isFileItem) {
 	                    return _this.offlineFilesProcessor.upsertFileFromObject(itemToCreate, true, isSync).then(processItemResult);
 	                }
 	                else {
@@ -20937,8 +20933,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        catch (err) {
 	            throw err;
 	        } // because of webpack external dependency declaration - this marks it as optional
-	        this.dataDirectoryPath = this.fs.knownFolders.documents().path;
-	        this.filesDirectoryPath = this.fs.path.join(this.dataDirectoryPath, storagePath);
+	        this.filesDirectoryPath = this.fs.path.join(this.fs.knownFolders.documents().path, storagePath);
 	    }
 	    NativeScriptFileStore.prototype.getErrorHandler = function (callback) {
 	        return function (e) {
@@ -20946,11 +20941,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	    };
 	    NativeScriptFileStore.prototype.removeFilesDirectory = function () {
-	        var self = this;
-	        return self.getFilesDirectory()
-	            .then(function (filesDirectory) {
-	            return filesDirectory.remove();
-	        });
+	        return this.getFilesDirectory()
+	            .then(function (dir) { return dir.remove(); });
 	    };
 	    NativeScriptFileStore.prototype.removeFile = function (fileEntry) {
 	        return fileEntry.remove();
@@ -20962,42 +20954,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return fileEntry.writeText(content);
 	    };
 	    NativeScriptFileStore.prototype.getFile = function (path) {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            self.resolveDataDirectory()
-	                .then(function (directoryEntry) {
-	                var fullFilePath = self.fs.path.join(directoryEntry.path, path);
-	                var file = self.fs.File.fromPath(fullFilePath);
-	                resolve(file);
-	            })
-	                .catch(reject);
+	        var _this = this;
+	        return this.getFilesDirectory()
+	            .then(function (directoryEntry) {
+	            var fullFilePath = _this.fs.path.join(directoryEntry.path, path);
+	            return _this.fs.File.fromPath(fullFilePath);
 	        });
 	    };
 	    NativeScriptFileStore.prototype.getFilesDirectory = function () {
-	        var self = this;
-	        return new Promise(function (resolve) {
-	            var filesDirectory = self.fs.Folder.fromPath(self.filesDirectoryPath);
-	            resolve(filesDirectory);
-	        });
-	    };
-	    NativeScriptFileStore.prototype.resolveDataDirectory = function () {
-	        var self = this;
-	        return new Promise(function (resolve) {
-	            var dataDirectory = self.fs.Folder.fromPath(self.dataDirectoryPath);
-	            resolve(dataDirectory);
-	        });
-	    };
-	    NativeScriptFileStore.prototype.ensureFilesDirectory = function () {
-	        var self = this;
-	        return new Promise(function (resolve, reject) {
-	            self.resolveDataDirectory()
-	                .then(function (directoryEntry) {
-	                var fileDirectoryPath = self.fs.path.join(directoryEntry.path, self.filesDirectoryPath);
-	                self.fs.Folder.fromPath(fileDirectoryPath);
-	                resolve();
-	            })
-	                .catch(reject);
-	        });
+	        var filesDirectory = this.fs.Folder.fromPath(this.filesDirectoryPath);
+	        return Promise.resolve(filesDirectory);
 	    };
 	    NativeScriptFileStore.prototype.getFilesDirectoryPath = function () {
 	        return this.filesDirectoryPath;
@@ -21426,7 +21392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.call(this, sdk, 'Files');
 	    }
 	    /**
-	     * Get a URL that can be used as an endpoint for uploading a file. It is specific to each {{site.TelerikBackendServices}} app.
+	     * Get a URL that can be used as an endpoint for uploading a file. It is specific to each {{site.tap}} app.
 	     * @memberof Files.prototype
 	     * @method getUploadUrl
 	     * @returns {string}
@@ -21505,7 +21471,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * Downloads a file to the device's file system. Wraps the Apache Cordova "download()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
 	     * @memberof Files.prototype
 	     * @method download
-	     * @param {string} fileId A Backend Services File ID.
+	     * @param {string} fileId A {{site.tap}} File ID.
 	     * @param {string} localPath An Apache Cordova FileSystem URL representing the local path on the device where the downloaded file will be saved. Maps to the "target" FileTransfer plugin parameter.
 	     * @param {object} [options] Additional request options. Maps to the "options" FileTransfer plugin parameter.
 	     * @param {object} [options.headers] A JSON object containing headers to send along with the request.
@@ -21516,7 +21482,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * Downloads a file to the device's file system. Wraps the Apache Cordova "download()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
 	     * @memberof Files.prototype
 	     * @method download
-	     * @param {string} fileId A Backend Services File ID.
+	     * @param {string} fileId A {{site.tap}} File ID.
 	     * @param {string} localPath An Apache Cordova FileSystem URL representing the local path on the device where the downloaded file will be saved. Maps to the "target" FileTransfer plugin parameter.
 	     * @param {object} [options] Additional request options. Maps to the "options" FileTransfer plugin parameter.
 	     * @param {object} [options.headers] A JSON object containing headers to send along with the request.
@@ -21540,7 +21506,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }, success, error);
 	    };
 	    /**
-	     * Uploads a file from the device's file system to Backend Services. Wraps the Apache Cordova "upload()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
+	     * Uploads a file from the device's file system to {{site.tap}}. Wraps the Apache Cordova "upload()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
 	     * @memberof Files.prototype
 	     * @method upload
 	     * @param {string} localPath An Apache Cordova FileSystem URL representing the full path to the file on the device.
@@ -21556,7 +21522,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Uploads a file from the device's file system to Backend Services. Wraps the Apache Cordova "upload()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
+	     * Uploads a file from the device's file system to {{site.tap}}. Wraps the Apache Cordova "upload()" [FileTransfer](http://cordova.apache.org/docs/en/2.7.0/cordova_file_file.md.html#FileTransfer) method. Note that the signatures of these methods differ.
 	     * @memberof Files.prototype
 	     * @method upload
 	     * @param {string} localPath An Apache Cordova FileSystem URL representing the full path to the file on the device.
@@ -21809,20 +21775,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.sdk.authentication.loginWithFacebook(accessToken, success, error);
 	    };
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to a Facebook access token.
+	     * Links a {{site.tap}} user account to a Facebook access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithFacebook
 	     * @name linkWithFacebook
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {string} accessToken The Facebook access token that will be linked to the {{site.bs}} user account.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Links a Backend Services user with a Facebook access token.
+	     * Links a {{site.tap}} user account to a Facebook access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithFacebook
 	     * @name linkWithFacebook
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {string} accessToken The Facebook access token that will be linked to the {{site.bs}} user account.         * @param {Function} [success] a success callback.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
@@ -21835,19 +21801,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._linkWithProvider(identity, userId, success, error);
 	    };
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Facebook token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Facebook token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromFacebook
 	     * @name unlinkFromFacebook
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Facebook token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Facebook token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromFacebook
 	     * @name unlinkFromFacebook
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -21879,21 +21845,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.sdk.authentication.loginWithADFS(accessToken, success, error);
 	    };
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to an ADFS access token.
+	     * Links a {{site.tap}} user account to an ADFS access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithADFS
 	     * @name linkWithADFS
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} accessToken The ADFS access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} accessToken The ADFS access token that will be linked to the {{site.tap}} user account.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to an ADFS access token.
+	     * Links a {{site.tap}} user account to an ADFS access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithADFS
 	     * @name linkWithADFS
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} accessToken The ADFS access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} accessToken The ADFS access token that will be linked to the {{site.tap}} user account.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -21905,19 +21871,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._linkWithProvider(identity, userId, success, error);
 	    };
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the ADFS token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the ADFS token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromADFS
 	     * @name unlinkFromADFS
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the ADFS token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the ADFS token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromADFS
 	     * @name unlinkFromADFS
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -21929,7 +21895,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @memberOf Users.prototype
 	     * @method linkWithSAML
 	     * @name linkWithSAML
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {string} accessToken The SAML access token that will be linked to the {{site.bs}} user account.
 	     * @returns {Promise} The promise for the request.
 	     */
@@ -21938,7 +21904,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @memberOf Users.prototype
 	     * @method linkWithSAML
 	     * @name linkWithSAML
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {string} accessToken The SAML access token that will be linked to the {{site.bs}} user account.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
@@ -21955,7 +21921,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @memberOf Users.prototype
 	     * @method unlinkFromSAML
 	     * @name unlinkFromSAML
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
@@ -21963,7 +21929,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @memberOf Users.prototype
 	     * @method unlinkFromSAML
 	     * @name unlinkFromSAML
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -21995,21 +21961,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.sdk.authentication.loginWithLiveID(accessToken, success, error);
 	    };
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to a Microsoft Account access token.
+	     * Links a {{site.tap}} user account to a Microsoft Account access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithLiveID
 	     * @name linkWithLiveID
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} accessToken The Microsoft Account access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} accessToken The Microsoft Account access token that will be linked to the {{site.tap}} user account.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to a Microsoft Account access token.
+	     * Links a {{site.tap}} user account to a Microsoft Account access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithLiveID
 	     * @name linkWithLiveID
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} accessToken The Microsoft Account access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} accessToken The Microsoft Account access token that will be linked to the {{site.tap}} user account.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -22021,19 +21987,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._linkWithProvider(identity, userId, success, error);
 	    };
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Microsoft Account access token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Microsoft Account access token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromLiveID
 	     * @name unlinkFromLiveID
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Microsoft Account access token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Microsoft Account access token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromLiveID
 	     * @name unlinkFromLiveID
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -22065,21 +22031,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.sdk.authentication.loginWithGoogle(accessToken, success, error);
 	    };
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to a Google access token.
+	     * Links a {{site.tap}} user account to a Google access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithGoogle
 	     * @name linkWithGoogle
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} accessToken The Google access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} accessToken The Google access token that will be linked to the {{site.tap}} user account.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user account to a Google access token.
+	     * Links a {{site.tap}} user account to a Google access token.
 	     * @memberOf Users.prototype
 	     * @method linkWithGoogle
 	     * @name linkWithGoogle
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} accessToken The Google access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} accessToken The Google access token that will be linked to the {{site.tap}} user account.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -22091,19 +22057,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._linkWithProvider(identity, userId, success, error);
 	    };
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Google access token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Google access token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromGoogle
 	     * @name unlinkFromGoogle
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Google access token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Google access token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromGoogle
 	     * @name unlinkFromGoogle
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -22133,22 +22099,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.sdk.authentication.loginWithTwitter(token, tokenSecret, success, error);
 	    };
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user to a Twitter token. A secret token needs to be provided.
+	     * Links a {{site.tap}} user account to a Twitter token. A secret token needs to be provided.
 	     * @memberOf Users.prototype
 	     * @method linkWithTwitter
 	     * @name linkWithTwitter
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} token The Twitter access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} token The Twitter access token that will be linked to the {{site.tap}} user account.
 	     * @param {string} tokenSecret The Twitter secret token.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Links a {{site.TelerikBackendServices}} user to a Twitter token. A secret token needs to be provided.         * Links a Backend Services user with a Twitter token. A secret token needs to be provided.
+	     * Links a {{site.tap}} user account to a Twitter token. A secret token needs to be provided.
 	     * @memberOf Users.prototype
 	     * @method linkWithTwitter
 	     * @name linkWithTwitter
-	     * @param {string} userId The user's ID in {{site.bs}}.
-	     * @param {string} token The Twitter access token that will be linked to the {{site.bs}} user account.
+	     * @param {string} userId The user's ID in {{site.tap}}.
+	     * @param {string} token The Twitter access token that will be linked to the {{site.tap}} user account.
 	     * @param {string} tokenSecret The Twitter secret token.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
@@ -22183,19 +22149,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    ;
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Twitter access token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Twitter access token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromTwitter
 	     * @name unlinkFromTwitter
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @returns {Promise} The promise for the request.
 	     */
 	    /**
-	     * Unlinks a {{site.TelerikBackendServices}} user account from the Twitter access token that it is linked to.
+	     * Unlinks a {{site.tap}} user account from the Twitter access token that it is linked to.
 	     * @memberOf Users.prototype
 	     * @method unlinkFromTwitter
 	     * @name unlinkFromTwitter
-	     * @param {string} userId The user's ID in {{site.bs}}.
+	     * @param {string} userId The user's ID in {{site.tap}}.
 	     * @param {Function} [success] A success callback.
 	     * @param {Function} [error] An error callback.
 	     */
@@ -22203,7 +22169,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this._unlinkFromProvider('Twitter', userId, success, error);
 	    };
 	    /**
-	     * Sets the token and token type that the {{site.TelerikBackendServices}} JavaScript SDK will use for authorization.
+	     * Sets the token and token type that the {{site.bs}} JavaScript SDK will use for authorization.
 	     * @memberOf Users.prototype
 	     * @method setAuthorization
 	     * @deprecated
@@ -23470,7 +23436,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
 	
 	  // cast to ints.
-	  this.highWaterMark = ~ ~this.highWaterMark;
+	  this.highWaterMark = ~~this.highWaterMark;
 	
 	  // drain event flag.
 	  this.needDrain = false;
@@ -23625,20 +23591,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  processNextTick(cb, er);
 	}
 	
-	// If we get something that is not a buffer, string, null, or undefined,
-	// and we're not in objectMode, then that's an error.
-	// Otherwise stream chunks are all considered to be of length=1, and the
-	// watermarks determine how many objects to keep in the buffer, rather than
-	// how many bytes or characters.
+	// Checks that a user-supplied chunk is valid, especially for the particular
+	// mode the stream is in. Currently this means that `null` is never accepted
+	// and undefined/non-string values are only allowed in object mode.
 	function validChunk(stream, state, chunk, cb) {
 	  var valid = true;
 	  var er = false;
-	  // Always throw error if a null is written
-	  // if we are not in object mode then throw
-	  // if it is not a buffer, string, or undefined.
+	
 	  if (chunk === null) {
 	    er = new TypeError('May not write null values to stream');
-	  } else if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+	  } else if (typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
 	    er = new TypeError('Invalid non-string/buffer chunk');
 	  }
 	  if (er) {
@@ -23652,19 +23614,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	Writable.prototype.write = function (chunk, encoding, cb) {
 	  var state = this._writableState;
 	  var ret = false;
+	  var isBuf = Buffer.isBuffer(chunk);
 	
 	  if (typeof encoding === 'function') {
 	    cb = encoding;
 	    encoding = null;
 	  }
 	
-	  if (Buffer.isBuffer(chunk)) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
+	  if (isBuf) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
 	
 	  if (typeof cb !== 'function') cb = nop;
 	
-	  if (state.ended) writeAfterEnd(this, cb);else if (validChunk(this, state, chunk, cb)) {
+	  if (state.ended) writeAfterEnd(this, cb);else if (isBuf || validChunk(this, state, chunk, cb)) {
 	    state.pendingcb++;
-	    ret = writeOrBuffer(this, state, chunk, encoding, cb);
+	    ret = writeOrBuffer(this, state, isBuf, chunk, encoding, cb);
 	  }
 	
 	  return ret;
@@ -23704,10 +23667,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	// if we're already writing something, then just put this
 	// in the queue, and wait our turn.  Otherwise, call _write
 	// If we return false, then we need a drain event, so set that flag.
-	function writeOrBuffer(stream, state, chunk, encoding, cb) {
-	  chunk = decodeChunk(state, chunk, encoding);
-	
-	  if (Buffer.isBuffer(chunk)) encoding = 'buffer';
+	function writeOrBuffer(stream, state, isBuf, chunk, encoding, cb) {
+	  if (!isBuf) {
+	    chunk = decodeChunk(state, chunk, encoding);
+	    if (Buffer.isBuffer(chunk)) encoding = 'buffer';
+	  }
 	  var len = state.objectMode ? 1 : chunk.length;
 	
 	  state.length += len;
@@ -23776,8 +23740,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      asyncWrite(afterWrite, stream, state, finished, cb);
 	      /*</replacement>*/
 	    } else {
-	        afterWrite(stream, state, finished, cb);
-	      }
+	      afterWrite(stream, state, finished, cb);
+	    }
 	  }
 	}
 	
@@ -23928,7 +23892,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  this.next = null;
 	  this.entry = null;
-	
 	  this.finish = function (err) {
 	    var entry = _this.entry;
 	    _this.entry = null;
@@ -24166,7 +24129,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (value == null) {
 	    return value === undefined ? undefinedTag : nullTag;
 	  }
-	  return (symToStringTag && symToStringTag in Object(value))
+	  value = Object(value);
+	  return (symToStringTag && symToStringTag in value)
 	    ? getRawTag(value)
 	    : objectToString(value);
 	}
@@ -24605,7 +24569,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/** Used to access faster Node.js helpers. */
 	var nodeUtil = (function() {
 	  try {
-	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
+	    return freeProcess && freeProcess.binding('util');
 	  } catch (e) {}
 	}());
 	
@@ -24994,7 +24958,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *
 	 * If `map` is passed an Object, the results will be an Array.  The results
 	 * will roughly be in the order of the original Objects' keys (but this can
-	 * vary across JavaScript engines)
+	 * vary across JavaScript engines).
 	 *
 	 * @name map
 	 * @static
@@ -25793,17 +25757,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	/** Used to compose unicode character classes. */
 	var rsAstralRange = '\\ud800-\\udfff';
-	var rsComboMarksRange = '\\u0300-\\u036f';
-	var reComboHalfMarksRange = '\\ufe20-\\ufe2f';
-	var rsComboSymbolsRange = '\\u20d0-\\u20ff';
-	var rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange;
+	var rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23';
+	var rsComboSymbolsRange = '\\u20d0-\\u20f0';
 	var rsVarRange = '\\ufe0e\\ufe0f';
 	
 	/** Used to compose unicode capture groups. */
 	var rsZWJ = '\\u200d';
 	
 	/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
-	var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
+	var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
 	
 	/**
 	 * Checks if `string` contains Unicode symbols.
@@ -25818,15 +25780,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	/** Used to compose unicode character classes. */
 	var rsAstralRange$1 = '\\ud800-\\udfff';
-	var rsComboMarksRange$1 = '\\u0300-\\u036f';
-	var reComboHalfMarksRange$1 = '\\ufe20-\\ufe2f';
-	var rsComboSymbolsRange$1 = '\\u20d0-\\u20ff';
-	var rsComboRange$1 = rsComboMarksRange$1 + reComboHalfMarksRange$1 + rsComboSymbolsRange$1;
+	var rsComboMarksRange$1 = '\\u0300-\\u036f\\ufe20-\\ufe23';
+	var rsComboSymbolsRange$1 = '\\u20d0-\\u20f0';
 	var rsVarRange$1 = '\\ufe0e\\ufe0f';
 	
 	/** Used to compose unicode capture groups. */
 	var rsAstral = '[' + rsAstralRange$1 + ']';
-	var rsCombo = '[' + rsComboRange$1 + ']';
+	var rsCombo = '[' + rsComboMarksRange$1 + rsComboSymbolsRange$1 + ']';
 	var rsFitz = '\\ud83c[\\udffb-\\udfff]';
 	var rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')';
 	var rsNonAstral = '[^' + rsAstralRange$1 + ']';
@@ -27400,6 +27360,114 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	/**
+	 * The same as [`groupBy`]{@link module:Collections.groupBy} but runs a maximum of `limit` async operations at a time.
+	 *
+	 * @name groupByLimit
+	 * @static
+	 * @memberOf module:Collections
+	 * @method
+	 * @see [async.groupBy]{@link module:Collections.groupBy}
+	 * @category Collection
+	 * @param {Array|Iterable|Object} coll - A collection to iterate over.
+	 * @param {number} limit - The maximum number of async operations at a time.
+	 * @param {Function} iteratee - A function to apply to each item in `coll`.
+	 * The iteratee is passed a `callback(err, key)` which must be called once it
+	 * has completed with an error (which can be `null`) and the `key` to group the
+	 * value under. Invoked with (value, callback).
+	 * @param {Function} [callback] - A callback which is called when all `iteratee`
+	 * functions have finished, or an error occurs. Result is an `Object` whoses
+	 * properties are arrays of values which returned the corresponding key.
+	 */
+	var groupByLimit = function (coll, limit, iteratee, callback) {
+	    callback = callback || noop;
+	
+	    mapLimit(coll, limit, function (val, callback) {
+	        iteratee(val, function (err, key) {
+	            if (err) return callback(err);
+	            return callback(null, { key: key, val: val });
+	        });
+	    }, function (err, mapResults) {
+	        var result = {};
+	        // from MDN, handle object having an `hasOwnProperty` prop
+	        var hasOwnProperty = Object.prototype.hasOwnProperty;
+	
+	        for (var i = 0; i < mapResults.length; i++) {
+	            if (mapResults[i]) {
+	                var key = mapResults[i].key;
+	                var val = mapResults[i].val;
+	
+	                if (hasOwnProperty.call(result, key)) {
+	                    result[key].push(val);
+	                } else {
+	                    result[key] = [val];
+	                }
+	            }
+	        }
+	
+	        return callback(err, result);
+	    });
+	};
+	
+	/**
+	 * Returns a new object, where each value corresponds to an array of items, from
+	 * `coll`, that returned the corresponding key. That is, the keys of the object
+	 * correspond to the values passed to the `iteratee` callback.
+	 *
+	 * Note: Since this function applies the `iteratee` to each item in parallel,
+	 * there is no guarantee that the `iteratee` functions will complete in order.
+	 * However, the values for each key in the `result` will be in the same order as
+	 * the original `coll`. For Objects, the values will roughly be in the order of
+	 * the original Objects' keys (but this can vary across JavaScript engines).
+	 *
+	 * @name groupBy
+	 * @static
+	 * @memberOf module:Collections
+	 * @method
+	 * @category Collection
+	 * @param {Array|Iterable|Object} coll - A collection to iterate over.
+	 * @param {Function} iteratee - A function to apply to each item in `coll`.
+	 * The iteratee is passed a `callback(err, key)` which must be called once it
+	 * has completed with an error (which can be `null`) and the `key` to group the
+	 * value under. Invoked with (value, callback).
+	 * @param {Function} [callback] - A callback which is called when all `iteratee`
+	 * functions have finished, or an error occurs. Result is an `Object` whoses
+	 * properties are arrays of values which returned the corresponding key.
+	 * @example
+	 *
+	 * async.groupBy(['userId1', 'userId2', 'userId3'], function(userId, callback) {
+	 *     db.findById(userId, function(err, user) {
+	 *         if (err) return callback(err);
+	 *         return callback(null, user.age);
+	 *     });
+	 * }, function(err, result) {
+	 *     // result is object containing the userIds grouped by age
+	 *     // e.g. { 30: ['userId1', 'userId3'], 42: ['userId2']};
+	 * });
+	 */
+	var groupBy = doLimit(groupByLimit, Infinity);
+	
+	/**
+	 * The same as [`groupBy`]{@link module:Collections.groupBy} but runs only a single async operation at a time.
+	 *
+	 * @name groupBySeries
+	 * @static
+	 * @memberOf module:Collections
+	 * @method
+	 * @see [async.groupBy]{@link module:Collections.groupBy}
+	 * @category Collection
+	 * @param {Array|Iterable|Object} coll - A collection to iterate over.
+	 * @param {number} limit - The maximum number of async operations at a time.
+	 * @param {Function} iteratee - A function to apply to each item in `coll`.
+	 * The iteratee is passed a `callback(err, key)` which must be called once it
+	 * has completed with an error (which can be `null`) and the `key` to group the
+	 * value under. Invoked with (value, callback).
+	 * @param {Function} [callback] - A callback which is called when all `iteratee`
+	 * functions have finished, or an error occurs. Result is an `Object` whoses
+	 * properties are arrays of values which returned the corresponding key.
+	 */
+	var groupBySeries = doLimit(groupByLimit, 1);
+	
+	/**
 	 * Logs the result of an `async` function to the `console`. Only works in
 	 * Node.js or in browsers that support `console.log` and `console.error` (such
 	 * as FF and Chrome). If multiple arguments are returned from the async
@@ -27673,6 +27741,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * any I/O, they will actually be executed in series.  Any synchronous setup
 	 * sections for each task will happen one after the other.  JavaScript remains
 	 * single-threaded.
+	 * **Hint:** Use [`reflect`]{@link module:Utils.reflect} to continue the
+	 * execution of other tasks when a task fails.
 	 *
 	 * It is also possible to use an object instead of an array. Each property will
 	 * be run as a function and the results will be passed to the final `callback`
@@ -28847,7 +28917,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * })
 	 */
 	function transform(coll, accumulator, iteratee, callback) {
-	    if (arguments.length === 3) {
+	    if (arguments.length <= 3) {
 	        callback = iteratee;
 	        iteratee = accumulator;
 	        accumulator = isArray(coll) ? [] : {};
@@ -29096,6 +29166,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  filterLimit: filterLimit,
 	  filterSeries: filterSeries,
 	  forever: forever,
+	  groupBy: groupBy,
+	  groupByLimit: groupByLimit,
+	  groupBySeries: groupBySeries,
 	  log: log,
 	  map: map,
 	  mapLimit: mapLimit,
@@ -29188,6 +29261,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.filterLimit = filterLimit;
 	exports.filterSeries = filterSeries;
 	exports.forever = forever;
+	exports.groupBy = groupBy;
+	exports.groupByLimit = groupByLimit;
+	exports.groupBySeries = groupBySeries;
 	exports.log = log;
 	exports.map = map;
 	exports.mapLimit = mapLimit;
@@ -32510,7 +32586,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
 	
 	  // cast to ints.
-	  this.highWaterMark = ~ ~this.highWaterMark;
+	  this.highWaterMark = ~~this.highWaterMark;
 	
 	  // A linked list is used to store data chunks instead of an array because the
 	  // linked list can remove elements from the beginning faster than
